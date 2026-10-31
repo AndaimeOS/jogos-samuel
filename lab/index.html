@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Laboratório</title>
+<meta name="description" content="Experimentos e protótipos de jogos.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧪</text></svg>">
+<style>
+  :root {
+    --bg: #0d1117;
+    --card: #161b22;
+    --line: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #3ddc84;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; background: var(--bg); color: var(--text);
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  main { max-width: 900px; margin: 0 auto; padding: 48px 16px 32px; }
+  header { margin-bottom: 32px; }
+  h1 { font-size: clamp(28px, 6vw, 44px); margin: 0; color: var(--accent); }
+  header p { color: var(--muted); margin: 8px 0 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .exp {
+    display: block; text-decoration: none; color: inherit; background: var(--card);
+    border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px;
+    transition: border-color .15s, transform .15s;
+  }
+  a.exp:hover, a.exp:focus-visible { border-color: var(--accent); transform: translateY(-3px); outline: none; }
+  .exp .icon { font-size: 36px; }
+  .exp h2 { margin: 8px 0 4px; font-size: 18px; }
+  .exp p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+  .tag { display: inline-block; margin-top: 10px; font-size: 12px; color: var(--accent); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; }
+  .empty { border-style: dashed; opacity: .6; }
+  footer { margin-top: 48px; color: var(--muted); font-size: 13px; }
+  footer a { color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>🧪 Laboratório</h1>
+    <p>Protótipos e experimentos de jogos. Tudo aqui pode quebrar.</p>
+  </header>
+
+  <section class="grid">
+    <!-- Cartão por experimento:
+    <a class="exp" href="nome-do-experimento/">
+      <div class="icon">🚀</div>
+      <h2>Nome</h2>
+      <p>O que este experimento testa.</p>
+      <span class="tag">canvas · protótipo</span>
+    </a>
+    -->
+    <div class="exp empty" aria-disabled="true">
+      <div class="icon">⚗️</div>
+      <h2>Primeiro experimento</h2>
+      <p>Ainda vazio.</p>
+    </div>
+  </section>
+
+  <footer><a href="../">← Jogos do Samuel</a></footer>
+</main>
+</body>
+</html>
