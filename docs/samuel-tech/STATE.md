@@ -3,6 +3,15 @@
 Atualizado ao fim de cada sessão (ST-090). Um bloco por sessão, o mais novo em cima.
 Vale o que está aqui e no Notion, não a memória do chat.
 
+## 2026-11-01 — Claude (Corrida do Jack — etapa 1)
+
+- **Pedido do Boaz:** jogos bonitos; primeiro um runner 3D original no samuel.tech (celular e PC), arte até US$500; GitHub com
+  escrita (depende do Boaz convidar `AndaimeOS`). Plano e lista de compras com links: `docs/runner/PLANO-E-COMPRAS.md`.
+- **Feito (local):** trecho jogável da **Corrida do Jack** com arte provisória em código; regras puras com 19 testes; pista
+  sempre passável (jogador automático 6×90 s); deslizar no celular e teclas no PC. Estado: `docs/jogos/corrida-do-jack/ESTADO.md`.
+- **NEXT:** quando as compras chegarem em `~/Downloads/runner-assets/`: instalar Blender (com ok), converter para GLB,
+  trocar a arte provisória, som e "juice" (etapa 2). Em paralelo: merge do PR #1 assim que houver escrita no GitHub.
+
 ## 2026-11-01 — Claude (Ilha dos Blocos 0.2 — celular e tablet)
 
 - **Pedido do Boaz:** Ilha jogável em celular/iPad com direcionais na tela, e publicar.

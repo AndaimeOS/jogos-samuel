@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:,">
+<title>Corrida do Jack — samuel.tech</title>
+</head>
+<body>
+<canvas id="jogo" aria-label="Pista da Corrida do Jack"></canvas>
+
+<div id="hud" hidden>
+  <div class="hud-corrida">
+    <div class="painel"><span class="ic">🏁</span><b id="hMetros">0</b><small>m</small></div>
+    <div class="painel"><span class="ic">🪙</span><b id="hMoedas">0</b></div>
+    <div class="painel escudo" id="hEscudo" hidden><span class="ic">🛡️</span></div>
+    <div class="topo-btns"><button class="mini" id="bPausa" aria-label="Pausar">II</button></div>
+  </div>
+  <div class="dica-gesto" id="dica" hidden></div>
+</div>
+
+<div class="tela" id="tInicio">
+  <div class="cartao">
+    <div class="barra"><span>corrida_do_jack.exe</span><span><i></i><i></i><i></i></span></div>
+    <div class="corpo">
+      <div class="logo">CORRIDA<br>DO JACK<small>corra, pule e abaixe com o Jack! · prévia</small></div>
+      <div class="opcoes">
+        <button class="opcao" data-modo="ajuda" aria-pressed="true"><span class="ic">🐾</span><span>Com ajuda<small>mais devagar + 1 escudo</small></span></button>
+        <button class="opcao" data-modo="desafio" aria-pressed="false"><span class="ic">⭐</span><span>Desafio<small>mais rápido</small></span></button>
+      </div>
+      <div class="dica-icones so-toque"><span>👆 deslize ← → para trocar de faixa</span><span>↑ pula</span><span>↓ abaixa</span></div>
+      <div class="dica-icones so-teclado"><span>← → ou A D trocam de faixa</span><span>↑ W espaço pulam</span><span>↓ S abaixam</span><span>P pausa</span></div>
+      <p class="recorde" id="recorde"></p>
+      <div class="acoes"><button class="btn grande" id="bCorrer">▶ CORRER!</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="tela" id="tPausa" hidden>
+  <div class="cartao">
+    <div class="barra"><span>pausa.exe</span><span><i></i><i></i><i></i></span></div>
+    <div class="corpo">
+      <div class="titulo">PAUSA</div>
+      <div class="acoes"><button class="btn grande" id="bContinuar">▶ Continuar</button></div>
+      <div class="acoes"><button class="btn sec" id="bMenuPausa">☰ Menu</button><a class="btn sec" href="/jogos/" target="_top">← Jogos</a></div>
+    </div>
+  </div>
+</div>
+
+<div class="tela" id="tFim" hidden>
+  <div class="cartao">
+    <div class="barra"><span>fim.exe</span><span><i></i><i></i><i></i></span></div>
+    <div class="corpo">
+      <div class="titulo" id="fimTitulo">Opa! Tropeçou 🐶</div>
+      <div class="resultado-corrida">
+        <div><span>🏁</span><b id="fMetros">0</b><small>metros</small></div>
+        <div><span>🪙</span><b id="fMoedas">0</b><small>moedas</small></div>
+        <div><span>⭐</span><b id="fPontos">0</b><small>pontos</small></div>
+      </div>
+      <p class="recorde" id="fRecorde"></p>
+      <div class="acoes"><button class="btn grande" id="bDeNovo">↻ Correr de novo</button></div>
+      <div class="acoes"><button class="btn sec" id="bMenuFim">☰ Menu</button></div>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="./src/main.ts"></script>
+</body>
+</html>
