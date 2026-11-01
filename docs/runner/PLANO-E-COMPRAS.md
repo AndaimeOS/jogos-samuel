@@ -39,6 +39,21 @@ leitura é que "jogo em qualquer plataforma" cobre, com os modelos convertidos d
 converto, otimizo e registro cada licença em `docs/runner/RECURSOS.md`. Para converter preciso instalar o **Blender**
 (grátis, ~300 MB, `brew install --cask blender`) — com o seu ok.
 
+## Onde comprar (links diretos) e conectores
+
+| # | O que comprar | Onde | Conector MCP |
+|---|---|---|---|
+| 1 | POLYGON – Town Pack, compra única (US$49,99) | https://syntystore.com/products/polygon-town-pack — botão de compra única ("One Time Purchase Licence"), não a assinatura | não existe; compra no site |
+| 2 | Jack Russell + gato amarelo low-poly animados (encomenda) | **Upwork** (https://www.upwork.com) ou Fiverr: https://www.fiverr.com/search/gigs?query=low%20poly%20animated%20dog%203d | **Upwork MCP** (conectar pelo botão do app); com ele eu redijo o pedido e listo artistas, e **você aprova** cada contratação |
+| 3 | Música + efeitos (≈ US$95) | https://wowsoundbundles.sellfy.store/p/casual-game-happy-music-bundle (alternativa barata: https://construct.net/game-assets/sounds/music/casual-game-music-pack-playful-317) | não existe; compra no site |
+| 4 | Interface | Grátis e suficiente para começar: https://kenney.nl/assets/ui-pack | — |
+| — | Animações da criança | https://www.mixamo.com (conta Adobe gratuita) | (existe um conector Adobe, mas o Mixamo não faz parte dele) |
+| — | Conversor de modelos | Blender https://www.blender.org/download/ — eu instalo com `brew install --cask blender` com o seu ok | — |
+| — | GitHub | dar escrita a `AndaimeOS` em https://github.com/WeBoaz/jogos-samuel/settings/access | o conector GitHub desta sessão pede login pelo app (`/mcp` no terminal) |
+
+Depois de comprar: baixe os arquivos para `~/Downloads/runner-assets/` (uma subpasta por pacote) e me avise; eu leio as
+licenças que vêm junto, converto e registro em `docs/runner/RECURSOS.md`.
+
 ## GitHub (o que precisa de você)
 
 A conta desta máquina (**AndaimeOS**) só tem leitura em `WeBoaz/jogos-samuel`, e o PR
