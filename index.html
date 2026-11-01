@@ -6,68 +6,104 @@
 <title>Jogos do Samuel</title>
 <meta name="description" content="Os jogos do Samuel: escolha um e divirta-se.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+<!-- Arte dos cartões: Kenney (CC0), servida das pastas de cada jogo. Fonte: Kenney Future (CC0). -->
 <style>
+  @font-face { font-family: KenneyFuture; src: url(vendor/kenney-fonts/kenney-future.ttf) format('truetype'); font-display: swap; }
   :root {
-    --bg: #1b1036;
-    --card: #2a1858;
-    --text: #fff7e6;
-    --muted: #cbbbe8;
-    --accent: #ffb703;
-    --accent-2: #fb5607;
+    --ink: #2b2b55;
+    --muted: #5d6290;
+    --accent: #ffcc33;
+    --accent-2: #ff8a1f;
+    --green: #5ac54f;
   }
   * { box-sizing: border-box; }
   body {
-    margin: 0; min-height: 100vh;
-    background: radial-gradient(circle at 50% -10%, #4a2a8a, var(--bg) 60%);
-    color: var(--text); font-family: "Trebuchet MS", system-ui, sans-serif;
+    margin: 0; min-height: 100vh; color: var(--ink);
+    background: #c7ecff url(aventura-pula-pula/assets/img/background_color_hills.png) repeat-x bottom / auto 70vh;
+    font-family: KenneyFuture, "Trebuchet MS", system-ui, sans-serif;
   }
-  main { max-width: 900px; margin: 0 auto; padding: 48px 16px 32px; }
-  header { text-align: center; margin-bottom: 40px; }
-  h1 {
-    font-size: clamp(36px, 8vw, 64px); margin: 0;
-    color: var(--accent); text-shadow: 4px 4px 0 var(--accent-2);
-  }
-  header p { color: var(--muted); font-size: 18px; margin: 12px 0 0; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  main { max-width: 980px; margin: 0 auto; padding: 40px 16px 32px; }
+  header { text-align: center; margin-bottom: 34px; }
+  h1 { font-size: clamp(38px, 8vw, 66px); margin: 0; color: var(--accent); text-shadow: 4px 4px 0 var(--ink); letter-spacing: 1px; }
+  header p { color: var(--ink); font-size: 20px; margin: 10px 0 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 22px; }
   .game {
-    display: block; text-decoration: none; color: inherit;
-    background: var(--card); border: 3px solid transparent; border-radius: 20px;
-    overflow: hidden; transition: transform .15s, border-color .15s;
-    box-shadow: 0 8px 24px rgba(0,0,0,.35);
+    display: block; text-decoration: none; color: inherit; background: #fff;
+    border: 5px solid var(--ink); border-radius: 26px; overflow: hidden;
+    box-shadow: 0 8px 0 var(--ink); transition: transform .15s;
   }
-  a.game:hover, a.game:focus-visible { transform: translateY(-6px) rotate(-1deg); border-color: var(--accent); outline: none; }
-  .thumb {
-    height: 150px; display: grid; place-items: center; font-size: 72px;
-    background: linear-gradient(135deg, #3a1f6e, #120a28);
-    position: relative; overflow: hidden;
-  }
-  .thumb .blocks { position: absolute; top: 14px; left: 0; right: 0; display: flex; justify-content: center; gap: 6px; }
-  .thumb .blocks span { width: 30px; height: 16px; border-radius: 4px; }
-  .info { padding: 16px 18px 20px; }
-  .info h2 { margin: 0 0 6px; font-size: 22px; }
-  .info p { margin: 0; color: var(--muted); line-height: 1.4; }
+  a.game:hover, a.game:focus-visible { transform: translateY(-6px) rotate(-1deg); outline: none; }
+  a.game:focus-visible { box-shadow: 0 8px 0 var(--ink), 0 0 0 5px var(--accent-2); }
+  .thumb { height: 170px; position: relative; overflow: hidden; border-bottom: 5px solid var(--ink); }
+  .thumb img { position: absolute; image-rendering: auto; }
+  .t-dragon { background: linear-gradient(#a8e1ff, #e6f7ff); }
+  .t-jump { background: #c7ecff url(aventura-pula-pula/assets/img/background_color_trees.png) center / auto 100%; }
+  .t-slime { background: #7cc35f url(bichos-contra-a-gosma/assets/img/background_solid_grass.png) center / 128px; }
+  .t-dragon .blocks { position: absolute; top: 16px; left: 0; right: 0; display: flex; justify-content: center; gap: 6px; }
+  .t-dragon .blocks img { position: static; width: 46px; height: 40px; }
+  .t-dragon .dragon { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); font-size: 64px; line-height: 1; }
+  .info { padding: 16px 18px 22px; }
+  .info h2 { margin: 0 0 6px; font-size: 24px; }
+  .info p { margin: 0; color: var(--muted); line-height: 1.4; font-family: "Trebuchet MS", system-ui, sans-serif; font-weight: bold; }
   .play {
-    display: inline-block; margin-top: 14px; padding: 8px 18px; border-radius: 12px;
-    background: linear-gradient(var(--accent), var(--accent-2)); color: #2a0d00; font-weight: bold;
+    display: inline-block; margin-top: 14px; padding: 10px 22px; border-radius: 16px; border: 4px solid var(--ink);
+    background: linear-gradient(#8ee07f, var(--green)); font-size: 20px; box-shadow: 0 4px 0 var(--ink);
   }
-  .soon { opacity: .55; border-style: dashed; border-color: var(--muted); }
-  footer { text-align: center; color: var(--muted); font-size: 14px; margin-top: 48px; }
+  footer { text-align: center; color: var(--ink); font-size: 15px; margin-top: 44px; }
 </style>
 </head>
 <body>
 <main>
   <header>
-    <h1>🎮 Jogos do Samuel</h1>
+    <h1>Jogos do Samuel</h1>
     <p>Escolha um jogo e divirta-se!</p>
   </header>
 
   <section class="grid">
+    <a class="game" href="aventura-pula-pula/">
+      <div class="thumb t-jump">
+        <img src="aventura-pula-pula/assets/img/terrain_grass_block_top.png" alt="" style="left:0;bottom:0;width:64px">
+        <img src="aventura-pula-pula/assets/img/terrain_grass_block_top.png" alt="" style="left:64px;bottom:0;width:64px">
+        <img src="aventura-pula-pula/assets/img/terrain_grass_block_top.png" alt="" style="left:128px;bottom:0;width:64px">
+        <img src="aventura-pula-pula/assets/img/terrain_grass_block_top.png" alt="" style="left:192px;bottom:0;width:64px">
+        <img src="aventura-pula-pula/assets/img/terrain_grass_block_top.png" alt="" style="left:256px;bottom:0;width:64px">
+        <img src="aventura-pula-pula/assets/img/terrain_grass_block_top.png" alt="" style="left:320px;bottom:0;width:64px">
+        <img src="aventura-pula-pula/assets/img/character_green_jump.png" alt="" style="left:30%;bottom:58px;width:96px">
+        <img src="aventura-pula-pula/assets/img/coin_gold.png" alt="" style="left:58%;bottom:100px;width:48px">
+        <img src="aventura-pula-pula/assets/img/coin_gold.png" alt="" style="left:72%;bottom:100px;width:48px">
+        <img src="aventura-pula-pula/assets/img/slime_normal_walk_a.png" alt="" style="right:6%;bottom:60px;width:56px">
+      </div>
+      <div class="info">
+        <h2>Aventura Pula&#8209;Pula</h2>
+        <p>Pule, pegue moedas e chegue até a bandeira em três fases.</p>
+        <span class="play">Jogar ▶</span>
+      </div>
+    </a>
+
+    <a class="game" href="bichos-contra-a-gosma/">
+      <div class="thumb t-slime">
+        <img src="bichos-contra-a-gosma/assets/img/panda.png" alt="" style="left:50%;top:50%;width:110px;transform:translate(-50%,-50%)">
+        <img src="bichos-contra-a-gosma/assets/img/slime_normal_walk_a.png" alt="" style="left:6%;top:12%;width:56px">
+        <img src="bichos-contra-a-gosma/assets/img/slime_fire_walk_a.png" alt="" style="right:8%;top:8%;width:56px">
+        <img src="bichos-contra-a-gosma/assets/img/slime_spike_walk_a.png" alt="" style="left:10%;bottom:6%;width:56px">
+        <img src="bichos-contra-a-gosma/assets/img/bee_a.png" alt="" style="right:10%;bottom:12%;width:52px">
+        <img src="bichos-contra-a-gosma/assets/img/gem_blue.png" alt="" style="left:30%;top:20%;width:30px">
+        <img src="bichos-contra-a-gosma/assets/img/gem_green.png" alt="" style="right:30%;bottom:16%;width:30px">
+      </div>
+      <div class="info">
+        <h2>Bichos contra a Gosma</h2>
+        <p>Escolha um bichinho e aguente a invasão de gosmas por 3 minutos.</p>
+        <span class="play">Jogar ▶</span>
+      </div>
+    </a>
+
     <a class="game" href="dragoes-e-blocos/">
-      <div class="thumb">
+      <div class="thumb t-dragon">
         <div class="blocks">
-          <span style="background:#4cc9f0"></span><span style="background:#f72585"></span><span style="background:#ffd60a"></span><span style="background:#4cc9f0"></span><span style="background:#f72585"></span>
+          <img src="dragoes-e-blocos/assets/block_blue.png" alt=""><img src="dragoes-e-blocos/assets/block_yellow.png" alt=""><img src="dragoes-e-blocos/assets/block_red.png" alt=""><img src="dragoes-e-blocos/assets/block_blue.png" alt=""><img src="dragoes-e-blocos/assets/block_yellow.png" alt="">
         </div>
-        🐉
+        <img src="dragoes-e-blocos/assets/fireball.png" alt="" style="left:47%;top:72px;width:40px">
+        <div class="dragon">🐉</div>
       </div>
       <div class="info">
         <h2>Dragões &amp; Blocos</h2>
@@ -75,17 +111,9 @@
         <span class="play">Jogar ▶</span>
       </div>
     </a>
-
-    <div class="game soon" aria-disabled="true">
-      <div class="thumb">❓</div>
-      <div class="info">
-        <h2>Em breve</h2>
-        <p>O próximo jogo está sendo inventado.</p>
-      </div>
-    </div>
   </section>
 
-  <footer>Feito com 💛 para o Samuel</footer>
+  <footer>Feito com 💛 para o Samuel · Arte: Kenney.nl (CC0)</footer>
 </main>
 </body>
 </html>

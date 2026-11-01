@@ -20,6 +20,7 @@
     --accent-2: #fb5607;
   }
   * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
   html, body {
     margin: 0; height: 100%; background: radial-gradient(circle at 50% 0%, #3a1f6e, var(--bg) 70%);
     color: var(--text); font-family: "Trebuchet MS", system-ui, sans-serif;
@@ -107,6 +108,7 @@
 
   // ---------- Tela ----------
   function resize() {
+    if (!innerWidth || !innerHeight) return;   // aba oculta pode reportar 0
     const scale = Math.min(window.innerWidth / W, window.innerHeight / H);
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.style.width = Math.floor(W * scale) + 'px';
@@ -313,12 +315,12 @@
   // ---------- Laço ----------
   let last = performance.now();
   function loop(now) {
+    requestAnimationFrame(loop);               // agenda antes: um erro não congela o jogo
     const dt = Math.min((now - last) / 1000, 1 / 30);
     last = now;
     if (state === 'play') update(dt);
     else if (state === 'over' && s) updateEffects(dt); // deixa as partículas terminarem
     draw();
-    requestAnimationFrame(loop);
   }
   requestAnimationFrame(loop);
 })();

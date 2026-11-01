@@ -3,7 +3,10 @@
 Site estático publicado em samuel.tech.
 
 - `index.html` — página inicial "🎮 Jogos do Samuel".
+- `aventura-pula-pula/` — plataforma em 3 fases (Phaser).
+- `bichos-contra-a-gosma/` — horda com bichinhos, 3 minutos (Phaser).
 - `dragoes-e-blocos/` — jogo Dragões & Blocos (samuel.tech/dragoes-e-blocos).
+- `vendor/` — Phaser 4.2.1 e a fonte Kenney Future, servidos pelo próprio site.
 - `lab/` — laboratório do Boaz (samuel.tech/lab): protótipos e experimentos, fora da página do Samuel.
 
 Sem build: cada jogo é um HTML único. Para testar localmente:

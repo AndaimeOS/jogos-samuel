@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Aventura Pula-Pula</title>
+<meta name="description" content="Pule, pegue moedas e chegue até a bandeira em três fases coloridas.">
+<link rel="icon" href="assets/img/character_green_front.png">
+<!--
+  Jogo do Samuel. Phaser 4.2.1 servido localmente (../vendor/phaser-4.2.1, MIT).
+  Arte e sons: Kenney New Platformer Pack e Music Jingles (CC0), em assets/.
+  Fonte: Kenney Future (CC0), em ../vendor/kenney-fonts.
+  ?debug na URL expõe window.__game para testes.
+-->
+<style>
+  @font-face { font-family: KenneyFuture; src: url(../vendor/kenney-fonts/kenney-future.ttf) format('truetype'); font-display: block; }
+  :root {
+    --sky: #c7ecff;
+    --panel: #ffffff;
+    --ink: #2b2b55;
+    --muted: #5d6290;
+    --accent: #ffcc33;
+    --accent-2: #ff8a1f;
+    --green: #5ac54f;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body {
+    margin: 0; height: 100%; background: var(--sky); color: var(--ink);
+    font-family: KenneyFuture, "Trebuchet MS", system-ui, sans-serif;
+    overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none;
+  }
+  #game { position: fixed; inset: 0; }
+  .overlay { position: fixed; inset: 0; display: grid; place-items: center; padding: 16px; background: rgba(43, 43, 85, .35); overflow-y: auto; z-index: 5; }
+  .card {
+    background: var(--panel); border-radius: 28px; padding: 26px 22px; max-width: 520px; width: 100%;
+    text-align: center; box-shadow: 0 10px 0 #2b2b5533, 0 20px 50px rgba(0,0,0,.25);
+    border: 5px solid var(--ink);
+  }
+  h1 { margin: 0; font-size: clamp(30px, 7vw, 46px); color: var(--accent-2); text-shadow: 3px 3px 0 var(--ink); letter-spacing: 1px; }
+  h2 { margin: 0 0 6px; font-size: 32px; color: var(--accent-2); text-shadow: 2px 2px 0 var(--ink); }
+  p { margin: 10px 0; font-size: 20px; line-height: 1.35; color: var(--muted); font-family: "Trebuchet MS", system-ui, sans-serif; font-weight: bold; }
+  button { font: inherit; cursor: pointer; }
+  .btn {
+    font-size: 26px; color: var(--ink); min-height: 68px; padding: 12px 34px; margin-top: 14px;
+    background: linear-gradient(#ffe066, var(--accent)); border: 4px solid var(--ink); border-radius: 20px;
+    box-shadow: 0 6px 0 var(--ink); transition: transform .08s;
+  }
+  .btn.green { background: linear-gradient(#8ee07f, var(--green)); }
+  .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--ink); }
+  .btn:focus-visible, .pick:focus-visible, .lvl:focus-visible { outline: 4px solid var(--accent-2); outline-offset: 3px; }
+  .picks { display: flex; gap: 10px; justify-content: center; margin: 12px 0 4px; flex-wrap: wrap; }
+  .pick { width: 84px; height: 84px; border-radius: 20px; border: 4px solid #d9dcf0; background: #f3f5ff; padding: 4px; }
+  .pick img { width: 100%; height: 100%; object-fit: contain; }
+  .pick.sel { border-color: var(--ink); background: #fff3c4; transform: scale(1.06); }
+  .lvls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+  .lvl {
+    border: 4px solid var(--ink); border-radius: 20px; padding: 10px 4px; min-height: 96px; color: var(--ink);
+    background: linear-gradient(#ffffff, #e8ecff); box-shadow: 0 5px 0 var(--ink);
+  }
+  .lvl b { display: block; font-size: 30px; }
+  .lvl small { display: block; font-size: 13px; margin-top: 2px; }
+  .lvl .st { font-size: 18px; letter-spacing: 2px; }
+  .lvl:disabled { opacity: .45; box-shadow: none; }
+  .stars { font-size: 56px; letter-spacing: 6px; margin: 6px 0; }
+  .link { display: inline-block; margin-top: 16px; padding: 8px; color: var(--muted); font-size: 18px; }
+  #hudBtns { position: fixed; top: 12px; right: 12px; display: flex; gap: 10px; z-index: 4; }
+  #hudBtns button { width: 60px; height: 60px; border-radius: 18px; border: 4px solid var(--ink); background: #fff; font-size: 26px; box-shadow: 0 4px 0 var(--ink); }
+  #touch { position: fixed; inset: auto 0 0 0; display: flex; justify-content: space-between; padding: 0 18px 18px; z-index: 3; pointer-events: none; }
+  #touch .pad { display: flex; gap: 14px; }
+  #touch button {
+    pointer-events: auto; width: 96px; height: 96px; border-radius: 50%; border: 5px solid var(--ink);
+    background: rgba(255,255,255,.8); font-size: 40px; color: var(--ink); box-shadow: 0 5px 0 var(--ink);
+  }
+  #touch button.on { background: var(--accent); transform: translateY(3px); box-shadow: 0 2px 0 var(--ink); }
+  @media (max-height: 520px) {
+    .card { padding: 12px 16px; max-width: 640px; }
+    h1 { font-size: 28px; } h2 { font-size: 24px; }
+    p { font-size: 15px; margin: 6px 0; }
+    .picks { margin: 6px 0 2px; } .pick { width: 60px; height: 60px; border-radius: 16px; }
+    .lvls { margin-top: 6px; } .lvl { min-height: 0; padding: 6px 4px; } .lvl b { font-size: 22px; }
+    .btn { min-height: 52px; font-size: 22px; padding: 8px 26px; margin-top: 8px; }
+    .stars { font-size: 38px; margin: 2px 0; }
+    .link { margin-top: 6px; font-size: 15px; }
+    #touch button { width: 80px; height: 80px; font-size: 34px; }
+  }
+  #rotate { display: none; position: fixed; inset: 0; z-index: 9; background: var(--sky); place-items: center; text-align: center; padding: 24px; }
+  #rotate .big { font-size: 90px; animation: tilt 1.6s ease-in-out infinite; }
+  @keyframes tilt { 0%, 30% { transform: rotate(0); } 60%, 100% { transform: rotate(-90deg); } }
+  @media (orientation: portrait) and (pointer: coarse) { #rotate { display: grid; } }
+  #toast { position: fixed; top: 22%; left: 50%; transform: translateX(-50%); z-index: 6; font-size: 40px; color: #fff; text-shadow: 3px 3px 0 var(--ink); pointer-events: none; }
+</style>
+</head>
+<body>
+<div id="game"></div>
+<div id="hudBtns" hidden>
+  <button id="btnSound" aria-label="Som">🔊</button>
+  <button id="btnPause" aria-label="Pausar">⏸</button>
+</div>
+<div id="touch" hidden>
+  <div class="pad">
+    <button id="tLeft" aria-label="Esquerda">◀</button>
+    <button id="tRight" aria-label="Direita">▶</button>
+  </div>
+  <button id="tJump" aria-label="Pular">⬆</button>
+</div>
+<div id="toast" hidden></div>
+<div id="rotate"><div><div class="big">📱</div><h2>Vire o celular deitado!</h2></div></div>
+<div class="overlay" id="ui"><div class="card" id="uiCard"><h2>Carregando…</h2></div></div>
+
+<script src="../vendor/phaser-4.2.1/phaser.min.js"></script>
+<script>
+(() => {
+  // ================= Fases =================
+  // # chão   = plataforma (dá para subir por baixo)   ? bloco de moeda   c moeda   g gema   h coração
+  // s slime   n caracol   b abelha   l joaninha   S mola   > bandeirinha de volta   F chegada   P início
+  // enfeites: u arbusto   m cogumelo   r pedra   w grama
+  const LEVELS = [
+    { name: 'Colinas', bg: 'background_color_hills', map: [
+      '',
+      '',
+      '',
+      '',
+      '',
+      '               c c c                c c c c                  g           ',
+      '              =======              =========                ====         ',
+      '                                                                         ',
+      '  P   c c c       u     c c   >   m    s       c c c    s    w     r  F  ',
+      '##################  ############  #################  ########  ##########',
+      '##################  ############  #################  ########  ##########',
+      '##################  ############  #################  ########  ##########'
+    ] },
+    { name: 'Floresta', bg: 'background_color_trees', map: [
+      '',
+      '',
+      '                                         c c c                              ',
+      '                         g              =======           c c c             ',
+      '                        ===                              =======            ',
+      '        ? ? ?                    b                 b                    g   ',
+      '                   =====              =====               ====        ====  ',
+      '                                                                            ',
+      '  P  c c c n            S   c c  >  n    c cS         n    c c c  w   u   F ',
+      '###############  ##############  ##############  ############  #############',
+      '###############  ##############  ##############  ############  #############',
+      '###############  ##############  ##############  ############  #############'
+    ] },
+    { name: 'Cogumelos', bg: 'background_color_mushrooms', map: [
+      '',
+      '                                                   c c c                      ',
+      '                                  g               =======                     ',
+      '                     c c c       ===                            c c c         ',
+      '                    =======                b                   =======        ',
+      '         ? ? ?                       ====      ====                           ',
+      '                ====                                    =====            h    ',
+      '                                                                              ',
+      '  P   c c c  l       S    >   c c   l    S   c c    b    c c   S      clc   F ',
+      '#################  ##########  ############  ###########  #########  ########',
+      '#################  ##########  ############  ###########  #########  ########',
+      '#################  ##########  ############  ###########  #########  ########'
+    ] }
+  ];
+  const T = 64;                       // tamanho do tile
+  const VIEW_W = 1280, VIEW_H = 720;
+  const COLORS = ['green', 'pink', 'yellow', 'purple'];
+  const RUN = 340, JUMP = 900, SPRING = 1350, GRAVITY = 1900, COYOTE = 120, BUFFER = 150;
+
+  // ================= Salvar =================
+  const SAVE_KEY = 'app-save';
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+  };
+  const save = Object.assign({ v: 1, unlocked: 1, stars: [0, 0, 0], color: 'green', sound: true }, store.get(SAVE_KEY, {}));
+  const persist = () => store.set(SAVE_KEY, save);
+
+  // ================= Entrada de toque =================
+  const touch = { left: false, right: false, jump: false, jumpEdge: false };
+  function bindTouch(id, key) {
+    const el = document.getElementById(id);
+    const on = e => { e.preventDefault(); if (key === 'jump' && !touch.jump) touch.jumpEdge = true; touch[key] = true; el.classList.add('on'); };
+    const off = e => { e.preventDefault(); touch[key] = false; el.classList.remove('on'); };
+    el.addEventListener('pointerdown', on);
+    el.addEventListener('pointerup', off);
+    el.addEventListener('pointercancel', off);
+    el.addEventListener('pointerleave', off);
+  }
+  bindTouch('tLeft', 'left'); bindTouch('tRight', 'right'); bindTouch('tJump', 'jump');
+  const isTouch = matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
+  addEventListener('touchstart', () => { if (scene && scene.playing) $('touch').hidden = false; }, { passive: true });
+
+  // ================= Telas (HTML) =================
+  const $ = id => document.getElementById(id);
+  let scene = null;
+  function showUi(html) { $('uiCard').innerHTML = html; $('ui').hidden = false; }
+  function hideUi() { $('ui').hidden = true; }
+  function setPlayingUi(on) { $('hudBtns').hidden = !on; $('touch').hidden = !(on && isTouch); }
+  function toast(text, ms = 1100) {
+    const t = $('toast'); t.textContent = text; t.hidden = false;
+    clearTimeout(toast.h); toast.h = setTimeout(() => { t.hidden = true; }, ms);
+  }
+  const starText = n => '⭐'.repeat(n) + '☆'.repeat(3 - n);
+
+  function showMenu() {
+    setPlayingUi(false);
+    const picks = COLORS.map(c => `<button class="pick${save.color === c ? ' sel' : ''}" data-color="${c}" aria-label="${c}"><img src="assets/img/character_${c}_front.png" alt=""></button>`).join('');
+    const lvls = LEVELS.map((l, i) => `<button class="lvl" data-lvl="${i}" ${i + 1 > save.unlocked ? 'disabled' : ''}>
+      <b>${i + 1 > save.unlocked ? '🔒' : i + 1}</b><small>${l.name}</small><div class="st">${starText(save.stars[i] || 0)}</div></button>`).join('');
+    showUi(`<h1>Aventura Pula-Pula</h1>
+      <p>Pule, pegue moedas e chegue na bandeira!</p>
+      <div class="picks">${picks}</div>
+      <div class="lvls">${lvls}</div>
+      <a class="link" href="../">← Voltar aos jogos</a>`);
+    document.querySelectorAll('[data-color]').forEach(b => b.onclick = () => { save.color = b.dataset.color; persist(); scene.sound.play('select', { volume: 0.5 }); showMenu(); });
+    document.querySelectorAll('[data-lvl]').forEach(b => b.onclick = () => startLevel(+b.dataset.lvl));
+    document.querySelector('.lvl:not([disabled])')?.focus();
+  }
+  function startLevel(i) { hideUi(); setPlayingUi(true); scene.scene.restart({ level: i }); }
+  function showPause() {
+    showUi(`<h2>Pausado</h2><button class="btn green" id="bResume">Continuar</button><br><button class="btn" id="bMenu">Fases</button>`);
+    $('bResume').onclick = () => scene.togglePause();
+    $('bMenu').onclick = () => { scene.togglePause(true); scene.backToMenu(); };
+    $('bResume').focus();
+  }
+  function showWin(level, stars, coins, total) {
+    setPlayingUi(false);
+    const last = level === LEVELS.length - 1;
+    showUi(`<h2>${last ? 'Você terminou tudo!' : 'Fase completa!'}</h2>
+      <div class="stars">${starText(stars)}</div>
+      <p>🪙 ${coins} de ${total} moedas</p>
+      ${last ? '' : '<button class="btn green" id="bNext">Próxima fase</button><br>'}
+      <button class="btn" id="bAgain">Jogar de novo</button><br>
+      <button class="btn" id="bMenu">Fases</button>`);
+    if (!last) $('bNext').onclick = () => startLevel(level + 1);
+    $('bAgain').onclick = () => startLevel(level);
+    $('bMenu').onclick = () => scene.backToMenu();
+    ($('bNext') || $('bAgain')).focus();
+  }
+
+  function updateSoundBtn() { $('btnSound').textContent = save.sound ? '🔊' : '🔇'; }
+  $('btnSound').onclick = () => { save.sound = !save.sound; persist(); scene.sound.mute = !save.sound; updateSoundBtn(); };
+  $('btnPause').onclick = () => scene.togglePause();
+  updateSoundBtn();
+
+  // ================= Cena do jogo =================
+  class Play extends Phaser.Scene {
+    constructor() { super('play'); }
+
+    preload() {
+      const img = n => this.load.image(n, `assets/img/${n}.png`);
+      COLORS.forEach(c => ['idle', 'walk_a', 'walk_b', 'jump', 'hit', 'front'].forEach(f => img(`character_${c}_${f}`)));
+      ['slime_normal_walk_a', 'slime_normal_walk_b', 'slime_normal_flat', 'snail_walk_a', 'snail_walk_b', 'snail_shell',
+       'bee_a', 'bee_b', 'ladybug_walk_a', 'ladybug_walk_b',
+       'terrain_grass_block_top', 'terrain_grass_block_top_left', 'terrain_grass_block_top_right', 'terrain_grass_block_center',
+       'terrain_grass_block_left', 'terrain_grass_block_right', 'terrain_grass_horizontal_left', 'terrain_grass_horizontal_middle',
+       'terrain_grass_horizontal_right', 'coin_gold', 'gem_blue', 'gem_red', 'gem_green', 'gem_yellow', 'flag_green_a', 'flag_green_b',
+       'spring', 'spring_out', 'block_coin', 'block_coin_active', 'bush', 'mushroom_red', 'grass', 'rock', 'sign_right', 'heart', 'star',
+       'hud_heart', 'hud_heart_empty', 'hud_coin', 'background_color_hills', 'background_color_trees', 'background_color_mushrooms',
+       'background_clouds'].forEach(img);
+      ['jump', 'coin', 'gem', 'hurt', 'bump', 'magic', 'select', 'win', 'start'].forEach(n => this.load.audio(n, `assets/snd/${n}.mp3`));
+    }
+
+    init(data) {
+      this.levelIndex = data && Number.isInteger(data.level) ? data.level : -1;   // -1 = menu
+      this.playing = false;
+      this.paused = false;
+      this.coins = 0;
+      this.hearts = 3;
+      this.lastGround = 0;
+      this.lastJumpPress = -9999;
+      this.won = false;
+      this.inv = 0;
+    }
+
+    create() {
+      scene = this;
+      this.sound.mute = !save.sound;
+      if (!this.anims.exists('green-walk')) {
+        COLORS.forEach(c => this.anims.create({ key: `${c}-walk`, frames: [{ key: `character_${c}_walk_a` }, { key: `character_${c}_walk_b` }], frameRate: 9, repeat: -1 }));
+        this.anims.create({ key: 'slime', frames: [{ key: 'slime_normal_walk_a' }, { key: 'slime_normal_walk_b' }], frameRate: 4, repeat: -1 });
+        this.anims.create({ key: 'snail', frames: [{ key: 'snail_walk_a' }, { key: 'snail_walk_b' }], frameRate: 3, repeat: -1 });
+        this.anims.create({ key: 'bee', frames: [{ key: 'bee_a' }, { key: 'bee_b' }], frameRate: 12, repeat: -1 });
+        this.anims.create({ key: 'ladybug', frames: [{ key: 'ladybug_walk_a' }, { key: 'ladybug_walk_b' }], frameRate: 7, repeat: -1 });
+        this.anims.create({ key: 'flag', frames: [{ key: 'flag_green_a' }, { key: 'flag_green_b' }], frameRate: 5, repeat: -1 });
+        const g = this.make.graphics({ x: 0, y: 0 }, false);
+        g.fillStyle(0xffffff, 1); g.fillCircle(8, 8, 8); g.generateTexture('dot', 16, 16); g.destroy();
+      }
+
+      const level = LEVELS[Math.max(0, this.levelIndex)];
+      this.buildLevel(level);
+      this.buildHud();
+
+      this.keys = this.input.keyboard.addKeys('LEFT,RIGHT,UP,SPACE,A,D,W,P,ESC');
+      this.input.keyboard.on('keydown-P', () => this.togglePause());
+      this.input.keyboard.on('keydown-ESC', () => this.togglePause());
+
+      if (this.levelIndex < 0) {
+        // Menu: o mundo da fase 1 fica de fundo, parado.
+        this.physics.pause();
+        this.look.setVisible(false);
+        showMenu();
+        return;
+      }
+      this.playing = true;
+      this.sound.play('start', { volume: 0.4 });
+      toast(`Fase ${this.levelIndex + 1}: ${level.name}`, 1500);
+    }
+
+    // ---------- Montagem da fase ----------
+    buildLevel(level) {
+      const rows = level.map.length;
+      const cols = Math.max(...level.map.map(r => r.length));
+      this.grid = level.map.map(r => r.padEnd(cols, ' '));
+      this.worldW = cols * T; this.worldH = rows * T;
+      this.physics.world.setBounds(0, 0, this.worldW, this.worldH + 400);
+      this.physics.world.setBoundsCollision(true, true, false, false);
+      this.physics.world.gravity.y = GRAVITY;
+
+      // Fundo com parallax (fixo na tela, desloca a textura).
+      const scale = VIEW_H / 256;
+      this.bg = this.add.tileSprite(0, 0, VIEW_W, VIEW_H, level.bg).setOrigin(0).setScrollFactor(0).setTileScale(scale);
+      this.clouds = this.add.tileSprite(0, 0, VIEW_W, VIEW_H * 0.6, 'background_clouds').setOrigin(0).setScrollFactor(0).setTileScale(scale).setAlpha(0.85);
+
+      this.solids = this.physics.add.staticGroup();
+      this.platforms = this.physics.add.staticGroup();
+      this.blocks = this.physics.add.staticGroup();
+      this.pickups = this.physics.add.group({ allowGravity: false, immovable: true });
+      this.enemies = this.physics.add.group();
+      this.springs = this.physics.add.staticGroup();
+      this.checkpoints = this.physics.add.staticGroup();
+      this.totalCoins = 0;
+
+      const at = (c, r) => (this.grid[r] || '')[c] || ' ';
+      const solid = ch => ch === '#' || ch === '?';
+      for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+        const ch = at(c, r), x = c * T + T / 2, y = r * T + T / 2;
+        if (ch === '#') {
+          const top = !solid(at(c, r - 1)), left = !solid(at(c - 1, r)), right = !solid(at(c + 1, r));
+          let key = top ? 'terrain_grass_block_top' : 'terrain_grass_block_center';
+          if (top && left) key = 'terrain_grass_block_top_left';
+          else if (top && right) key = 'terrain_grass_block_top_right';
+          else if (!top && left) key = 'terrain_grass_block_left';
+          else if (!top && right) key = 'terrain_grass_block_right';
+          this.solids.create(x, y, key);
+        } else if (ch === '=') {
+          const l = at(c - 1, r) !== '=', rr = at(c + 1, r) !== '=';
+          const p = this.platforms.create(x, y, l ? 'terrain_grass_horizontal_left' : rr ? 'terrain_grass_horizontal_right' : 'terrain_grass_horizontal_middle');
+          p.body.checkCollision.down = false; p.body.checkCollision.left = false; p.body.checkCollision.right = false;
+        } else if (ch === '?') {
+          this.blocks.create(x, y, 'block_coin').setData('used', false);
+        } else if (ch === 'c') {
+          this.addPickup(x, y, 'coin_gold', 'coin'); this.totalCoins++;
+        } else if (ch === 'g') {
+          this.addPickup(x, y, ['gem_blue', 'gem_red', 'gem_green', 'gem_yellow'][c % 4], 'gem');
+        } else if (ch === 'h') {
+          this.addPickup(x, y, 'heart', 'heart');
+        } else if ('snbl'.includes(ch)) {
+          this.addEnemy(ch, x, y);
+        } else if (ch === 'S') {
+          const sp = this.springs.create(x, y + 8, 'spring'); sp.body.setSize(48, 30, false).setOffset(8, 30);
+        } else if (ch === '>') {
+          const cp = this.checkpoints.create(x, y, 'sign_right'); cp.setData('on', false);
+        } else if (ch === 'F') {
+          this.flag = this.physics.add.staticSprite(x, y, 'flag_green_a').play('flag');
+          this.flag.body.setSize(40, 64);
+        } else if (ch === 'P') {
+          this.spawn = { x, y: r * T };     // pés na base da célula
+        } else if ('umrw'.includes(ch)) {
+          this.add.image(x, y, { u: 'bush', m: 'mushroom_red', r: 'rock', w: 'grass' }[ch]);
+        }
+      }
+      this.totalCoins += this.blocks.getLength();   // cada bloco dá uma moeda
+
+      // Jogador: corpo físico invisível + desenho separado (amassar não mexe na colisão).
+      this.player = this.physics.add.sprite(this.spawn.x, this.spawn.y, `character_${save.color}_idle`).setVisible(false);
+      this.player.body.setSize(56, 92).setOffset(36, 36);
+      this.look = this.add.sprite(this.spawn.x, this.spawn.y + 64, `character_${save.color}_idle`).setOrigin(0.5, 1).setDepth(5);
+      this.checkpoint = { ...this.spawn };
+
+      // Partículas
+      this.dust = this.add.particles(0, 0, 'dot', { speed: { min: 40, max: 140 }, angle: { min: 200, max: 340 }, scale: { start: 0.9, end: 0 }, lifespan: 400, tint: 0xf4e3c1, emitting: false }).setDepth(4);
+      this.sparkle = this.add.particles(0, 0, 'dot', { speed: { min: 80, max: 260 }, scale: { start: 0.7, end: 0 }, lifespan: 500, tint: [0xffe066, 0xffffff, 0xffb703], emitting: false }).setDepth(6);
+      this.confetti = this.add.particles(0, 0, 'dot', { speed: { min: 200, max: 520 }, angle: { min: 220, max: 320 }, gravityY: 900, scale: { start: 0.8, end: 0.3 }, lifespan: 1600, tint: [0xff595e, 0xffca3a, 0x8ac926, 0x1982c4, 0x6a4c93], emitting: false }).setDepth(7);
+
+      // Colisões
+      this.physics.add.collider(this.player, this.solids);
+      this.physics.add.collider(this.player, this.platforms);
+      this.physics.add.collider(this.player, this.blocks, (p, b) => this.hitBlock(b));
+      this.physics.add.collider(this.enemies, this.solids);
+      this.physics.add.collider(this.enemies, this.platforms);
+      this.physics.add.collider(this.enemies, this.blocks);
+      this.physics.add.overlap(this.player, this.pickups, (p, it) => this.collect(it));
+      this.physics.add.overlap(this.player, this.enemies, (p, e) => this.touchEnemy(e));
+      this.physics.add.overlap(this.player, this.springs, (p, s) => this.useSpring(s));
+      this.physics.add.overlap(this.player, this.checkpoints, (p, cp) => this.reachCheckpoint(cp));
+      if (this.flag) this.physics.add.overlap(this.player, this.flag, () => this.reachFlag());
+
+      const cam = this.cameras.main;
+      cam.setBounds(0, 0, this.worldW, this.worldH);
+      cam.startFollow(this.player, true, 0.12, 0.12);
+      cam.setDeadzone(180, 140);
+    }
+
+    addPickup(x, y, key, kind) {
+      const it = this.pickups.create(x, y, key).setData('kind', kind);
+      it.body.setCircle(22, 10, 10);
+      it.body.moves = false;              // o corpo segue o objeto, então a flutuação funciona
+      this.tweens.add({ targets: it, y: y - 8, duration: 700 + (x % 5) * 60, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+      return it;
+    }
+
+    addEnemy(ch, x, y) {
+      const kind = { s: 'slime', n: 'snail', b: 'bee', l: 'ladybug' }[ch];
+      const first = { slime: 'slime_normal_walk_a', snail: 'snail_walk_a', bee: 'bee_a', ladybug: 'ladybug_walk_a' }[kind];
+      const e = this.enemies.create(x, y, first).play(kind);
+      e.setData({ kind, dir: -1, speed: { slime: 70, snail: 45, bee: 0, ladybug: 110 }[kind], baseX: x, baseY: y, t: Math.random() * 6, dead: false });
+      e.body.setSize(48, 36).setOffset(8, 28);
+      if (kind === 'bee') { e.body.setAllowGravity(false); e.body.setSize(44, 40).setOffset(10, 12); }
+      return e;
+    }
+
+    buildHud() {
+      this.hud = this.add.container(0, 0).setScrollFactor(0).setDepth(20);
+      this.heartIcons = [0, 1, 2].map(i => this.add.image(56 + i * 76, 56, 'hud_heart').setScale(1.2));
+      const coin = this.add.image(56, 136, 'hud_coin').setScale(1.2);
+      this.coinText = this.add.text(100, 136, '0', { fontFamily: 'KenneyFuture', fontSize: '54px', color: '#ffffff', stroke: '#2b2b55', strokeThickness: 7 }).setOrigin(0, 0.5);
+      this.hud.add([...this.heartIcons, coin, this.coinText]);
+      this.hud.setVisible(this.levelIndex >= 0);
+    }
+    refreshHud() {
+      this.heartIcons.forEach((h, i) => h.setTexture(i < this.hearts ? 'hud_heart' : 'hud_heart_empty'));
+      this.coinText.setText(String(this.coins));
+    }
+
+    // ---------- Eventos ----------
+    collect(it) {
+      if (!it.active) return;
+      const kind = it.getData('kind');
+      it.disableBody(true, false);
+      this.tweens.killTweensOf(it);
+      this.tweens.add({ targets: it, y: it.y - 50, scale: 1.4, alpha: 0, duration: 260, ease: 'Back.easeOut', onComplete: () => it.destroy() });
+      this.sparkle.explode(kind === 'coin' ? 8 : 18, it.x, it.y);
+      if (kind === 'coin') { this.coins++; this.sound.play('coin', { volume: 0.45 }); }
+      else if (kind === 'gem') { this.coins += 5; this.sound.play('gem', { volume: 0.5 }); toast('+5'); }
+      else if (kind === 'heart') { this.hearts = Math.min(3, this.hearts + 1); this.sound.play('magic', { volume: 0.5 }); }
+      this.refreshHud();
+      this.tweens.add({ targets: this.coinText, scale: 1.3, duration: 90, yoyo: true });
+    }
+
+    hitBlock(b) {
+      if (b.getData('used') || !this.player.body.blocked.up) return;
+      b.setData('used', true).setTexture('block_coin_active');
+      this.tweens.add({ targets: b, y: b.y - 14, duration: 90, yoyo: true });
+      const coin = this.add.image(b.x, b.y - T, 'coin_gold').setDepth(6);
+      this.tweens.add({ targets: coin, y: coin.y - 70, alpha: 0, duration: 420, ease: 'Cubic.easeOut', onComplete: () => coin.destroy() });
+      this.coins++; this.refreshHud();
+      this.sound.play('coin', { volume: 0.45 });
+    }
+
+    touchEnemy(e) {
+      if (e.getData('dead') || this.won) return;
+      const p = this.player;
+      const stomp = p.body.velocity.y > 50 && p.body.bottom <= e.body.top + 22;
+      if (stomp) {
+        e.setData('dead', true);
+        e.body.enable = false;
+        e.anims.stop();
+        const kind = e.getData('kind');
+        if (kind === 'slime') e.setTexture('slime_normal_flat');
+        if (kind === 'snail') e.setTexture('snail_shell');
+        this.tweens.add({ targets: e, scaleY: 0.4, alpha: 0, duration: 450, delay: 150, onComplete: () => e.destroy() });
+        this.sparkle.explode(10, e.x, e.y);
+        p.setVelocityY(-620);
+        this.squash(1.25, 0.8);
+        this.sound.play('bump', { volume: 0.5 });
+        this.cameras.main.shake(90, 0.004);
+      } else if (this.inv <= 0) {
+        this.hurt(e.x < p.x ? 1 : -1);
+      }
+    }
+
+    hurt(dir) {
+      if (this.inv > 0 || this.won) return;
+      this.hearts--; this.inv = 1500;
+      this.refreshHud();
+      this.sound.play('hurt', { volume: 0.5 });
+      this.cameras.main.shake(160, 0.008);
+      this.player.setVelocity(dir * 380, -480);
+      this.look.anims.stop();
+      this.look.setTexture(`character_${save.color}_hit`);
+      this.tweens.add({ targets: this.look, alpha: 0.35, duration: 120, yoyo: true, repeat: 5, onComplete: () => this.look.setAlpha(1) });
+      if (this.hearts <= 0) this.time.delayedCall(450, () => this.respawn(true));
+    }
+
+    fallInPit() {
+      this.hearts--;
+      this.sound.play('hurt', { volume: 0.5 });
+      this.respawn(this.hearts <= 0);
+    }
+
+    respawn(outOfHearts) {
+      const p = this.player;
+      p.body.reset(this.checkpoint.x, this.checkpoint.y);
+      this.look.setAlpha(1);
+      if (outOfHearts) { this.hearts = 3; toast('Ops! De novo!'); }
+      this.refreshHud();
+      this.inv = 1200;
+      this.cameras.main.flash(250, 255, 255, 255);
+    }
+
+    useSpring(s) {
+      const p = this.player;
+      if (p.body.velocity.y < 0 || p.body.bottom > s.body.top + 24) return;
+      p.setVelocityY(-SPRING);
+      s.setTexture('spring_out');
+      this.time.delayedCall(250, () => s.setTexture('spring'));
+      this.squash(0.75, 1.3);
+      this.sound.play('jump', { volume: 0.5, rate: 1.3 });
+    }
+
+    reachCheckpoint(cp) {
+      if (cp.getData('on')) return;
+      cp.setData('on', true);
+      this.checkpoint = { x: cp.x, y: cp.y - T / 2 };
+      this.tweens.add({ targets: cp, scale: 1.3, duration: 150, yoyo: true });
+      this.sparkle.explode(16, cp.x, cp.y - 20);
+      this.sound.play('magic', { volume: 0.45 });
+      toast('Bandeirinha!');
+    }
+
+    reachFlag() {
+      if (this.won) return;
+      this.won = true; this.playing = false;
+      const stars = this.coins >= this.totalCoins * 0.9 ? 3 : this.coins >= this.totalCoins * 0.5 ? 2 : 1;
+      save.stars[this.levelIndex] = Math.max(save.stars[this.levelIndex] || 0, stars);
+      save.unlocked = Math.max(save.unlocked, Math.min(LEVELS.length, this.levelIndex + 2));
+      persist();
+      this.player.setVelocity(0, -500);
+      this.confetti.explode(70, this.flag.x, this.flag.y - 40);
+      this.sound.play('win', { volume: 0.55 });
+      this.time.delayedCall(1300, () => showWin(this.levelIndex, stars, Math.min(this.coins, this.totalCoins), this.totalCoins));
+    }
+
+    squash(sx, sy) {
+      this.look.setScale(sx, sy);
+      this.tweens.add({ targets: this.look, scaleX: 1, scaleY: 1, duration: 220, ease: 'Back.easeOut' });
+    }
+
+    togglePause(force) {
+      if (this.levelIndex < 0 || this.won) return;
+      if (!this.paused && force !== true) { this.paused = true; this.physics.pause(); this.tweens.pauseAll(); showPause(); }
+      else if (this.paused) { this.paused = false; this.physics.resume(); this.tweens.resumeAll(); hideUi(); }
+    }
+    backToMenu() { hideUi(); this.scene.restart({ level: -1 }); }
+
+    // ---------- Laço ----------
+    update(time, delta) {
+      // Parallax
+      const cam = this.cameras.main;
+      this.bg.tilePositionX = cam.scrollX * 0.12;
+      this.clouds.tilePositionX = cam.scrollX * 0.05 + time * 0.004;
+      this.look.setPosition(this.player.body.center.x, this.player.body.bottom);
+
+      if (!this.playing || this.paused) return;
+      const p = this.player, k = this.keys, body = p.body;
+      this.inv = Math.max(0, this.inv - delta);
+
+      const left = k.LEFT.isDown || k.A.isDown || touch.left;
+      const right = k.RIGHT.isDown || k.D.isDown || touch.right;
+      const jumpHeld = k.SPACE.isDown || k.UP.isDown || k.W.isDown || touch.jump;
+      const jumpEdge = Phaser.Input.Keyboard.JustDown(k.SPACE) || Phaser.Input.Keyboard.JustDown(k.UP) || Phaser.Input.Keyboard.JustDown(k.W) || touch.jumpEdge;
+      touch.jumpEdge = false;
+
+      const onGround = body.blocked.down || body.touching.down;
+      if (onGround) {
+        if (time - this.lastGround > 220 && this.wasAir) { this.dust.explode(6, p.x, body.bottom); this.squash(1.2, 0.85); }
+        this.lastGround = time; this.wasAir = false;
+      } else this.wasAir = true;
+      if (jumpEdge) this.lastJumpPress = time;
+
+      // Andar (aceleração suave, freia rápido)
+      const target = (right ? 1 : 0) - (left ? 1 : 0);
+      const stunned = this.inv > 1200;
+      if (!stunned) {
+        const vx = body.velocity.x, want = target * RUN;
+        body.setVelocityX(vx + (want - vx) * Math.min(1, delta / (target ? 70 : 50)));
+      }
+      if (target) this.look.setFlipX(target < 0);
+
+      // Pulo com coyote time + buffer + altura variável
+      if (time - this.lastJumpPress < BUFFER && time - this.lastGround < COYOTE) {
+        body.setVelocityY(-JUMP);
+        this.lastJumpPress = -9999; this.lastGround = -9999;
+        this.dust.explode(5, p.x, body.bottom);
+        this.squash(0.8, 1.2);
+        this.sound.play('jump', { volume: 0.35 });
+      }
+      if (!jumpHeld && body.velocity.y < -300) body.setVelocityY(body.velocity.y * 0.85);
+
+      // Animação
+      const c = save.color, look = this.look;
+      if (stunned) { look.anims.stop(); look.setTexture(`character_${c}_hit`); }
+      else if (!onGround) { look.anims.stop(); look.setTexture(`character_${c}_jump`); }
+      else if (Math.abs(body.velocity.x) > 40) look.anims.play(`${c}-walk`, true);
+      else { look.anims.stop(); look.setTexture(`character_${c}_idle`); }
+
+      // Caiu no buraco
+      if (p.y > this.worldH + 120) { this.fallInPit(); return; }
+
+      // Inimigos
+      this.enemies.getChildren().slice().forEach(e => {
+        if (!e.active || e.getData('dead')) return;
+        const kind = e.getData('kind');
+        if (kind === 'bee') {
+          const t = e.getData('t') + delta / 1000; e.setData('t', t);
+          e.body.setVelocity(Math.cos(t * 1.4) * 150, Math.cos(t * 3) * 70);
+          e.setFlipX(e.body.velocity.x > 0);
+          return;
+        }
+        let dir = e.getData('dir');
+        if (e.body.blocked.left) dir = 1;
+        if (e.body.blocked.right) dir = -1;
+        if (e.body.blocked.down) {
+          const aheadX = e.x + dir * 30, below = e.body.bottom + 8;
+          const ch = (this.grid[Math.floor(below / T)] || '')[Math.floor(aheadX / T)] || ' ';
+          if (!'#=?'.includes(ch)) dir = -dir;
+        }
+        e.setData('dir', dir);
+        e.body.setVelocityX(dir * e.getData('speed'));
+        e.setFlipX(dir > 0);
+        if (e.y > this.worldH + 200) e.destroy();
+      });
+    }
+  }
+
+  // ================= Início =================
+  const config = {
+    type: Phaser.AUTO,
+    parent: 'game',
+    width: VIEW_W, height: VIEW_H,
+    backgroundColor: '#c7ecff',
+    physics: { default: 'arcade', arcade: { gravity: { y: GRAVITY }, debug: location.search.includes('hitbox') } },
+    scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
+    scene: [Play]
+  };
+  const DEBUG = location.search.includes('debug');   // testes automáticos: sem pausa ao trocar de aba
+  document.addEventListener('visibilitychange', () => { if (!DEBUG && document.hidden && scene && scene.playing && !scene.paused) scene.togglePause(); });
+  const fontReady = document.fonts ? document.fonts.load('40px KenneyFuture').catch(() => {}) : Promise.resolve();
+  fontReady.then(() => {
+    const game = new Phaser.Game(config);
+    if (location.search.includes('debug')) window.__game = { game, get scene() { return scene; }, touch, save };
+  });
+})();
+</script>
+</body>
+</html>

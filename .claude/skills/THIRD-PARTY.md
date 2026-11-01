@@ -13,8 +13,33 @@ licença Apache-2.0 (texto em `LICENSE.awesome-gamedev-agent-skills`, avisos em
   só substitui um `.app` que ele mesmo gerou, com `--force`. `create-game-assets` pede
   `Pillow` (instalar só no laboratório, quando necessário).
 
+## Outras fontes
+
+| Skill | Origem | Licença | Commit fixado |
+|---|---|---|---|
+| `web-design-guidelines` | [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) | MIT | `1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62` |
+| `web-design-guidelines-snapshot/command.md` | [vercel-labs/web-interface-guidelines](https://github.com/vercel-labs/web-interface-guidelines) | MIT | `434b7f91364665f2f733b310ec54809bf8f37937` |
+| `threejs-game-director`, `threejs-gameplay-systems`, `threejs-aaa-graphics-builder`, `threejs-game-ui-designer`, `threejs-qa-release`, `threejs-debug-profiler`, `threejs-image-generator`, `threejs-3d-generator`, `threejs-audio-generator` | [majidmanzarpour/threejs-game-skills](https://github.com/majidmanzarpour/threejs-game-skills) | MIT (`LICENSE.threejs-game-skills`) | `8286774b22a2566bf894dbc825825c16921866af` |
+
+- `web-design-guidelines` manda baixar as regras online a cada revisão; aqui usamos a cópia
+  fixada em `web-design-guidelines-snapshot/command.md` (instrução de terceiros não se
+  atualiza sozinha).
+- `threejs-*`: só para o laboratório. Os geradores chamam APIs pagas (Tripo, Gemini,
+  ElevenLabs) e `probe_asset_credentials.sh` inspeciona variáveis de chave; não rodar sem
+  pedido explícito.
+- Não instaladas: `opusgamelabs/game-creator` (sem licença no repositório; só referência de
+  leitura).
+
+## Arte, fontes e bibliotecas dos jogos
+
+- Kenney (CC0): New Platformer Pack 1.1, Animal Pack Remastered, Particle Pack, UI Pack
+  (fonte Kenney Future), Interface Sounds, Music Jingles. Cada pasta `assets/` traz o
+  `License.txt` do pacote usado.
+- Phaser 4.2.1 (MIT) em `vendor/phaser-4.2.1/`, do npm, integridade conferida com o sha512
+  publicado.
+
 Skills próprias (não vêm do pacote): `jogos-samuel`, `design-infantil`,
-`multiplayer-familia`.
+`multiplayer-familia`, `survivors-like`.
 
 ## Para que serve cada grupo aqui
 

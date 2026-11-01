@@ -1,0 +1,602 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Bichos contra a Gosma</title>
+<meta name="description" content="Escolha um bichinho e aguente a invasão de gosmas por 3 minutos.">
+<link rel="icon" href="assets/img/panda.png">
+<!--
+  Jogo do Samuel. Gênero survivors-like (skill survivors-like, seção "Versão infantil").
+  Phaser 4.2.1 servido localmente (../vendor/phaser-4.2.1, MIT).
+  Arte e sons: Kenney Animal Pack Remastered, New Platformer Pack, Particle Pack e Music Jingles (CC0), em assets/.
+  ?debug na URL expõe window.__game e desliga a pausa automática (testes).
+-->
+<style>
+  @font-face { font-family: KenneyFuture; src: url(../vendor/kenney-fonts/kenney-future.ttf) format('truetype'); font-display: block; }
+  :root { --ink: #23314d; --muted: #586887; --accent: #ffcc33; --accent-2: #ff8a1f; --green: #5ac54f; --grass: #7cc35f; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body {
+    margin: 0; height: 100%; background: var(--grass); color: var(--ink);
+    font-family: KenneyFuture, "Trebuchet MS", system-ui, sans-serif;
+    overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none;
+  }
+  #game { position: fixed; inset: 0; }
+  .overlay { position: fixed; inset: 0; display: grid; place-items: center; padding: 16px; background: rgba(35, 49, 77, .35); overflow-y: auto; z-index: 5; }
+  .card { background: #fff; border: 5px solid var(--ink); border-radius: 28px; padding: 24px 20px; max-width: 560px; width: 100%; text-align: center; box-shadow: 0 10px 0 #23314d33, 0 20px 50px rgba(0,0,0,.25); }
+  h1 { margin: 0; font-size: clamp(28px, 6.5vw, 44px); color: var(--green); text-shadow: 3px 3px 0 var(--ink); }
+  h2 { margin: 0 0 6px; font-size: 32px; color: var(--accent-2); text-shadow: 2px 2px 0 var(--ink); }
+  p { margin: 10px 0; font-size: 20px; line-height: 1.35; color: var(--muted); font-family: "Trebuchet MS", system-ui, sans-serif; font-weight: bold; }
+  button { font: inherit; cursor: pointer; color: var(--ink); }
+  .btn { font-size: 26px; min-height: 68px; padding: 12px 34px; margin-top: 14px; background: linear-gradient(#ffe066, var(--accent)); border: 4px solid var(--ink); border-radius: 20px; box-shadow: 0 6px 0 var(--ink); }
+  .btn.green { background: linear-gradient(#8ee07f, var(--green)); }
+  .btn:active, .pick:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--ink); }
+  .btn:focus-visible, .pick:focus-visible { outline: 4px solid var(--accent-2); outline-offset: 3px; }
+  .picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-top: 12px; }
+  .pick { border: 4px solid #d9dcf0; border-radius: 20px; background: #f3f7ff; padding: 10px 6px; box-shadow: 0 5px 0 #d9dcf0; min-height: 120px; }
+  .pick img { height: 64px; max-width: 90%; object-fit: contain; }
+  .pick .ic { font-size: 50px; line-height: 64px; }
+  .pick b { display: block; font-size: 18px; margin-top: 6px; }
+  .pick small { display: block; font-family: "Trebuchet MS", system-ui, sans-serif; font-weight: bold; color: var(--muted); font-size: 14px; margin-top: 2px; }
+  .pick.sel { border-color: var(--ink); background: #fff3c4; box-shadow: 0 5px 0 var(--ink); }
+  .stars { font-size: 56px; letter-spacing: 6px; margin: 6px 0; }
+  .link { display: inline-block; margin-top: 16px; padding: 8px; color: var(--muted); font-size: 18px; }
+  @media (max-height: 520px) {
+    .card { padding: 12px 16px; max-width: 640px; }
+    h1 { font-size: 28px; } h2 { font-size: 24px; }
+    p { font-size: 15px; margin: 6px 0; }
+    .picks { grid-template-columns: repeat(4, 1fr); margin-top: 6px; }
+    .pick { min-height: 0; padding: 6px 4px; }
+    .pick img { height: 44px; } .pick .ic { font-size: 36px; line-height: 44px; }
+    .btn { min-height: 52px; font-size: 22px; padding: 8px 26px; margin-top: 8px; }
+    .stars { font-size: 38px; margin: 2px 0; }
+    .link { margin-top: 6px; font-size: 15px; }
+  }
+  #rotate { display: none; position: fixed; inset: 0; z-index: 9; background: var(--grass); place-items: center; text-align: center; padding: 24px; }
+  #rotate .big { font-size: 90px; animation: tilt 1.6s ease-in-out infinite; }
+  @keyframes tilt { 0%, 30% { transform: rotate(0); } 60%, 100% { transform: rotate(-90deg); } }
+  @media (orientation: portrait) and (pointer: coarse) { #rotate { display: grid; } }
+  #hudBtns { position: fixed; top: 12px; right: 12px; display: flex; gap: 10px; z-index: 4; }
+  #hudBtns button { width: 60px; height: 60px; border-radius: 18px; border: 4px solid var(--ink); background: #fff; font-size: 26px; box-shadow: 0 4px 0 var(--ink); }
+</style>
+</head>
+<body>
+<div id="game"></div>
+<div id="hudBtns" hidden>
+  <button id="btnSound" aria-label="Som">🔊</button>
+  <button id="btnPause" aria-label="Pausar">⏸</button>
+</div>
+<div class="overlay" id="ui"><div class="card" id="uiCard"><h2>Carregando…</h2></div></div>
+<div id="rotate"><div><div class="big">📱</div><h2>Vire o celular deitado!</h2></div></div>
+
+<script src="../vendor/phaser-4.2.1/phaser.min.js"></script>
+<script>
+(() => {
+  // ================= Dados =================
+  const ROUND = 180;                    // 3 minutos para vencer
+  const VIEW_W = 1280, VIEW_H = 720, WORLD = 2600;
+  const HEROES = {
+    panda:   { name: 'Panda',   weapon: 'bolhas',      speed: 230 },
+    rabbit:  { name: 'Coelho',  weapon: 'estrelas',    speed: 270 },
+    penguin: { name: 'Pinguim', weapon: 'redemoinho',  speed: 240 },
+    monkey:  { name: 'Macaco',  weapon: 'brilho',      speed: 250 }
+  };
+  const WEAPONS = {
+    bolhas:     { name: 'Bolhas',     icon: '🫧', desc: 'Giram em volta de você' },
+    estrelas:   { name: 'Estrelas',   icon: '⭐', desc: 'Voam até a gosma' },
+    redemoinho: { name: 'Redemoinho', icon: '🌀', desc: 'Atravessa tudo' },
+    brilho:     { name: 'Brilho',     icon: '✨', desc: 'Luz que espanta gosma' }
+  };
+  const PASSIVES = {
+    forca:   { name: 'Força',   icon: '💪', desc: 'Ataques mais fortes', max: 5 },
+    rapidez: { name: 'Rapidez', icon: '👟', desc: 'Andar mais rápido', max: 4 },
+    ima:     { name: 'Ímã',     icon: '🧲', desc: 'Puxa as gemas de longe', max: 4 },
+    coracao: { name: 'Coração', icon: '❤️', desc: '+1 coração e cura', max: 3 }
+  };
+  const W_MAX = 5, MAX_WEAPONS = 3;
+  const ENEMIES = {
+    verde:   { tex: 'slime_normal', hp: 3,  speed: 70,  r: 22, xp: 1 },
+    espinho: { tex: 'slime_spike',  hp: 6,  speed: 60,  r: 24, xp: 2 },
+    fogo:    { tex: 'slime_fire',   hp: 4,  speed: 105, r: 22, xp: 2 },
+    bloco:   { tex: 'slime_block',  hp: 14, speed: 45,  r: 28, xp: 4 },
+    abelha:  { tex: 'bee',          hp: 2,  speed: 135, r: 20, xp: 1, fly: true },
+    rei:     { tex: 'slime_block',  hp: 160,speed: 55,  r: 60, xp: 30, boss: true }
+  };
+  // A cada 30 s: tipos, gosmas por segundo e máximo na tela.
+  const WAVES = [
+    { types: ['verde'], rate: 1.0, cap: 25 },
+    { types: ['verde', 'abelha'], rate: 1.5, cap: 40 },
+    { types: ['verde', 'abelha', 'fogo'], rate: 2.0, cap: 55 },
+    { types: ['verde', 'fogo', 'espinho'], rate: 2.4, cap: 65 },
+    { types: ['espinho', 'fogo', 'abelha', 'bloco'], rate: 2.8, cap: 75 },
+    { types: ['verde', 'espinho', 'fogo', 'abelha', 'bloco'], rate: 3.2, cap: 90 }
+  ];
+  const BOSS_AT = 120;
+
+  // ================= Salvar =================
+  const SAVE_KEY = 'bcg-save';
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+  };
+  const save = Object.assign({ v: 1, hero: 'panda', best: 0, wins: 0, sound: true }, store.get(SAVE_KEY, {}));
+  const persist = () => store.set(SAVE_KEY, save);
+  const DEBUG = location.search.includes('debug');
+
+  // ================= Entrada: joystick que aparece onde o dedo encosta =================
+  const joy = { on: false, id: null, ox: 0, oy: 0, dx: 0, dy: 0 };
+  const $ = id => document.getElementById(id);
+  const gameEl = $('game');
+  gameEl.addEventListener('pointerdown', e => {
+    if (!scene || !scene.playing || scene.paused) return;
+    Object.assign(joy, { on: true, id: e.pointerId, ox: e.clientX, oy: e.clientY, dx: 0, dy: 0 });
+  });
+  addEventListener('pointermove', e => {
+    if (!joy.on || e.pointerId !== joy.id) return;
+    let dx = e.clientX - joy.ox, dy = e.clientY - joy.oy; const d = Math.hypot(dx, dy), R = 60;
+    if (d > R) { joy.ox = e.clientX - dx / d * R; joy.oy = e.clientY - dy / d * R; dx = dx / d * R; dy = dy / d * R; }
+    joy.dx = dx / R; joy.dy = dy / R;
+  });
+  const joyEnd = e => { if (e.pointerId === joy.id) { joy.on = false; joy.dx = joy.dy = 0; } };
+  addEventListener('pointerup', joyEnd);
+  addEventListener('pointercancel', joyEnd);
+
+  // ================= Telas =================
+  let scene = null;
+  const fmt = t => Math.floor(t / 60) + ':' + String(Math.floor(t % 60)).padStart(2, '0');
+  function showUi(html) { $('uiCard').innerHTML = html; $('ui').hidden = false; }
+  function hideUi() { $('ui').hidden = true; }
+  function showMenu() {
+    $('hudBtns').hidden = true;
+    const picks = Object.entries(HEROES).map(([id, h]) => {
+      const w = WEAPONS[h.weapon];
+      return `<button class="pick${save.hero === id ? ' sel' : ''}" data-hero="${id}"><img src="assets/img/${id}.png" alt=""><b>${h.name}</b><small>${w.icon} ${w.name}</small></button>`;
+    }).join('');
+    showUi(`<h1>Bichos contra a Gosma</h1>
+      <p>A gosma invadiu o campo! Ande para fugir. Seu bichinho ataca sozinho.</p>
+      <div class="picks">${picks}</div>
+      <button class="btn green" id="bPlay">Jogar!</button>
+      <p>🏆 Recorde: ${fmt(save.best)} · Vitórias: ${save.wins}</p>
+      <a class="link" href="../">← Voltar aos jogos</a>`);
+    document.querySelectorAll('[data-hero]').forEach(b => b.onclick = () => { save.hero = b.dataset.hero; persist(); scene.sound.play('select', { volume: 0.5 }); showMenu(); });
+    $('bPlay').onclick = startRun;
+    $('bPlay').focus();
+  }
+  function startRun() { hideUi(); $('hudBtns').hidden = false; scene.scene.restart({ run: true }); }
+  function showPause() {
+    showUi(`<h2>Pausado</h2><button class="btn green" id="bResume">Continuar</button><br><button class="btn" id="bMenu">Menu</button>`);
+    $('bResume').onclick = () => scene.togglePause();
+    $('bMenu').onclick = () => { hideUi(); scene.scene.restart({ run: false }); };
+    $('bResume').focus();
+  }
+  function showEnd(won, time, level) {
+    $('hudBtns').hidden = true;
+    const stars = won ? 3 : time >= 120 ? 2 : time >= 60 ? 1 : 0;
+    showUi(`<img src="assets/img/${save.hero}.png" alt="" style="height:90px">
+      <h2>${won ? 'Você venceu!' : 'Ufa! Foi por pouco!'}</h2>
+      <div class="stars">${'⭐'.repeat(stars)}${'☆'.repeat(3 - stars)}</div>
+      <p>Você aguentou ${fmt(time)} e chegou no nível ${level}!</p>
+      <button class="btn green" id="bAgain">Jogar de novo</button><br>
+      <button class="btn" id="bMenu">Trocar bichinho</button>`);
+    $('bAgain').onclick = startRun;
+    $('bMenu').onclick = () => { hideUi(); scene.scene.restart({ run: false }); };
+    $('bAgain').focus();
+  }
+  function showLevelUp(offers, level, onPick) {
+    const cards = offers.map((o, i) => `<button class="pick" data-pick="${i}"><div class="ic">${o.icon}</div><b>${o.name}</b><small>${o.label}</small></button>`).join('');
+    showUi(`<h2>Nível ${level}!</h2><p>Escolha um presente:</p><div class="picks">${cards}</div>`);
+    document.querySelectorAll('[data-pick]').forEach(b => b.onclick = () => onPick(+b.dataset.pick));
+    document.querySelector('[data-pick="0"]').focus();
+  }
+  function updateSoundBtn() { $('btnSound').textContent = save.sound ? '🔊' : '🔇'; }
+  $('btnSound').onclick = () => { save.sound = !save.sound; persist(); scene.sound.mute = !save.sound; updateSoundBtn(); };
+  $('btnPause').onclick = () => scene.togglePause();
+  updateSoundBtn();
+
+  // ================= Cena =================
+  class Play extends Phaser.Scene {
+    constructor() { super('play'); }
+
+    preload() {
+      const img = n => this.load.image(n, `assets/img/${n}.png`);
+      Object.keys(HEROES).forEach(img);
+      ['slime_normal', 'slime_spike', 'slime_fire', 'slime_block'].forEach(t => { img(t + '_walk_a'); img(t + '_walk_b'); });
+      ['bee_a', 'bee_b', 'bush', 'mushroom_red', 'mushroom_brown', 'rock', 'grass', 'gem_blue', 'gem_green', 'gem_red', 'heart',
+       'star', 'background_solid_grass', 'star_06', 'magic_02', 'circle_05', 'twirl_02', 'light_01', 'spark_04'].forEach(img);
+      ['coin', 'gem', 'hurt', 'magic', 'throw', 'select', 'win', 'start', 'levelup'].forEach(n => this.load.audio(n, `assets/snd/${n}.mp3`));
+    }
+
+    init(data) {
+      this.isRun = !!(data && data.run);
+      this.playing = false; this.paused = false; this.ended = false;
+      this.time0 = 0; this.elapsed = 0;
+      this.level = 1; this.xp = 0; this.need = 5; this.pending = 0;
+      this.hearts = 5; this.maxHearts = 5; this.inv = 0;
+      this.spawnAcc = 0; this.bossSpawned = false;
+      this.weapons = []; this.passives = {};
+      this.gems = []; this.gemChain = 0; this.gemChainT = 0;
+    }
+
+    create() {
+      scene = this;
+      this.sound.mute = !save.sound;
+      if (!this.anims.exists('slime_normal')) {
+        ['slime_normal', 'slime_spike', 'slime_fire', 'slime_block'].forEach(t => this.anims.create({ key: t, frames: [{ key: t + '_walk_a' }, { key: t + '_walk_b' }], frameRate: 5, repeat: -1 }));
+        this.anims.create({ key: 'bee', frames: [{ key: 'bee_a' }, { key: 'bee_b' }], frameRate: 14, repeat: -1 });
+        const g = this.make.graphics({ x: 0, y: 0 }, false);
+        g.fillStyle(0xffffff, 1); g.fillCircle(8, 8, 8); g.generateTexture('dot', 16, 16); g.destroy();
+      }
+
+      // Campo
+      this.physics.world.setBounds(0, 0, WORLD, WORLD);
+      this.add.tileSprite(0, 0, WORLD, WORLD, 'background_solid_grass').setOrigin(0);
+      const rnd = new Phaser.Math.RandomDataGenerator(['campo']);
+      for (let i = 0; i < 170; i++) {
+        const key = rnd.pick(['bush', 'bush', 'grass', 'grass', 'grass', 'mushroom_red', 'mushroom_brown', 'rock']);
+        // Decoração apagada para as gosmas se destacarem
+        const solid = key === 'rock' || key.startsWith('mushroom');
+        this.add.image(rnd.between(40, WORLD - 40), rnd.between(40, WORLD - 40), key).setScale(rnd.realInRange(0.8, 1.3)).setAlpha(solid ? 0.8 : 0.45);
+      }
+      // Cerca (borda) para o mundo não parecer acabar do nada
+      const border = this.add.graphics();
+      border.lineStyle(18, 0x4e8a3a, 1); border.strokeRect(9, 9, WORLD - 18, WORLD - 18);
+
+      // Herói: corpo invisível + desenho que balança
+      const hero = HEROES[save.hero];
+      this.hero = this.physics.add.sprite(WORLD / 2, WORLD / 2, save.hero).setVisible(false).setCollideWorldBounds(true);
+      this.hero.body.setCircle(34, this.hero.width / 2 - 34, this.hero.height / 2 - 34);
+      this.look = this.add.image(this.hero.x, this.hero.y, save.hero).setScale(0.62).setDepth(10);
+      this.shadow = this.add.ellipse(this.hero.x, this.hero.y + 40, 70, 18, 0x000000, 0.18).setDepth(1);
+      this.facing = new Phaser.Math.Vector2(1, 0);
+      this.speed = hero.speed;
+
+      this.enemies = this.physics.add.group();
+      this.shots = this.physics.add.group({ allowGravity: false });
+      this.orbs = this.physics.add.group({ allowGravity: false });
+      this.physics.add.collider(this.enemies, this.enemies);
+      this.physics.add.overlap(this.hero, this.enemies, (h, e) => this.touchEnemy(e));
+      this.physics.add.overlap(this.shots, this.enemies, (s, e) => this.shotHit(s, e));
+      this.physics.add.overlap(this.orbs, this.enemies, (o, e) => this.orbHit(o, e));
+      this.auraRing = this.add.image(0, 0, 'light_01').setTint(0xfff3a0).setAlpha(0).setDepth(2).setBlendMode(Phaser.BlendModes.ADD);
+
+      this.pop = this.add.particles(0, 0, 'star_06', { speed: { min: 80, max: 260 }, scale: { start: 0.35, end: 0 }, lifespan: 450, tint: [0xfff07a, 0xffffff, 0x9be564], emitting: false }).setDepth(12);
+      this.goo = this.add.particles(0, 0, 'dot', { speed: { min: 60, max: 200 }, scale: { start: 1.1, end: 0 }, lifespan: 380, emitting: false }).setDepth(11);
+      this.confetti = this.add.particles(0, 0, 'dot', { speed: { min: 180, max: 460 }, scale: { start: 0.9, end: 0.2 }, lifespan: 1200, gravityY: 500, tint: [0xff595e, 0xffca3a, 0x8ac926, 0x1982c4, 0x6a4c93], emitting: false }).setDepth(13);
+
+      const cam = this.cameras.main;
+      cam.setBounds(0, 0, WORLD, WORLD);
+      cam.startFollow(this.hero, true, 0.1, 0.1);
+
+      this.buildHud();
+      this.keys = this.input.keyboard.addKeys('LEFT,RIGHT,UP,DOWN,A,D,W,S,P,ESC,ONE,TWO,THREE');
+      this.input.keyboard.on('keydown-P', () => this.togglePause());
+      this.input.keyboard.on('keydown-ESC', () => this.togglePause());
+      ['ONE', 'TWO', 'THREE'].forEach((k, i) => this.input.keyboard.on('keydown-' + k, () => { if (this.choosing) this.choose(i); }));
+
+      if (!this.isRun) { this.hud.setVisible(false); this.physics.pause(); showMenu(); return; }
+      this.addWeapon(hero.weapon);
+      this.playing = true;
+      this.sound.play('start', { volume: 0.45 });
+    }
+
+    buildHud() {
+      this.hud = this.add.container(0, 0).setScrollFactor(0).setDepth(30);
+      this.heartIcons = [];
+      for (let i = 0; i < 8; i++) this.heartIcons.push(this.add.image(48 + i * 58, 48, 'heart').setScale(0.85));
+      const style = { fontFamily: 'KenneyFuture', fontSize: '50px', color: '#ffffff', stroke: '#23314d', strokeThickness: 8 };
+      this.timeText = this.add.text(VIEW_W / 2, 50, '3:00', style).setOrigin(0.5);
+      this.levelText = this.add.text(24, 110, 'Nv 1', { ...style, fontSize: '34px' }).setOrigin(0, 0.5);
+      this.xpBack = this.add.rectangle(VIEW_W / 2, VIEW_H - 22, VIEW_W - 60, 22, 0x23314d, 0.6).setStrokeStyle(4, 0x23314d);
+      this.xpBar = this.add.rectangle(30 + 2, VIEW_H - 22, 0, 16, 0x6fd3ff).setOrigin(0, 0.5);
+      this.hud.add([...this.heartIcons, this.timeText, this.levelText, this.xpBack, this.xpBar]);
+      this.refreshHud();
+    }
+    refreshHud() {
+      this.heartIcons.forEach((h, i) => { h.setVisible(i < this.maxHearts); h.setAlpha(i < this.hearts ? 1 : 0.25); });
+      this.timeText.setText(fmt(Math.max(0, ROUND - this.elapsed)));
+      this.levelText.setText('Nv ' + this.level);
+      this.xpBar.width = (VIEW_W - 64) * Math.min(1, this.xp / this.need);
+    }
+
+    // ---------- Armas ----------
+    wlv(id) { const w = this.weapons.find(w => w.id === id); return w ? w.lv : 0; }
+    dmgMul() { return 1 + (this.passives.forca || 0) * 0.25; }
+    addWeapon(id) {
+      const w = this.weapons.find(w => w.id === id);
+      if (w) w.lv++; else this.weapons.push({ id, lv: 1, t: 0.3 });
+      if (id === 'bolhas') this.rebuildOrbs();
+    }
+    rebuildOrbs() {
+      this.orbs.clear(true, true);
+      const n = 1 + this.wlv('bolhas');
+      for (let i = 0; i < n; i++) {
+        const o = this.orbs.create(this.hero.x, this.hero.y, 'circle_05').setScale(0.42).setTint(0x8fe3ff).setAlpha(0.9).setDepth(9);
+        o.body.setCircle(48, 16, 16); o.body.moves = false;
+      }
+    }
+    fire(dt) {
+      const h = this.hero;
+      for (const w of this.weapons) {
+        if (w.id === 'bolhas') {
+          w.ang = (w.ang || 0) + dt * (2.4 + w.lv * 0.25);
+          const n = this.orbs.getLength(), R = 95 + w.lv * 8;
+          this.orbs.getChildren().forEach((o, i) => { const a = w.ang + i / n * Math.PI * 2; o.setPosition(h.x + Math.cos(a) * R, h.y + Math.sin(a) * R); });
+          continue;
+        }
+        w.t -= dt;
+        if (w.t > 0) continue;
+        if (w.id === 'estrelas') {
+          w.t = Math.max(0.35, 1.0 - w.lv * 0.12);
+          const targets = this.enemies.getChildren().filter(e => e.active && !e.getData('dead'))
+            .sort((a, b) => Phaser.Math.Distance.Squared(a.x, a.y, h.x, h.y) - Phaser.Math.Distance.Squared(b.x, b.y, h.x, h.y))
+            .slice(0, 1 + Math.floor(w.lv / 2));
+          if (!targets.length) { w.t = 0.2; continue; }
+          targets.forEach(t => {
+            const s = this.shots.create(h.x, h.y, 'star_06').setScale(0.32).setTint(0xffe14d).setDepth(9);
+            s.setData({ kind: 'estrela', dmg: 2 + w.lv, target: t, pierce: 1, life: 2, hit: [] });
+            s.body.setCircle(40, 24, 24);
+            this.physics.moveToObject(s, t, 520);
+          });
+          this.sound.play('throw', { volume: 0.25, rate: 1.4 });
+        } else if (w.id === 'redemoinho') {
+          w.t = Math.max(0.6, 1.4 - w.lv * 0.14);
+          const n = 1 + Math.floor((w.lv - 1) / 2);
+          // Mira na gosma mais perto; sem gosma por perto, vai para onde o bichinho olha.
+          let base = Math.atan2(this.facing.y, this.facing.x), best = 600 * 600;
+          this.enemies.getChildren().forEach(e => {
+            if (!e.active || e.getData('dead')) return;
+            const d = Phaser.Math.Distance.Squared(e.x, e.y, h.x, h.y);
+            if (d < best) { best = d; base = Math.atan2(e.y - h.y, e.x - h.x); }
+          });
+          for (let i = 0; i < n; i++) {
+            const a = base + (i - (n - 1) / 2) * 0.35;
+            const s = this.shots.create(h.x, h.y, 'twirl_02').setScale(0.5).setTint(0xb48cff).setDepth(9);
+            s.setData({ kind: 'redemoinho', dmg: 3 + w.lv, pierce: 99, life: 1.3, hit: [] });
+            s.body.setCircle(48, 16, 16);
+            s.setVelocity(Math.cos(a) * 420, Math.sin(a) * 420);
+          }
+          this.sound.play('throw', { volume: 0.3 });
+        } else if (w.id === 'brilho') {
+          w.t = Math.max(0.5, 1.0 - w.lv * 0.08);
+          const R = 140 + w.lv * 18;
+          this.auraRing.setPosition(h.x, h.y).setScale(R / 50).setAlpha(0.55);
+          this.tweens.add({ targets: this.auraRing, alpha: 0, scale: R / 46, duration: 380 });
+          this.enemies.getChildren().forEach(e => {
+            if (e.active && !e.getData('dead') && Phaser.Math.Distance.Between(e.x, e.y, h.x, h.y) < R + e.getData('r'))
+              this.damage(e, 1 + w.lv * 0.6, e.x - h.x, e.y - h.y);
+          });
+        }
+      }
+      // Projéteis: estrelas seguem o alvo; todos têm tempo de vida
+      this.shots.getChildren().slice().forEach(s => {
+        const life = s.getData('life') - dt; s.setData('life', life);
+        s.rotation += dt * (s.getData('kind') === 'redemoinho' ? 12 : 6);
+        const t = s.getData('target');
+        if (t && t.active && !t.getData('dead')) this.physics.moveToObject(s, t, 520);
+        if (life <= 0) s.destroy();
+      });
+    }
+    shotHit(s, e) {
+      if (!s.active || e.getData('dead')) return;
+      const hit = s.getData('hit'); if (hit.includes(e)) return;
+      hit.push(e);
+      this.damage(e, s.getData('dmg'), s.body.velocity.x, s.body.velocity.y);
+      if (hit.length >= s.getData('pierce')) s.destroy();
+    }
+    orbHit(o, e) {
+      if (e.getData('dead') || this.time.now < (e.getData('orbCd') || 0)) return;
+      e.setData('orbCd', this.time.now + 400);
+      this.damage(e, 1.5 + this.wlv('bolhas') * 0.8, e.x - this.hero.x, e.y - this.hero.y);
+    }
+
+    // ---------- Gosmas ----------
+    wave() { return WAVES[Math.min(WAVES.length - 1, Math.floor(this.elapsed / 30))]; }
+    spawnEnemy(type) {
+      const def = ENEMIES[type], cam = this.cameras.main;
+      const a = Math.random() * Math.PI * 2, R = Math.hypot(VIEW_W, VIEW_H) / 2 + 60;
+      const x = Phaser.Math.Clamp(cam.midPoint.x + Math.cos(a) * R, 40, WORLD - 40);
+      const y = Phaser.Math.Clamp(cam.midPoint.y + Math.sin(a) * R, 40, WORLD - 40);
+      const e = this.enemies.create(x, y, def.tex === 'bee' ? 'bee_a' : def.tex + '_walk_a').play(def.tex);
+      const hpMul = 1 + this.elapsed / 90;
+      e.setData({ type, hp: def.hp * hpMul, speed: def.speed * Phaser.Math.FloatBetween(0.9, 1.1), r: def.r, xp: def.xp, dead: false, boss: !!def.boss });
+      e.body.setCircle(def.r, 32 - def.r, 32 - def.r + (def.fly ? 0 : 6));
+      if (def.boss) { e.setScale(2.6).setTint(0xc792ff); e.body.setCircle(26, 6, 10); }
+      e.setDepth(def.fly ? 8 : 5);
+      return e;
+    }
+    damage(e, amount, kx, ky) {
+      if (e.getData('dead')) return;
+      const hp = e.getData('hp') - amount * this.dmgMul();
+      e.setData('hp', hp);
+      e.setTint(0xffffff).setTintMode(Phaser.TintModes.FILL);
+      this.time.delayedCall(70, () => { if (e.active) { e.clearTint(); if (e.getData('boss')) e.setTint(0xc792ff); } });
+      if (!e.getData('boss')) { const k = Math.hypot(kx, ky) || 1; e.body.velocity.x += kx / k * 160; e.body.velocity.y += ky / k * 160; }
+      if (hp <= 0) this.killEnemy(e);
+    }
+    killEnemy(e) {
+      e.setData('dead', true); e.body.enable = false;
+      const color = { slime_normal: 0x9be564, slime_spike: 0x6fb7ff, slime_fire: 0xff9b4a, slime_block: 0x9be564, bee: 0xffd23f }[ENEMIES[e.getData('type')].tex];
+      this.goo.setParticleTint(color); this.goo.explode(e.getData('boss') ? 40 : 8, e.x, e.y);
+      this.pop.explode(e.getData('boss') ? 30 : 3, e.x, e.y);
+      this.tweens.add({ targets: e, scaleX: e.scaleX * 1.4, scaleY: e.scaleY * 0.3, alpha: 0, duration: 180, onComplete: () => e.destroy() });
+      const xp = e.getData('xp');
+      this.dropGem(e.x, e.y, xp);
+      if (e.getData('boss')) {
+        for (let i = 0; i < 12; i++) this.dropGem(e.x + Phaser.Math.Between(-90, 90), e.y + Phaser.Math.Between(-90, 90), 3);
+        this.confetti.explode(60, e.x, e.y);
+        this.cameras.main.shake(300, 0.01);
+        this.sound.play('win', { volume: 0.5 });
+      } else if (Math.random() < 0.025) {
+        const h = this.add.image(e.x, e.y, 'heart').setScale(0.7).setDepth(4);
+        this.gems.push({ img: h, v: 0, heart: true });
+      }
+    }
+    dropGem(x, y, v) {
+      if (this.gems.length > 220) { this.gems[0].v += v; return; }
+      const key = v >= 10 ? 'gem_red' : v >= 3 ? 'gem_green' : 'gem_blue';
+      const img = this.add.image(x, y, key).setScale(0.5).setDepth(4);
+      this.tweens.add({ targets: img, scale: 0.6, duration: 160, yoyo: true });
+      this.gems.push({ img, v, pull: false });
+    }
+    touchEnemy(e) {
+      if (e.getData('dead') || this.inv > 0 || this.ended) return;
+      this.hearts--; this.inv = 1.2;
+      this.sound.play('hurt', { volume: 0.5 });
+      this.cameras.main.shake(140, 0.006);
+      this.tweens.add({ targets: this.look, alpha: 0.3, duration: 100, yoyo: true, repeat: 5, onComplete: () => this.look.setAlpha(1) });
+      // Empurra as gosmas próximas para dar espaço
+      this.enemies.getChildren().forEach(o => {
+        const d = Phaser.Math.Distance.Between(o.x, o.y, this.hero.x, this.hero.y);
+        if (d < 170 && !o.getData('boss') && o.body) { o.body.velocity.x += (o.x - this.hero.x) / (d || 1) * 500; o.body.velocity.y += (o.y - this.hero.y) / (d || 1) * 500; }
+      });
+      this.refreshHud();
+      if (this.hearts <= 0) this.endRun(false);
+    }
+
+    // ---------- Nível ----------
+    gainXp(v) {
+      this.xp += v;
+      while (this.xp >= this.need) { this.xp -= this.need; this.level++; this.need = 5 + this.level * 4; this.pending++; }
+      this.refreshHud();
+    }
+    buildOffers() {
+      const pool = [];
+      for (const w of this.weapons) if (w.lv < W_MAX) pool.push({ kind: 'w', id: w.id, weight: 3 });
+      if (this.weapons.length < MAX_WEAPONS) for (const id in WEAPONS) if (!this.weapons.some(w => w.id === id)) pool.push({ kind: 'w', id, weight: 2, isNew: true });
+      for (const id in PASSIVES) if ((this.passives[id] || 0) < PASSIVES[id].max) pool.push({ kind: 'p', id, weight: 1.5 });
+      const out = [];
+      while (out.length < 3 && pool.length) {
+        let r = Math.random() * pool.reduce((a, o) => a + o.weight, 0), i = 0;
+        while (r > pool[i].weight) { r -= pool[i].weight; i++; }
+        out.push(pool.splice(i, 1)[0]);
+      }
+      if (!out.length) out.push({ kind: 'heal' });
+      return out.map(o => {
+        if (o.kind === 'heal') return { ...o, icon: '🍎', name: 'Lanche', label: 'Cura tudo' };
+        if (o.kind === 'w') { const d = WEAPONS[o.id]; return { ...o, icon: d.icon, name: d.name, label: o.isNew ? 'Novo!' : 'Mais forte' }; }
+        const d = PASSIVES[o.id]; return { ...o, icon: d.icon, name: d.name, label: d.desc };
+      });
+    }
+    openLevelUp() {
+      this.choosing = true; this.physics.pause(); this.tweens.pauseAll(); joy.on = false; joy.dx = joy.dy = 0;
+      this.offers = this.buildOffers();
+      this.sound.play('levelup', { volume: 0.5 });
+      this.confetti.explode(30, this.hero.x, this.hero.y);
+      showLevelUp(this.offers, this.level, i => this.choose(i));
+    }
+    choose(i) {
+      const o = this.offers && this.offers[i]; if (!o || !this.choosing) return;
+      if (o.kind === 'heal') this.hearts = this.maxHearts;
+      else if (o.kind === 'w') this.addWeapon(o.id);
+      else {
+        this.passives[o.id] = (this.passives[o.id] || 0) + 1;
+        if (o.id === 'rapidez') this.speed = HEROES[save.hero].speed * (1 + this.passives.rapidez * 0.12);
+        if (o.id === 'coracao') { this.maxHearts++; this.hearts = Math.min(this.maxHearts, this.hearts + 2); }
+      }
+      this.sound.play('select', { volume: 0.5 });
+      this.pending--; this.choosing = false;
+      this.refreshHud();
+      if (this.pending > 0) this.openLevelUp();
+      else { hideUi(); this.physics.resume(); this.tweens.resumeAll(); }
+    }
+
+    // ---------- Pausa e fim ----------
+    togglePause() {
+      if (!this.playing || this.choosing || this.ended) return;
+      this.paused = !this.paused;
+      if (this.paused) { this.physics.pause(); this.tweens.pauseAll(); joy.on = false; showPause(); }
+      else { this.physics.resume(); this.tweens.resumeAll(); hideUi(); }
+    }
+    endRun(won) {
+      this.ended = true; this.playing = false;
+      this.physics.pause();
+      const t = Math.min(ROUND, this.elapsed);
+      save.best = Math.max(save.best, Math.floor(t)); if (won) save.wins++; persist();
+      if (won) {
+        this.sound.play('win', { volume: 0.6 });
+        this.confetti.explode(120, this.hero.x, this.hero.y - 40);
+        this.enemies.getChildren().slice().forEach(e => { if (!e.getData('dead')) this.killEnemy(e); });
+      }
+      this.time.delayedCall(won ? 1400 : 700, () => showEnd(won, t, this.level));
+    }
+
+    // ---------- Laço ----------
+    update(time, delta) {
+      this.look.setPosition(this.hero.x, this.hero.y - 4 + (this.moving ? Math.sin(time / 80) * 4 : 0));
+      this.shadow.setPosition(this.hero.x, this.hero.y + 40);
+      if (!this.playing || this.paused || this.choosing) return;
+      const dt = Math.min(delta / 1000, 1 / 20);
+      this.elapsed += dt;
+      this.inv = Math.max(0, this.inv - dt);
+      if (this.elapsed >= ROUND) { this.endRun(true); return; }
+
+      // Movimento
+      const k = this.keys;
+      let mx = (k.RIGHT.isDown || k.D.isDown ? 1 : 0) - (k.LEFT.isDown || k.A.isDown ? 1 : 0);
+      let my = (k.DOWN.isDown || k.S.isDown ? 1 : 0) - (k.UP.isDown || k.W.isDown ? 1 : 0);
+      if (joy.on && Math.hypot(joy.dx, joy.dy) > 0.15) { mx = joy.dx; my = joy.dy; }
+      const m = Math.hypot(mx, my);
+      if (m > 1) { mx /= m; my /= m; }
+      this.moving = m > 0.1;
+      if (this.moving) { this.facing.set(mx, my).normalize(); this.look.setFlipX(mx < -0.1 ? true : mx > 0.1 ? false : this.look.flipX); }
+      this.hero.setVelocity(mx * this.speed, my * this.speed);
+
+      // Gosmas aparecem
+      const w = this.wave();
+      this.spawnAcc += w.rate * dt;
+      while (this.spawnAcc >= 1) { this.spawnAcc--; if (this.enemies.countActive() < w.cap) this.spawnEnemy(Phaser.Utils.Array.GetRandom(w.types)); }
+      if (!this.bossSpawned && this.elapsed >= BOSS_AT) { this.bossSpawned = true; this.spawnEnemy('rei'); this.sound.play('magic', { volume: 0.6, rate: 0.6 }); }
+
+      // Gosmas andam até o bichinho (devagar para recuperar do empurrão)
+      const hx = this.hero.x, hy = this.hero.y;
+      this.enemies.getChildren().forEach(e => {
+        if (!e.active || e.getData('dead')) return;
+        const a = Math.atan2(hy - e.y, hx - e.x), sp = e.getData('speed');
+        e.body.velocity.x += (Math.cos(a) * sp - e.body.velocity.x) * Math.min(1, dt * 4);
+        e.body.velocity.y += (Math.sin(a) * sp - e.body.velocity.y) * Math.min(1, dt * 4);
+        e.setFlipX(e.body.velocity.x > 0);
+      });
+
+      this.fire(dt);
+
+      // Gemas e corações com ímã
+      const magnet = 120 * (1 + (this.passives.ima || 0) * 0.45);
+      this.gemChainT -= dt; if (this.gemChainT <= 0) this.gemChain = 0;
+      for (const g of this.gems) {
+        const d = Phaser.Math.Distance.Between(g.img.x, g.img.y, hx, hy);
+        if (d < magnet) g.pull = true;
+        if (g.pull) { const sp = (380 + (magnet - Math.min(d, magnet)) * 4) * dt; g.img.x += (hx - g.img.x) / (d || 1) * sp; g.img.y += (hy - g.img.y) / (d || 1) * sp; }
+        if (d < 40) {
+          g.dead = true; g.img.destroy();
+          if (g.heart) { this.hearts = Math.min(this.maxHearts, this.hearts + 1); this.sound.play('magic', { volume: 0.5 }); this.refreshHud(); }
+          else {
+            this.gemChain = Math.min(this.gemChain + 1, 12); this.gemChainT = 0.5;
+            if (this.gemChain % 2 === 1) this.sound.play('gem', { volume: 0.3, rate: 1 + this.gemChain * 0.05 });
+            this.gainXp(g.v);
+          }
+        }
+      }
+      this.gems = this.gems.filter(g => !g.dead);
+
+      this.timeText.setText(fmt(Math.max(0, ROUND - this.elapsed)));
+      if (this.pending > 0) this.openLevelUp();
+    }
+  }
+
+  // ================= Início =================
+  document.addEventListener('visibilitychange', () => { if (!DEBUG && document.hidden && scene && scene.playing && !scene.paused && !scene.choosing) scene.togglePause(); });
+  const fontReady = document.fonts ? document.fonts.load('40px KenneyFuture').catch(() => {}) : Promise.resolve();
+  fontReady.then(() => {
+    const game = new Phaser.Game({
+      type: Phaser.AUTO, parent: 'game', width: VIEW_W, height: VIEW_H, backgroundColor: '#7cc35f',
+      physics: { default: 'arcade', arcade: { gravity: { y: 0 }, debug: location.search.includes('hitbox') } },
+      scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
+      scene: [Play]
+    });
+    if (DEBUG) window.__game = { game, get scene() { return scene; }, joy, save };
+  });
+})();
+</script>
+</body>
+</html>

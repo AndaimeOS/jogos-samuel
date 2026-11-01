@@ -49,6 +49,7 @@ ideias delas e traduza para canvas + JS com `references/receitas-canvas.md`.
 | quebra-cabeça, combinar peças, labirinto | + `puzzle` |
 | torres, defender o castelo | + `tower-defense` |
 | cartas, cartinhas, coleção | + `card-game` |
+| horda, monstrinhos que vêm de todo lado, armas automáticas | + `survivors-like` (seção "Versão infantil") |
 | jogar com o papai/um amigo, 2 jogadores, online | + `multiplayer-familia` |
 | o jogo ficou grande demais para um arquivo | + `phaser-core` / `phaser-arcade-physics` (2D) ou `threejs-scene-setup` (3D) |
 
@@ -64,8 +65,14 @@ Comece de `references/template.html` (cópia para `<pasta-do-jogo>/index.html`).
 tudo abaixo; não remova nada sem motivo.
 
 - **Um arquivo, sem build.** `<pasta>/index.html` com CSS e JS inline. Nada de `npm`,
-  bundler ou CDN em jogo de canvas puro. Se usar Phaser/three.js, carregue de CDN com versão
-  exata e fixada (ex.: `three@0.186.1`) e cite a versão no topo do arquivo.
+  bundler ou CDN. Jogos com sprites, física e partículas usam Phaser 4.2.1 de
+  `../vendor/phaser-4.2.1/phaser.min.js` (veja `aventura-pula-pula/` e
+  `bichos-contra-a-gosma/` como modelo); jogos simples podem ser canvas puro.
+- **Visual da casa:** arte do Kenney (CC0) copiada só no que o jogo usa para
+  `<pasta>/assets/` com o `License.txt`, fonte `../vendor/kenney-fonts/kenney-future.ttf`,
+  cartões brancos com borda `#2b2b55`. Phaser 4: use `group.getChildren()` (não
+  `children.each`), `setTint(c).setTintMode(Phaser.TintModes.FILL)` para piscar branco e
+  um sprite de desenho separado do corpo físico quando for amassar/esticar o personagem.
 - **Resolução lógica fixa** (ex.: 480×720 retrato ou 960×540 paisagem) escalada para caber
   na tela, com `devicePixelRatio` limitado a 2. Toda a lógica usa coordenadas lógicas.
 - **Máquina de estados explícita**: `menu → play ⇄ pause → over`. Telas são overlays HTML
