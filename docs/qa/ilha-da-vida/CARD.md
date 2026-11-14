@@ -99,6 +99,11 @@ Medido em 14/11/2026 ~19:50 UTC.
   arquivos do mundo, pasta 700; cron `23 * * * *`.
 - **C9** — depois do commit/publicação.
 
+- **C1 (Boaz, 14/11/2026 20:17:34 UTC)** — entrada com a senha real pela página de produção: o servidor registrou
+  "<apelido> [127.0.0.1] joins game" (127.0.0.1 = chegou pela ponte) e criou a conta (`auth.sqlite`: 1 conta). Boaz:
+  "Entrei, funcionou". Uma primeira resposta "funcionou" sem registro no servidor não foi aceita como evidência;
+  a segunda tentativa, vigiada pelo log, foi.
+
 Ciclo 2 (após REV-01 REPROVADO): achados 1, 3, 4, 5 e 6 corrigidos (tabela de tentativas). Pendente fora do alcance do
 agente: **C1 com a senha real pelo portão de produção** — o Boaz entra em `https://srv2114451.hstgr.cloud:8443/vida/jogo/`
 e o resultado (data/hora, apelido, o que viu) é registrado aqui. Fora deste card: `/opt/ilha` tem o mesmo padrão de
@@ -116,3 +121,5 @@ permissão do achado 4 e o servidor da Ilha dos Blocos registra segredos errados
   corrigidas em seguida: `data-target`/`data-href` não contam mais (casos novos, 14/14) e a tabela de tentativas emendada.
   Próximo passo: o Boaz faz o C1 com a senha real; registrado aqui, basta conferir o registro (sem nova revisão de código
   se nada mudar). Só então release/publicação do portal (C9).
+- Conferência do C1 (coordenador): registro do servidor às 20:17:34 UTC confere com o pedido do REV-02; código inalterado
+  desde o REV-02 (só card). Liberado para release/publicação (C9).
