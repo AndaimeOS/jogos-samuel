@@ -31,8 +31,14 @@
   .opcao{border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink);background:#fffdf7;padding:10px;cursor:pointer;font:800 16px Arial,sans-serif;color:var(--ink);display:flex;align-items:center;justify-content:center;gap:10px}
   .opcao canvas{width:40px;height:52px;image-rendering:pixelated}
   .opcao[aria-pressed=true]{background:var(--green);transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--ink)}
-  .fases{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:8px 0 14px}
-  .fase{border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink);padding:10px 6px;cursor:pointer;font:800 14px Arial,sans-serif;color:var(--ink);min-height:96px}
+  .fases{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:8px 0 14px}
+  .fase{border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink);padding:10px 6px;cursor:pointer;font:800 14px Arial,sans-serif;color:var(--ink);min-height:96px;min-width:0}
+  .contador-cristais{font:900 18px var(--mono);border:2px solid var(--ink);background:#fffdf7;box-shadow:4px 4px 0 var(--ink);display:inline-block;padding:6px 12px;margin:4px 0 8px}
+  #selModo{grid-template-columns:1fr}
+  #selModo .opcao{flex-direction:column;align-items:flex-start;text-align:left;gap:4px;min-height:44px}
+  #selModo small{font:400 12px/1.35 var(--mono);white-space:normal}
+  .festa{display:inline-block;background:var(--gold);border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink);padding:8px 12px;font:900 18px var(--mono);margin-bottom:10px}
+  .festa[hidden]{display:none!important}
   .fase .ic{display:block;font-size:30px}
   .fase small{display:block;font:700 12px var(--mono);margin-top:4px}
   .fase[disabled]{cursor:not-allowed;filter:grayscale(1);opacity:.6}
@@ -57,7 +63,7 @@
   .res{display:flex;justify-content:center;gap:18px;margin:8px 0 14px;font:900 22px var(--mono)}
   .res span{border:2px solid var(--ink);background:#fffdf7;padding:8px 12px;box-shadow:3px 3px 0 var(--ink)}
   .recorde{display:inline-block;background:var(--gold);border:2px solid var(--ink);padding:4px 10px;font:900 14px var(--mono);margin-bottom:12px;transform:rotate(-2deg)}
-  @media (max-width:640px){#hFase{display:none}.painel{font-size:15px}.fases{grid-template-columns:repeat(3,1fr);gap:8px}.fase{font-size:12px;min-height:84px}}
+  @media (max-width:640px){#hFase{display:none}.painel{font-size:15px}.fases{grid-template-columns:repeat(2,1fr);gap:8px}.fase{font-size:12px;min-height:84px}}
   @media (max-height:520px){.corpo{padding:12px 16px}.logo{font-size:32px}.logo small,.corpo>p{display:none}.opcoes,.fases{margin:4px 0 8px}.fase{min-height:64px;padding:4px}.fase .ic{font-size:20px}.tbtn{width:70px;height:70px}#tDir{left:94px}#tPulo{width:86px;height:86px}}
   @media (prefers-reduced-motion:reduce){.pop{animation:none}}
 </style>
@@ -89,18 +95,19 @@
     <div class="corpo">
       <span class="kicker">Samuel.tech apresenta</span>
       <div class="logo">REINO DOS<br>BLOCOS<small>UMA AVENTURA DE PLATAFORMA</small></div>
-      <p>Corra, pule e pise nas geleias para virar corações! O Doguinho vai junto. O Gatinho espera você no portal.</p>
+      <p>Corra, pule e pise nas geleias para virar corações! O Doguinho late e aponta os cristais. O Gatinho espera no portal — e faz uma festa quando os 9 cristais aparecem.</p>
       <div class="linha-sel">1 · Herói</div>
       <div class="opcoes" id="selHeroi">
         <button class="opcao" data-heroi="samuel" aria-pressed="true"><canvas width="20" height="26"></canvas>Samuel</button>
         <button class="opcao" data-heroi="player2" aria-pressed="false"><canvas width="20" height="26"></canvas>Player 2</button>
       </div>
       <div class="linha-sel">2 · Fase</div>
+      <p class="contador-cristais" id="contadorCristais" aria-live="polite">💎 0/9 cristais</p>
       <div class="fases" id="selFase"></div>
       <div class="linha-sel">3 · Jeito de jogar</div>
       <div class="opcoes" id="selModo">
-        <button class="opcao" data-modo="facil" aria-pressed="false">🐢 Fácil<br><small style="font:400 12px var(--mono)">5 corações</small></button>
-        <button class="opcao" data-modo="normal" aria-pressed="true">⭐ Normal<br><small style="font:400 12px var(--mono)">3 corações</small></button>
+        <button class="opcao" data-modo="facil" aria-pressed="false"><span>🐢 Fácil</span><small id="txtFacil"></small></button>
+        <button class="opcao" data-modo="normal" aria-pressed="true"><span>⭐ Normal</span><small id="txtNormal"></small></button>
       </div>
       <button class="btn grande" id="btnJogar">▶ JOGAR!</button>
       <p class="dica">← → andar · ESPAÇO / ↑ / Z pular (segure para pular mais alto) · P pausa</p>
@@ -128,6 +135,7 @@
   <div class="cartao" style="width:min(460px,100%)">
     <div class="barra"><span>fase_completa.exe</span><span>🏁</span></div>
     <div class="corpo">
+      <div id="fimFesta" class="festa" hidden>A festa do Gatinho!</div>
       <span class="kicker" id="fimKicker">Fase completa!</span>
       <h2 id="fimTitulo">Prados de Blocos</h2>
       <div id="fimRecorde"></div>
@@ -142,7 +150,11 @@
   </div>
 </section>
 
-<script>
+<script type="module">
+import {
+  BALANCO, FASES, TEXTO_FACIL, TEXTO_NORMAL, totalCristais, bonusAberto,
+  ajustarParaModo, planejarPista, deveTocarLatido, aplicarQueda, gravarFase, parametros,
+} from './regras.js';
 'use strict';
 /* =====================================================================
    REINO DOS BLOCOS — jogo de plataforma original do Samuel.tech
@@ -227,76 +239,8 @@ const CRISTAL = (usado) => { const c = document.createElement('canvas'); c.width
   return c; };
 const TEX_CRISTAL = CRISTAL(false), TEX_CRISTAL_USADO = CRISTAL(true);
 
-/* ---------------- Fases (construídas por código) ---------------- */
-function fase(largura, construir) {
-  const m = Array.from({ length: ROWS }, () => Array(largura).fill('.'));
-  const put = (x, y, c) => { if (x >= 0 && x < largura && y >= 0 && y < ROWS) m[y][x] = c; };
-  const api = {
-    chao(x1, x2, alt, c = '#') { for (let x = x1; x <= x2; x++) for (let y = ROWS - alt; y < ROWS; y++) put(x, y, c); },
-    linha(x1, x2, y, c) { for (let x = x1; x <= x2; x++) put(x, y, c); },
-    coluna(x, y1, y2, c) { for (let y = y1; y <= y2; y++) put(x, y, c); },
-    p: put,
-    estrelas(x1, x2, y) { for (let x = x1; x <= x2; x++) put(x, y, '*'); },
-    arco(x1, x2, yBase, alt) { const n = x2 - x1; for (let k = 0; k <= n; k++) put(x1 + k, yBase - Math.round(Math.sin(k / n * Math.PI) * alt), '*'); },
-    agua(x1, x2) { for (let x = x1; x <= x2; x++) { put(x, 13, 'w'); put(x, 14, 'w'); } },
-  };
-  construir(api);
-  return m.map((r) => r.join(''));
-}
-const FASES = [
-  { nome: 'Prados de Blocos', tema: 'prado', ic: '🌳', mapa: fase(206, (a) => {
-    a.chao(0, 24, 3); a.p(3, 11, '@'); a.estrelas(6, 10, 11); a.p(12, 8, 'C'); a.p(13, 8, 'C'); a.p(14, 8, 'C'); a.estrelas(12, 14, 7); a.p(19, 11, 'g');
-    a.arco(24, 28, 10, 2);
-    a.chao(28, 35, 3); a.chao(36, 47, 4); a.linha(30, 33, 8, '='); a.estrelas(30, 33, 7); a.p(32, 3, 'K');
-    a.p(42, 10, 'B'); a.p(42, 9, 'B'); a.p(43, 10, 'B'); a.estrelas(42, 43, 7); a.p(46, 10, 'g');
-    a.arco(47, 51, 9, 2);
-    a.chao(51, 72, 3); a.p(56, 8, 'C'); a.p(57, 8, 'P'); a.p(58, 8, 'C'); a.p(64, 11, 'g'); a.p(69, 11, 'g'); a.estrelas(62, 66, 11); a.p(52, 11, 'f'); a.p(60, 11, 'f');
-    a.arco(72, 76, 9, 2);
-    a.chao(76, 100, 3); a.p(80, 11, 'M'); a.coluna(86, 6, 11, 'S'); a.coluna(87, 6, 11, 'S'); a.estrelas(86, 87, 5); a.p(86, 1, 'K');
-    a.p(94, 11, 'g'); a.p(99, 11, 'F'); a.p(78, 11, 'f');
-    a.chao(101, 124, 3); a.p(108, 10, 'B'); a.p(109, 10, 'B'); a.p(109, 9, 'B'); a.p(110, 10, 'B'); a.p(110, 9, 'B'); a.p(110, 8, 'B'); a.estrelas(108, 110, 6); a.p(116, 7, 'z'); a.p(121, 11, 'H');
-    a.linha(127, 129, 9, '='); a.linha(132, 134, 8, '='); a.estrelas(127, 129, 8); a.estrelas(132, 134, 7);
-    a.chao(137, 160, 4); a.p(142, 10, 'g'); a.p(150, 10, 'g'); a.linha(152, 155, 6, '='); a.estrelas(152, 155, 5); a.p(157, 2, 'K'); a.linha(156, 158, 3, '=');
-    a.p(146, 7, 'C'); a.p(147, 7, 'C'); a.p(148, 7, 'C');
-    a.arco(160, 164, 9, 2);
-    a.chao(164, 205, 3); a.p(170, 11, 'g'); a.p(176, 7, 'z');
-    for (let k = 0; k < 5; k++) a.coluna(184 + k, 11 - k, 11, 'B');
-    a.estrelas(184, 188, 5); a.chao(189, 205, 7); a.p(198, 7, 'G'); a.p(195, 7, 'f');
-  }) },
-  { nome: 'Cavernas de Cristal', tema: 'caverna', ic: '💎', mapa: fase(214, (a) => {
-    a.linha(0, 213, 0, 'S'); a.linha(0, 213, 1, 'S');
-    a.chao(0, 20, 3); a.p(3, 11, '@'); a.p(6, 10, 'l'); a.estrelas(8, 12, 11); a.p(15, 11, 'g');
-    a.agua(21, 25); a.linha(22, 24, 9, '='); a.estrelas(22, 24, 8);
-    a.chao(26, 44, 4); a.p(30, 10, '^'); a.p(31, 10, '^'); a.p(34, 7, 'C'); a.p(35, 7, 'P'); a.p(36, 7, 'C'); a.p(40, 9, 'l'); a.p(42, 10, 'g');
-    a.coluna(44, 2, 6, 'S'); a.coluna(45, 2, 6, 'S'); a.p(44, 7, 'K');
-    a.agua(45, 53); a.p(48, 10, '|'); a.estrelas(47, 51, 5);
-    a.chao(54, 76, 3); a.p(58, 11, 'g'); a.p(64, 11, '^'); a.p(65, 11, '^'); a.p(66, 11, '^'); a.estrelas(64, 66, 8); a.p(70, 6, 'z'); a.p(72, 10, 'l');
-    a.chao(77, 96, 5); a.p(80, 9, 'g'); a.p(86, 9, 'g'); a.p(92, 9, 'F'); a.linha(84, 88, 5, '='); a.estrelas(84, 88, 4); a.p(78, 8, 'l');
-    a.agua(97, 108); a.p(99, 9, '|'); a.p(103, 8, '|'); a.estrelas(99, 105, 4); a.p(102, 2, 'K');
-    a.chao(109, 130, 3); a.p(112, 11, 'M'); a.linha(116, 120, 5, 'S'); a.estrelas(116, 120, 4); a.p(124, 11, 'g'); a.p(127, 6, 'z'); a.p(118, 10, 'l'); a.p(129, 11, 'H');
-    a.chao(131, 150, 6); a.p(137, 8, '^'); a.p(138, 8, '^'); a.p(142, 8, 'g'); a.p(146, 8, 'g'); a.p(143, 5, 'C'); a.p(144, 5, 'C'); a.p(138, 7, 'l');
-    a.agua(151, 162); a.linha(152, 154, 9, '='); a.linha(157, 159, 7, '='); a.estrelas(157, 159, 6); a.p(147, 4, 'z');
-    a.chao(163, 183, 4); a.p(167, 10, 'g'); a.coluna(176, 5, 10, 'S'); a.p(176, 4, 'K'); a.p(168, 9, 'l'); a.p(171, 10, 'M');
-    a.chao(184, 213, 3); a.p(190, 11, 'g'); a.p(196, 9, 'l'); for (let k = 0; k < 4; k++) a.coluna(198 + k, 11 - k, 11, 'S'); a.chao(202, 213, 7); a.p(207, 7, 'G');
-  }) },
-  { nome: 'Ilhas no Céu', tema: 'ceu', ic: '☁️', mapa: fase(232, (a) => {
-    a.chao(0, 14, 4); a.p(3, 10, '@'); a.p(6, 7, 'P'); a.p(7, 7, 'C'); a.estrelas(9, 13, 10);
-    a.linha(17, 19, 9, 'c'); a.linha(22, 24, 7, 'c'); a.estrelas(17, 19, 8); a.estrelas(22, 24, 6);
-    a.chao(27, 40, 5); a.p(31, 9, 'g'); a.p(36, 9, 'g'); a.p(39, 4, 'z');
-    a.p(43, 8, '-'); a.estrelas(43, 49, 6);
-    a.chao(52, 64, 4); a.p(55, 10, 'M'); a.estrelas(55, 55, 3); a.p(56, 2, 'K'); a.p(60, 10, 'g');
-    a.linha(67, 69, 8, 'c'); a.linha(72, 74, 6, 'c'); a.linha(77, 79, 8, 'c'); a.estrelas(72, 74, 5); a.p(75, 3, 'z');
-    a.chao(82, 98, 6); a.p(86, 8, 'g'); a.p(92, 8, 'g'); a.p(96, 8, 'F'); a.p(89, 5, 'C'); a.p(90, 5, 'C');
-    a.p(101, 8, '-'); a.p(110, 6, '-'); a.estrelas(101, 114, 4);
-    a.chao(117, 130, 3); a.p(120, 11, 'g'); a.p(124, 7, 'z'); a.p(128, 11, 'H');
-    a.linha(133, 135, 9, 'c'); a.linha(137, 139, 6, 'c'); a.p(138, 2, 'K'); a.linha(141, 143, 8, 'c');
-    a.chao(146, 160, 5); a.p(150, 9, 'g'); a.p(154, 9, 'g'); a.p(158, 9, 'M');
-    a.linha(163, 166, 4, 'c'); a.estrelas(163, 166, 3); a.p(168, 7, '|'); a.linha(172, 174, 8, 'c');
-    a.chao(177, 192, 4); a.p(181, 10, 'g'); a.p(186, 5, 'z'); a.p(189, 4, 'C'); a.p(190, 4, 'C');
-    a.p(195, 8, '-'); a.estrelas(195, 203, 6); a.p(208, 4, 'K');
-    a.chao(206, 231, 4); for (let k = 0; k < 4; k++) a.coluna(214 + k, 10 - k, 10, 'S'); a.chao(218, 231, 8); a.p(225, 6, 'G'); a.p(212, 10, 'g');
-  }) },
-];
+/* Fases, números e regras do Doguinho/Fácil/bônus: regras.js */
+
 
 /* ---------------- Sprites (desenhados em código) ---------------- */
 const HEROIS = {
@@ -337,7 +281,7 @@ function spriteHeroi(tipo, pose, quadro) {
   else { r(4, cy + 4, 2, 7, h.cabelo); r(14, cy + 3, 2, 8, h.cabelo); r(2, cy, 3, 2, h.laco); r(1, cy - 1, 2, 4, h.laco); r(7, cy + 2, 2, 1, '#ff3e9a'); r(11, cy + 2, 2, 1, '#ff3e9a'); }
   cacheSprite.set(chave, c); return c;
 }
-function desenharCachorro(x, y, quadro, olhaEsq) {
+function desenharCachorro(x, y, quadro, olhaEsq, latindo) {
   g.save(); g.translate(Math.round(x), Math.round(y)); if (olhaEsq) { g.scale(-1, 1); }
   const r = (a, b, w, h, c) => { g.fillStyle = c; g.fillRect(a, b, w, h); };
   const p = quadro % 2;
@@ -346,6 +290,7 @@ function desenharCachorro(x, y, quadro, olhaEsq) {
   r(2, -11, 6, 6, '#9b5a2c'); r(4, -11, 2, 6, '#ffffff'); r(6, -7, 3, 2, '#ffffff'); r(8, -8, 1, 1, '#193337');   // cabeça
   r(5, -9, 1, 1, '#193337'); r(1, -12, 2, 3, '#7a431e'); r(7, -12, 2, 3, '#7a431e'); r(-4, -7, 3, 2, '#9b5a2c');
   r(2, -5, 6, 1, '#193337');
+  if (latindo) { r(3, -4, 4, 2, '#7a431e'); r(8, -6, 2, 2, '#193337'); r(11, -8, 2, 2, '#193337'); }
   g.restore();
 }
 function desenharGato(x, y, t) {
@@ -386,6 +331,7 @@ const Som = {
   cristal() { [1047, 1319, 1568, 2093, 1568, 2093].forEach((f, i) => this.tom(f, f, 0.14, 'triangle', 0.1, i * 0.08)); },
   bandeira() { [784, 988, 1175].forEach((f, i) => this.tom(f, f, 0.18, 'triangle', 0.12, i * 0.1)); },
   coracao() { this.tom(880, 1760, 0.25, 'sine', 0.12); },
+  latido() { if (!this.ligado) return; this.tom(420, 180, 0.09, 'square', 0.1); this.tom(280, 120, 0.12, 'square', 0.08, 0.1); },
   vitoria() { [523, 523, 659, 784, 659, 784, 1047].forEach((f, i) => this.tom(f, f, i === 6 ? 0.6 : 0.16, 'square', 0.1, i * 0.14)); },
   alternar() { this.ligado = !this.ligado; guardar.gravar('som', this.ligado); if (this.saida) this.saida.gain.value = this.ligado ? 0.85 : 0; },
   alternarMusica() { this.musica = !this.musica; guardar.gravar('musica', this.musica); if (this.mus) this.mus.gain.value = this.musica ? 0.28 : 0; },
@@ -429,12 +375,15 @@ const tileEm = (tx, ty) => (ty < 0 || ty >= ROWS || tx < 0 || tx >= estado.largu
 const umaViaEm = (tx, ty) => { const c = tileEm(tx, ty); return c === '=' || c === 'c'; };
 
 function carregarFase(n) {
-  estado.nivel = n; const F = FASES[n];
-  estado.tema = F.tema; gerarTexturas(F.tema);
-  estado.mapa = F.mapa.map((r) => r.split('')); estado.largura = F.mapa[0].length;
+  estado.nivel = n; const faseDef = FASES[n];
+  F = { ...parametros(estado.modo) };
+  estado.tema = faseDef.tema; gerarTexturas(faseDef.tema);
+  const linhas = ajustarParaModo(faseDef.mapa, F);
+  estado.mapa = linhas.map((r) => r.split('')); estado.largura = linhas[0].length;
   inimigos = []; itens = []; plataformas = []; particulas = []; blocosUsados = new Set(); rastro = []; gatoPos = null;
   estado.estrelas = 0; estado.cristais = [false, false, false]; estado.tempo = 0; estado.trauma = 0; estado.fimT = 0;
-  estado.vidas = estado.modo === 'facil' ? 5 : 3;
+  estado.vidas = F.vidas;
+  entradaRobo.parado = 0; entradaRobo.ultimoX = -1;
   let cristalIdx = 0, inicio = { x: 48, y: 160 };
   for (let y = 0; y < ROWS; y++) for (let x = 0; x < estado.largura; x++) {
     const c = estado.mapa[y][x], px = x * T, py = y * T;
@@ -443,19 +392,19 @@ function carregarFase(n) {
     else if (c === '*') { itens.push({ tipo: 'estrela', x: px + 8, y: py + 8, t: Math.random() * 6 }); limpa(); }
     else if (c === 'K') { itens.push({ tipo: 'cristal', idx: cristalIdx++, x: px + 8, y: py + 8, t: 0 }); limpa(); }
     else if (c === 'H') { itens.push({ tipo: 'coracao', x: px + 8, y: py + 8, t: 0 }); limpa(); }
-    else if (c === 'g') { inimigos.push({ tipo: 'geleia', x: px + 1, y: py + 6, w: 14, h: 10, vx: -28, vy: 0, vivo: true, t: Math.random() * 3 }); limpa(); }
-    else if (c === 'z') { inimigos.push({ tipo: 'abelha', x0: px, y0: py, x: px, y: py, w: 14, h: 12, vivo: true, t: Math.random() * 6 }); limpa(); }
+    else if (c === 'g') { inimigos.push({ tipo: 'geleia', x: px + 1, y: py + 6, w: 14, h: 10, vx: -F.geleiaVel, vel: F.geleiaVel, vy: 0, vivo: true, t: Math.random() * 3 }); limpa(); }
+    else if (c === 'z') { inimigos.push({ tipo: 'abelha', x0: px, y0: py, x: px, y: py, w: 14, h: 12, vivo: true, t: Math.random() * 6, ritmo: F.abelhaRitmo, ritmoY: F.abelhaRitmoY, ampX: F.abelhaAmpX, ampY: F.abelhaAmpY }); limpa(); }
     else if (c === 'F') { itens.push({ tipo: 'bandeira', x: px + 8, y: py + 16, ativa: false }); limpa(); }
     else if (c === 'G') { itens.push({ tipo: 'portal', x: px, y: py - 16, w: 32, h: 32 }); gatoPos = { x: px + 44, y: py + 16 }; limpa(); }
-    else if (c === '-') { plataformas.push({ x0: px, y0: py, x: px, y: py, w: 48, h: 8, eixo: 'x', amp: 62, vel: 1.1, t: 0, dx: 0, dy: 0 }); limpa(); }
-    else if (c === '|') { plataformas.push({ x0: px, y0: py, x: px, y: py, w: 48, h: 8, eixo: 'y', amp: 40, vel: 1.2, t: 0, dx: 0, dy: 0 }); limpa(); }
+    else if (c === '-') { plataformas.push({ x0: px, y0: py, x: px, y: py, w: 48 + F.plataformaExtra * T, h: 8, eixo: 'x', amp: 62, vel: 1.1, t: 0, dx: 0, dy: 0 }); limpa(); }
+    else if (c === '|') { plataformas.push({ x0: px, y0: py, x: px, y: py, w: 48 + F.plataformaExtra * T, h: 8, eixo: 'y', amp: 40, vel: 1.2, t: 0, dx: 0, dy: 0 }); limpa(); }
     else if (c === 'M') { itens.push({ tipo: 'mola', x: px, y: py, t: 0 }); }
     else if (c === 'f' || c === 'l') { itens.push({ tipo: c === 'f' ? 'flor' : 'lampada', x: px + 8, y: py + 16, t: Math.random() * 6 }); limpa(); }
   }
   jogador = { x: inicio.x, y: inicio.y, w: 10, h: 14, vx: 0, vy: 0, chao: false, coiote: 0, buffer: 0, pulos: 0, puloDuplo: false, olhaEsq: false,
     invencivel: 0, quadro: 0, animT: 0, esticaX: 1, esticaY: 1, naPlataforma: null, segurandoPulo: false, morto: 0 };
   estado.checkpoint = { x: inicio.x, y: inicio.y }; estado.ultimoSeguro = { x: inicio.x, y: inicio.y };
-  cachorro = { x: inicio.x - 20, y: inicio.y + 14, quadro: 0, olhaEsq: false };
+  cachorro = { x: inicio.x - 20, y: inicio.y + 14, quadro: 0, olhaEsq: false, acao: 'segue', alvo: null, pistaT: 0, andou: 0, avisados: new Set(), moedasAvisadas: new Set(), moedaEspera: 0, resgateT: 0, latidos: 0, tocouLatido: false };
   for (let i = 0; i < 40; i++) rastro.push({ x: inicio.x, y: inicio.y + 14, esq: false });
   estado.camX = clamp(jogador.x - W / 2, 0, estado.largura * T - W);
   prerenderizarNivel();
@@ -515,7 +464,7 @@ function desenharFundo(t) {
 }
 
 /* ---------------- Física ---------------- */
-const F = { MAX: 118, ACEL: 950, ACEL_AR: 700, ATRITO: 1250, GRAV_SOBE: 1050, GRAV_CAI: 1850, PULO: 392, PULO2: 340, QUEDA_MAX: 420, COIOTE: 0.1, BUFFER: 0.13, CORTE: 0.45 };
+let F = { ...BALANCO.normal };
 function sobrepoe(a, b) { return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y; }
 
 function moverComColisao(e, dt, ehJogador) {
@@ -588,7 +537,7 @@ function atualizarJogador(dt, entrada) {
   if (!entrada.puloSegurando && j.vy < 0 && j.segurandoPulo) { j.vy *= F.CORTE; j.segurandoPulo = false; }
   // gravidade (mais forte caindo, mais leve no topo do pulo)
   let gr = j.vy < 0 ? F.GRAV_SOBE : F.GRAV_CAI;
-  if (Math.abs(j.vy) < 45 && entrada.puloSegurando) gr *= 0.5;
+  if (Math.abs(j.vy) < F.FLUTUA_FAIXA && entrada.puloSegurando) gr *= F.FLUTUA_FATOR;
   j.vy = Math.min(F.QUEDA_MAX, j.vy + gr * dt);
   // em cima de plataforma móvel: anda junto
   if (j.naPlataforma) { j.x += j.naPlataforma.dx; j.y += j.naPlataforma.dy; }
@@ -634,18 +583,30 @@ function machucar(dir) {
   if (estado.vidas <= 0) { j.morto = 1.2; aviso('OPS!<small>de volta à bandeira</small>', 1.2); }
   atualizarHUD();
 }
+function cairNoSeguro() {
+  const j = jogador, s = estado.ultimoSeguro;
+  j.x = s.x; j.y = s.y - 2; j.vx = j.vy = 0; j.invencivel = 1.4;
+}
 function caiu() {
   const j = jogador; if (j.morto > 0) return;
   if (estado.fase === 'menu') { carregarFase(estado.nivel); return; }   // vitrine do menu: só recomeça
-  estado.vidas--; Som.dor(); estado.trauma = 0.5; atualizarHUD();
+  const queda = aplicarQueda({ modo: estado.modo, vidas: estado.vidas, cfg: F });
+  if (!queda.tiraCoracao) {
+    cachorro.resgateT = 1.1;
+    cachorro.tocouLatido = deveTocarLatido(true, Som.ligado);
+    if (cachorro.tocouLatido) Som.latido();
+    aviso('O DOGUINHO BUSCOU VOCÊ!', 1.1);
+    cairNoSeguro();
+    return;
+  }
+  estado.vidas = queda.vidas; Som.dor(); estado.trauma = 0.5; atualizarHUD();
   if (estado.vidas <= 0) { j.morto = 1.2; aviso('OPS!<small>de volta à bandeira</small>', 1.2); return; }
-  // volta para o último chão firme
-  const s = estado.ultimoSeguro; j.x = s.x; j.y = s.y - 2; j.vx = j.vy = 0; j.invencivel = 1.4;
+  cairNoSeguro();
   aviso('ÔÔÔ!', 0.6);
 }
 function renascer() {
   const j = jogador, c = estado.checkpoint;
-  estado.vidas = estado.modo === 'facil' ? 5 : 3;
+  estado.vidas = F.vidas;
   j.x = c.x; j.y = c.y; j.vx = j.vy = 0; j.invencivel = 1.6; estado.ultimoSeguro = { x: c.x, y: c.y };
   for (let i = 0; i < 40; i++) rastro[i] = { x: c.x, y: c.y + 14, esq: false };
   atualizarHUD();
@@ -661,11 +622,11 @@ function atualizarInimigos(dt) {
       moverComColisao(e, dt, false);
       // vira na beirada ou na parede
       const frente = e.vx > 0 ? e.x + e.w + 1 : e.x - 1, txF = Math.floor(frente / T), tyP = Math.floor((e.y + e.h + 2) / T);
-      if (e.bateuParede || (e.chao && !solidoEm(txF, tyP) && !umaViaEm(txF, tyP))) e.vx = -e.vx || 28;
-      if (e.vx === 0) e.vx = 28;
+      if (e.bateuParede || (e.chao && !solidoEm(txF, tyP) && !umaViaEm(txF, tyP))) e.vx = -e.vx || e.vel;
+      if (e.vx === 0) e.vx = e.vel;
       if (e.y > H + 40) e.vivo = false;
     } else {
-      e.x = e.x0 + Math.sin(e.t * 1.1) * 30; e.y = e.y0 + Math.sin(e.t * 2.6) * 10; e.olhaEsq = Math.cos(e.t * 1.1) < 0;
+      e.x = e.x0 + Math.sin(e.t * e.ritmo) * e.ampX; e.y = e.y0 + Math.sin(e.t * e.ritmoY) * e.ampY; e.olhaEsq = Math.cos(e.t * e.ritmo) < 0;
     }
     // contato com o jogador
     const j = jogador;
@@ -696,9 +657,9 @@ function atualizarItens(dt) {
     if (it.tipo === 'tenis') { it.vy = Math.min(200, it.vy + 600 * dt); it.y += it.vy * dt; const ty = Math.floor((it.y + 6) / T); if (solidoEm(Math.floor(it.x / T), ty)) { it.y = ty * T - 6; it.vy = 0; } }
     const caixaIt = it.tipo === 'portal' ? { x: it.x, y: it.y, w: it.w, h: it.h + 16 } : it.tipo === 'mola' ? { x: it.x + 2, y: it.y + 8, w: 12, h: 8 } : it.tipo === 'bandeira' ? { x: it.x - 6, y: it.y - 32, w: 12, h: 32 } : { x: it.x - 6, y: it.y - 6, w: 12, h: 12 };
     if (!sobrepoe(cj, caixaIt) || j.morto > 0) continue;
-    if (it.tipo === 'estrela') { it.pego = true; estado.estrelas++; Som.estrela(); particulasEstrela(it.x, it.y); if (estado.estrelas % 50 === 0) { estado.vidas++; Som.coracao(); aviso('+1 ♥', 0.8); } }
+    if (it.tipo === 'estrela') { it.pego = true; estado.estrelas++; Som.estrela(); particulasEstrela(it.x, it.y); if (estado.estrelas % F.estrelasPorCoracao === 0) { estado.vidas++; Som.coracao(); aviso('+1 ♥', 0.8); } }
     else if (it.tipo === 'cristal') { it.pego = true; estado.cristais[it.idx] = true; Som.cristal(); aviso('💎 CRISTAL SECRETO!', 1.2); estado.hitStop = 0.08; for (let i = 0; i < 20; i++) particulas.push({ x: it.x, y: it.y, vx: (Math.random() - 0.5) * 200, vy: (Math.random() - 0.5) * 200, vida: 0.7, max: 0.7, cor: ['#ceb7ef', '#9ad8ff', '#ff9ad0'][i % 3], tam: 3 }); }
-    else if (it.tipo === 'coracao') { it.pego = true; estado.vidas = Math.min(estado.vidas + 1, estado.modo === 'facil' ? 6 : 4); Som.coracao(); }
+    else if (it.tipo === 'coracao') { it.pego = true; estado.vidas = Math.min(estado.vidas + 1, F.coracaoMax); Som.coracao(); }
     else if (it.tipo === 'tenis') { it.pego = true; j.puloDuplo = true; Som.poder(); aviso('TÊNIS DE MOLA!<small>aperte pular no ar: pulo duplo!</small>', 2.2); }
     else if (it.tipo === 'mola' && j.vy > 0) { j.vy = -560; j.segurandoPulo = false; j.pulos = 0; it.t = 0; it.ativa = 0.25; Som.mola(); j.esticaX = 0.7; j.esticaY = 1.35; }
     else if (it.tipo === 'bandeira' && !it.ativa) { it.ativa = true; estado.checkpoint = { x: it.x - 5, y: it.y - j.h - 2 }; Som.bandeira(); aviso('BANDEIRA SALVA!', 1); for (let i = 0; i < 14; i++) particulas.push({ x: it.x, y: it.y - 28, vx: (Math.random() - 0.5) * 120, vy: -Math.random() * 120, vida: 0.8, max: 0.8, cor: ['#b9ed80', '#ffd56b', '#ff9d52'][i % 3], tam: 2, grav: 200 }); }
@@ -741,7 +702,7 @@ function desenharMundo(t) {
     } else if (c === 'B' && blocoBateuT.get(k) > 0) { const bt = blocoBateuT.get(k); g.drawImage(texturas.caixa, tx * T, ty * T - Math.round(Math.sin(bt / 0.12 * Math.PI) * 3)); }
   }
   // plataformas móveis
-  for (const p of plataformas) { for (let k = 0; k < 3; k++) g.drawImage(estado.tema === 'ceu' ? texturas.nuvem : texturas.tabua, Math.round(p.x) + k * T, Math.round(p.y)); g.fillStyle = 'rgba(0,0,0,.2)'; g.fillRect(Math.round(p.x), Math.round(p.y) + 7, p.w, 1); }
+  for (const p of plataformas) { const nTiles = Math.max(1, Math.round(p.w / T)); for (let k = 0; k < nTiles; k++) g.drawImage(estado.tema === 'ceu' ? texturas.nuvem : texturas.tabua, Math.round(p.x) + k * T, Math.round(p.y)); g.fillStyle = 'rgba(0,0,0,.2)'; g.fillRect(Math.round(p.x), Math.round(p.y) + 7, p.w, 1); }
   // itens
   for (const it of itens) {
     if (it.x < cam - 40 || it.x > cam + W + 40) continue;
@@ -762,9 +723,8 @@ function desenharMundo(t) {
     if (e.x < cam - 20 || e.x > cam + W + 20) continue;
     if (e.tipo === 'geleia') desenharGeleia(e, t); else desenharAbelha(e, t);
   }
-  // Doguinho segue o rastro do herói
-  const alvo = rastro[0]; cachorro.x = lerp(cachorro.x, alvo.x - (alvo.esq ? -10 : 10), 0.2); cachorro.y = alvo.y; cachorro.olhaEsq = alvo.esq;
-  desenharCachorro(cachorro.x, cachorro.y, Math.floor(t * 10), cachorro.olhaEsq);
+  desenharCachorro(cachorro.x, cachorro.y, Math.floor(t * 10), cachorro.olhaEsq, cachorro.acao === 'pista' || cachorro.resgateT > 0);
+  if (cachorro.acao === 'pista') desenharPista(t);
   // herói
   const j = jogador;
   if (!(j.invencivel > 0 && Math.floor(t * 16) % 2) && j.morto <= 0) {
@@ -791,6 +751,47 @@ const ESTRELA_PX = (() => {   // estrela de 9×9 pixels
   m.forEach((l, y) => [...l].forEach((ch, i) => { if (ch === '#') { x.fillStyle = y < 3 ? '#fff2b8' : '#ffd56b'; x.fillRect(i, y + 1, 1, 1); } }));
   return c;
 })();
+function desenharPista(t) {
+  const alvo = cachorro.alvo;
+  if (!alvo) return;
+  const ox = cachorro.x, oy = cachorro.y - 14;
+  const dx = alvo.x - ox, dy = alvo.y - oy;
+  const dist = Math.hypot(dx, dy) || 1;
+  const passos = Math.min(7, Math.max(2, Math.floor(dist / 22)));
+  for (let i = 1; i <= passos; i++) {
+    const k = i / (passos + 1);
+    g.fillStyle = i % 2 ? '#ffd56b' : '#ff9d52';
+    g.fillRect(Math.round(ox + dx * k) - 1, Math.round(oy + dy * k) - 1, 3, 3);
+  }
+  const ang = Math.atan2(dy, dx);
+  g.save();
+  g.translate(Math.round(alvo.x), Math.round(alvo.y));
+  g.rotate(ang);
+  g.fillStyle = '#ff9d52';
+  g.fillRect(-10, -1, 6, 3);
+  g.fillRect(-6, -3, 3, 7);
+  g.fillRect(-3, -2, 3, 5);
+  g.restore();
+  if (alvo.tipo === 'cristal') {
+    const bx = Math.round(cachorro.x - 34), by = Math.round(cachorro.y - 44);
+    g.fillStyle = '#193337';
+    g.fillRect(bx - 2, by - 2, 40, 18);
+    g.fillStyle = '#fffdf7';
+    g.fillRect(bx, by, 36, 14);
+    g.fillStyle = '#193337';
+    g.font = '700 10px Courier New';
+    g.textBaseline = 'middle';
+    g.fillText('AU!', bx + 6, by + 7);
+    g.textBaseline = 'alphabetic';
+    const s = 16 + Math.round(Math.sin(t * 8) * 2);
+    const ax = Math.round(alvo.x), ay = Math.round(alvo.y);
+    g.fillStyle = '#ffd56b';
+    g.fillRect(ax - s, ay - s, 7, 2); g.fillRect(ax - s, ay - s, 2, 7);
+    g.fillRect(ax + s - 7, ay - s, 7, 2); g.fillRect(ax + s - 2, ay - s, 2, 7);
+    g.fillRect(ax - s, ay + s - 2, 7, 2); g.fillRect(ax - s, ay + s - 7, 2, 7);
+    g.fillRect(ax + s - 7, ay + s - 2, 7, 2); g.fillRect(ax + s - 2, ay + s - 7, 2, 7);
+  }
+}
 function desenharEstrelinha(x, y, t) {
   const w = Math.max(1, Math.round(Math.abs(Math.cos(t * 2.5)) * 9));
   g.drawImage(ESTRELA_PX, Math.round(x - w / 2), Math.round(y - 5), w, 9);
@@ -830,31 +831,99 @@ function desenharLuz(cam, t) {
   g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.08; g.fillStyle = '#8a4fff'; g.fillRect(0, 0, W, H); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
 }
 
+/* ---------------- Doguinho (segue, busca pertinho e aponta; não joga pela criança) ---------------- */
+function seguirRastro(dt) {
+  const alvo = rastro[0];
+  if (!alvo) return;
+  const k = 1 - Math.exp(-dt * 14);
+  cachorro.x = lerp(cachorro.x, alvo.x - (alvo.esq ? -10 : 10), k);
+  cachorro.y = alvo.y;
+  cachorro.olhaEsq = alvo.esq;
+}
+function chaoNaFrente(dir) {
+  const tx = Math.floor((cachorro.x + dir * 8) / T);
+  const ty = Math.floor(cachorro.y / T);
+  if (tx < 0 || tx >= estado.largura) return false;
+  const chao = solidoEm(tx, ty) || solidoEm(tx, ty + 1) || umaViaEm(tx, ty);
+  return chao && !solidoEm(tx, ty - 1);
+}
+function atualizarCachorro(dt) {
+  if (cachorro.resgateT > 0) {
+    cachorro.resgateT -= dt;
+    cachorro.x = jogador.x; cachorro.y = jogador.y + jogador.h; cachorro.olhaEsq = jogador.olhaEsq;
+    return;
+  }
+  if (estado.fase !== 'jogando' || jogador.morto > 0) {
+    cachorro.acao = 'segue'; cachorro.alvo = null;
+    seguirRastro(dt);
+    return;
+  }
+  if (cachorro.acao === 'pista' && cachorro.alvo) {
+    const ainda = itens.some((it) => !it.pego && ((it.tipo === 'cristal' ? 'c' + it.idx : it.tipo === 'estrela' ? 'e' + Math.round(it.x) + ':' + Math.round(it.y) : '') === cachorro.alvo.id));
+    if (!ainda) { cachorro.acao = 'segue'; cachorro.alvo = null; seguirRastro(dt); return; }
+    cachorro.pistaT -= dt;
+    const dir = Math.sign(cachorro.alvo.x - cachorro.x);
+    cachorro.olhaEsq = dir < 0;
+    if (dir && Math.abs(cachorro.alvo.x - cachorro.x) > 14 && cachorro.andou < F.buscaBlocos * T && chaoNaFrente(dir)) {
+      const passoPx = Math.min(F.caoVel * dt, Math.abs(cachorro.alvo.x - cachorro.x) - 14);
+      cachorro.x += dir * Math.max(0, passoPx);
+      cachorro.andou += Math.max(0, passoPx);
+    }
+    if (cachorro.pistaT <= 0) {
+      if (cachorro.alvo.tipo === 'estrela') cachorro.moedaEspera = F.moedaEspera;
+      cachorro.acao = 'segue'; cachorro.alvo = null;
+    }
+    return;
+  }
+  if (cachorro.moedaEspera > 0) cachorro.moedaEspera -= dt;
+  const plano = planejarPista({
+    x: jogador.x + jogador.w / 2, itens, avisados: cachorro.avisados, moedasAvisadas: cachorro.moedasAvisadas,
+    moedaEspera: cachorro.moedaEspera, cfg: F, bloco: T,
+  });
+  if (!plano || plano.moveHeroi || plano.derrotaInimigo || plano.completaFase || plano.coleta) { seguirRastro(dt); return; }
+  cachorro.acao = 'pista'; cachorro.alvo = plano.alvo; cachorro.pistaT = F.apontaSegundos; cachorro.andou = 0;
+  if (plano.latir) { cachorro.avisados.add(plano.alvo.id); cachorro.latidos++; }
+  else cachorro.moedasAvisadas.add(plano.alvo.id);
+  cachorro.tocouLatido = deveTocarLatido(plano.latir, Som.ligado);
+  if (cachorro.tocouLatido) Som.latido();
+}
+
 /* ---------------- HUD / telas ---------------- */
 function atualizarHUD() {
   $('hVida').textContent = '♥'.repeat(Math.max(0, estado.vidas)) || '♡';
   $('hEstrelas').textContent = '⭐ ' + estado.estrelas;
-  $('hCristais').textContent = '💎 ' + estado.cristais.filter(Boolean).length + '/3';
-  $('hFase').textContent = 'FASE ' + (estado.nivel + 1) + ' · ' + FASES[estado.nivel].nome.toUpperCase();
+  $('hCristais').textContent = FASES[estado.nivel].bonus
+    ? '💎 ' + totalCristais(progresso) + '/' + BALANCO.cristaisParaBonus
+    : '💎 ' + estado.cristais.filter(Boolean).length + '/3';
+  const tag = estado.modo === 'facil' ? 'FÁCIL · ' : '';
+  $('hFase').textContent = tag + 'FASE ' + (estado.nivel + 1) + ' · ' + FASES[estado.nivel].nome.toUpperCase();
 }
 let avisoT = 0;
 function aviso(html, d = 1) { const a = $('aviso'); a.innerHTML = html; a.classList.remove('pop'); void a.offsetWidth; a.classList.add('pop'); avisoT = d; }
 function mostrar(id) { for (const t of ['telaInicio', 'telaPausa', 'telaFim']) $(t).hidden = t !== id; }
-const liberada = (i) => i === 0 || !!progresso[i - 1]?.completou;
+const liberada = (i) => FASES[i].bonus ? bonusAberto(progresso) : (i === 0 || !!progresso[i - 1]?.completou);
 function montarMenu() {
   document.querySelectorAll('#selHeroi [data-heroi]').forEach((b) => {
     b.setAttribute('aria-pressed', String(b.dataset.heroi === estado.heroi));
     const c = b.querySelector('canvas'), x = c.getContext('2d'); x.imageSmoothingEnabled = false; x.clearRect(0, 0, 20, 26); x.drawImage(spriteHeroi(b.dataset.heroi, 'parado', 0), 0, 0);
   });
+  const tot = totalCristais(progresso);
+  $('contadorCristais').textContent = '💎 ' + tot + '/' + BALANCO.cristaisParaBonus + ' cristais' + (tot >= BALANCO.cristaisParaBonus ? ' · festa aberta!' : '');
+  $('txtFacil').textContent = TEXTO_FACIL;
+  $('txtNormal').textContent = TEXTO_NORMAL;
+  const cores = ['#c3e8f4', '#ceb7ef', '#ffd6b8', '#ffd56b'];
   $('selFase').innerHTML = FASES.map((f, i) => {
-    const p = progresso[i], ok = liberada(i), cr = p ? p.cristais.filter(Boolean).length : 0;
-    return `<button class="fase" data-fase="${i}" ${ok ? '' : 'disabled'} aria-pressed="${i === estado.nivel}" style="background:${['#c3e8f4', '#ceb7ef', '#ffd6b8'][i]}"><span class="ic">${ok ? f.ic : '🔒'}</span>${i + 1}. ${f.nome}<small>${p?.completou ? '✔ 💎' + cr + '/3' : ok ? 'nova!' : 'termine a anterior'}</small></button>`;
+    const p = progresso[i], ok = liberada(i), cr = p && p.cristais ? p.cristais.filter(Boolean).length : 0;
+    const small = f.bonus
+      ? (ok ? (p?.completou ? '✔ festa!' : 'aberta!') : 'abre com 9/9')
+      : (p?.completou ? '✔ 💎' + cr + '/3' : ok ? 'nova!' : 'termine a anterior');
+    return `<button class="fase" data-fase="${i}" ${ok ? '' : 'disabled'} aria-pressed="${i === estado.nivel}" style="background:${cores[i]}"><span class="ic">${ok ? f.ic : '🔒'}</span>${i + 1}. ${f.nome}<small>${small}</small></button>`;
   }).join('');
   document.querySelectorAll('#selModo [data-modo]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.modo === estado.modo)));
 }
 $('selHeroi').addEventListener('click', (e) => { const b = e.target.closest('[data-heroi]'); if (!b) return; estado.heroi = b.dataset.heroi; guardar.gravar('heroi', estado.heroi); Som.iniciar(); Som.pulo(); montarMenu(); });
 $('selFase').addEventListener('click', (e) => { const b = e.target.closest('[data-fase]'); if (!b || b.disabled) return; estado.nivel = +b.dataset.fase; Som.iniciar(); Som.estrela(); carregarFase(estado.nivel); montarMenu(); });
-$('selModo').addEventListener('click', (e) => { const b = e.target.closest('[data-modo]'); if (!b) return; estado.modo = b.dataset.modo; guardar.gravar('modo', estado.modo); Som.iniciar(); Som.estrela(); montarMenu(); });
+$('selModo').addEventListener('click', (e) => { const b = e.target.closest('[data-modo]'); if (!b) return; estado.modo = b.dataset.modo; guardar.gravar('modo', estado.modo); Som.iniciar(); Som.estrela(); if (estado.fase === 'menu') carregarFase(estado.nivel); montarMenu(); });
 function irMenu() {
   estado.fase = 'menu'; mostrar('telaInicio'); $('hud').hidden = true; $('topoBtns').hidden = true; $('toque').hidden = true;
   const prox = FASES.findIndex((f, i) => liberada(i) && !progresso[i]?.completou); if (prox >= 0 && progresso[estado.nivel]?.completou) estado.nivel = prox;
@@ -862,10 +931,11 @@ function irMenu() {
   carregarFase(estado.nivel); montarMenu(); $('btnJogar').focus();
 }
 function comecar(n = estado.nivel) {
+  if (!FASES[n] || (FASES[n].bonus && !bonusAberto(progresso))) { irMenu(); return; }
   Som.iniciar(); carregarFase(n); estado.fase = 'jogando'; mostrar(null);
   $('hud').hidden = false; $('topoBtns').hidden = false; $('toque').hidden = !toque;
   Musica.tocar(TEMAS[estado.tema].musica);
-  aviso('FASE ' + (n + 1) + '<small>' + FASES[n].nome + '</small>', 2);
+  aviso((FASES[n].bonus ? 'FESTA' : 'FASE ' + (n + 1)) + '<small>' + FASES[n].nome + '</small>', 2);
   atualizarHUD();
 }
 function terminarFase() {
@@ -875,26 +945,48 @@ function terminarFase() {
 }
 function mostrarResultado() {
   estado.fase = 'resultado';
-  const n = estado.nivel, p = progresso[n] || { cristais: [false, false, false] };
-  const novoRecorde = !p.tempo || estado.tempo < p.tempo;
-  progresso[n] = { completou: true, cristais: p.cristais.map((c, i) => c || estado.cristais[i]), tempo: Math.min(p.tempo || Infinity, estado.tempo), estrelas: Math.max(p.estrelas || 0, estado.estrelas) };
+  const n = estado.nivel, antes = progresso[n];
+  const novoRecorde = !antes?.tempo || estado.tempo < antes.tempo;
+  progresso[n] = gravarFase(antes, { cristais: estado.cristais, tempo: estado.tempo, estrelas: estado.estrelas });
   guardar.gravar('progresso', progresso);
+  const bonus = !!FASES[n].bonus;
+  $('fimFesta').hidden = !bonus;
+  $('telaFim').querySelector('.barra span').textContent = bonus ? 'festa_do_gatinho.exe' : 'fase_completa.exe';
+  $('fimKicker').textContent = bonus ? 'Festa!' : 'Fase completa!';
   $('fimTitulo').textContent = FASES[n].nome;
   $('fimEstrelas').textContent = '⭐ ' + estado.estrelas;
-  $('fimCristais').textContent = '💎 ' + estado.cristais.filter(Boolean).length + '/3';
-  const m = Math.floor(estado.tempo / 60), s = Math.floor(estado.tempo % 60);
-  $('fimTempo').textContent = '⏱ ' + m + ':' + String(s).padStart(2, '0');
+  $('fimCristais').textContent = bonus
+    ? '💎 ' + totalCristais(progresso) + '/' + BALANCO.cristaisParaBonus
+    : '💎 ' + estado.cristais.filter(Boolean).length + '/3';
+  const min = Math.floor(estado.tempo / 60), seg = Math.floor(estado.tempo % 60);
+  $('fimTempo').textContent = '⏱ ' + min + ':' + String(seg).padStart(2, '0');
   $('fimRecorde').innerHTML = novoRecorde ? '<span class="recorde">★ NOVO RECORDE DE TEMPO!</span>' : '';
   const faltam = 3 - estado.cristais.filter(Boolean).length;
-  const ultima = n >= FASES.length - 1;
-  $('fimInfo').textContent = (faltam ? `Faltaram ${faltam} cristal${faltam > 1 ? 'is' : ''} secreto${faltam > 1 ? 's' : ''}. Procure lá no alto!` : 'Você achou todos os cristais secretos! 💎') + (ultima ? ' Você terminou o Reino dos Blocos! 🏆' : '');
-  $('btnProxima').hidden = ultima;
-  $('hud').hidden = true; $('toque').hidden = true; mostrar('telaFim'); (ultima ? $('btnDeNovo') : $('btnProxima')).focus();
+  const textoFaltam = faltam
+    ? `Faltaram ${faltam} cristal${faltam > 1 ? 'is' : ''} secreto${faltam > 1 ? 's' : ''}. Procure lá no alto!`
+    : 'Você achou todos os cristais secretos! 💎';
+  let proxima = false;
+  if (bonus) {
+    $('fimInfo').textContent = 'O Gatinho fez uma festa para você! Obrigado por achar os 9 cristais.';
+    $('btnProxima').hidden = true;
+  } else if (n < 2) {
+    $('fimInfo').textContent = textoFaltam;
+    $('btnProxima').hidden = false;
+    $('btnProxima').textContent = 'Próxima fase ▶';
+    proxima = true;
+  } else {
+    const aberto = bonusAberto(progresso);
+    $('fimInfo').textContent = textoFaltam + (aberto ? ' A festa do Gatinho está aberta!' : ' Você terminou o Reino dos Blocos! 🏆');
+    $('btnProxima').hidden = !aberto;
+    $('btnProxima').textContent = 'Festa do Gatinho ▶';
+    proxima = aberto;
+  }
+  $('hud').hidden = true; $('toque').hidden = true; mostrar('telaFim'); (proxima ? $('btnProxima') : $('btnDeNovo')).focus();
 }
 $('btnJogar').addEventListener('click', () => comecar());
 $('btnDeNovo').addEventListener('click', () => comecar(estado.nivel));
 $('btnRecomecar').addEventListener('click', () => comecar(estado.nivel));
-$('btnProxima').addEventListener('click', () => comecar(Math.min(FASES.length - 1, estado.nivel + 1)));
+$('btnProxima').addEventListener('click', () => { if (estado.nivel === 2) comecar(3); else comecar(estado.nivel + 1); });
 $('btnMenu').addEventListener('click', irMenu); $('btnMenu2').addEventListener('click', irMenu);
 $('btnContinuar').addEventListener('click', () => pausar(false)); $('btnPausa').addEventListener('click', () => pausar(true));
 function pausar(sim) {
@@ -967,6 +1059,22 @@ function quadro(agora) {
   const k = tela.width / innerWidth; ctxTela.imageSmoothingEnabled = false;
   ctxTela.drawImage(buf, 0, 0, W, H, Math.round(offX * k), Math.round(offY * k), Math.round(W * escala * k), Math.round(H * escala * k));
 }
+let roboAtivo = false;
+function entradaRobo() {
+  const j = jogador;
+  const e = { dir: 1, puloApertou: false, puloSegurando: false, baixo: false };
+  const frente = Math.floor((j.x + j.w + 8) / T), linhaPe = Math.floor((j.y + j.h - 2) / T);
+  const buraco = !solidoEm(frente, Math.floor((j.y + j.h + 2) / T)) && !umaViaEm(frente, Math.floor((j.y + j.h + 2) / T));
+  const parede = solidoEm(frente, linhaPe) || solidoEm(frente, linhaPe - 1);
+  if (j.chao && (parede || buraco)) { e.puloApertou = true; e.puloSegurando = true; }
+  if (!j.chao && j.vy < -40) e.puloSegurando = true;
+  if (j.x <= entradaRobo.ultimoX + 0.2) entradaRobo.parado++; else entradaRobo.parado = 0;
+  entradaRobo.ultimoX = j.x;
+  if (entradaRobo.parado > 45 && j.chao) { e.puloApertou = true; e.puloSegurando = true; }
+  j.puloDuplo = true;
+  return e;
+}
+entradaRobo.parado = 0; entradaRobo.ultimoX = -1;
 function passo(dt) {
   if (estado.fase === 'menu') {   // vitrine: o herói corre sozinho pela fase
     const j = jogador; const e = { dir: 1, puloApertou: false, puloSegurando: false, baixo: false };
@@ -975,7 +1083,7 @@ function passo(dt) {
     if (j.chao && (solidoEm(frente, linhaPe) || buraco)) { e.puloApertou = true; e.puloSegurando = true; }
     if (!j.chao && j.vy < 0) e.puloSegurando = true;
     j.puloDuplo = true;
-    atualizarJogador(dt, e); atualizarPlataformas(dt); atualizarItensVisuais(dt);
+    atualizarJogador(dt, e); atualizarPlataformas(dt); atualizarItensVisuais(dt); atualizarCachorro(dt);
     estado.camX = lerp(estado.camX, clamp(j.x - W / 2, 0, estado.largura * T - W), 0.08);
     if (j.x > estado.largura * T - 200 || j.y > H) carregarFase(estado.nivel);
     return;
@@ -985,13 +1093,13 @@ function passo(dt) {
     if (Math.random() < 0.3) particulas.push({ x: jogador.x + (Math.random() - 0.5) * 80, y: jogador.y - 30, vx: (Math.random() - 0.5) * 100, vy: -Math.random() * 100, vida: 1, max: 1, cor: ['#ffd56b', '#ff9ad0', '#b9ed80', '#4ee6e0'][Math.floor(Math.random() * 4)], tam: 2, grav: 120 });
     if (jogador.chao && estado.fimT % 0.6 < dt) { jogador.vy = -250; jogador.chao = false; }
     jogador.vy = Math.min(F.QUEDA_MAX, jogador.vy + F.GRAV_CAI * dt); moverComColisao(jogador, dt, true);
-    atualizarParticulas(dt);
+    atualizarParticulas(dt); atualizarCachorro(dt);
     if (estado.fimT > 2.6) mostrarResultado();
     return;
   }
   estado.tempo += dt;
-  const e = lerEntrada();
-  atualizarPlataformas(dt); atualizarJogador(dt, e); atualizarInimigos(dt); atualizarItens(dt); atualizarParticulas(dt);
+  const e = roboAtivo ? entradaRobo() : lerEntrada();
+  atualizarPlataformas(dt); atualizarJogador(dt, e); atualizarInimigos(dt); atualizarItens(dt); atualizarCachorro(dt); atualizarParticulas(dt);
   // câmera com antecipação para onde o herói olha
   const j = jogador, olha = j.olhaEsq ? -40 : 40;
   estado.olhaSuave = lerp(estado.olhaSuave || 0, olha, 1 - Math.exp(-dt * 2.5));
@@ -1008,7 +1116,20 @@ function atualizarParticulas(dt) {
 redimensionar();
 estado.nivel = 0; irMenu();
 requestAnimationFrame((t) => { ultimo = t; quadro(t); });
-window.__reino = { estado, get jogador() { return jogador; }, get plataformas() { return plataformas; }, get inimigos() { return inimigos; }, get itens() { return itens; }, FASES, carregarFase, comecar };   // usado só nos testes automáticos
+window.__reino = {
+  estado, FASES, BALANCO, TEXTO_FACIL, TEXTO_NORMAL, carregarFase, comecar, passo, Som,
+  get jogador() { return jogador; }, get plataformas() { return plataformas; }, get inimigos() { return inimigos; },
+  get itens() { return itens; }, get cachorro() { return cachorro; }, get progresso() { return progresso; }, get fisica() { return F; },
+  simular(s) {
+    const n = Math.max(0, Math.round(s * 120));
+    for (let i = 0; i < n; i++) {
+      if (estado.fase !== 'jogando' && estado.fase !== 'vitoria' && estado.fase !== 'menu') break;
+      passo(1 / 120);
+    }
+  },
+  get robo() { return roboAtivo; }, set robo(v) { roboAtivo = !!v; },
+  totalCristais: () => totalCristais(progresso),
+};   // usado só nos testes automáticos
 })();
 </script>
 </body>
