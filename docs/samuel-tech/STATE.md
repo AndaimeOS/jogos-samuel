@@ -3,6 +3,23 @@
 Atualizado ao fim de cada sessão (ST-090). Um bloco por sessão, o mais novo em cima.
 Vale o que está aqui e no Notion, não a memória do chat.
 
+## 2026-11-14 — Claude (deploys sem sustos: card `docs/qa/infra-deploy/`)
+
+- **Pedido do Boaz:** corrigir todos os problemas encontrados na publicação da Ilha da Vida para os próximos deploys.
+- **Feito (revisor: APROVADO, 3 ciclos):**
+  - O servidor da Ilha dos Blocos roda com `.debug(false)`: a senha tentada não vai mais para o journal.
+  - `/opt/ilha` passou a `root:root 755`, com binário e `backup.sh` do root e cópias de backup em 600.
+  - `verificar_jogo.py --todos` passa (créditos do Mestre do Cubo em texto) e virou trava do `empacotar.sh`, que agora
+    imprime o SHA-256.
+  - Ferramentas novas: `ferramentas/conferir_producao.py <zip>` (conferência de produção, 70/70 hoje) e
+    `ferramentas/atualizar_publicacao.sh <zip> [--push]`.
+  - A seção Publicação do `CLAUDE.md` foi reescrita com esses passos.
+- **Pendências do Boaz:**
+  - Remover o vínculo Git antigo no hPanel (Sites → samuel.tech → Avançado → Git).
+  - Decidir se apaga o journal antigo da VPS, com 11 senhas erradas em claro de 14/11.
+  - Decidir se apaga o `ilha.env.anterior`.
+- **Outras pendências:** toque no celular da Ilha da Vida; registro no Notion.
+
 ## 2026-11-14 — Claude (Ilha da Vida 0.1 — sobrevivência Luanti + VoxeLibre)
 
 - **Pedido do Boaz:** testar o Luanti no navegador, criar a "Ilha da Vida" com a mesma senha da Ilha dos Blocos e publicar.
@@ -14,9 +31,7 @@ Vale o que está aqui e no Notion, não a memória do chat.
   origem + senha escolhendo o destino e limite de taxa, monstros desligados, sem chat, backup de hora em hora).
 - **Revisão:** REV-01 reprovou (brecha na exceção do verificador, C1 sem evidência, senha errada sem limite, permissões de
   `/opt/vida`); corrigido no ciclo 2; REV-02 sem defeito; C1 = entrada real do Boaz registrada no servidor (20:17 UTC).
-- **Pendências:** vínculo Git antigo no hPanel (`WeBoaz/jogos-samuel`, `publicacao` → `_publicacao`) — remover no painel;
-  `/opt/ilha` com o mesmo problema de permissão; servidor da Ilha dos Blocos registra segredos errados no log; toque no
-  celular não testado na Ilha da Vida; Notion (Deploys e revisões) a registrar.
+- **Pendências:** resolvidas ou levadas para o bloco "deploys sem sustos" acima.
 
 ## 2026-11-14 — Claude (repositório: AndaimeOS vira a fonte da verdade)
 

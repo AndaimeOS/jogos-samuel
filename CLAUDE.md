@@ -48,7 +48,8 @@ assets/css/samuel.css    Bloco 1 = CSS original do kit; bloco 2 = páginas novas
 assets/js/site.js        Favoritos, busca, filtro, diálogos, player
 assets/img/              Artes do kit otimizadas (.webp) + capas
 kit/                     Kit original: PNGs, brand kit, tokens, docs (NÃO publicado)
-ferramentas/             empacotar.sh, roteador-local.php, novo_codigo.py (NÃO publicado)
+ferramentas/             empacotar.sh, conferir_producao.py, atualizar_publicacao.sh, verificar_jogo.py,
+                         release_jogo.py, roteador-local.php, novo_codigo.py (NÃO publicado)
 ```
 
 ## Acesso (decisão do responsável: jogos abertos, sem senha)
@@ -109,12 +110,24 @@ O jogo deve usar caminhos relativos e sair com `<a href="/jogos/" target="_top">
 Site `samuel.tech`, pasta `public_html` na hospedagem compartilhada. O identificador da conta
 fica só no painel do provedor (não neste arquivo). Não há deploy automático. Para publicar:
 1. Juntar as mudanças na `main` (AndaimeOS) e passar pelo QA do jogo (`docs/qa/<slug>/<candidata>/`).
-2. `python3 ferramentas/release_jogo.py <slug> <versão>` e `ferramentas/empacotar.sh` → `samuel-site.zip`
-   (só arquivos do site; sem `kit/`, `ferramentas/`, `docs/`, `desenvolvimento/`). Guardar o SHA-256.
+2. `python3 ferramentas/release_jogo.py <slug> <versão>`, commit, e `ferramentas/empacotar.sh` → `samuel-site.zip`
+   (do HEAD; só arquivos do site; sem `kit/`, `ferramentas/`, `docs/`, `desenvolvimento/`). O script roda antes o
+   `verificar_jogo.py --todos` e não empacota se ele falhar; avisa se houver mudança não commitada (fica fora do zip);
+   no fim imprime o commit e o SHA-256 — guardar os dois.
 3. Enviar o zip pela API da Hostinger (`hosting_files_generate-upload-url` + upload TUS com `X-Auth` e `X-Auth-Rest`)
    e aplicar com `hosting_websites_deploy-static-site-archive`. (Substitui só `public_html`; a config privada fica fora.)
-4. Conferir em produção que os arquivos batem com o zip e que `.htaccess`, `_app/.htaccess`, `_privado/.htaccess` existem.
-5. Atualizar a branch **`publicacao`** do AndaimeOS com o mesmo `samuel-site.zip` (+ `LEIA-ME.md` com commit e SHA-256):
-   ela sempre espelha o que está no ar. Registrar no Notion (Deploys e revisões).
+   Essas ferramentas só existem com o conector Hostinger conectado no app; sem ele, não há como publicar por aqui.
+4. `python3 ferramentas/conferir_producao.py samuel-site.zip` (só GET; `--base` para outro endereço): compara o
+   SHA-256 de `assets/**`, `robots.txt` e dos arquivos dos jogos `pronto` (via `/jogo/<slug>/…`), exige 403/404 em
+   `_privado`, `_app`, `kit`, `docs`, `ferramentas`, `desenvolvimento` e `.git`, 200 nas páginas e que jogos fora do
+   `pronto` não sejam entregues. Tem de sair 0. PNG/JPEG aparecem como `≈`: o CDN da Hostinger recodifica essas
+   imagens, então só formato e dimensões são comparados. Os 403 mostram que o bloqueio está ativo; a presença de
+   `.htaccess`, `_app/.htaccess` e `_privado/.htaccess` em si só se confere pelos arquivos da hospedagem.
+5. `ferramentas/atualizar_publicacao.sh samuel-site.zip` → confere que o zip é o do HEAD, monta o commit da branch
+   **`publicacao`** (zip + `LEIA-ME.md` com commit e SHA-256; o pacote anterior é copiado do LEIA-ME antigo) sem mexer
+   na pasta de trabalho e mostra o comando de envio. Revisado, enviar com esse comando (ou rodar com `--push`; opcionais: `NOTA="…"`,
+   `DESDE="AAAA-MM-DD HH:MM -03:00"`). A `publicacao` sempre espelha o que está no ar. Registrar no Notion (Deploys e revisões).
+Existe um vínculo Git antigo no hPanel (WeBoaz/jogos-samuel → pasta `_publicacao`); a API não remove — o Boaz remove
+em Sites → samuel.tech → Avançado → Git.
 Alternativa futura: conectar a conta GitHub AndaimeOS no hPanel (Sites → samuel.tech → Avançado → Git) e publicar
 a `publicacao` por `hosting_git_deploy-website-repository` com `https://github.com/AndaimeOS/jogos-samuel.git`.
