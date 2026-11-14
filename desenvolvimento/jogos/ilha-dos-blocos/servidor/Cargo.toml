@@ -7,8 +7,13 @@ description = "Servidor autoritativo da Ilha dos Blocos (samuel.tech), sobre o V
 license = "UNLICENSED"
 
 [dependencies]
-voxelize = "=3.0.0"
-actix-web = "4.5.1"
+# Cópia local do voxelize 3.0.0 (MIT): o crates.io ainda exige actix-files ^0.6.5,
+# e essa linha não sobe para 0.7.4. A cópia só troca essa dependência.
+voxelize = { path = "vendor/voxelize", version = "=3.0.0" }
+# Pisos: actix-web 4.18.2+ e actix-http 3.20.3+ (aqui, as últimas 4.x/3.x sem advisory).
+actix-web = "4.19.0"
+actix-http = "3.21.0"
+actix-files = "0.7.4"
 
 [profile.release]
 debug = "line-tables-only"
