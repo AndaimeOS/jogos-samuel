@@ -3,3 +3,11 @@
 
 samuel-site.zip
 _preview/
+
+# Configuração privada e variáveis de ambiente. Nunca versionar.
+# O PHP lê a config em SAMUEL_CONFIG (nos testes, um arquivo fora do repositório).
+.env
+.env.*
+*.env
+!.env.example
+samuel-config.php

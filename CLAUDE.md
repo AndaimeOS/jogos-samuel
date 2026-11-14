@@ -52,15 +52,17 @@ ferramentas/             empacotar.sh, roteador-local.php, novo_codigo.py (NÃO 
   jogos `pronto` para qualquer visitante. Rascunho/arquivado só no modo responsável.
 - **A área do responsável (`/admin`) continua protegida** (ela aceita upload de arquivos):
   - Primeira vez: `/admin` pede o **código de configuração** + cria a senha do responsável
-    (hash bcrypt em `/home/u401945237/domains/samuel.tech/samuel-config.php`, fora da pasta pública).
+    (hash bcrypt em `samuel-config.php`, fora da pasta pública). O caminho vem da variável
+    `SAMUEL_CONFIG`; sem ela, o PHP usa o arquivo ao lado da pasta pública
+    (`dirname` de `public_html`). Não registre aqui o identificador da conta nem o caminho absoluto.
   - Depois: senha → `adm` no cookie assinado (HMAC) por 30 min; formulários com CSRF; 8 erros/15 min bloqueiam.
   - Esqueceu? Apagar `samuel-config.php` no Gerenciador de Arquivos e ativar de novo. Novo código: `python3 ferramentas/novo_codigo.py`.
 - **Nunca** colocar senha, segredo ou o código de configuração em arquivo do repositório (ele é público).
 
 ## Catálogo: dois lugares
 - **Jogos do site** (vêm do repositório): `_app/jogos.json` + arquivos em `_privado/jogos/<slug>/`.
-- **Jogos do responsável** (cadastrados em `/admin`): ficam FORA da pasta pública, em
-  `/home/u401945237/domains/samuel.tech/samuel-dados/` → `catalogo.json`, `jogos/<slug>/`, `capas/<slug>.webp`.
+- **Jogos do responsável** (cadastrados em `/admin`): ficam FORA da pasta pública, no diretório
+  `samuel-dados/` ao lado de `samuel-config.php` → `catalogo.json`, `jogos/<slug>/`, `capas/<slug>.webp`.
   Sobrevivem às publicações. `status_site` nesse JSON guarda o status trocado de jogos do site.
 - Status: `pronto` (família joga) · `em-breve` (selo, sem jogar) · `rascunho` (só no modo responsável) · `arquivado` (escondido).
 - Import do .zip: rejeita `..`/caminho absoluto, ignora ocultos e `__MACOSX`, só extensões de `EXTENSOES_JOGO`
@@ -90,7 +92,8 @@ O jogo deve usar caminhos relativos e sair com `<a href="/jogos/" target="_top">
 6. Publicar (abaixo).
 
 ## Publicação (Hostinger)
-Conta `u401945237`, site `samuel.tech`, pasta `public_html`. O app do GitHub da Hostinger não enxerga
+Site `samuel.tech`, pasta `public_html` na hospedagem compartilhada. O identificador da conta
+fica só no painel do provedor (não neste arquivo). O app do GitHub da Hostinger não enxerga
 `WeBoaz/jogos-samuel`, então **não há deploy automático**. Para publicar:
 1. Juntar as mudanças na `main`.
 2. `ferramentas/empacotar.sh` → `samuel-site.zip` (só arquivos do site; sem `kit/` e `ferramentas/`).
