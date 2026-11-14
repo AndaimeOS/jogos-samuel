@@ -1,0 +1,1 @@
+var e=class{constructor(e){}user=null;load(){return Promise.resolve()}};export{e as Clerk};
