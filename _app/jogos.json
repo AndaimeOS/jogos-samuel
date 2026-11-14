@@ -209,6 +209,28 @@
       "status": "pronto",
       "novo": true,
       "version": "0.1.0"
+    },
+    {
+      "slug": "pebolim",
+      "title": "Pebolim",
+      "category": "Esporte",
+      "description": "Pebolim de mesa na horizontal. Jogue contra o computador ou com um amigo, cada um na sua metade da tela.",
+      "cover": "pebolim.webp",
+      "entry": "index.html",
+      "instructions": [
+        "Arraste o dedo na sua metade da tela para mover as barras do seu time. Toque para chutar.",
+        "Computador: setas ↑↓ ou W/S movem, Espaço chuta. Com dois jogadores, o da direita usa as setas e o Enter.",
+        "Fácil deixa a bola mais lenta, o gol maior e o computador mais devagar. Normal é o jogo inteiro.",
+        "A partida acaba em 5 gols ou em 2 minutos. Depois do gol, a seta mostra para onde a bola vai."
+      ],
+      "input": [
+        "touch",
+        "mouse",
+        "keyboard"
+      ],
+      "status": "pronto",
+      "novo": true,
+      "version": "0.1.0"
     }
   ]
 }

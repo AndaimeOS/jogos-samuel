@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:,">
+<title>Pebolim — samuel.tech</title>
+<link rel="stylesheet" href="css/ui-blocos.css">
+<link rel="stylesheet" href="css/pebolim.css">
+</head>
+<body>
+<div id="palco"><canvas id="mesa" width="1072" height="632" aria-label="Mesa de pebolim, Vermelho contra Azul"></canvas></div>
+
+<div class="hud" id="hud" hidden>
+  <div class="hud-linha">
+    <div class="painel time-v" aria-label="Gols do Vermelho"><i class="bolinha v"></i><b id="pV">0</b></div>
+    <div class="painel" id="pT" aria-label="Tempo">2:00</div>
+    <div class="painel time-a" aria-label="Gols do Azul"><i class="bolinha a"></i><b id="pA">0</b></div>
+    <div class="topo-btns empurra">
+      <button class="mini" id="bPausa" type="button" aria-label="Pausar">II</button>
+    </div>
+  </div>
+</div>
+<p class="aviso" id="aviso" hidden></p>
+<p class="deite" id="deite" hidden>Deite o tablet para jogar a mesa na horizontal.</p>
+
+<section class="tela" id="tMenu">
+  <div class="cartao largo">
+    <div class="barra"><span>pebolim.exe</span><span><i></i><i></i><i></i></span></div>
+    <div class="corpo">
+      <div class="logo">PEBOLIM<small>Vermelho contra Azul</small></div>
+      <div class="dica-icones some-baixo">
+        <span>👆 arraste na sua metade</span>
+        <span>👟 toque chuta</span>
+        <span>⌨️ setas no computador</span>
+      </div>
+      <div class="escolhas">
+        <div>
+          <div class="secao">Quem joga?</div>
+          <div class="opcoes" id="opModo">
+            <button type="button" class="opcao" data-modo="1" aria-pressed="true"><span class="ic">🤖</span><span>1 jogador<small>contra o computador</small></span></button>
+            <button type="button" class="opcao" data-modo="2" aria-pressed="false"><span class="ic">👫</span><span>2 jogadores<small>cada um num lado</small></span></button>
+          </div>
+        </div>
+        <div>
+          <div class="secao">Como?</div>
+          <div class="opcoes" id="opNivel">
+            <button type="button" class="opcao" data-nivel="facil" aria-pressed="true"><span class="ic">🌱</span><span>Fácil<small>bola lenta, gol grande</small></span></button>
+            <button type="button" class="opcao" data-nivel="normal" aria-pressed="false"><span class="ic">⭐</span><span>Normal<small>jogo inteiro</small></span></button>
+          </div>
+        </div>
+      </div>
+      <div class="acoes">
+        <button type="button" class="btn grande" id="bJogar">Jogar</button>
+        <a class="btn sec" href="/jogos/" target="_top">← Jogos</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="tela" id="tGol" hidden>
+  <div class="cartao">
+    <div class="barra"><span>gol.exe</span><span><i></i><i></i><i></i></span></div>
+    <div class="corpo">
+      <p class="selo">GOL!</p>
+      <svg class="seta-svg" id="seta" data-dir="direita" viewBox="0 0 220 100" role="img" aria-label="A bola vai para a direita">
+        <polygon points="8,34 132,34 132,10 208,50 132,90 132,66 8,66" fill="#193337" stroke="#193337" stroke-width="4" stroke-linejoin="round"/>
+        <polygon points="16,42 124,42 124,24 184,50 124,76 124,58 16,58" fill="#b9ed80"/>
+      </svg>
+      <p class="gol-lado" id="golFrase">A bola vai para a direita</p>
+      <p class="gol-placar" id="golPlacar">Vermelho 0 × 0 Azul</p>
+      <div class="acoes">
+        <button type="button" class="btn grande" id="bRecomecar">Recomeçar</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="tela" id="tFim" hidden>
+  <div class="cartao">
+    <div class="barra"><span>fim_de_partida.exe</span><span><i></i><i></i><i></i></span></div>
+    <div class="corpo">
+      <div class="festa-blocos" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <p class="selo">Fim de partida</p>
+      <h2 class="titulo" id="fimTitulo">O Vermelho venceu!</h2>
+      <p class="fim-frase" id="fimFrase">Que partida boa!</p>
+      <div class="resultado">
+        <span id="fimV">0<small>vermelho</small></span>
+        <span id="fimA">0<small>azul</small></span>
+      </div>
+      <div class="acoes">
+        <button type="button" class="btn grande" id="bDeNovo">Jogar de novo</button>
+        <button type="button" class="btn sec" id="bMenu">Menu</button>
+      </div>
+      <p class="some-baixo"><a href="/jogos/" target="_top">← Voltar aos jogos</a></p>
+    </div>
+  </div>
+</section>
+
+<section class="tela" id="tPausa" hidden>
+  <div class="cartao">
+    <div class="barra"><span>pausa.exe</span><span><i></i><i></i><i></i></span></div>
+    <div class="corpo">
+      <h2 class="titulo">Pausa</h2>
+      <div class="acoes">
+        <button type="button" class="btn grande" id="bContinuar">Continuar</button>
+        <a class="btn sec" href="/jogos/" target="_top">← Jogos</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="js/SAT.js"></script>
+<script type="module" src="js/jogo.js"></script>
+</body>
+</html>
