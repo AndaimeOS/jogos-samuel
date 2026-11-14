@@ -49,22 +49,15 @@ converto, otimizo e registro cada licença em `docs/runner/RECURSOS.md`. Para co
 | 4 | Interface | Grátis e suficiente para começar: https://kenney.nl/assets/ui-pack | — |
 | — | Animações da criança | https://www.mixamo.com (conta Adobe gratuita) | (existe um conector Adobe, mas o Mixamo não faz parte dele) |
 | — | Conversor de modelos | Blender https://www.blender.org/download/ — eu instalo com `brew install --cask blender` com o seu ok | — |
-| — | GitHub | dar escrita a `AndaimeOS` em https://github.com/WeBoaz/jogos-samuel/settings/access | o conector GitHub desta sessão pede login pelo app (`/mcp` no terminal) |
 
 Depois de comprar: baixe os arquivos para `~/Downloads/runner-assets/` (uma subpasta por pacote) e me avise; eu leio as
 licenças que vêm junto, converto e registro em `docs/runner/RECURSOS.md`.
 
-## GitHub (o que precisa de você)
+## GitHub
 
-A conta desta máquina (**AndaimeOS**) só tem leitura em `WeBoaz/jogos-samuel`, e o PR
-[#1](https://github.com/WeBoaz/jogos-samuel/pull/1) (33 commits, sem conflito) espera merge. Escolha um:
-
-1. **Dar escrita** (recomendado): GitHub → `WeBoaz/jogos-samuel` → Settings → Collaborators → *Add people* → `AndaimeOS`
-   → papel **Write**. Eu aceito o convite, faço o merge e passo a trabalhar direto no repositório.
-2. Ou você mesmo faz o merge do PR #1 pelo botão "Merge pull request".
-
-Depois do merge: regenerar a branch `publicacao` e, quando quiser (fora do escopo autorizado hoje), publicação automática
-por GitHub Actions, subdomínios `teste.` / `servidor.`, alerta e backup fora da VPS.
+Resolvido em 2026-11-14: o repositório oficial passou a ser **`AndaimeOS/jogos-samuel`** (escrita direta na `main`);
+o WeBoaz ficou como histórico. Quando quiser (fora do escopo autorizado hoje): publicação automática por GitHub Actions,
+subdomínios `teste.` / `servidor.`, alerta e backup fora da VPS.
 
 ## Etapas do runner (cada uma com revisão antes de publicar)
 

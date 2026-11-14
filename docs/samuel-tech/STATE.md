@@ -3,6 +3,25 @@
 Atualizado ao fim de cada sessão (ST-090). Um bloco por sessão, o mais novo em cima.
 Vale o que está aqui e no Notion, não a memória do chat.
 
+## 2026-11-14 — Claude (repositório: AndaimeOS vira a fonte da verdade)
+
+- **Pedido do Boaz:** tudo no AndaimeOS, não mais no WeBoaz; ver os conflitos.
+- **Feito:** `origin` = `AndaimeOS/jogos-samuel`; `weboaz` = histórico só leitura (push desativado no remote). `main` do
+  AndaimeOS = `main` local (fast-forward de `c6938cb`). Tudo o que só existia no WeBoaz foi copiado:
+  `main` (`1b420dc` Mestre do Cubo), `publicacao` e `claude/kids-games-retro-site-crzmf6`; `site-estatico` (só local) também.
+- **Conflitos e decisões:**
+  - **Mestre do Cubo** (`1b420dc`, WeBoaz): nunca foi ao ar (404). Entra na `main` como **rascunho**; o
+    `verificar_jogo.py` reprova por 2 links de crédito para o GitHub (cube.js e rubiks-color-resolver). Precisa de QA.
+  - **`claude/kids-games-retro-site-crzmf6`** (`6f45932`, outra sessão): outra Ilha dos Blocos (Three.js num arquivo só) no
+    **mesmo slug** da Ilha 0.2 em produção. **Não** entrou na `main`; fica só como branch.
+  - **`cursor/seguranca-docs-main-e45d`** (Cursor): entrou na `main` (CLAUDE.md sem identificador da hospedagem, .gitignore de segredos).
+  - **`cursor/seguranca-deps-exp01-e45d`** (Cursor): atualiza actix/vitest e põe o Voxelize em `vendor/`. **Não** entrou: muda o
+    servidor da Ilha e precisa de build e teste na VPS antes.
+  - **`publicacao`**: o pacote do WeBoaz (`2c33177`, + Mestre do Cubo) não tinha Minigolfe nem Ilha 0.2 e derrubaria os dois se
+    fosse publicado. Agora espelha a produção (`0a8e5416…48b1`, conferido em produção).
+- **Pendente:** PR WeBoaz/jogos-samuel#1 é legado (fechar ou deixar); o AndaimeOS ainda aparece como fork do WeBoaz no GitHub
+  (desligar exige o dono do WeBoaz ou o suporte do GitHub).
+
 ## 2026-11-01 — Claude (Corrida do Jack — etapa 1)
 
 - **Pedido do Boaz:** jogos bonitos; primeiro um runner 3D original no samuel.tech (celular e PC), arte até US$500; GitHub com

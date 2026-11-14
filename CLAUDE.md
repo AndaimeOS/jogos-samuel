@@ -99,17 +99,22 @@ O jogo deve usar caminhos relativos e sair com `<a href="/jogos/" target="_top">
 5. Testar: home → Jogar → biblioteca → jogo → recomeçar → voltar. Conferir: `/_privado/jogos/<slug>/index.html` = 403.
 6. Publicar (abaixo).
 
+## Repositório (fonte da verdade)
+- **`AndaimeOS/jogos-samuel`** (remote `origin`) é a fonte da verdade desde 2026-11-14: `main` (código), `publicacao`
+  (pacote que está no ar) e as branches de trabalho. Commit e push direto na `main` do AndaimeOS.
+- `WeBoaz/jogos-samuel` (remote `weboaz`) é histórico, só leitura (push desativado no remote). Todo o conteúdo dele
+  já está no AndaimeOS. O PR WeBoaz/jogos-samuel#1 é legado.
+
 ## Publicação (Hostinger)
 Site `samuel.tech`, pasta `public_html` na hospedagem compartilhada. O identificador da conta
-fica só no painel do provedor (não neste arquivo). O app do GitHub da Hostinger não enxerga
-`WeBoaz/jogos-samuel`, então **não há deploy automático**. Para publicar:
-1. Juntar as mudanças na `main`.
-2. `ferramentas/empacotar.sh` → `samuel-site.zip` (só arquivos do site; sem `kit/` e `ferramentas/`).
-3. Atualizar a branch órfã **`publicacao`** com o novo `samuel-site.zip` (+ `LEIA-ME.md`) e dar push.
-4. Hostinger (MCP): `hosting_git_deploy-website-repository` — `https://github.com/WeBoaz/jogos-samuel.git`,
-   branch `publicacao`, directory `_publicacao` (se a pasta existir, faz pull).
-5. Hostinger: `hosting_websites_deploy-static-site-archive` com `archive_path: "_publicacao/samuel-site.zip"`.
-   (Substitui só `public_html`; o `samuel-config.php` fica fora e sobrevive.)
-6. Conferir com `hosting_files_list-website-and-directories` (deve haver `.htaccess`, `_app/.htaccess`, `_privado/.htaccess`).
-Alternativa definitiva: conectar a conta GitHub WeBoaz no hPanel (Sites → samuel.tech → Avançado → Git)
-e usar `hosting_deploy` com `type: static` (o PHP roda normalmente).
+fica só no painel do provedor (não neste arquivo). Não há deploy automático. Para publicar:
+1. Juntar as mudanças na `main` (AndaimeOS) e passar pelo QA do jogo (`docs/qa/<slug>/<candidata>/`).
+2. `python3 ferramentas/release_jogo.py <slug> <versão>` e `ferramentas/empacotar.sh` → `samuel-site.zip`
+   (só arquivos do site; sem `kit/`, `ferramentas/`, `docs/`, `desenvolvimento/`). Guardar o SHA-256.
+3. Enviar o zip pela API da Hostinger (`hosting_files_generate-upload-url` + upload TUS com `X-Auth` e `X-Auth-Rest`)
+   e aplicar com `hosting_websites_deploy-static-site-archive`. (Substitui só `public_html`; a config privada fica fora.)
+4. Conferir em produção que os arquivos batem com o zip e que `.htaccess`, `_app/.htaccess`, `_privado/.htaccess` existem.
+5. Atualizar a branch **`publicacao`** do AndaimeOS com o mesmo `samuel-site.zip` (+ `LEIA-ME.md` com commit e SHA-256):
+   ela sempre espelha o que está no ar. Registrar no Notion (Deploys e revisões).
+Alternativa futura: conectar a conta GitHub AndaimeOS no hPanel (Sites → samuel.tech → Avançado → Git) e publicar
+a `publicacao` por `hosting_git_deploy-website-repository` com `https://github.com/AndaimeOS/jogos-samuel.git`.
