@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "types": ["@cloudflare/vitest-plugin/types", "vite/client"],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  // The relay shares a few files with the game, none importing game code: the protocol and the Arena's wire, queue rules and numbers.
+  "include": ["src", "test", "worker-configuration.d.ts", "vitest.config.ts", "../src/net/protocol.ts", "../src/net/arena.ts", "../src/net/arenaQueue.ts", "../src/data/arenaRanked.ts"]
+}

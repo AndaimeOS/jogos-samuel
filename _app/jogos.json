@@ -184,6 +184,29 @@
       "navegacao_externa": [
         "https://srv2114451.hstgr.cloud:8443/vida/jogo/"
       ]
+    },
+    {
+      "slug": "pokemon-survivors",
+      "title": "Pokémon Survivors",
+      "category": "Ação",
+      "description": "Fan game estilo Vampire Survivors: escolha um inicial por região, sobreviva às hordas, evolua e enfrente os chefes. O ataque é automático.",
+      "cover": "pokemon-survivors.webp",
+      "entry": "index.html",
+      "instructions": [
+        "Escolha a região e o parceiro. No tablet, arraste para andar; no computador, WASD ou setas. O Pokémon ataca sozinho.",
+        "Junte a experiência, suba de nível e toque numa das três cartas. Espaço solta o especial, E a mega, Shift a investida, Esc ou P pausa.",
+        "A partida dura 15 minutos, com chefes no caminho. No nível 12 e no 28 o parceiro evolui. Se cair, a partida acaba; o que você guardou na loja fica no aparelho.",
+        "← Jogos volta para a biblioteca. Código MIT de Pedro Barretto; sprites do PMD SpriteCollab (CC BY-NC 4.0); Pokémon © Nintendo/Creatures/GAME FREAK."
+      ],
+      "input": [
+        "touch",
+        "mouse",
+        "keyboard",
+        "gamepad"
+      ],
+      "status": "pronto",
+      "novo": true,
+      "version": "0.1.0"
     }
   ]
 }
