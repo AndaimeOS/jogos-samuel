@@ -50,14 +50,16 @@
       "slug": "reino-dos-blocos",
       "title": "Reino dos Blocos",
       "category": "Plataforma",
-      "description": "Corra, pule e pise nas geleias! 3 fases com o Doguinho de ajudante e o Gatinho esperando no portal.",
+      "description": "Corra, pule e pise nas geleias! O Doguinho ajuda de verdade e os 9 cristais abrem a festa do Gatinho.",
       "cover": "reino-dos-blocos.webp",
       "entry": "index.html",
       "instructions": [
         "Celular ou tablet: ◀ ▶ para andar e ⤒ para pular (segure para pular mais alto).",
         "Computador: setas para andar; ESPAÇO, ↑ ou Z para pular; P pausa. Funciona com controle de videogame.",
         "Pule em cima das geleias e abelhas: elas viram corações! Bata a cabeça nos blocos roxos.",
-        "Ache o TÊNIS DE MOLA para o pulo duplo e os 3 cristais secretos 💎 de cada fase."
+        "O Doguinho late e aponta o cristal que falta, e busca cristais e moedas pertinho. Quem pega é você.",
+        "Ache o TÊNIS DE MOLA para o pulo duplo. São 3 cristais secretos em cada fase: os 9 abrem a festa do Gatinho.",
+        "No Fácil, inimigos mais lentos, pulo mais tolerante, bandeiras mais perto e o Doguinho busca você na queda."
       ],
       "input": [
         "touch",
@@ -66,7 +68,7 @@
       ],
       "status": "pronto",
       "novo": true,
-      "version": "1.0"
+      "version": "1.1"
     },
     {
       "slug": "caca-as-estrelas",

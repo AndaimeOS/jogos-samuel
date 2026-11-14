@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "release_id": "reino-dos-blocos@1.1+dd86d43.producao",
+  "game_slug": "reino-dos-blocos",
+  "version": "1.1",
+  "source_commit": "dd86d434f22df08e1d8a33af91a34e4a604f6b41",
+  "environment": "producao",
+  "built_at": "2026-11-14T21:21:36+00:00",
+  "public_url": "https://samuel.tech/jogar/?jogo=reino-dos-blocos",
+  "files_base_url": "https://samuel.tech/jogo/reino-dos-blocos/",
+  "files": {
+    "index.html": "d3e3a4743f02fab1a427db7589275a3ff3e37f38944cfca2caf2a1f228292566",
+    "regras.js": "61503bf08d97b64013166b6baa3e57db1215e54a1cb4237100a28ab11796f8d9"
+  }
+}
