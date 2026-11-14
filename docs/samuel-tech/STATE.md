@@ -3,6 +3,21 @@
 Atualizado ao fim de cada sessão (ST-090). Um bloco por sessão, o mais novo em cima.
 Vale o que está aqui e no Notion, não a memória do chat.
 
+## 2026-11-14 — Claude (Ilha da Vida 0.1 — sobrevivência Luanti + VoxeLibre)
+
+- **Pedido do Boaz:** testar o Luanti no navegador, criar a "Ilha da Vida" com a mesma senha da Ilha dos Blocos e publicar.
+  Eaglercraft recusado (código e arte do Minecraft descompilados).
+- **Publicado:** portal `git archive 532be67` desde 2026-11-14 17:20 (-03:00), SHA-256 `8286e259…8f72` (= branch `publicacao`
+  `c154977`); `ilha-da-vida@0.1+3b8f7c2`. Produção conferida (arquivos do jogo = commit; `_privado`/`_app` 403; Mestre do
+  Cubo segue rascunho, 404). Cliente WASM e servidor na VPS: `https://srv2114451.hstgr.cloud:8443/vida/jogo/`.
+- **Como funciona:** ver `desenvolvimento/jogos/ilha-da-vida/README.md` (servidor em 127.0.0.2, ponte lwproxy só para ele, nginx com
+  origem + senha escolhendo o destino e limite de taxa, monstros desligados, sem chat, backup de hora em hora).
+- **Revisão:** REV-01 reprovou (brecha na exceção do verificador, C1 sem evidência, senha errada sem limite, permissões de
+  `/opt/vida`); corrigido no ciclo 2; REV-02 sem defeito; C1 = entrada real do Boaz registrada no servidor (20:17 UTC).
+- **Pendências:** vínculo Git antigo no hPanel (`WeBoaz/jogos-samuel`, `publicacao` → `_publicacao`) — remover no painel;
+  `/opt/ilha` com o mesmo problema de permissão; servidor da Ilha dos Blocos registra segredos errados no log; toque no
+  celular não testado na Ilha da Vida; Notion (Deploys e revisões) a registrar.
+
 ## 2026-11-14 — Claude (repositório: AndaimeOS vira a fonte da verdade)
 
 - **Pedido do Boaz:** tudo no AndaimeOS, não mais no WeBoaz; ver os conflitos.

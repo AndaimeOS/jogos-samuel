@@ -1,10 +1,10 @@
 ---
-status: revisao
+status: feito
 projeto: samuel.tech (AndaimeOS/jogos-samuel)
 tipo: codigo + configuracao de infra (VPS) + publicacao
 branch_policy: main do AndaimeOS (CLAUDE.md do projeto)
 base_sha: a017c7cae8ea9033e7efb7c494eda7fec2942462
-delivery_sha: preencher-no-commit
+delivery_sha: 532be67 (código revisado: a3826a2; card C1: 3b8f7c2; release.json: 532be67)
 commit_policy: permitido (pedido "Publicar a ilha da vida real", 14/11/2026)
 ciclos_consumidos: 2
 autorizacao: Boaz, 14/11/2026 — "Testar o Luanti no navegador … crie um novo jogo, Ilha da vida … a senha é a mesma pros dois" e "Publicar a ilha da vida real"
@@ -97,7 +97,12 @@ Medido em 14/11/2026 ~19:50 UTC.
 - Cliente estático: `/vida/jogo/` 200 com COOP/COEP/CORP e `X-Robots-Tag: noindex`; POST → 403; `luanti.wasm` 200
   `application/wasm`. Backup: `/opt/vida/backup.sh` (igual ao do repo) rodado à mão → tar.gz de 1,8 MB com todos os
   arquivos do mundo, pasta 700; cron `23 * * * *`.
-- **C9** — depois do commit/publicação.
+- **C9 (14/11/2026 17:20 -03:00)** — `samuel-site.zip` = `git archive 532be67`, SHA-256
+  `8286e2590a98d86b879f439a5be01d9d05a5fc14a68f87a369b7776ba48b8f72`, enviado por TUS e aplicado com
+  `deploy-static-site-archive`. Produção: `/`, `/jogos/` (lista o jogo), `/jogar/?jogo=ilha-da-vida`, `/jogo/ilha-da-vida/*` e a
+  capa 200; `index.html`, `LICENCAS.txt` e `release.json` servidos = bytes do commit; `/_privado/…` e `/_app/jogos.json` 403
+  (`.htaccess` no ar); `/jogo/mestre-do-cubo/` 404 (rascunho); Minigolfe e Ilha dos Blocos 200; zip apagado do
+  `public_html`. Branch `publicacao` = mesmo zip (`c154977`).
 
 - **C1 (Boaz, 14/11/2026 20:17:34 UTC)** — entrada com a senha real pela página de produção: o servidor registrou
   "<apelido> [127.0.0.1] joins game" (127.0.0.1 = chegou pela ponte) e criou a conta (`auth.sqlite`: 1 conta). Boaz:
