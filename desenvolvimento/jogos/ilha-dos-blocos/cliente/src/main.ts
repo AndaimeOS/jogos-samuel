@@ -13,8 +13,9 @@ const params = new URLSearchParams(location.search);
 const DEBUG = params.has('debug');
 // Endereço do servidor: fixo no build (VITE_ILHA_SERVIDOR); ?servidor= e ?codigo= só no dev (nunca no build publicado).
 const SERVIDOR = (import.meta.env.DEV && params.get('servidor')) || import.meta.env.VITE_ILHA_SERVIDOR || 'http://localhost:4100/';
-// Código da ilha da família: é a chave do servidor e NÃO vai no código público. Um adulto digita uma vez por
-// aparelho; fica no localStorage deste aparelho. No dev local o servidor usa 'ilha-local'.
+// A tela não pede código. A VPS continua exigindo ILHA_SEGREDO no WebSocket (?secret=): quem chega sem o
+// segredo certo é recusado. Se este aparelho já guardou o código, ele ainda é enviado. No dev o padrão é
+// 'ilha-local'. O código da família não entra no Git nem no JS publicado.
 const CHAVE_CODIGO = 'samuel:ilha-dos-blocos:codigo';
 const lerCodigo = () => { try { return localStorage.getItem(CHAVE_CODIGO) ?? ''; } catch { return ''; } };
 const guardarCodigo = (c: string) => { try { if (c) localStorage.setItem(CHAVE_CODIGO, c); else localStorage.removeItem(CHAVE_CODIGO); } catch { /* vale só nesta visita */ } };
@@ -206,14 +207,11 @@ function telaConexao(titulo: string, texto: string, falhou: boolean) {
   $('conexaoTitulo').textContent = titulo; $('conexaoTexto').textContent = texto; $('conexaoAcoes').hidden = !falhou;
   mostrar('tConexao');
 }
-function telaInicio(msg = '') {
-  $('caixaCodigo').hidden = !!codigo;
-  $('bTrocarCodigo').hidden = !codigo;
-  $('msgCodigo').textContent = msg;
+function telaInicio() {
   mostrar('tInicio');
-  if (!codigo && !MODO_TOQUE) setTimeout(() => $('campoCodigo').focus(), 50);
+  if (!MODO_TOQUE) setTimeout(() => $('bEntrar').focus(), 50);
 }
-/** Testa o código antes de entrar: 'ok', 'recusado' (servidor no ar, código errado) ou 'fora' (servidor fora). */
+/** Testa o segredo antes de entrar: 'ok', 'recusado' (servidor no ar, segredo não aceito) ou 'fora' (servidor fora). */
 function testarCodigo(c: string): Promise<'ok' | 'recusado' | 'fora'> {
   return new Promise((resolver) => {
     let feito = false;
@@ -247,15 +245,9 @@ async function conectar(): Promise<void> {
 }
 function entrar() {
   if (conectado) { voltarAoJogo(); return; }
-  let novo = false;
-  if (!codigo) {
-    const digitado = $<HTMLInputElement>('campoCodigo').value.trim().toLowerCase();
-    if (!digitado) { telaInicio('Digite o código da ilha.'); return; }
-    codigo = digitado; novo = true;
-  }
   iniciando ??= conectar()
     .then(() => {
-      guardarCodigo(codigo);
+      if (codigo) guardarCodigo(codigo);
       escolherVaga(vaga);
       // o navegador só prende o mouse logo depois de um clique; a conexão pode demorar mais que isso.
       // Se não prender, a tela de pausa oferece "Continuar" (um clique novo, que prende de verdade).
@@ -264,13 +256,9 @@ function entrar() {
     .catch((erro) => {
       iniciando = null;
       try { network.disconnect(); } catch { /* já caiu */ }
-      if (erro instanceof CodigoRecusado && novo) {
-        codigo = '';
-        $<HTMLInputElement>('campoCodigo').value = '';
-        telaInicio('Esse código não abriu a ilha. Confira e tente de novo.');
-      } else if (erro instanceof CodigoRecusado) {
-        // código guardado foi recusado: pode ser excesso de tentativas (espera um pouco) ou código trocado na ilha
-        telaConexao('A ilha não abriu agora', 'Espere um minutinho e tente de novo. Se o código da ilha mudou, use "trocar o código" na tela inicial.', true);
+      if (erro instanceof CodigoRecusado) {
+        // a VPS recusou o segredo (aparelho sem código guardado, código antigo ou limite de tentativas)
+        telaConexao('A ilha não abriu agora', 'Espere um minutinho e tente de novo.', true);
       } else {
         telaConexao('A ilha está dormindo 😴', 'Não deu para chegar na ilha agora. Tente de novo daqui a pouco.', true);
       }
@@ -285,8 +273,6 @@ controls.on('unlock', () => {
 });
 controls.on('lock', () => { if (MODO_TOQUE) return; inputs.setNamespace('jogo'); mostrar(null); });
 $('bEntrar').addEventListener('click', entrar);
-$('campoCodigo').addEventListener('keydown', (e) => { if (e.key === 'Enter') entrar(); });
-$('bTrocarCodigo').addEventListener('click', () => { codigo = ''; guardarCodigo(''); telaInicio(); });
 $('bTentar').addEventListener('click', entrar);
 $('bContinuar').addEventListener('click', voltarAoJogo);
 $('bPausa').addEventListener('click', (e) => { e.stopPropagation(); pausar(); });
