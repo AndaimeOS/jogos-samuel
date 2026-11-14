@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "release_id": "ilha-da-vida@0.1+3b8f7c2.producao",
+  "game_slug": "ilha-da-vida",
+  "version": "0.1",
+  "source_commit": "3b8f7c2dac0322a05328e19a87d5c5216a7c5bd5",
+  "environment": "producao",
+  "built_at": "2026-11-14T17:19:10-03:00",
+  "public_url": "https://samuel.tech/jogar/?jogo=ilha-da-vida",
+  "files_base_url": "https://samuel.tech/jogo/ilha-da-vida/",
+  "files": {
+    "LICENCAS.txt": "c9d8f196736b699095750b9f04a2311d35506baf1234577a47bf04f2bd7cba75",
+    "index.html": "0ae1dbdf8cb031c38630a29de9d898b8b7a8b6c481112a01543a05d38af463aa"
+  }
+}
