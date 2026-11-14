@@ -48,7 +48,8 @@ assets/css/samuel.css    Bloco 1 = CSS original do kit; bloco 2 = páginas novas
 assets/js/site.js        Favoritos, busca, filtro, diálogos, player
 assets/img/              Artes do kit otimizadas (.webp) + capas
 kit/                     Kit original: PNGs, brand kit, tokens, docs (NÃO publicado)
-ferramentas/             empacotar.sh, roteador-local.php, novo_codigo.py (NÃO publicado)
+ferramentas/             empacotar.sh, conferir_producao.py, atualizar_publicacao.sh, verificar_jogo.py,
+                         release_jogo.py, roteador-local.php, novo_codigo.py (NÃO publicado)
 ```
 
 ## Acesso (decisão do responsável: jogos abertos, sem senha)
@@ -60,15 +61,17 @@ ferramentas/             empacotar.sh, roteador-local.php, novo_codigo.py (NÃO 
   jogos `pronto` para qualquer visitante. Rascunho/arquivado só no modo responsável.
 - **A área do responsável (`/admin`) continua protegida** (ela aceita upload de arquivos):
   - Primeira vez: `/admin` pede o **código de configuração** + cria a senha do responsável
-    (hash bcrypt em `/home/u401945237/domains/samuel.tech/samuel-config.php`, fora da pasta pública).
+    (hash bcrypt em `samuel-config.php`, fora da pasta pública). O caminho vem da variável
+    `SAMUEL_CONFIG`; sem ela, o PHP usa o arquivo ao lado da pasta pública
+    (`dirname` de `public_html`). Não registre aqui o identificador da conta nem o caminho absoluto.
   - Depois: senha → `adm` no cookie assinado (HMAC) por 30 min; formulários com CSRF; 8 erros/15 min bloqueiam.
   - Esqueceu? Apagar `samuel-config.php` no Gerenciador de Arquivos e ativar de novo. Novo código: `python3 ferramentas/novo_codigo.py`.
 - **Nunca** colocar senha, segredo ou o código de configuração em arquivo do repositório (ele é público).
 
 ## Catálogo: dois lugares
 - **Jogos do site** (vêm do repositório): `_app/jogos.json` + arquivos em `_privado/jogos/<slug>/`.
-- **Jogos do responsável** (cadastrados em `/admin`): ficam FORA da pasta pública, em
-  `/home/u401945237/domains/samuel.tech/samuel-dados/` → `catalogo.json`, `jogos/<slug>/`, `capas/<slug>.webp`.
+- **Jogos do responsável** (cadastrados em `/admin`): ficam FORA da pasta pública, no diretório
+  `samuel-dados/` ao lado de `samuel-config.php` → `catalogo.json`, `jogos/<slug>/`, `capas/<slug>.webp`.
   Sobrevivem às publicações. `status_site` nesse JSON guarda o status trocado de jogos do site.
 - Status: `pronto` (família joga) · `em-breve` (selo, sem jogar) · `rascunho` (só no modo responsável) · `arquivado` (escondido).
 - Import do .zip: rejeita `..`/caminho absoluto, ignora ocultos e `__MACOSX`, só extensões de `EXTENSOES_JOGO`
@@ -97,16 +100,34 @@ O jogo deve usar caminhos relativos e sair com `<a href="/jogos/" target="_top">
 5. Testar: home → Jogar → biblioteca → jogo → recomeçar → voltar. Conferir: `/_privado/jogos/<slug>/index.html` = 403.
 6. Publicar (abaixo).
 
+## Repositório (fonte da verdade)
+- **`AndaimeOS/jogos-samuel`** (remote `origin`) é a fonte da verdade desde 2026-11-14: `main` (código), `publicacao`
+  (pacote que está no ar) e as branches de trabalho. Commit e push direto na `main` do AndaimeOS.
+- `WeBoaz/jogos-samuel` (remote `weboaz`) é histórico, só leitura (push desativado no remote). Todo o conteúdo dele
+  já está no AndaimeOS. O PR WeBoaz/jogos-samuel#1 é legado.
+
 ## Publicação (Hostinger)
-Conta `u401945237`, site `samuel.tech`, pasta `public_html`. O app do GitHub da Hostinger não enxerga
-`WeBoaz/jogos-samuel`, então **não há deploy automático**. Para publicar:
-1. Juntar as mudanças na `main`.
-2. `ferramentas/empacotar.sh` → `samuel-site.zip` (só arquivos do site; sem `kit/` e `ferramentas/`).
-3. Atualizar a branch órfã **`publicacao`** com o novo `samuel-site.zip` (+ `LEIA-ME.md`) e dar push.
-4. Hostinger (MCP): `hosting_git_deploy-website-repository` — `https://github.com/WeBoaz/jogos-samuel.git`,
-   branch `publicacao`, directory `_publicacao` (se a pasta existir, faz pull).
-5. Hostinger: `hosting_websites_deploy-static-site-archive` com `archive_path: "_publicacao/samuel-site.zip"`.
-   (Substitui só `public_html`; o `samuel-config.php` fica fora e sobrevive.)
-6. Conferir com `hosting_files_list-website-and-directories` (deve haver `.htaccess`, `_app/.htaccess`, `_privado/.htaccess`).
-Alternativa definitiva: conectar a conta GitHub WeBoaz no hPanel (Sites → samuel.tech → Avançado → Git)
-e usar `hosting_deploy` com `type: static` (o PHP roda normalmente).
+Site `samuel.tech`, pasta `public_html` na hospedagem compartilhada. O identificador da conta
+fica só no painel do provedor (não neste arquivo). Não há deploy automático. Para publicar:
+1. Juntar as mudanças na `main` (AndaimeOS) e passar pelo QA do jogo (`docs/qa/<slug>/<candidata>/`).
+2. `python3 ferramentas/release_jogo.py <slug> <versão>`, commit, e `ferramentas/empacotar.sh` → `samuel-site.zip`
+   (do HEAD; só arquivos do site; sem `kit/`, `ferramentas/`, `docs/`, `desenvolvimento/`). O script roda antes o
+   `verificar_jogo.py --todos` e não empacota se ele falhar; avisa se houver mudança não commitada (fica fora do zip);
+   no fim imprime o commit e o SHA-256 — guardar os dois.
+3. Enviar o zip pela API da Hostinger (`hosting_files_generate-upload-url` + upload TUS com `X-Auth` e `X-Auth-Rest`)
+   e aplicar com `hosting_websites_deploy-static-site-archive`. (Substitui só `public_html`; a config privada fica fora.)
+   Essas ferramentas só existem com o conector Hostinger conectado no app; sem ele, não há como publicar por aqui.
+4. `python3 ferramentas/conferir_producao.py samuel-site.zip` (só GET; `--base` para outro endereço): compara o
+   SHA-256 de `assets/**`, `robots.txt` e dos arquivos dos jogos `pronto` (via `/jogo/<slug>/…`), exige 403/404 em
+   `_privado`, `_app`, `kit`, `docs`, `ferramentas`, `desenvolvimento` e `.git`, 200 nas páginas e que jogos fora do
+   `pronto` não sejam entregues. Tem de sair 0. PNG/JPEG aparecem como `≈`: o CDN da Hostinger recodifica essas
+   imagens, então só formato e dimensões são comparados. Os 403 mostram que o bloqueio está ativo; a presença de
+   `.htaccess`, `_app/.htaccess` e `_privado/.htaccess` em si só se confere pelos arquivos da hospedagem.
+5. `ferramentas/atualizar_publicacao.sh samuel-site.zip` → confere que o zip é o do HEAD, monta o commit da branch
+   **`publicacao`** (zip + `LEIA-ME.md` com commit e SHA-256; o pacote anterior é copiado do LEIA-ME antigo) sem mexer
+   na pasta de trabalho e mostra o comando de envio. Revisado, enviar com esse comando (ou rodar com `--push`; opcionais: `NOTA="…"`,
+   `DESDE="AAAA-MM-DD HH:MM -03:00"`). A `publicacao` sempre espelha o que está no ar. Registrar no Notion (Deploys e revisões).
+Existe um vínculo Git antigo no hPanel (WeBoaz/jogos-samuel → pasta `_publicacao`); a API não remove — o Boaz remove
+em Sites → samuel.tech → Avançado → Git.
+Alternativa futura: conectar a conta GitHub AndaimeOS no hPanel (Sites → samuel.tech → Avançado → Git) e publicar
+a `publicacao` por `hosting_git_deploy-website-repository` com `https://github.com/AndaimeOS/jogos-samuel.git`.

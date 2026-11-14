@@ -1,0 +1,1557 @@
+import { track } from '../analytics'
+import { effectIn } from '../data/arenaEffects'
+import { lookIn, parseLook, type Look } from '../data/cosmetics'
+import { PLAYABLE } from '../data/hatchlings'
+import { BASE_GRID, BASE_ROOM, LANDING, REALM_ROOMS, isTownRoomId, type Door, type Point, type Rect, type Spot, type SpotKind, type TownRoomId } from '../data/realmMap'
+import type { BaseExterior, BaseLayout } from '../data/secretBases'
+import { footprint } from '../data/furniture'
+import { FURNITURE_GAMES, isMinigameId, isTableGame, MINIGAME_IDS, MINIGAMES, type MinigameId, type TableGameId } from '../data/minigames'
+import { baseTableId, type TableView } from '../net/realmTables'
+import { localTable } from '../realm/games/localTable'
+import { openGameBoard } from '../realm/games/board'
+import { chooseGame } from '../realm/games/registry'
+import { relayTable } from '../realm/games/relayTable'
+import { TABLE_GAMES } from '../realm/games/tables'
+import { drawTableMarker, seatedAt } from '../render/realmTables'
+import { playSfx } from '../engine/audio'
+import { joystick, type Input, type Stick } from '../engine/input'
+import type { Vec } from '../engine/math'
+import { isSupporterTier } from '../game/supporters'
+import { t } from '../i18n'
+import {
+  CITY_IDS,
+  REALM,
+  REALM_CITIES,
+  REALM_EMOTES,
+  REALM_LINES,
+  baseOwner,
+  baseRoom,
+  isPerchAct,
+  type Avatar,
+  type CityId,
+  type PartyMode,
+  type PartyView,
+  type RealmEmote,
+  type RealmLine,
+  type RealmRefusal,
+  type RealmServerMessage,
+  type RoomFurniture,
+  type RoomKey,
+} from '../net/realm'
+import { REPORT_REASONS, type BaseView, type ReportReason } from '../net/realmApi'
+import { fetchBase, fetchBook, fetchCities, fetchFriends, fetchMe, isFailure, reportTrainer } from '../realm/api'
+import { firstOpenCity } from '../realm/entry'
+import type { RealmClient } from '../realm/client'
+import { blocked, createWalker, place, pushSample, report, sampleAt, snap, walk, type Ground, type Track } from '../realm/interp'
+import { nearestReachable } from '../realm/placement'
+import { baseSolids, drawBaseRoom, liftOf } from '../render/base'
+import { drawFurnitureUse } from '../render/furnitureUse'
+import { furnitureImage } from '../render/furnitureArt'
+import { actionOf, freeSeat, onASeat, pieceAt, pieceNear, reaches, roomTheme, usePieces, type UsePiece } from '../realm/pieces'
+import { JUKEBOX } from '../data/furnitureUse'
+import { setRealmJukebox } from '../realmJukebox'
+import { drawJoystick } from '../render/joystick'
+import { drawTownGround, drawTownOverhead, labelTop, townPieces } from '../render/realmArt'
+import { GROVE_HOST } from '../render/realmLayout'
+import { drawEmoteBubble, drawScreenGlow, drawTrainer, emoting, headOf, realmIconUrl, type TrainerView } from '../render/realmScene'
+import { loadSpecies, portraitUrl } from '../render/sprites'
+import { titleChip } from './arenaTitle'
+import { openBaseBoard } from './baseBoard'
+import { openBaseEditor } from './baseEditor'
+import { openCarpentry } from './carpentry'
+import { openRealmFriends, roomName } from './realmFriends'
+import { dialogue, type Speaker } from './dialogue'
+import { h, later } from './dom'
+import { supporterBadgeIcon } from './profile'
+import type { Screen } from './screens'
+import { toast } from './toasts'
+import { uiZoom } from './uiScale'
+import { markRealmSeen } from './realmSeen'
+import { REALM_EVENTS, type RealmHour } from '../data/realmEvents'
+import { hourNotice } from '../realm/hours'
+import { routeToward } from '../realm/route'
+import { drawHourGround, drawHourOverhead } from '../render/realmHours'
+import { realmHourBar } from './realmHour'
+import { STAMPS, isStampId, type StampId } from '../data/realmStamps'
+import { STAMP_FX_SECONDS, drawStampFx, type StampFx } from '../render/stampFx'
+import { stampArtReady, stampCanvas } from '../render/stampArt'
+import { hasUnseenStamps, openRealmBook } from './realmBook'
+import { openErrandsBoard } from './realmErrands'
+
+/**
+ * The Poké Realm's screen (`net/realm.ts`): the city picker, then the town
+ * drawn on the game's canvas (`scene`, called by the shell's frame instead
+ * of the lobby's meadow) with the HTML over it: name plates, quick-chat
+ * bubbles, the talk wheel and the emote bar, the party, a trainer's card
+ * (invite, mute, report), the friends panel (`ui/realmFriends.ts`: where
+ * friends walk, "Ir até", base invites) and the base invites that come in,
+ * the spot prompt (portals, the board, the bases,
+ * Bibarel's carpentry), the labels floating over the room's spots and doors
+ * as the trainer comes near (so the town explains itself), the grove's host
+ * and its first-visit talk, and the connection's state. Furniture is used
+ * Habbo style (`realm/pieces.ts`): walk up and press E, or tap the piece,
+ * to sit on a bench, a sofa or a bed (a step stands up), or, in a base,
+ * switch a light or play music on a jukebox for everyone there
+ * (`realmJukebox.ts` hands the shell the theme to play).
+ * The Estampas and Recados show here too: the book's button (`ui/realmBook.ts`),
+ * the plaza's board (`ui/realmErrands.ts`), a carimbo over whoever earns one
+ * (`render/stampFx.ts`) with a notice for the room, which keeps a hidden
+ * stamp's name from everyone but who earned it.
+ *
+ * The player's own trainer walks here (keys, the drag stick or a tap, like
+ * the lobby's partner) and is reported to the relay (`realm/interp.ts`);
+ * everyone else draws interpolated behind. Nothing here touches `src/game`.
+ */
+
+/** What the shell gives the realm. */
+export type RealmDeps = {
+  client: RealmClient
+  /** CSS px per world px of the game's canvas. */
+  scale: () => number
+  /** The signed-in player's @handle (the base the trail's door opens). */
+  handle: string
+  /** Back to the lobby (the client already left). */
+  back: () => void
+  /**
+   * At a portal (the leader, or alone): makes a co-op room (an Arena one for
+   * `arena`) through the co-op flow and joins it; the code, or null when it
+   * failed. `show` then puts the room up (after the party heard the code).
+   */
+  openRoom: (mode: PartyMode) => Promise<string | null>
+  showRoom: () => void
+  /** A party member follows the leader into `code`. */
+  joinRoom: (mode: PartyMode, code: string) => void
+}
+
+/**
+ * The screen, plus the canvas pass the shell calls every menu frame in the
+ * meadow's place, and (for the dev console, `ps.realm('walk', 'x,y')`) a walk
+ * toward a point of the room, as a tap there would, and (`ps.realm('visit', 'ash')`)
+ * a visit to a base, as the board's would.
+ */
+export type RealmScreen = Screen & {
+  scene: (ctx: CanvasRenderingContext2D, dt: number, w: number, h: number) => void
+  walkTo: (x: number, y: number) => void
+  /** Dev (`ps.realm('friends')`): the friends panel, over the town or the picker. */
+  friends: () => void
+  /** Dev (`ps.realm('visit', 'ash')`): into a base, as the board's Visit would. */
+  visit: (handle: string) => void
+  /** Dev (`ps.realm('book')`): the Livro de Estampas over the town. */
+  book: () => void
+}
+
+/* ---------------- Muted trainers (this device) ---------------- */
+
+const MUTED = 'ps:realmMuted'
+
+const readMuted = (): Set<string> => {
+  try {
+    const v: unknown = JSON.parse(localStorage.getItem(MUTED) ?? '[]')
+    return new Set(Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : [])
+  } catch {
+    return new Set()
+  }
+}
+
+const keepMuted = (muted: ReadonlySet<string>) => {
+  try {
+    localStorage.setItem(MUTED, JSON.stringify([...muted]))
+  } catch {
+    // Storage blocked: muted for this visit.
+  }
+}
+
+/* ---------------- The grove's host ---------------- */
+
+const GROVE_SEEN = 'ps:groveSeen'
+
+/** Whether this device heard Sudowoodo's first-visit talk about secret bases. */
+const groveSeen = () => {
+  try {
+    return localStorage.getItem(GROVE_SEEN) !== null
+  } catch {
+    return true
+  }
+}
+
+const markGroveSeen = () => {
+  try {
+    localStorage.setItem(GROVE_SEEN, '1')
+  } catch {
+    // It explains again next time.
+  }
+}
+
+/** Sudowoodo talking (SpriteCollab draws it with one face: its portrait). */
+const hostSpeaker = (): Speaker => ({
+  name: t().realm.spots.host,
+  color: '#7a8a2e',
+  portrait: () => h('img', { src: portraitUrl(GROVE_HOST.dex), alt: '', width: 40, height: 40 }),
+})
+
+/* ---------------- Rooms ---------------- */
+
+/** A trainer's species: its partner's first form (as the lobby's stage shows it). */
+const dexOf = (partner: string) => (Object.hasOwn(PLAYABLE, partner) ? PLAYABLE[partner as keyof typeof PLAYABLE].line[0].dex : 25)
+
+/** A base's way out: its door tile on the bottom row, back to the trail by the bases. */
+const BASE_EXIT: Rect = { x: Math.floor(BASE_GRID.cols / 2) * BASE_GRID.tile, y: BASE_ROOM.h - 6, w: BASE_GRID.tile, h: 6 }
+
+const trailBy = (kind: SpotKind) => {
+  const spot = REALM_ROOMS.trail.spots.find((s) => s.kind === kind)
+  return spot ? { x: spot.at.x, y: spot.at.y + 24 } : REALM_ROOMS.trail.spawn
+}
+
+/** A room's walkable ground (a base's from its layout, once it loaded). */
+const groundOf = (room: RoomKey, base: BaseView | null): Ground =>
+  isTownRoomId(room) ? REALM_ROOMS[room] : { w: BASE_ROOM.w, h: BASE_ROOM.h, solid: base ? baseSolids(base.layout) : [] }
+
+const doorsOf = (room: RoomKey): readonly Door[] => (isTownRoomId(room) ? REALM_ROOMS[room].doors : [{ at: BASE_EXIT, to: 'trail', spawn: trailBy('myBase') }])
+
+/**
+ * A base's game spots: every piece of its layout that plays mini games
+ * (`FURNITURE_GAMES`), reached from in front of it; a table's id is its tile's.
+ */
+export const gameSpots = (layout: BaseLayout): Spot[] =>
+  layout.items.flatMap((p) => {
+    const games = FURNITURE_GAMES[p.id]
+    if (!games) return []
+    const [w, hh] = footprint(p.id, p.turned)
+    const at = { x: (p.x + w / 2) * BASE_GRID.tile, y: (p.y + hh) * BASE_GRID.tile + 6 }
+    const table = games.some((g) => isTableGame(g))
+    return [{ kind: table ? 'gameTable' : 'cabinet', at, reach: 22, games, ...(table ? { id: baseTableId(p.x, p.y) } : {}) } satisfies Spot]
+  })
+
+/** A room's spots: a town room's, or the game spots of a base (once its layout loaded). */
+const spotsOf = (room: RoomKey, base: BaseView | null = null): readonly Spot[] => (isTownRoomId(room) ? REALM_ROOMS[room].spots : base ? gameSpots(base.layout) : [])
+
+const inRect = (r: Rect, x: number, y: number) => x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h
+
+/** What a spot's label says: a cabinet with one game is named after it, everything else by its kind. */
+const spotLabel = (s: Spot) => {
+  const game = s.kind === 'cabinet' && s.games?.length === 1 ? s.games[0] : undefined
+  return game !== undefined && isMinigameId(game) ? t().minigames.games[game].name : t().realm.spots[s.kind]
+}
+
+/** The games whose Placar a spot opens: a game spot's (a fishing spot fishes), every arcade game at the arcade's prizes counter. */
+const spotBoards = (s: Spot): MinigameId[] =>
+  s.kind === 'fishing'
+    ? ['fishing']
+    : s.kind === 'prizes'
+      ? MINIGAME_IDS.filter((g) => MINIGAMES[g].where === 'arcade')
+      : s.kind === 'cabinet' || s.kind === 'gameTable'
+        ? (s.games ?? []).filter(isMinigameId)
+        : []
+
+/** Labels show over spots and doors this close (world px) to the trainer. */
+const LABEL_NEAR = 220
+/** How far down (CSS px) a label's bottom stays at least, so the top bar never hides it. */
+const LABEL_FLOOR = 84
+
+/** A label over a spot or a door: its text, where it stands, and the spot (null for a door), which the prompt replaces when in reach. */
+type Label = { text: string; at: Point; spot: Spot | null }
+
+/** Spots of a kind standing side by side (the pier's fishing places): one label names them all. */
+const sideBySide = (a: Spot, b: Spot) => a.kind === b.kind && Math.hypot(a.at.x - b.at.x, a.at.y - b.at.y) < 40
+
+/**
+ * A room's labels: every spot but the benches (one for spots side by side) (`realm.spots`) and every door
+ * (the room it leads to, an arrow toward the edge it's on), anchored a little
+ * inside the room so an edge door's label shows.
+ */
+const labelsOf = (room: RoomKey): Label[] => {
+  const m = t().realm
+  const { w, h: hgt } = isTownRoomId(room) ? REALM_ROOMS[room] : BASE_ROOM
+  // Cabinets side by side playing the same game share one label, between them.
+  const shared = (s: Spot) => spotsOf(room).filter((o) => o.kind === 'cabinet' && s.kind === 'cabinet' && String(o.games) === String(s.games) && Math.abs(o.at.y - s.at.y) < 8 && Math.abs(o.at.x - s.at.x) <= 48)
+  const spots = spotsOf(room)
+    .filter((s, i, all) => s.kind !== 'bench' && (s.kind !== 'cabinet' || shared(s)[0] === s) && (s.kind === 'cabinet' || !all.slice(0, i).some((o) => sideBySide(o, s))))
+    .map((s) => {
+      const row = shared(s)
+      const at = row.length > 1 ? { x: row.reduce((sum, o) => sum + o.at.x, 0) / row.length, y: s.at.y } : s.at
+      return { text: spotLabel(s), at, spot: s }
+    })
+  const doors = doorsOf(room).map((d) => {
+    const name = m.rooms[d.to]
+    const cx = d.at.x + d.at.w / 2
+    const cy = d.at.y + d.at.h / 2
+    const text = d.at.x <= 0 ? `← ${name}` : d.at.x + d.at.w >= w ? `${name} →` : d.at.y + d.at.h >= hgt ? `↓ ${name}` : name
+    return { text, at: { x: Math.min(Math.max(cx, 32), w - 32), y: Math.min(cy, hgt - 8) }, spot: null }
+  })
+  return [...spots, ...doors]
+}
+
+/** A press that travels less than this (CSS px) is a tap. */
+const TAP_SLOP = 12
+/** How long a quick-chat line shows over a head (s). */
+const SAID_SECONDS = 4.5
+/** Taps this close (world px) to a trainer's body pick them. */
+const PICK = 12
+/** How long a trainer that asked to sit waits for the relay to seat it before it walks (and reports its walk) again (ms). */
+const PERCH_WAIT_MS = 600
+
+/** A trainer of the room as the screen keeps them. */
+type Trainer = TrainerView & {
+  av: Avatar
+  track: Track
+  /** The line (or brag) over the head, since when. */
+  said: { at: number } | null
+  plate: HTMLElement
+  bubble: HTMLElement
+  /** Carimbos waiting to play over its head, the first one playing (`render/stampFx.ts`). */
+  stampFx: StampFx[]
+}
+
+/** Notices of stamps showing at once, and how long each stays (ms). */
+const STAMP_NOTES = 2
+const STAMP_NOTE_MS = 3600
+
+/** Dev (`ps.realm('room', 'arcade')`): sends the open town's trainer walking to a room through its doors. */
+let devGo: ((room: TownRoomId) => void) | null = null
+export const devRealmRoom = (room: TownRoomId) => (devGo ? (devGo(room), room) : 'ps.realm: no town open')
+
+/** What a session did, summed into one `realm_session` event when it ends. */
+type Session = { city: CityId; started: number; rooms: Set<string>; peers: number; lines: number; emotes: number; party: boolean; portal: PartyMode | null }
+
+/** How long the way in waits for the API's counts before trying the cities in order (ms). */
+const ENTRY_WAIT_MS = 2500
+
+/** The way in while it looks for a city: the counts it read (null: no answer) and the cities that refused it as full. */
+type AutoEntry = { counts: Partial<Record<CityId, number>> | null; tried: Set<CityId> }
+
+/**
+ * Opens the realm: `city` straight away (a link, a friend's city, the dev
+ * hooks), or the first city with room. The list of cities is for changing
+ * city, and for when the way in has nowhere to land.
+ */
+export const openRealm = (root: HTMLElement, input: Input, deps: RealmDeps, city: CityId | null): RealmScreen => {
+  markRealmSeen()
+  const m = () => t().realm
+  const { client } = deps
+  const el = h('div', { class: 'screen realm' })
+  root.append(el)
+
+  let disposed = false
+  let auto: AutoEntry | null = null
+  let town: ReturnType<typeof buildTown> | null = null
+  let session: Session | null = null
+  let sub: Screen | null = null
+
+  /** Ends the session's analytics once (on leaving, a refusal or a portal). */
+  const endSession = () => {
+    const s = session
+    session = null
+    if (!s) return
+    track('realm_session', {
+      city: s.city,
+      seconds: Math.round((performance.now() - s.started) / 1000),
+      rooms: s.rooms.size,
+      peers: s.peers,
+      lines: s.lines,
+      emotes: s.emotes,
+      party: s.party ? 1 : 0,
+      portal: s.portal ?? 'none',
+    })
+  }
+
+  const leave = () => {
+    endSession()
+    client.leave()
+    deps.back()
+  }
+
+  /* ---------- The city picker ---------- */
+
+  /** The cities and the friends walking, to pick where to go: on its own (`showPicker`) or over the town (`here`: the city the player is in). */
+  const cityPanel = (note: string | null, back: () => void, here: CityId | null) => {
+    const list = h('div', { class: 'realm-cities' })
+    const friends = h('div', { class: 'realm-friends' })
+    const enter = (id: CityId) => (playSfx('select'), showTown(id))
+    const rows = CITY_IDS.map((id) => {
+      const count = h('small', {}, id === here ? m().cities.here : '…')
+      const b = h('button', { class: 'realm-city box', type: 'button', onclick: () => enter(id) }, h('b', {}, REALM_CITIES[id].name), count)
+      b.toggleAttribute('disabled', id === here)
+      list.append(b)
+      return { id, b, count }
+    })
+    const panel = h(
+      'div',
+      { class: 'realm-picker box' },
+      h('h2', {}, m().name),
+      h('p', { class: 'realm-picker-title' }, m().cities.title),
+      h('small', { class: 'realm-picker-hint' }, m().cities.hint),
+      ...(note ? [h('p', { class: 'realm-note' }, note)] : []),
+      list,
+      h('h3', {}, m().cities.friends),
+      friends,
+      h('button', { class: 'realm-back box', type: 'button', onclick: () => (playSfx('select'), back()) }, `← ${m().cities.back}`),
+    )
+    later(() => rows.find((r) => r.id !== here)?.b.focus())
+    void fetchCities().then((got) => {
+      if (disposed || !panel.isConnected) return
+      if (!got) return void list.before(h('p', { class: 'realm-note' }, m().cities.offline))
+      for (const r of rows) {
+        if (r.id === here) continue
+        const n = got.cities[r.id] ?? 0
+        const full = n >= REALM.cityCap
+        r.count.textContent = full ? m().cities.full : m().cities.trainers(n)
+        r.b.toggleAttribute('disabled', full)
+      }
+    })
+    const all = h('button', { class: 'realm-friend realm-friend-all box', type: 'button', onclick: () => (playSfx('select'), openFriends(null)) }, h('b', {}, m().friends.all))
+    void fetchFriends().then((got) => {
+      if (disposed || !panel.isConnected) return
+      const walking = (got?.friends ?? []).flatMap((f) => (f.state === 'realm' && f.full !== 'city' ? [f] : []))
+      friends.replaceChildren(
+        ...(walking.length === 0
+          ? [h('small', {}, m().cities.noFriends)]
+          : walking.map((f) => {
+              const room = f.full === 'room' ? null : roomName(f.room, deps.handle)
+              return h(
+                'button',
+                { class: 'realm-friend box', type: 'button', onclick: () => (playSfx('select'), showTown(f.city, f.full === 'room' ? LANDING : (f.room ?? LANDING))) },
+                h('b', {}, m().cities.joinFriend(f.handle)),
+                h('small', {}, room ? `${REALM_CITIES[f.city].name} · ${room}` : REALM_CITIES[f.city].name),
+              )
+            })),
+        all,
+      )
+    })
+    return panel
+  }
+
+  /** The list on its own, out of any city: the way in found no room, or the relay sent the trainer away. */
+  const showPicker = (note: string | null = null) => {
+    town?.dispose()
+    town = null
+    endSession()
+    client.leave()
+    el.replaceChildren(cityPanel(note, leave, null))
+  }
+
+  /** "Trocar de cidade", over the town: the trainer stays where it is until another city is picked. */
+  const citySheet = (r: HTMLElement, here: CityId): Screen => {
+    const sheet = h('div', { class: 'screen realm-sheet-screen' }, cityPanel(null, closeSub, here))
+    r.append(sheet)
+    const off = input.onKey((key) => (key === 'Escape' ? closeSub() : undefined))
+    return { el: sheet, dispose: () => (off(), sheet.remove()) }
+  }
+
+  /** The next city to try (`firstOpenCity`), or the list once all are full. */
+  const landIn = (entry: AutoEntry) => {
+    const id = firstOpenCity(entry.counts, entry.tried)
+    if (id) showTown(id, LANDING, entry)
+    else showPicker(m().refusals.full)
+  }
+
+  /** The way in: the API's counts, never waiting long on them (a friend's city or the panel may have taken over meanwhile). */
+  const findCity = async () => {
+    el.replaceChildren(h('div', { class: 'realm-status box' }, m().status.connecting))
+    const got = await Promise.race([fetchCities(), new Promise<null>((done) => setTimeout(() => done(null), ENTRY_WAIT_MS))])
+    if (!disposed && !town) landIn({ counts: got?.cities ?? null, tried: new Set() })
+  }
+
+  /** Into `id`, landing in `room` (a friend's, through "Ir até" or an invite; the relay lands a full room's in the landing). `entry`: the way in chose it, so a full city moves on to the next. */
+  const showTown = (id: CityId, room: RoomKey = LANDING, entry: AutoEntry | null = null) => {
+    auto = entry
+    closeSub()
+    town?.dispose()
+    session = { city: id, started: performance.now(), rooms: new Set([LANDING]), peers: 0, lines: 0, emotes: 0, party: false, portal: null }
+    town = buildTown(id)
+    client.join(id, room)
+  }
+
+  /** The friends panel, over the town (`town`: where the player walks and how it invites) or the picker (null). */
+  function openFriends(at: { here: () => { city: CityId; room: RoomKey | null }; go: (city: CityId, room: RoomKey | null) => void; invite: (handle: string) => Promise<void> } | null) {
+    openSub((r) =>
+      openRealmFriends(r, input, {
+        handle: deps.handle,
+        here: at?.here ?? (() => null),
+        go: at?.go ?? ((city, room) => showTown(city, room ?? LANDING)),
+        invite: at?.invite ?? null,
+        close: closeSub,
+      }),
+    )
+  }
+
+  /* ---------- The town ---------- */
+
+  const buildTown = (city: CityId) => {
+    const where = h('span', { class: 'realm-where' })
+    const count = h('small', { class: 'realm-count' })
+    const decorate = h(
+      'button',
+      {
+        class: 'realm-decorate box hidden',
+        type: 'button',
+        onclick: () =>
+          openSub((r) =>
+            openBaseEditor(r, input, {
+              close: closeSub,
+              saved: (v) => {
+                exterior = v.layout.exterior
+                if (room === baseRoom(deps.handle)) setBase(v)
+              },
+            }),
+          ),
+      },
+      '✎',
+    )
+    const status = h('div', { class: 'realm-status box hidden' })
+    const partyBar = h('div', { class: 'realm-party box hidden' })
+    const layer = h('div', { class: 'realm-layer', 'aria-hidden': 'true' })
+    const signs = h('div', { class: 'realm-signs', 'aria-hidden': 'true' })
+    const useLabel = h('span', {})
+    const useButton = h('button', { class: 'realm-use box', type: 'button', onclick: () => useSpot() }, useLabel, h('span', { class: 'key-hint' }, 'E'))
+    // Beside a game spot's prompt: its games' Placar (P).
+    const boardButton = h('button', { class: 'realm-use realm-use-board box', type: 'button', onclick: () => boardAt(near) }, t().minigames.board.open, h('span', { class: 'key-hint' }, 'P'))
+    const usePrompt = h('div', { class: 'realm-use-row hidden' }, useButton, boardButton)
+    const wheel = h('div', { class: 'realm-wheel box hidden' })
+    const emotes = h('div', { class: 'realm-emotes box hidden' })
+    const card = h('div', { class: 'realm-card box hidden' })
+    const invite = h('div', { class: 'realm-invite box hidden' })
+    const talkButton = h('button', { class: 'realm-talk box', type: 'button', 'aria-label': m().talk, onclick: () => toggle(wheel) }, h('img', { src: realmIconUrl('talk'), alt: '' }), h('span', { class: 'key-hint' }, 'T'))
+    const emoteButton = h('button', { class: 'realm-emote box', type: 'button', 'aria-label': m().emote, onclick: () => toggle(emotes) }, h('img', { src: realmIconUrl('heart'), alt: '' }), h('span', { class: 'key-hint' }, 'Y'))
+    const friendsButton = h(
+      'button',
+      { class: 'realm-talk realm-pals-open box', type: 'button', 'aria-label': m().friends.open, title: m().friends.open, onclick: () => (playSfx('select'), friendsPanel()) },
+      h('img', { src: realmIconUrl('friends'), alt: '' }),
+      h('span', { class: 'key-hint' }, 'F'),
+    )
+    const bookDot = h('span', { class: 'realm-dot hidden', 'aria-hidden': 'true' })
+    const bookButton = h(
+      'button',
+      { class: 'realm-talk realm-book-open box', type: 'button', 'aria-label': m().stamps.title, title: m().stamps.title, onclick: () => openBook() },
+      h('img', { src: realmIconUrl('book'), alt: '' }),
+      h('span', { class: 'key-hint' }, 'B'),
+      bookDot,
+    )
+    const stampNotes = h('div', { class: 'realm-stamped' })
+    const leaveButton = h('button', { class: 'realm-leave box', type: 'button', onclick: () => (playSfx('select'), leave()) }, `← ${m().leave}`)
+    const hourBar = realmHourBar((to) => walkToHour(to))
+    el.replaceChildren(
+      signs,
+      layer,
+      h('div', { class: 'realm-top' }, leaveButton, h('button', { class: 'realm-title box', type: 'button', title: m().cities.switch, 'aria-label': m().cities.switch, onclick: () => (playSfx('select'), openSub((r) => citySheet(r, city))) }, where, count), decorate),
+      hourBar.el,
+      status,
+      partyBar,
+      usePrompt,
+      h('div', { class: 'realm-actions' }, bookButton, friendsButton, talkButton, emoteButton),
+      stampNotes,
+      wheel,
+      emotes,
+      card,
+      invite,
+    )
+
+    const muted = readMuted()
+    const trainers = new Map<number, Trainer>()
+    /** Every handle met in this city by avatar id (a party member in another room keeps a name). */
+    const names = new Map<number, string>()
+    const walker = createWalker(REALM_ROOMS[LANDING].spawn.x, REALM_ROOMS[LANDING].spawn.y)
+    let you: number | null = null
+    let me: Avatar | null = null
+    let room: RoomKey | null = null
+    let base: BaseView | null = null
+    /**
+     * A base's layout came in (on arrival, or the owner's edit saved): a
+     * trainer standing where a piece now is gets set down on the nearest spot
+     * it can walk to the door from, and the relay hears it (a step off a seat
+     * stands it up). One seated on a piece the new layout still holds stays:
+     * its seat lies inside the piece's footprint.
+     */
+    const setBase = (v: BaseView) => {
+      base = v
+      if (room === null || !blocked(groundOf(room, v), walker.x, walker.y)) return
+      if (isPerchAct(me?.act) && onASeat(usePieces(room, v.layout), walker.x, walker.y)) return
+      standAt = null
+      const at = nearestReachable(v.layout, walker.x, walker.y)
+      place(walker, at.x, at.y)
+      client.send({ t: 'move', x: Math.round(at.x), y: Math.round(at.y), facing: walker.facing, moving: false })
+    }
+    /** The exterior the player's own base wears (the grove's entrance draws it), the cave until their base is known. */
+    let exterior: BaseExterior = 'cave'
+    /** The room's labels, their elements in `signs`. */
+    let labels: (Label & { el: HTMLElement })[] = []
+    let party: PartyView | null = null
+    /** The room's game tables in use (`tables`/`table`), by id: drawn with their sitters, and handed to a table's screen. */
+    const tables = new Map<string, TableView>()
+    /** Invites waiting for an answer, oldest first: a party's (an avatar of the room) or a friend's to their base (until it lapses). */
+    const invites: ({ kind: 'party'; from: number } | { kind: 'base'; from: string; city: CityId })[] = []
+    let going = false
+    let drag: { id: number; origin: Vec; stick: Stick | null; mouse: boolean } | null = null
+    let tap: Vec | null = null
+    let near: Spot | null = null
+    /** The room's usable furniture (`realm/pieces.ts`), for the room and base layout it was made from; the piece in reach. */
+    let usable: { room: RoomKey | null; base: BaseView | null; all: UsePiece[] } = { room: null, base: null, all: [] }
+    let nearPiece: UsePiece | null = null
+    /** A base room's lights and music (the relay's `furniture`), null until anything's on. */
+    let furniture: RoomFurniture | null = null
+    /** Where the trainer stood before it sat down (it stands back up there), and when it asked to sit (its walk waits for the relay a beat). */
+    let standAt: Point | null = null
+    let perching = -Infinity
+    /** A piece tapped from afar: the trainer walks over and uses it on arrival. */
+    let pending: UsePiece | null = null
+    let cam = { x: 0, y: 0 }
+    let clock = 0
+    /** A room the trainer is walking to on its own (the Hora's banner), and the corners left to walk through in this one. */
+    let heading: TownRoomId | null = null
+    let route: Point[] = []
+    /** The Hora do Realm running now (read once a second, `syncHour`). */
+    let hour: RealmHour | null = null
+
+    void fetchBase(deps.handle).then((v) => {
+      if (!disposed && !isFailure(v)) exterior = v.layout.exterior
+    })
+
+    void stampArtReady()
+
+    /** Recados finished and waiting at the board (the board's label says so), and the book's button glowing for a stamp not seen yet. */
+    let ready = new Set<string>()
+    void fetchBook().then((book) => {
+      if (disposed || !book) return
+      ready = new Set(book.errands.flatMap((e) => (!e.claimed && e.progress >= e.target ? [e.id] : [])))
+      bookDot.classList.toggle('hidden', !hasUnseenStamps(book))
+    })
+
+    /* Wheel and emote bar */
+    for (const line of REALM_LINES) {
+      wheel.append(h('button', { class: 'realm-line', type: 'button', onclick: () => say(line) }, m().lines[line]))
+    }
+    const emoteButtons = REALM_EMOTES.map((id) => {
+      const b = h('button', { class: `realm-emote-pick ${id}`, type: 'button', title: m().emotes[id], 'aria-label': m().emotes[id], onclick: () => emote(id) }, h('img', { src: realmIconUrl(id), alt: '' }))
+      emotes.append(b)
+      return { id, b }
+    })
+
+    function toggle(panel: HTMLElement) {
+      const open = panel.classList.contains('hidden')
+      for (const p of [wheel, emotes, card]) p.classList.add('hidden')
+      panel.classList.toggle('hidden', !open)
+      playSfx('move')
+    }
+
+    function say(line: RealmLine) {
+      client.send({ t: 'say', line })
+      if (session) session.lines++
+      wheel.classList.add('hidden')
+    }
+
+    function emote(id: RealmEmote) {
+      client.send({ t: 'emote', emote: id })
+      if (session) session.emotes++
+      emotes.classList.add('hidden')
+    }
+
+    /* Trainers */
+    const plateOf = (av: Avatar, look: Look) => {
+      const plate = effectIn('plate', look.plate)?.plate
+      const tier = isSupporterTier(av.supporter) ? av.supporter : null
+      const el = h(
+        'div',
+        { class: plate ? 'realm-plate plated' : 'realm-plate', style: plate ? `--plate-fill:${plate.fill};--plate-edge:${plate.edge};--plate-light:${plate.light}` : '' },
+        ...(tier ? [h('img', { class: 'realm-badge', src: supporterBadgeIcon(tier), alt: '' })] : []),
+        h('b', {}, `@${av.handle}`),
+        titleChip(look.title),
+      )
+      return el
+    }
+
+    const addTrainer = (av: Avatar) => {
+      removeTrainer(av.id)
+      const look = lookIn(parseLook(av.look), 'realm')
+      const dex = dexOf(av.partner)
+      void loadSpecies(dex, av.shiny).catch(() => {})
+      const tr: Trainer = {
+        av,
+        dex,
+        shiny: av.shiny,
+        look,
+        x: av.x,
+        y: av.y,
+        facing: av.facing,
+        moving: av.moving,
+        emote: null,
+        track: [],
+        said: null,
+        plate: plateOf(av, look),
+        bubble: h('div', { class: 'realm-said hidden' }),
+        stampFx: [],
+      }
+      pushSample(tr.track, { at: performance.now() - REALM.interpDelayMs, x: av.x, y: av.y, facing: av.facing, moving: av.moving })
+      layer.append(tr.plate, tr.bubble)
+      trainers.set(av.id, tr)
+      if (session) session.peers = Math.max(session.peers, trainers.size - (trainers.has(you ?? -1) ? 1 : 0))
+      names.set(av.id, av.handle)
+      if (av.id === you) me = av
+    }
+
+    function removeTrainer(id: number) {
+      const tr = trainers.get(id)
+      if (!tr) return
+      tr.plate.remove()
+      tr.bubble.remove()
+      trainers.delete(id)
+      if (card.dataset.id === String(id)) card.classList.add('hidden')
+    }
+
+    const enterRoom = (key: RoomKey, avatars: readonly Avatar[]) => {
+      for (const id of [...trainers.keys()]) removeTrainer(id)
+      tables.clear()
+      room = key
+      going = false
+      base = null
+      furniture = null
+      standAt = null
+      pending = null
+      session?.rooms.add(key)
+      for (const av of avatars) addTrainer(av)
+      const mine = avatars.find((a) => a.id === you)
+      if (mine) place(walker, mine.x, mine.y)
+      const owner = baseOwner(key)
+      const own = owner === deps.handle.toLowerCase()
+      decorate.classList.toggle('hidden', !own)
+      if (owner)
+        void fetchBase(owner).then((v) => {
+          if (disposed || room !== key || isFailure(v)) return
+          setBase(v)
+          if (own) exterior = v.layout.exterior
+        })
+      labels = labelsOf(key).map((l) => ({ ...l, el: h('div', { class: 'realm-sign' }, l.text) }))
+      signs.replaceChildren(...labels.map((l) => l.el))
+      // The first time in the grove, its host comes over to explain what a secret base is.
+      if (key === 'trail' && !groveSeen()) later(() => !disposed && room === 'trail' && !sub && hostTalk(true))
+      where.textContent = `${REALM_CITIES[city].name} · ${owner ? m().base(owner) : isTownRoomId(key) ? m().rooms[key] : key}`
+      route = []
+      syncHour()
+    }
+
+    /* The Hora do Realm */
+    function syncHour() {
+      const notice = hourNotice(Date.now())
+      hour = notice?.on ? notice.hour : null
+      hourBar.show(notice, room)
+    }
+    const hourTick = setInterval(syncHour, 1000)
+    syncHour()
+
+    /** The banner's shortcut: walks the trainer through the town's doors to `to` (out of a base, straight there as its Visit does). */
+    function walkToHour(to: TownRoomId) {
+      if (!room) return
+      playSfx('select')
+      if (perched()) standUp()
+      route = []
+      if (isTownRoomId(room)) heading = to
+      else go(to, REALM_ROOMS[to].spawn)
+    }
+
+    /* The relay's messages */
+    const onMessage = (msg: RealmServerMessage) => {
+      const now = performance.now()
+      switch (msg.t) {
+        case 'welcome':
+          you = msg.you
+          auto = null
+          return enterRoom(msg.room, msg.avatars)
+        case 'room':
+          return enterRoom(msg.room, msg.avatars)
+        case 'join':
+          return addTrainer(msg.avatar)
+        case 'gone':
+          return removeTrainer(msg.id)
+        case 'moves':
+          for (const [id, x, y, facing, moving] of msg.rows) {
+            const tr = id === you ? null : trainers.get(id)
+            if (tr) pushSample(tr.track, { at: now, x, y, facing, moving: moving === 1 })
+          }
+          return
+        case 'snap':
+          return snap(walker, msg.x, msg.y, now)
+        case 'said': {
+          const tr = trainers.get(msg.id)
+          if (!tr || muted.has(tr.av.handle)) return
+          tr.said = { at: clock }
+          tr.bubble.textContent = m().lines[msg.line]
+          return
+        }
+        case 'bragged': {
+          const tr = trainers.get(msg.id)
+          if (!tr || muted.has(tr.av.handle) || !isMinigameId(msg.game)) return
+          const feats: Readonly<Record<string, string>> = t().minigames.feats[msg.game]
+          const text = feats[msg.feat]
+          if (!text) return
+          tr.said = { at: clock }
+          tr.bubble.textContent = text
+          return
+        }
+        case 'acted': {
+          const tr = trainers.get(msg.id)
+          if (!tr) return
+          tr.av = { ...tr.av, act: msg.act }
+          if (msg.id === you) me = tr.av
+          // Sat down: on the seat at once (the trainer's own walker too), not sliding there behind the others' moves.
+          if (msg.at) {
+            const [x, y, facing] = msg.at
+            if (msg.id === you) {
+              place(walker, x, y)
+              walker.facing = facing
+              walker.sent = { x, y, moving: false }
+              perching = -Infinity
+            } else {
+              tr.track.length = 0
+              pushSample(tr.track, { at: now - REALM.interpDelayMs, x, y, facing, moving: false })
+            }
+          }
+          return
+        }
+        case 'furniture':
+          furniture = msg.state
+          return
+        // The tables of the room (a table's screen reads them too, `realm/games/relayTable.ts`).
+        case 'tables':
+          tables.clear()
+          for (const tb of msg.tables) tables.set(tb.id, tb)
+          return
+        case 'table':
+          if (msg.table.seats.every((s) => s === null)) tables.delete(msg.table.id)
+          else tables.set(msg.table.id, msg.table)
+          return
+        case 'stamped':
+          return stamped(msg.id, msg.stamps.filter(isStampId))
+        case 'errands': {
+          const fresh = msg.done.filter((id) => !ready.has(id))
+          for (const id of fresh) ready.add(id)
+          if (fresh.length === 0) return
+          playSfx('select')
+          return void toast(root, m().errands.toast(ready.size), 4200, 'realmErrands')
+        }
+        case 'emoted': {
+          const tr = trainers.get(msg.id)
+          if (tr && !muted.has(tr.av.handle)) tr.emote = { id: msg.emote, at: clock }
+          return
+        }
+        case 'invited': {
+          const tr = trainers.get(msg.from)
+          // A muted trainer's invite is turned down without a word.
+          if (tr && muted.has(tr.av.handle)) return client.send({ t: 'answer', from: msg.from, yes: false })
+          invites.push({ kind: 'party', from: msg.from })
+          return showInvite()
+        }
+        case 'baseInvited': {
+          // A muted trainer's base invite never shows; a newer one from the same friend replaces theirs.
+          if (muted.has(msg.from)) return
+          const call = { kind: 'base' as const, from: msg.from, city: msg.city }
+          const old = invites.findIndex((i) => i.kind === 'base' && i.from === msg.from)
+          if (old >= 0) invites.splice(old, 1)
+          invites.push(call)
+          playSfx('select')
+          setTimeout(() => {
+            const at = invites.indexOf(call)
+            if (disposed || at < 0) return
+            invites.splice(at, 1)
+            showInvite()
+          }, REALM.inviteMs)
+          return showInvite()
+        }
+        case 'party':
+          party = msg.party
+          if (party && party.members.length > 1 && session) session.party = true
+          return showParty()
+        case 'partyGo':
+          if (!party || party.leader === you) return
+          if (session) session.portal = msg.mode
+          toast(root, m().party.follow(msg.mode), 3000, 'realmParty')
+          endSession()
+          client.leave()
+          return deps.joinRoom(msg.mode, msg.code)
+        case 'refused':
+          return refused(msg.why)
+        case 'pong':
+          return
+      }
+    }
+    const offMessages = client.onMessage(onMessage)
+
+    /** Shows a notice of a stamp for a moment; the player's own is bigger and opens the book. */
+    const stampNote = (id: StampId, text: string, mine: boolean) => {
+      while (stampNotes.childElementCount >= STAMP_NOTES) stampNotes.firstElementChild?.remove()
+      const note = h('div', { class: mine ? 'realm-stamped-note mine' : 'realm-stamped-note', ...(mine ? { onclick: () => openBook(id) } : {}) }, stampCanvas(id, mine || !('hidden' in STAMPS[id]) ? 'earned' : 'hidden'), h('span', {}, text))
+      stampNotes.append(note)
+      setTimeout(() => note.remove(), STAMP_NOTE_MS)
+    }
+
+    /**
+     * A trainer of the room earned stamps: the carimbo over its head and a
+     * notice for the room. A hidden stamp keeps its secret from everyone but
+     * who earned it. A muted trainer's show nothing.
+     */
+    function stamped(id: number, ids: readonly StampId[]) {
+      const tr = trainers.get(id)
+      if (!tr || ids.length === 0 || muted.has(tr.av.handle)) return
+      const mine = id === you
+      tr.av = { ...tr.av, stamps: (tr.av.stamps ?? 0) + ids.length }
+      if (mine) {
+        me = tr.av
+        bookDot.classList.remove('hidden')
+        playSfx('levelUp')
+      }
+      const s = m().stamps
+      const start = tr.stampFx.at(-1) ? tr.stampFx.at(-1)!.at + STAMP_FX_SECONDS : clock
+      ids.forEach((stamp, i) => {
+        const secret = 'hidden' in STAMPS[stamp]
+        tr.stampFx.push({ id: stamp, look: mine || !secret ? 'earned' : 'hidden', at: Math.max(clock, start) + i * STAMP_FX_SECONDS })
+        const name = s.list[stamp].name
+        stampNote(stamp, mine ? s.earnedNote(name) : secret ? s.roomHidden(tr.av.handle) : s.roomEarned(tr.av.handle, name), mine)
+      })
+    }
+
+    const refused = (why: RealmRefusal) => {
+      // Seated, a refused `go` leaves the trainer where it stands.
+      if (client.status().kind === 'open') {
+        going = false
+        heading = null
+        return void toast(root, m().refusals[why], 3200, 'realmRefused')
+      }
+      if (why === 'full' && auto) {
+        auto.tried.add(city)
+        return landIn(auto)
+      }
+      if (why === 'full' || why === 'city' || why === 'afk') return showPicker(m().refusals[why])
+      status.textContent = m().refusals[why]
+      status.classList.remove('hidden')
+      status.append(h('button', { class: 'box', type: 'button', onclick: () => leave() }, m().cities.back))
+    }
+
+    /* Party */
+    const handleOf = (id: number) => names.get(id) ?? (id === you ? deps.handle : '?')
+
+    function showParty() {
+      const members = party && party.members.length > 1 ? party.members : null
+      partyBar.classList.toggle('hidden', !members)
+      if (!members || !party) return
+      const lead = party.leader
+      partyBar.replaceChildren(
+        h('b', {}, m().party.title),
+        ...members.map((id) => h('span', { class: id === lead ? 'realm-member leader' : 'realm-member' }, id === lead ? `★ @${handleOf(id)}` : `@${handleOf(id)}`)),
+        h('button', { class: 'realm-party-leave', type: 'button', onclick: () => client.send({ t: 'leaveParty' }) }, m().party.leave),
+      )
+    }
+
+    function showInvite() {
+      const first = invites[0]
+      invite.classList.toggle('hidden', first === undefined)
+      if (first === undefined) return
+      const answer = (yes: boolean) => {
+        invites.shift()
+        if (first.kind === 'party') client.send({ t: 'answer', from: first.from, yes })
+        else if (yes) visitFriend(first.city, baseRoom(first.from))
+        showInvite()
+      }
+      const text =
+        first.kind === 'party'
+          ? m().party.invited(handleOf(first.from))
+          : first.city === city
+            ? m().friends.invited(first.from)
+            : `${m().friends.invited(first.from)} · ${REALM_CITIES[first.city].name}`
+      invite.replaceChildren(
+        h('p', {}, text),
+        h('button', { class: 'box', type: 'button', onclick: () => answer(true) }, first.kind === 'party' ? m().party.accept : m().friends.accept),
+        h('button', { class: 'box', type: 'button', onclick: () => answer(false) }, first.kind === 'party' ? m().party.decline : m().friends.decline),
+      )
+    }
+
+    /* Friends */
+    function friendsPanel() {
+      for (const p of [wheel, emotes, card]) p.classList.add('hidden')
+      openFriends({ here: () => ({ city, room }), go: visitFriend, invite: inviteFriend })
+    }
+
+    /**
+     * Walks to a friend's room of `to` (null: the city's landing, when theirs
+     * is full). In this city a base, or a town room from a base, is a `go`;
+     * town to town (no door to walk through) and another city are a fresh hello there.
+     */
+    function visitFriend(to: CityId, at: RoomKey | null) {
+      closeSub()
+      if (to !== city) return showTown(to, at ?? LANDING)
+      if (at === null || at === room) return
+      if (baseOwner(at) !== null) return go(at, BASE_ROOM.spawn)
+      if (room !== null && !isTownRoomId(room) && isTownRoomId(at)) return go(at, REALM_ROOMS[at].spawn)
+      showTown(to, at)
+    }
+
+    /** Invites a friend to the player's base, once it's saved and open to friends (else a toast says what to do). */
+    async function inviteFriend(handle: string) {
+      const mine = await fetchMe()
+      if (disposed) return
+      const base = isFailure(mine) ? null : mine.base
+      if (!isFailure(mine) && base === null) return void toast(root, m().friends.noBase, 3600, 'realmFriends')
+      if (base?.visibility === 'private') return void toast(root, m().friends.privateBase, 4200, 'realmFriends')
+      client.send({ t: 'baseInvite', handle })
+      toast(root, m().friends.sent(handle), 2200, 'realmFriends')
+    }
+
+    /* A trainer's card */
+    const openCard = (tr: Trainer) => {
+      const handle = tr.av.handle
+      const isMuted = muted.has(handle)
+      const inParty = party?.members.includes(tr.av.id) ?? false
+      const full = (party?.members.length ?? 1) >= REALM.partyCap
+      const leading = !party || party.leader === you
+      const reasons = h('div', { class: 'realm-reasons hidden' })
+      reasons.append(
+        h('b', {}, m().trainer.reportTitle(handle)),
+        ...REPORT_REASONS.map((r) => h('button', { class: 'box', type: 'button', onclick: () => sendReport(handle, r) }, m().trainer.reasons[r])),
+      )
+      const self = tr.av.id === you
+      const n = tr.av.stamps ?? 0
+      const stampsLine = h('p', { class: 'realm-card-stamps' }, h('img', { src: realmIconUrl('book'), alt: '' }), m().stamps.count(n))
+      card.dataset.id = String(tr.av.id)
+      if (self) {
+        card.replaceChildren(
+          h('div', { class: 'realm-card-head' }, tr.plate.cloneNode(true)),
+          stampsLine,
+          h('button', { class: 'box', type: 'button', onclick: () => openBook() }, m().stamps.title),
+          h('button', { class: 'realm-card-close', type: 'button', 'aria-label': m().trainer.close, onclick: () => card.classList.add('hidden') }, '×'),
+        )
+        for (const p of [wheel, emotes]) p.classList.add('hidden')
+        card.classList.remove('hidden')
+        return playSfx('select')
+      }
+      card.replaceChildren(
+        h('div', { class: 'realm-card-head' }, tr.plate.cloneNode(true)),
+        stampsLine,
+        ...(inParty || !leading
+          ? []
+          : [
+              h(
+                'button',
+                {
+                  class: 'box',
+                  type: 'button',
+                  disabled: full,
+                  onclick: () => {
+                    client.send({ t: 'invite', id: tr.av.id })
+                    toast(root, m().party.sent(handle), 2200, 'realmInvite')
+                    card.classList.add('hidden')
+                  },
+                },
+                full ? m().party.full : m().party.invite,
+              ),
+            ]),
+        h(
+          'button',
+          {
+            class: 'box',
+            type: 'button',
+            onclick: () => {
+              if (isMuted) muted.delete(handle)
+              else muted.add(handle)
+              keepMuted(muted)
+              if (!isMuted) Object.assign(tr, { said: null, emote: null })
+              card.classList.add('hidden')
+            },
+          },
+          isMuted ? m().trainer.unmute : m().trainer.mute,
+        ),
+        h('button', { class: 'box', type: 'button', onclick: () => reasons.classList.toggle('hidden') }, m().trainer.report),
+        reasons,
+        h('button', { class: 'realm-card-close', type: 'button', 'aria-label': m().trainer.close, onclick: () => card.classList.add('hidden') }, '×'),
+      )
+      for (const p of [wheel, emotes]) p.classList.add('hidden')
+      card.classList.remove('hidden')
+      playSfx('select')
+    }
+
+    const sendReport = (handle: string, reason: ReportReason) => {
+      card.classList.add('hidden')
+      void reportTrainer({ handle, reason, city }).then((ok) => toast(root, ok ? m().trainer.reported : m().trainer.reportFailed, 2600, 'realmReport'))
+    }
+
+    /* Furniture */
+    /** Whether the trainer sits on a seat now (the relay said so). */
+    const perched = () => isPerchAct(me?.act)
+
+    /** Where the room's seated trainers are (but the trainer itself): the seats taken. */
+    const taken = () => [...trainers.values()].filter((tr) => tr.av.id !== you && isPerchAct(tr.av.act)).map((tr) => ({ x: tr.x, y: tr.y }))
+
+    /** Uses a piece in reach: sits on its nearest free seat, or (in a base) switches it or plays its music. */
+    function usePiece(piece: UsePiece) {
+      if (!room || client.status().kind !== 'open') return
+      const action = actionOf(piece, furniture, taken(), walker.x, walker.y)
+      if (action === 'taken') return void toast(root, m().pieces.taken, 1800, 'realmPiece')
+      playSfx('select')
+      if (action === 'sit' || action === 'lie' || action === 'soak') {
+        const seat = freeSeat(piece, taken(), walker.x, walker.y)
+        if (seat === null) return
+        standAt = { x: walker.x, y: walker.y }
+        perching = performance.now()
+        walker.target = null
+        return client.send({ t: 'perch', piece: piece.ref, seat })
+      }
+      client.send({ t: 'use', piece: piece.ref })
+      if (action === 'play' || action === 'next') {
+        const track = action === 'play' ? 1 : (furniture?.music?.track ?? 0) + 2
+        toast(root, m().pieces.track(track, JUKEBOX.length), 1800, 'realmPiece')
+      }
+    }
+
+    /** Stands the trainer up from its seat, back where it stood before (the relay hears the step and frees the seat). */
+    function standUp() {
+      const at = standAt ?? { x: walker.x, y: walker.y + 16 }
+      standAt = null
+      if (me) me = { ...me, act: null }
+      const tr = you !== null ? trainers.get(you) : undefined
+      if (tr) tr.av = { ...tr.av, act: null }
+      place(walker, Math.round(at.x), Math.round(at.y))
+      walker.sent = { x: Math.round(at.x), y: Math.round(at.y), moving: false }
+      client.send({ t: 'move', x: Math.round(at.x), y: Math.round(at.y), facing: walker.facing, moving: false })
+    }
+
+    /* Spots */
+    function useSpot() {
+      if (perched()) return (playSfx('select'), standUp())
+      const spot = near
+      if (!spot && nearPiece) return usePiece(nearPiece)
+      if (!spot || !room) return
+      playSfx('select')
+      switch (spot.kind) {
+        case 'coopPortal':
+        case 'arenaPortal':
+          return portal(spot.kind === 'coopPortal' ? 'coop' : 'arena')
+        case 'board':
+          return openSub((r) => openErrandsBoard(r, input, { close: closeSub, claimed: errandsClaimed }))
+        case 'bases':
+          return openSub((r) => openBaseBoard(r, input, { visit: (owner) => (closeSub(), go(baseRoom(owner), BASE_ROOM.spawn)), close: closeSub, city }))
+        case 'myBase':
+          return go(baseRoom(deps.handle), BASE_ROOM.spawn)
+        case 'carpenter':
+          return openSub((r) => openCarpentry(r, input, { close: closeSub, signIn: null }))
+        case 'host':
+          return hostTalk(!groveSeen())
+        case 'counter':
+          return void toast(root, m().counter, 2600, 'realmSpot')
+        case 'prizes':
+          return boardAt(spot)
+        case 'pool':
+          return void toast(root, m().pool, 2600, 'realmSpot')
+        case 'bench':
+          // A bench is furniture: its seats are `usePieces`'.
+          return
+        case 'fishing':
+        case 'gameTable':
+        case 'cabinet':
+          return playAt(spot)
+      }
+    }
+
+    /**
+     * Opens a spot's mini games (`spot.games`; a fishing spot fishes). A game
+     * table plays at the relay's table of its id (`relayTable`: sat at, or
+     * watched when full), the game it's playing if it's in use.
+     */
+    function playAt(spot: Spot) {
+      const id = spot.id
+      const live = id ? tables.get(id) : undefined
+      const games = spot.kind === 'fishing' ? ['fishing' as const] : live && isMinigameId(live.game) ? [live.game] : (spot.games ?? []).filter(isMinigameId)
+      if (games.length === 0) return
+      // A fishing spot stands the trainer at the edge, facing the water, so the room sees them fish there.
+      if (spot.kind === 'fishing') {
+        place(walker, spot.at.x, spot.at.y)
+        walker.facing = spot.face ?? walker.facing
+      }
+      const avatar = you
+      const source =
+        id && avatar !== null && client.status().kind === 'open'
+          ? (game: TableGameId) =>
+              relayTable({ link: client, id, game, you: avatar, initial: tables.get(id) ?? null, bot: () => localTable(id, game, TABLE_GAMES[game], avatar, Date.now()) })
+          : null
+      openSub((r) =>
+        chooseGame(r, games, {
+          partner: me?.partner ?? 'pikachu',
+          shiny: me?.shiny ?? false,
+          realm: {
+            act: (act) => client.send({ t: 'act', act }),
+            brag: (game, feat) => client.send({ t: 'brag', game, feat }),
+            who: (id) => {
+              const tr = trainers.get(id)
+              return tr ? { handle: tr.av.handle, partner: tr.av.partner, shiny: tr.av.shiny } : null
+            },
+          },
+          close: closeSub,
+          table: id ? { id, source } : null,
+          you: you ?? 0,
+        }),
+      )
+    }
+
+    /**
+     * Opens the Placar of a spot's games: a game spot's own, or for the
+     * arcade's prizes counter every arcade game's. Nothing for other spots.
+     */
+    function boardAt(spot: Spot | null) {
+      const games = spot ? spotBoards(spot) : []
+      if (games.length === 0) return
+      playSfx('select')
+      openSub((r) => openGameBoard(r, games, { close: closeSub, ...(spot?.kind === 'prizes' ? { note: m().prizes } : {}) }))
+    }
+
+    /** Sudowoodo talks: all about secret bases the first time (`first`), else a line of its hellos. */
+    function hostTalk(first: boolean) {
+      const g = m().grove
+      const lines = first ? g.first : [g.hello[Math.floor(Math.random() * g.hello.length)]!]
+      openSub((r) =>
+        dialogue(r, input, {
+          speaker: hostSpeaker(),
+          lines: lines.map((text) => ({ text })),
+          onDone: () =>
+            later(() => {
+              markGroveSeen()
+              closeSub()
+            }),
+        }),
+      )
+    }
+
+    const portal = async (mode: PartyMode) => {
+      if (party && party.members.length > 1 && party.leader !== you) return void toast(root, m().party.onlyLeader, 2600, 'realmParty')
+      if (going) return
+      going = true
+      toast(root, m().party.going, 2000, 'realmParty')
+      const code = await deps.openRoom(mode)
+      going = false
+      if (disposed) return
+      if (!code) return void toast(root, m().party.failed, 3000, 'realmParty')
+      if (party && party.members.length > 1) client.send({ t: 'partyGo', mode, code })
+      if (session) session.portal = mode
+      endSession()
+      // Give the relay a moment to pass the code on before the socket goes.
+      setTimeout(() => client.leave(), 400)
+      deps.showRoom()
+    }
+
+    /** Through a door or into a base: the trainer stands at the other side at once; the relay's `room` brings who's there. */
+    function go(to: RoomKey, at: Vec) {
+      if (going || to === room) return
+      going = true
+      client.send({ t: 'go', room: to, x: Math.round(at.x), y: Math.round(at.y) })
+    }
+
+    /* Input */
+    const onDown = (e: PointerEvent) => {
+      if (sub || (e.pointerType === 'mouse' && e.button !== 0)) return
+      if (!(e.target instanceof Element) || e.target.closest('button, a, .box')) return
+      for (const p of [wheel, emotes, card]) p.classList.add('hidden')
+      drag = { id: e.pointerId, origin: { x: e.clientX, y: e.clientY }, stick: null, mouse: e.pointerType === 'mouse' }
+    }
+    const onMove = (e: PointerEvent) => {
+      if (!drag || e.pointerId !== drag.id) return
+      const at = { x: e.clientX, y: e.clientY }
+      if (drag.stick || Math.hypot(at.x - drag.origin.x, at.y - drag.origin.y) >= TAP_SLOP) drag.stick = joystick(drag.stick?.origin ?? drag.origin, at)
+    }
+    const onUp = (e: PointerEvent) => {
+      if (!drag || e.pointerId !== drag.id) return
+      if (!drag.stick && e.type === 'pointerup') tap = drag.origin
+      drag = null
+    }
+    el.addEventListener('pointerdown', onDown)
+    window.addEventListener('pointermove', onMove)
+    window.addEventListener('pointerup', onUp)
+    window.addEventListener('pointercancel', onUp)
+
+    const onKey = (key: string) => {
+      if (sub) return
+      if (key === 'Escape') {
+        const open = [wheel, emotes, card].find((p) => !p.classList.contains('hidden'))
+        return open ? open.classList.add('hidden') : leave()
+      }
+      if (key === 'KeyE' || key === 'Enter') return useSpot()
+      if (key === 'KeyP') return boardAt(near)
+      if (key === 'KeyT') return toggle(wheel)
+      if (key === 'KeyY') return toggle(emotes)
+      if (key === 'KeyF') return friendsPanel()
+      if (key === 'KeyB') return openBook()
+      const n = Number(/^Digit(\d)$/.exec(key)?.[1] ?? NaN)
+      if (n >= 1 && n <= 9) emote(REALM_EMOTES[n - 1]!)
+    }
+    const offKeys = input.onKey(onKey)
+
+    /** The movement keys held (WASD and the arrows), normalized. */
+    const held = (): Vec => {
+      const k = (a: string, b: string) => (input.isHeld(a) || input.isHeld(b) ? 1 : 0)
+      const x = k('KeyD', 'ArrowRight') - k('KeyA', 'ArrowLeft')
+      const y = k('KeyS', 'ArrowDown') - k('KeyW', 'ArrowUp')
+      const len = Math.hypot(x, y)
+      return len > 0 ? { x: x / len, y: y / len } : { x: 0, y: 0 }
+    }
+
+    /** The trainer under a tap (world px): the nearest body within reach, the player's own only when nobody else is there. */
+    const pickAt = (x: number, y: number): Trainer | null => {
+      let best: Trainer | null = null
+      let d = PICK
+      for (const tr of trainers.values()) {
+        const dd = Math.hypot(tr.x - x, tr.y - headOf(tr) / 2 - y)
+        if (tr.av.id !== you && dd < d) {
+          d = dd
+          best = tr
+        }
+      }
+      if (best || you === null) return best
+      const own = trainers.get(you)
+      return own && Math.hypot(own.x - x, own.y - headOf(own) / 2 - y) < PICK ? own : null
+    }
+
+    /* The frame */
+    const scene = (ctx: CanvasRenderingContext2D, dt: number, w: number, hgt: number) => {
+      client.frame()
+      clock += dt
+      sub?.tick?.(dt)
+      const now = performance.now()
+      const st = client.status()
+      status.classList.toggle('hidden', st.kind === 'open' || st.kind === 'idle')
+      if (st.kind === 'connecting' || st.kind === 'retrying') status.textContent = st.kind === 'connecting' ? m().status.connecting : m().status.retrying
+      if (st.kind === 'refused' && status.childElementCount === 0) refused(st.why)
+      const seated = st.kind === 'open' && room !== null
+      const ground = room ? groundOf(room, base) : REALM_ROOMS[LANDING]
+      const scale = deps.scale()
+
+      if (seated && room && !sub) {
+        const move = drag?.stick?.vec ?? held()
+        if (tap || move.x !== 0 || move.y !== 0) heading = null
+        if (tap) {
+          const at = { x: cam.x + tap.x / scale, y: cam.y + tap.y / scale }
+          const who = pickAt(at.x, at.y)
+          const piece = who ? null : pieceAt(usable.all, at.x, at.y)
+          if (who) openCard(who)
+          else {
+            // Seated, a tap elsewhere stands up and walks there; a tap on a piece walks over to use it.
+            if (perched()) standUp()
+            walker.target = piece ? piece.at : at
+            pending = piece
+          }
+          tap = null
+        }
+        if (perched() && (move.x !== 0 || move.y !== 0)) standUp()
+        if (move.x !== 0 || move.y !== 0) pending = null
+        // Walking on its own toward a room (the Hora's banner, `ps.realm('room', …)`), corner after corner, door after door.
+        if (heading && (heading === room || !isTownRoomId(room))) heading = null
+        if (heading && !going && walker.target === null && isTownRoomId(room)) {
+          if (route.length === 0) route = routeToward(room, heading, walker)
+          walker.target = route.shift() ?? null
+          if (walker.target === null) heading = null
+        }
+        // On a seat (or waiting a beat for the relay to seat it), the trainer stays put, and says nothing a step would stand it up with.
+        const still = perched() || now - perching < PERCH_WAIT_MS
+        if (!going && !still) walk(walker, move, dt, ground)
+        if (pending && reaches(pending, walker.x, walker.y)) {
+          usePiece(pending)
+          pending = null
+        } else if (pending && walker.target === null) pending = null
+        const sent = still || now - perching < PERCH_WAIT_MS ? null : report(walker, now)
+        if (sent) client.send({ t: 'move', ...sent })
+        const door = going ? null : doorsOf(room).find((d) => inRect(d.at, walker.x, walker.y))
+        if (door) go(door.to, door.spawn)
+      }
+
+      // The camera keeps the trainer in the middle, clamped to the room (a small room sits centered).
+      const cx = ground.w <= w ? (ground.w - w) / 2 : Math.min(Math.max(walker.x - w / 2, 0), ground.w - w)
+      const cy = ground.h <= hgt ? (ground.h - hgt) / 2 : Math.min(Math.max(walker.y - hgt / 2, 0), ground.h - hgt)
+      cam = { x: Math.round(cx), y: Math.round(cy) }
+
+      ctx.fillStyle = '#101820'
+      ctx.fillRect(0, 0, w, hgt)
+      if (!room) return
+      const town = isTownRoomId(room) ? room : null
+      if (town) drawTownGround(ctx, town, cam.x, cam.y, w, hgt, clock, exterior)
+      else if (base) drawBaseRoom(ctx, base, cam.x, cam.y, clock)
+      const hourHere = hour && town === REALM_EVENTS[hour.kind].room ? hour : null
+      if (hourHere) drawHourGround(ctx, hourHere, cam.x, cam.y, w, hgt, clock)
+      if (usable.room !== room || usable.base !== base) {
+        const items = base?.layout.items ?? []
+        usable = { room, base, all: usePieces(room, base?.layout ?? null, (i) => liftOf(items, i)) }
+      }
+      if (!town) drawFurnitureUse(ctx, usable.all, furniture, cam.x, cam.y, clock)
+      setRealmJukebox(town ? null : roomTheme(usable.all, furniture))
+
+      // Everyone where they stand now: the others behind, the trainer as walked, whoever sits at a table on its seat.
+      const spots = spotsOf(room, base)
+      const sitting = tables.size > 0 ? seatedAt(tables, spots, town !== null) : null
+      const views: (TrainerView & { sortY?: number })[] = []
+      for (const tr of trainers.values()) {
+        tr.act = tr.av.act
+        const seat = sitting?.get(tr.av.id)
+        if (seat) Object.assign(tr, { x: seat.x, y: seat.y, facing: seat.facing, moving: false })
+        else if (tr.av.id === you) Object.assign(tr, { x: walker.x, y: walker.y, facing: walker.facing, moving: walker.moving })
+        else {
+          const at = sampleAt(tr.track, now)
+          if (at) Object.assign(tr, at)
+        }
+        // A trainer playing a cabinet stands facing it (the cabinets stand on the back wall).
+        if (tr.av.act === 'arcade' && !tr.moving) tr.facing = 4
+        // Seated on a town bench, it sorts in front of the bench's art (standing at its feet's y).
+        const benched = town !== null && isPerchAct(tr.av.act) ? tr.y + 24 : undefined
+        views.push(seat ? { ...tr, sortY: seat.sortY } : benched !== undefined ? { ...tr, sortY: benched } : tr)
+      }
+      const pieces = [
+        ...(town ? townPieces(town, exterior) : []).map((p) => ({ y: p.y, draw: () => p.draw(ctx, cam.x, cam.y, clock) })),
+        ...views.map((v) => ({ y: v.sortY ?? v.y, draw: () => drawTrainer(ctx, v, cam.x, cam.y, clock) })),
+        ...[...trainers.values()].filter((tr) => tr.av.act === 'arcade').map((tr) => ({ y: tr.y - 0.5, draw: () => drawScreenGlow(ctx, tr, cam.x, cam.y, clock) })),
+      ]
+      pieces.sort((a, b) => a.y - b.y)
+      for (const p of pieces) p.draw()
+      if (town) drawTownOverhead(ctx, town, cam.x, cam.y, w, hgt, clock)
+      if (hourHere) drawHourOverhead(ctx, hourHere, cam.x, cam.y, w, hgt, clock)
+      // A base's tables in use wear a bubble (a town room's say so in their labels).
+      if (!town)
+        for (const spot of spots) {
+          const tb = spot.kind === 'gameTable' && spot.id ? tables.get(spot.id) : undefined
+          if (tb) drawTableMarker(ctx, spot, tb, false, cam.x, cam.y, clock)
+        }
+      for (const v of views) drawEmoteBubble(ctx, v, cam.x, cam.y, clock)
+      for (const tr of trainers.values()) {
+        const fx = tr.stampFx[0]
+        if (!fx) continue
+        if (!drawStampFx(ctx, fx, tr.x - cam.x, tr.y - headOf(tr) - cam.y, clock) && clock - fx.at > STAMP_FX_SECONDS) tr.stampFx.shift()
+      }
+      if (drag?.stick) drawJoystick(ctx, drag.stick, scale)
+
+      // The HTML over the canvas: plates and lines over heads, the spot's prompt.
+      const zoom = uiZoom()
+      const toUi = (x: number, y: number) => `translate(${Math.round(((x - cam.x) * scale) / zoom)}px, ${Math.round(((y - cam.y) * scale) / zoom)}px)`
+      for (const tr of trainers.values()) {
+        // The plate under the feet, the head kept for emotes and lines.
+        tr.plate.style.transform = `${toUi(tr.x, tr.y + 4)} translate(-50%, 0)`
+        const saying = tr.said !== null && clock - tr.said.at < SAID_SECONDS
+        tr.bubble.classList.toggle('hidden', !saying)
+        if (saying) tr.bubble.style.transform = `${toUi(tr.x, tr.y - headOf(tr) - (emoting(tr, clock) ? 16 : 2))} translate(-50%, -100%)`
+      }
+      const n = trainers.size
+      const here = m().status.here(n)
+      if (count.textContent !== here) count.textContent = here
+      const lookEmote = me?.look.emote !== undefined
+      for (const b of emoteButtons) if (b.id === 'look') b.b.classList.toggle('hidden', !lookEmote)
+
+      const onSeat = seated && perched()
+      near = seated && !onSeat ? (spots.find((s) => s.kind !== 'bench' && Math.hypot(s.at.x - walker.x, s.at.y - walker.y) <= s.reach) ?? null) : null
+      nearPiece = seated && !onSeat && !near ? pieceNear(usable.all, walker.x, walker.y) : null
+      /** A label (`el`) over `at`, as a transform: floating over the piece it names, kept below the top bar and inside the screen's sides. */
+      const pin = (at: Point, el: HTMLElement) => {
+        const y = town ? labelTop(town, at, exterior) : at.y - 30
+        const half = el.offsetWidth / 2 + 4
+        const x = Math.min(Math.max(Math.round(((at.x - cam.x) * scale) / zoom), half), (w * scale) / zoom - half)
+        return `translate(${Math.round(x)}px, ${Math.max(LABEL_FLOOR, Math.round(((y - cam.y) * scale) / zoom))}px) translate(-50%, -100%)`
+      }
+      // One prompt for a spot, a usable piece or the seat the trainer is on; the spot's games add their Placar beside it.
+      usePrompt.classList.toggle('hidden', (!near && !nearPiece && !onSeat) || sub !== null)
+      boardButton.classList.toggle('hidden', !near || near.kind === 'prizes' || spotBoards(near).length === 0)
+      if (near) {
+        boardButton.classList.toggle('hidden', near.kind === 'prizes' || spotBoards(near).length === 0)
+        const tb = near.kind === 'gameTable' && near.id ? tables.get(near.id) : undefined
+        const label = tb && !tb.seats.includes(null) ? t().minigames.tables.watch : spotLabel(near)
+        if (useLabel.textContent !== label) useLabel.textContent = label
+        usePrompt.style.transform = pin(near.at, usePrompt)
+      } else if (onSeat || nearPiece) {
+        const label = onSeat || !nearPiece ? m().pieces.stand : m().pieces[actionOf(nearPiece, furniture, taken(), walker.x, walker.y)]
+        if (useLabel.textContent !== label) useLabel.textContent = label
+        // Over the trainer's head while seated, else over the piece.
+        const mine = you !== null ? trainers.get(you) : undefined
+        const ax = onSeat || !nearPiece ? walker.x : nearPiece.at.x
+        const art = nearPiece?.id ? (furnitureImage(nearPiece.id)?.height ?? nearPiece.box.h) : 34
+        const top = onSeat || !nearPiece ? walker.y - (mine ? headOf(mine) : 24) - 4 : nearPiece.box.y + nearPiece.box.h - nearPiece.lift - art - 2
+        const half = usePrompt.offsetWidth / 2 + 4
+        const x = Math.min(Math.max(Math.round(((ax - cam.x) * scale) / zoom), half), (w * scale) / zoom - half)
+        usePrompt.style.transform = `translate(${x}px, ${Math.max(LABEL_FLOOR, Math.round(((top - cam.y) * scale) / zoom))}px) translate(-50%, -100%)`
+      }
+      // The labels of what's around: the near spot's is its prompt instead.
+      for (const l of labels) {
+        // Only what's on screen: a label pinned to the edge for something off it would pile onto the others there.
+        const onScreen = l.at.x >= cam.x && l.at.x <= cam.x + w
+        const shown = seated && sub === null && !(l.spot && near && (l.spot === near || sideBySide(l.spot, near))) && onScreen && Math.hypot(l.at.x - walker.x, l.at.y - walker.y) <= LABEL_NEAR
+        l.el.classList.toggle('shown', shown)
+        if (shown && l.spot?.kind === 'gameTable' && l.spot.id) {
+          // A game table's label says whether a match is on there, or a seat waits for someone.
+          const tb = tables.get(l.spot.id)
+          const text = !tb ? l.text : tb.seats.includes(null) ? t().minigames.tables.seatWaiting : t().minigames.tables.playing
+          if (l.el.textContent !== text) l.el.textContent = text
+          l.el.classList.toggle('busy', tb !== undefined)
+        }
+        // The plaza's board says when Recados wait there.
+        if (shown && l.spot?.kind === 'board') {
+          const text = ready.size > 0 ? `${l.text} · ${m().errands.ready(ready.size)}` : l.text
+          if (l.el.textContent !== text) l.el.textContent = text
+        }
+        if (shown) l.el.style.transform = pin(l.at, l.el)
+      }
+    }
+
+    /** The Livro de Estampas over the town, on `focus`'s page if given. */
+    function openBook(focus?: StampId) {
+      playSfx('select')
+      for (const p of [wheel, emotes, card]) p.classList.add('hidden')
+      openSub((r) => openRealmBook(r, input, { close: closeSub, ...(focus ? { focus } : {}), read: () => bookDot.classList.add('hidden') }))
+    }
+
+    /** A Recado collected at the board: the label's count, and the stamps the day's last one earned (the API tells nobody else). */
+    function errandsClaimed(left: number, earned: readonly StampId[]) {
+      ready = new Set([...ready].slice(0, left))
+      if (you !== null) stamped(you, earned)
+    }
+
+    devGo = (to) => (heading = to)
+    const dispose = () => {
+      devGo = null
+      clearInterval(hourTick)
+      setRealmJukebox(null)
+      offMessages()
+      offKeys()
+      el.removeEventListener('pointerdown', onDown)
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerup', onUp)
+      window.removeEventListener('pointercancel', onUp)
+    }
+
+    return { scene, dispose, walkTo: (x: number, y: number) => void (walker.target = { x, y }), friends: friendsPanel, visit: (handle: string) => go(baseRoom(handle), BASE_ROOM.spawn), book: () => openBook() }
+  }
+
+  /* ---------- Sheets over the town ---------- */
+
+  function openSub(make: (root: HTMLElement) => Screen) {
+    sub?.dispose()
+    sub = make(root)
+  }
+
+  function closeSub() {
+    sub?.dispose()
+    sub = null
+  }
+
+  if (city) showTown(city)
+  else void findCity()
+
+  return {
+    el,
+    dim: 0,
+    walkTo: (x, y) => town?.walkTo(x, y),
+    friends: () => (town ? town.friends() : openFriends(null)),
+    visit: (handle) => town?.visit(handle),
+    book: () => town?.book(),
+    scene: (ctx, dt, w, hgt) => {
+      if (town) return town.scene(ctx, dt, w, hgt)
+      // The list (or the way in, looking for a city) sits over the plaza, quiet, the client not yet in one.
+      ctx.fillStyle = '#101820'
+      ctx.fillRect(0, 0, w, hgt)
+      drawTownGround(ctx, LANDING, Math.round((REALM_ROOMS[LANDING].w - w) / 2), Math.round((REALM_ROOMS[LANDING].h - hgt) / 2), w, hgt, performance.now() / 1000)
+      ctx.fillStyle = 'rgba(16,24,48,0.45)'
+      ctx.fillRect(0, 0, w, hgt)
+    },
+    dispose: () => {
+      disposed = true
+      closeSub()
+      town?.dispose()
+      endSession()
+      client.leave()
+      el.remove()
+    },
+  }
+}

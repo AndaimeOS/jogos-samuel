@@ -3,6 +3,64 @@
 Atualizado ao fim de cada sessão (ST-090). Um bloco por sessão, o mais novo em cima.
 Vale o que está aqui e no Notion, não a memória do chat.
 
+## 2026-11-14 — Claude (deploys sem sustos: card `docs/qa/infra-deploy/`)
+
+- **Pedido do Boaz:** corrigir todos os problemas encontrados na publicação da Ilha da Vida para os próximos deploys.
+- **Feito (revisor: APROVADO, 3 ciclos):**
+  - O servidor da Ilha dos Blocos roda com `.debug(false)`: a senha tentada não vai mais para o journal.
+  - `/opt/ilha` passou a `root:root 755`, com binário e `backup.sh` do root e cópias de backup em 600.
+  - `verificar_jogo.py --todos` passa (créditos do Mestre do Cubo em texto) e virou trava do `empacotar.sh`, que agora
+    imprime o SHA-256.
+  - Ferramentas novas: `ferramentas/conferir_producao.py <zip>` (conferência de produção, 70/70 hoje) e
+    `ferramentas/atualizar_publicacao.sh <zip> [--push]`.
+  - A seção Publicação do `CLAUDE.md` foi reescrita com esses passos.
+- **Journal antigo da VPS e `ilha.env.anterior` apagados** a pedido do Boaz: 0 senhas em log; a senha antiga não fica
+  mais na VPS.
+- **Pendências do Boaz:**
+  - Remover o vínculo Git antigo no hPanel (Sites → samuel.tech → Avançado → Git).
+- **Outras pendências:** toque no celular da Ilha da Vida; registro no Notion.
+
+## 2026-11-14 — Claude (Ilha da Vida 0.1 — sobrevivência Luanti + VoxeLibre)
+
+- **Pedido do Boaz:** testar o Luanti no navegador, criar a "Ilha da Vida" com a mesma senha da Ilha dos Blocos e publicar.
+  Eaglercraft recusado (código e arte do Minecraft descompilados).
+- **Publicado:** portal `git archive 532be67` desde 2026-11-14 17:20 (-03:00), SHA-256 `8286e259…8f72` (= branch `publicacao`
+  `c154977`); `ilha-da-vida@0.1+3b8f7c2`. Produção conferida (arquivos do jogo = commit; `_privado`/`_app` 403; Mestre do
+  Cubo segue rascunho, 404). Cliente WASM e servidor na VPS: `https://srv2114451.hstgr.cloud:8443/vida/jogo/`.
+- **Como funciona:** ver `desenvolvimento/jogos/ilha-da-vida/README.md` (servidor em 127.0.0.2, ponte lwproxy só para ele, nginx com
+  origem + senha escolhendo o destino e limite de taxa, monstros desligados, sem chat, backup de hora em hora).
+- **Revisão:** REV-01 reprovou (brecha na exceção do verificador, C1 sem evidência, senha errada sem limite, permissões de
+  `/opt/vida`); corrigido no ciclo 2; REV-02 sem defeito; C1 = entrada real do Boaz registrada no servidor (20:17 UTC).
+- **Pendências:** resolvidas ou levadas para o bloco "deploys sem sustos" acima.
+
+## 2026-11-14 — Claude (repositório: AndaimeOS vira a fonte da verdade)
+
+- **Pedido do Boaz:** tudo no AndaimeOS, não mais no WeBoaz; ver os conflitos.
+- **Feito:** `origin` = `AndaimeOS/jogos-samuel`; `weboaz` = histórico só leitura (push desativado no remote). `main` do
+  AndaimeOS = `main` local (fast-forward de `c6938cb`). Tudo o que só existia no WeBoaz foi copiado:
+  `main` (`1b420dc` Mestre do Cubo), `publicacao` e `claude/kids-games-retro-site-crzmf6`; `site-estatico` (só local) também.
+- **Conflitos e decisões:**
+  - **Mestre do Cubo** (`1b420dc`, WeBoaz): nunca foi ao ar (404). Entra na `main` como **rascunho**; o
+    `verificar_jogo.py` reprova por 2 links de crédito para o GitHub (cube.js e rubiks-color-resolver). Precisa de QA.
+  - **`claude/kids-games-retro-site-crzmf6`** (`6f45932`, outra sessão): outra Ilha dos Blocos (Three.js num arquivo só) no
+    **mesmo slug** da Ilha 0.2 em produção. **Não** entrou na `main`; fica só como branch.
+  - **`cursor/seguranca-docs-main-e45d`** (Cursor): entrou na `main` (CLAUDE.md sem identificador da hospedagem, .gitignore de segredos).
+  - **`cursor/seguranca-deps-exp01-e45d`** (Cursor): atualiza actix/vitest e põe o Voxelize em `vendor/`. **Não** entrou: muda o
+    servidor da Ilha e precisa de build e teste na VPS antes.
+  - **`publicacao`**: o pacote do WeBoaz (`2c33177`, + Mestre do Cubo) não tinha Minigolfe nem Ilha 0.2 e derrubaria os dois se
+    fosse publicado. Agora espelha a produção (`0a8e5416…48b1`, conferido em produção).
+- **PR WeBoaz/jogos-samuel#1:** fechado com aviso (pedido do Boaz). **Pendente:** o AndaimeOS ainda aparece como fork do WeBoaz no GitHub
+  (desligar exige o dono do WeBoaz ou o suporte do GitHub).
+
+## 2026-11-01 — Claude (Corrida do Jack — etapa 1)
+
+- **Pedido do Boaz:** jogos bonitos; primeiro um runner 3D original no samuel.tech (celular e PC), arte até US$500; GitHub com
+  escrita (depende do Boaz convidar `AndaimeOS`). Plano e lista de compras com links: `docs/runner/PLANO-E-COMPRAS.md`.
+- **Feito (local):** trecho jogável da **Corrida do Jack** com arte provisória em código; regras puras com 19 testes; pista
+  sempre passável (jogador automático 6×90 s); deslizar no celular e teclas no PC. Estado: `docs/jogos/corrida-do-jack/ESTADO.md`.
+- **NEXT:** quando as compras chegarem em `~/Downloads/runner-assets/`: instalar Blender (com ok), converter para GLB,
+  trocar a arte provisória, som e "juice" (etapa 2). Em paralelo: merge do PR #1 assim que houver escrita no GitHub.
+
 ## 2026-11-01 — Claude (Ilha dos Blocos 0.2 — celular e tablet)
 
 - **Pedido do Boaz:** Ilha jogável em celular/iPad com direcionais na tela, e publicar.

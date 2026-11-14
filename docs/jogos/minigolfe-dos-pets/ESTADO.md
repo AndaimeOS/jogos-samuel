@@ -3,7 +3,7 @@
 - Slug: `minigolfe-dos-pets`
 - Ficha no Notion: https://app.notion.com/p/40b0a726d055815b96a7e71134a36414 (Estado: Publicado sem revisão)
 - Data e fuso: 2026-11-01, America/Sao_Paulo (-03:00)
-- Branch: `main` local = `exp-01-minigolfe-dos-pets` no fork AndaimeOS/jogos-samuel → PR https://github.com/WeBoaz/jogos-samuel/pull/1
+- Repositório: `main` de AndaimeOS/jogos-samuel (fonte da verdade desde 2026-11-14; o PR WeBoaz/jogos-samuel#1 é legado)
 - Último commit do código: `c0b67d9` · manifesto: `752744b` (1.0.1) — 1.0 era `8b3e383`/`040829f`
 - Etapa atual: 1.0.1 publicada (RV-MG-001/003); aguardando teste no celular (Boaz) e revisão EXP-01-F
 - Versão: 1.0.1 (`minigolfe-dos-pets@1.0.1+c0b67d9.producao`), em produção desde 2026-11-01 14:04 (-03:00)
@@ -44,9 +44,7 @@ DEC-010 (Three.js 0.170 + TS + Vite, física própria, sem Rapier) e DEC-011 (ma
 
 ## Pendências e bloqueios
 
-- A conta GitHub disponível (AndaimeOS) não tem escrita em WeBoaz/jogos-samuel: código no PR #1 (fork); a
-  branch `publicacao` não foi atualizada. Depois do merge, rodar `ferramentas/empacotar.sh` e atualizar a
-  `publicacao`, senão um deploy por ela remove o jogo.
+- (Resolvido em 2026-11-14) Código na `main` do AndaimeOS; a branch `publicacao` espelha a produção com o jogo.
 - Teste em aparelho real e playtest com o Samuel.
 
 ## Próxima ação exata

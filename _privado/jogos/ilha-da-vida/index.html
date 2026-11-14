@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ilha da Vida</title>
+<style>
+  :root { --paper:#F5F2E8; --ink:#193337; --play:#B9ED80; --lilac:#CEB7EF; --focus:#9956E0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #1d3a40; color: var(--ink); font: 16px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .tela { min-height: 100%; display: flex; align-items: center; justify-content: center; padding: 16px; }
+  .janela { width: min(520px, 100%); background: var(--paper); border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); }
+  .barra { background: var(--lilac); border-bottom: 2px solid var(--ink); padding: 6px 10px; font: 900 15px "Courier New", monospace; }
+  .corpo { padding: 18px; }
+  h1 { font: 900 30px "Courier New", monospace; margin: 0 0 8px; }
+  p { margin: 0 0 12px; }
+  a.botao { display: flex; align-items: center; justify-content: center; min-height: 56px; margin-top: 8px; text-decoration: none;
+    font: 900 22px "Courier New", monospace; background: var(--play); color: var(--ink); border: 2px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); }
+  a:focus { outline: 3px solid var(--focus); outline-offset: 2px; }
+  small { display: block; margin-top: 12px; }
+</style>
+</head>
+<body>
+<div class="tela">
+  <div class="janela">
+    <div class="barra">ilha-da-vida.exe</div>
+    <div class="corpo">
+      <h1>Ilha da Vida</h1>
+      <p>Modo sobrevivência em blocos, no mundo da família: junte madeira, faça ferramentas, plante e construa um abrigo antes de a noite chegar.</p>
+      <p>O jogo abre em uma tela própria. Lá você escolhe um apelido e digita a senha da família, a mesma da Ilha dos Blocos.</p>
+      <a class="botao" href="https://srv2114451.hstgr.cloud:8443/vida/jogo/" target="_top">Abrir a Ilha da Vida</a>
+      <small>Melhor no computador, com teclado e mouse. Feito com Luanti e VoxeLibre (software livre); créditos em LICENCAS.txt.</small>
+    </div>
+  </div>
+</div>
+</body>
+</html>

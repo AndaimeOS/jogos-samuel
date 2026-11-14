@@ -1,0 +1,22 @@
+[Unit]
+Description=Ilha da Vida (samuel.tech) - servidor Luanti + VoxeLibre
+After=network.target
+
+[Service]
+User=vida
+Group=vida
+WorkingDirectory=/opt/vida
+Environment=MINETEST_GAME_PATH=/opt/vida/games
+Environment=LUANTI_GAME_PATH=/opt/vida/games
+Environment=HOME=/opt/vida
+ExecStart=/usr/libexec/luanti/luantiserver --config /opt/vida/vida.conf --world /opt/vida/mundo --gameid voxelibre --logfile /opt/vida/log/servidor.log
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=strict
+# /opt/vida, vida.conf, games/, www/ e backup.sh são do root (o cron do root roda o backup.sh); o servidor só escreve aqui:
+ReadWritePaths=/opt/vida/mundo /opt/vida/log /opt/vida/.cache /opt/vida/.minetest
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

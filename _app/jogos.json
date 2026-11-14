@@ -25,17 +25,41 @@
       "version": "1.0.1"
     },
     {
+      "slug": "mestre-do-cubo",
+      "title": "Mestre do Cubo",
+      "category": "Desafio",
+      "description": "Tire foto do seu cubo mágico (2×2, 3×3, 4×4 ou 5×5) e veja em 3D, passo a passo, como resolver!",
+      "cover": "mestre-do-cubo.webp",
+      "entry": "index.html",
+      "instructions": [
+        "Escolha o tamanho do seu cubo: 2×2, 3×3, 4×4 ou 5×5.",
+        "Tire foto das 6 faces seguindo as dicas e ajuste as bolinhas amarelas nos cantos da face.",
+        "Confira as cores no mapa: toque para corrigir se alguma estiver errada.",
+        "Aperte Resolver e siga cada movimento no cubo 3D. ◀ ▶ voltam e avançam; no computador use as setas e o ESPAÇO."
+      ],
+      "input": [
+        "touch",
+        "mouse",
+        "keyboard"
+      ],
+      "status": "rascunho",
+      "novo": true,
+      "version": "1.0"
+    },
+    {
       "slug": "reino-dos-blocos",
       "title": "Reino dos Blocos",
       "category": "Plataforma",
-      "description": "Corra, pule e pise nas geleias! 3 fases com o Doguinho de ajudante e o Gatinho esperando no portal.",
+      "description": "Corra, pule e pise nas geleias! O Doguinho ajuda de verdade e os 9 cristais abrem a festa do Gatinho.",
       "cover": "reino-dos-blocos.webp",
       "entry": "index.html",
       "instructions": [
         "Celular ou tablet: ◀ ▶ para andar e ⤒ para pular (segure para pular mais alto).",
         "Computador: setas para andar; ESPAÇO, ↑ ou Z para pular; P pausa. Funciona com controle de videogame.",
         "Pule em cima das geleias e abelhas: elas viram corações! Bata a cabeça nos blocos roxos.",
-        "Ache o TÊNIS DE MOLA para o pulo duplo e os 3 cristais secretos 💎 de cada fase."
+        "O Doguinho late e aponta o cristal que falta, e busca cristais e moedas pertinho. Quem pega é você.",
+        "Ache o TÊNIS DE MOLA para o pulo duplo. São 3 cristais secretos em cada fase: os 9 abrem a festa do Gatinho.",
+        "No Fácil, inimigos mais lentos, pulo mais tolerante, bandeiras mais perto e o Doguinho busca você na queda."
       ],
       "input": [
         "touch",
@@ -44,7 +68,7 @@
       ],
       "status": "pronto",
       "novo": true,
-      "version": "1.0"
+      "version": "1.1"
     },
     {
       "slug": "caca-as-estrelas",
@@ -139,6 +163,52 @@
       ],
       "novo": true,
       "version": "0.2"
+    },
+    {
+      "slug": "ilha-da-vida",
+      "title": "Ilha da Vida",
+      "category": "Sobrevivência",
+      "description": "Sobrevivência em blocos no mundo da família: junte madeira, faça ferramentas, plante e construa um abrigo antes da noite. Abre em tela própria; melhor no computador.",
+      "cover": "ilha-da-vida.webp",
+      "status": "pronto",
+      "entry": "index.html",
+      "instructions": [
+        "Toque em Abrir a Ilha da Vida. Escolha um apelido e digite a senha da família (a mesma da Ilha dos Blocos).",
+        "Computador: W A S D andam, o mouse olha, espaço pula; clique segura para quebrar, botão direito coloca; I abre o inventário.",
+        "Na primeira entrada o jogo baixa as texturas; pode levar um minuto."
+      ],
+      "input": [
+        "mouse",
+        "keyboard"
+      ],
+      "novo": true,
+      "version": "0.1",
+      "navegacao_externa": [
+        "https://srv2114451.hstgr.cloud:8443/vida/jogo/"
+      ]
+    },
+    {
+      "slug": "pokemon-survivors",
+      "title": "Pokémon Survivors",
+      "category": "Ação",
+      "description": "Fan game estilo Vampire Survivors: escolha um inicial por região, sobreviva às hordas, evolua e enfrente os chefes. O ataque é automático.",
+      "cover": "pokemon-survivors.webp",
+      "entry": "index.html",
+      "instructions": [
+        "Escolha a região e o parceiro. No tablet, arraste para andar; no computador, WASD ou setas. O Pokémon ataca sozinho.",
+        "Junte a experiência, suba de nível e toque numa das três cartas. Espaço solta o especial, E a mega, Shift a investida, Esc ou P pausa.",
+        "A partida dura 15 minutos, com chefes no caminho. No nível 12 e no 28 o parceiro evolui. Se cair, a partida acaba; o que você guardou na loja fica no aparelho.",
+        "← Jogos volta para a biblioteca. Código MIT de Pedro Barretto; sprites do PMD SpriteCollab (CC BY-NC 4.0); Pokémon © Nintendo/Creatures/GAME FREAK."
+      ],
+      "input": [
+        "touch",
+        "mouse",
+        "keyboard",
+        "gamepad"
+      ],
+      "status": "pronto",
+      "novo": true,
+      "version": "0.1.0"
     },
     {
       "slug": "pebolim",

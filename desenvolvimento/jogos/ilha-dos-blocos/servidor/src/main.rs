@@ -63,7 +63,10 @@ async fn main() -> std::io::Result<()> {
     }
 
     let registro = catalogo::registro();
-    let mut servidor = Server::new().port(porta).addr(&endereco).secret(&segredo).registry(&registro).build();
+    // debug(false): com debug=true (padrão) o Voxelize liga o próprio logger, ignora RUST_LOG e registra a senha
+    // tentada no aviso "wrong secret". Desligado, nada do motor vai para o journal.
+    let mut servidor =
+        Server::new().port(porta).addr(&endereco).secret(&segredo).registry(&registro).debug(false).build();
     servidor.add_world(mundo_ilha(&dados, seed)).expect("não deu para criar o mundo da ilha");
     Voxelize::run(servidor).await
 }
