@@ -161,6 +161,29 @@
       ],
       "novo": true,
       "version": "0.2"
+    },
+    {
+      "slug": "ilha-da-vida",
+      "title": "Ilha da Vida",
+      "category": "Sobrevivência",
+      "description": "Sobrevivência em blocos no mundo da família: junte madeira, faça ferramentas, plante e construa um abrigo antes da noite. Abre em tela própria; melhor no computador.",
+      "cover": "ilha-da-vida.webp",
+      "status": "pronto",
+      "entry": "index.html",
+      "instructions": [
+        "Toque em Abrir a Ilha da Vida. Escolha um apelido e digite a senha da família (a mesma da Ilha dos Blocos).",
+        "Computador: W A S D andam, o mouse olha, espaço pula; clique segura para quebrar, botão direito coloca; I abre o inventário.",
+        "Na primeira entrada o jogo baixa as texturas; pode levar um minuto."
+      ],
+      "input": [
+        "mouse",
+        "keyboard"
+      ],
+      "novo": true,
+      "version": "0.1",
+      "navegacao_externa": [
+        "https://srv2114451.hstgr.cloud:8443/vida/jogo/"
+      ]
     }
   ]
 }
