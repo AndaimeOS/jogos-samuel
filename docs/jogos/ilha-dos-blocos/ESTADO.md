@@ -17,7 +17,7 @@
 - `/opt/ilha` = `root:root 755` (é a home do usuário `ilha`, que é `nologin`): `ilha` não cria, apaga nem renomeia nada ali.
 - `ilha` só escreve em `.cargo`, `.rustup`, `target` e `fonte` (build) e em `dados` (serviço; `ReadWritePaths` da unit),
   além dos próprios `.bashrc`/`.profile`/`.bash_logout` (sem efeito: `nologin`, e o root não os carrega).
-- Do root: `bin/` (`755`, binário do root), `backup.sh` (cron do root) e `ilha.env` / `ilha.env.anterior` (`600`).
+- Do root: `bin/` (`755`, binário do root), `backup.sh` (cron do root) e `ilha.env` (`600`, única cópia da senha na pasta).
 - `backups/` = `700`, cópias `600` (`backup.sh` usa `umask 077`).
 - O servidor sobe com `.debug(false)`: o logger do Voxelize fica desligado e a senha tentada ("wrong secret") não vai
   para o journal (`RUST_LOG` não controla esse logger).

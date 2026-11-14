@@ -147,4 +147,7 @@ Commit só de arquivos deste card (sem `git add .`), push na `main` do AndaimeOS
   - Nenhum outro log em `/var/log` tem `secret=` ou `/vida/?c=`: o nginx da `:8443` usa `access_log off`.
 - **Fica com o Boaz:**
   - Remover o vínculo Git antigo no hPanel.
-  - Decidir se remove `/opt/ilha/ilha.env.anterior`, que guarda a senha antiga.
+- **`/opt/ilha/ilha.env.anterior` apagado** (pedido do Boaz "Pode apagar", 14/11).
+  - Antes, conferi que nenhuma unit, conf do nginx, cron ou `backup.sh` o referenciava.
+  - O backup só copia `dados/`, então não existe cópia desse arquivo.
+  - O serviço continuou `active`.

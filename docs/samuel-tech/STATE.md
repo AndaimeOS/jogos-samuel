@@ -14,10 +14,10 @@ Vale o que está aqui e no Notion, não a memória do chat.
   - Ferramentas novas: `ferramentas/conferir_producao.py <zip>` (conferência de produção, 70/70 hoje) e
     `ferramentas/atualizar_publicacao.sh <zip> [--push]`.
   - A seção Publicação do `CLAUDE.md` foi reescrita com esses passos.
-- **Journal antigo da VPS apagado** a pedido do Boaz: 0 senhas em log.
+- **Journal antigo da VPS e `ilha.env.anterior` apagados** a pedido do Boaz: 0 senhas em log; a senha antiga não fica
+  mais na VPS.
 - **Pendências do Boaz:**
   - Remover o vínculo Git antigo no hPanel (Sites → samuel.tech → Avançado → Git).
-  - Decidir se apaga o `ilha.env.anterior`.
 - **Outras pendências:** toque no celular da Ilha da Vida; registro no Notion.
 
 ## 2026-11-14 — Claude (Ilha da Vida 0.1 — sobrevivência Luanti + VoxeLibre)
