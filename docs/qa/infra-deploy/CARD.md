@@ -142,7 +142,9 @@ Commit só de arquivos deste card (sem `git add .`), push na `main` do AndaimeOS
   - O revisor reproduziu os 6 testes uma vez, rodando o binário de teste já compilado (SHA `eaeda65a…`), com autorização
     pontual do coordenador.
   - **Parecer final: APROVADO (C1–C7)**, com a ressalva do 101 acima.
+- **Journal antigo apagado** (pedido do Boaz "Pode apagar", 14/11):
+  - `journalctl --rotate && --vacuum-time=1s` liberou 82,8 MB; as linhas "wrong secret" foram de 14 para 0.
+  - Nenhum outro log em `/var/log` tem `secret=` ou `/vida/?c=`: o nginx da `:8443` usa `access_log off`.
 - **Fica com o Boaz:**
   - Remover o vínculo Git antigo no hPanel.
-  - Decidir se apaga o journal antigo, que tem 11 tentativas de senha errada de 14/11 em claro (root-only; `--vacuum` é amplo).
   - Decidir se remove `/opt/ilha/ilha.env.anterior`, que guarda a senha antiga.
