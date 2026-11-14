@@ -1,0 +1,22 @@
+{
+  "name": "corrida-do-jack",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Corrida do Jack — runner 3D original do samuel.tech. Build estático em _privado/jogos/corrida-do-jack/.",
+  "scripts": {
+    "dev": "vite --host localhost --port 5195 --strictPort",
+    "build": "tsc --noEmit && vite build",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "three": "0.170.0"
+  },
+  "devDependencies": {
+    "@types/three": "0.170.0",
+    "typescript": "5.9.3",
+    "vite": "6.4.5",
+    "vitest": "3.2.7"
+  }
+}

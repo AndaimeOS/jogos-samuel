@@ -1,0 +1,14 @@
+[Unit]
+Description=Ilha da Vida (samuel.tech) - ponte WebSocket->UDP (lwproxy com lista de destinos)
+After=docker.service ilha-da-vida.service
+Requires=docker.service
+
+[Service]
+ExecStartPre=-/usr/bin/docker rm -f ilha-vida-ponte
+ExecStart=/usr/bin/docker run --rm --name ilha-vida-ponte --network host --read-only --cap-drop ALL --security-opt no-new-privileges -e RUST_LOG=warn ilha-vida-ponte:fc74795-samuel
+ExecStop=/usr/bin/docker stop ilha-vida-ponte
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

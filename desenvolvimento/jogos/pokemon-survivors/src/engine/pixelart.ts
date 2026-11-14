@@ -1,0 +1,974 @@
+/**
+ * Code-authored pixel art. Sprites are written as string rows where each
+ * character maps to a palette color ('.' or ' ' = transparent).
+ */
+import { clearShelves, place, shelves, type Shelves } from './shelves'
+
+export type Palette = Readonly<Record<string, string>>
+export type PixelSprite = HTMLCanvasElement
+
+export const createCanvas = (w: number, h: number) => {
+  const c = document.createElement('canvas')
+  c.width = Math.max(1, Math.ceil(w))
+  c.height = Math.max(1, Math.ceil(h))
+  // A cache's canvas may come back blank on its own (a GPU reset need not reach the game's canvas): it redraws them all.
+  c.addEventListener('contextrestored', canvasRestored)
+  return c
+}
+
+/** This session's blank canvases, for bug reports: times `canvasWatch` found them all wiped, contexts `context2d` was refused, and viewport readings the game wouldn't fit or had to repair late (`main.ts`). */
+export const canvasLosses = { wiped: 0, refused: 0, badViewport: 0 }
+
+/** A 1×1 context made with the first one, for when a canvas gets none. */
+let spare: CanvasRenderingContext2D | null = null
+
+/**
+ * A canvas' 2D context, unsmoothed for hard pixels. iOS hands out no context once the page's
+ * canvases pass its memory budget: that canvas' drawing then lands on the spare and its art
+ * comes out blank, instead of the game crashing mid-run.
+ */
+export const context2d = (canvas: HTMLCanvasElement) => {
+  spare ??= createCanvas(1, 1).getContext('2d')
+  const own = canvas.getContext('2d', { willReadFrequently: false })
+  if (!own) canvasLosses.refused++
+  const ctx = own ?? spare
+  if (!ctx) throw new Error('No 2D canvas context')
+  ctx.imageSmoothingEnabled = false
+  return ctx
+}
+
+/**
+ * A canvas' pixels, or null when the browser won't read them back: WebKit throws `InvalidStateError`
+ * from `getImageData` on a canvas it gave no pixels to (past iOS' canvas memory budget, or after
+ * its GPU process let them go). Callers go on without the readback instead of failing every frame.
+ */
+export const readPixels = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) => {
+  try {
+    return ctx.getImageData(x, y, w, h)
+  } catch {
+    return null
+  }
+}
+
+let probe: CanvasRenderingContext2D | null = null
+const checked = new WeakMap<HTMLImageElement, boolean>()
+
+/**
+ * Whether a loaded image can be drawn (and read). A download cut short or
+ * corrupt can end `complete` with its size known from the header yet throw on
+ * every `drawImage` ("broken"), and some browsers settle `decode()` with a 0×0
+ * image; both draw nothing instead. Tried once per image, on a 1×1 canvas.
+ */
+export const drawable = (img: HTMLImageElement) => {
+  if (!img.complete) return false
+  let ok = checked.get(img)
+  if (ok === undefined) {
+    ok = img.naturalWidth > 0 && img.naturalHeight > 0
+    if (ok) {
+      try {
+        ;(probe ??= context2d(createCanvas(1, 1))).drawImage(img, 0, 0, 1, 1)
+      } catch {
+        ok = false
+      }
+    }
+    checked.set(img, ok)
+  }
+  return ok
+}
+
+/**
+ * Draws a loaded image (`draw`), or says false when the browser calls it broken now: Chrome threw
+ * "The HTMLImageElement provided is in the 'broken' state" every frame from lobby art that had
+ * passed `drawable` as it loaded. Only that error is taken; any other still throws.
+ */
+export const drawLoaded = (draw: () => void) => {
+  try {
+    draw()
+    return true
+  } catch (e) {
+    if (e instanceof DOMException && e.name === 'InvalidStateError') return false
+    throw e
+  }
+}
+
+/** A canvas copy of a loaded picture, or null when the browser calls it broken (`drawLoaded`). The copy can't go broken later. */
+const copyLoaded = (img: HTMLImageElement) => {
+  const copy = createCanvas(img.naturalWidth, img.naturalHeight)
+  const ctx = context2d(copy)
+  return drawLoaded(() => ctx.drawImage(img, 0, 0)) ? copy : null
+}
+
+/** After each failure, how long a picture waits before it's fetched again; past the last, its stand-in stays for the session. */
+const ART_RETRY_MS = [3_000, 15_000, 60_000] as const
+
+/**
+ * Pictures loaded by key, once each, that a cache copies to canvases as they land (`copy`). One that
+ * fails to load, or that the browser calls broken even after it loaded, is fetched again a few times
+ * (`?retry=n`, past the HTTP cache, which may hold the bad copy); the caller's stand-in shows meanwhile.
+ */
+export const artImages = <K>(src: (key: K) => string) => {
+  const images = new Map<K, HTMLImageElement>()
+  const failures = new Map<K, { tries: number; at: number }>()
+  /** The picture, started if need be; null while a failed one waits for its next try, or after its last. */
+  const get = (key: K) => {
+    const held = images.get(key)
+    if (held) return held
+    const failed = failures.get(key)
+    if (failed && (failed.tries > ART_RETRY_MS.length || performance.now() - failed.at < ART_RETRY_MS[failed.tries - 1]!)) return null
+    const img = new Image()
+    img.src = failed ? `${src(key)}?retry=${failed.tries}` : src(key)
+    images.set(key, img)
+    return img
+  }
+  return {
+    get,
+    /** A fresh canvas copy of the picture, or null while it's on its way or failed. Never throws. */
+    copy: (key: K) => {
+      const img = get(key)
+      if (!img?.complete) return null
+      const copy = drawable(img) ? copyLoaded(img) : null
+      if (copy) {
+        failures.delete(key)
+        return copy
+      }
+      images.delete(key)
+      failures.set(key, { tries: (failures.get(key)?.tries ?? 0) + 1, at: performance.now() })
+      return null
+    },
+    /** Lets go of a picture, and of its failures: asking again starts over. */
+    forget: (key: K) => {
+      images.delete(key)
+      failures.delete(key)
+    },
+    keys: () => images.keys(),
+  }
+}
+
+/** More `save`s than any drawing nests. A `restore` with none left does nothing. */
+const MAX_SAVES = 64
+
+/** Errors `drawThrew` already passed on: a throw repeated every frame is told once. */
+const toldDraws = new Set<string>()
+
+/** Sends an error to the page's error report (`analytics.ts`), as if nothing had caught it. */
+const rethrowLater = (error: unknown) => queueMicrotask(() => { throw error })
+
+/**
+ * Cleans up after a throw while drawing a frame, and reports it once. Without this the `save` and
+ * `translate` the frame had made stay on the context, which lives as long as the page: from then on
+ * the world draws off the screen, in every run, while the simulation and the HUD carry on.
+ * The rest of that frame is lost; the next one starts clean.
+ */
+export const drawThrew = (ctx: Pick<CanvasRenderingContext2D, 'restore' | 'setTransform' | 'globalAlpha' | 'globalCompositeOperation'>, error: unknown, report: (error: unknown) => void = rethrowLater) => {
+  for (let i = 0; i < MAX_SAVES; i++) ctx.restore()
+  ctx.setTransform(1, 0, 0, 1, 0, 0)
+  ctx.globalAlpha = 1
+  ctx.globalCompositeOperation = 'source-over'
+  const key = String(error)
+  if (toldDraws.has(key)) return
+  toldDraws.add(key)
+  report(error)
+}
+
+export const fromStrings = (rows: readonly string[], palette: Palette, opts: { mirror?: boolean } = {}): PixelSprite => {
+  const width = Math.max(...rows.map((r) => r.length))
+  const canvas = createCanvas(width, rows.length)
+  const ctx = context2d(canvas)
+  rows.forEach((row, y) => {
+    for (let x = 0; x < row.length; x++) {
+      const color = palette[row[x]!]
+      if (!color) continue
+      ctx.fillStyle = color
+      ctx.fillRect(opts.mirror ? width - 1 - x : x, y, 1, 1)
+    }
+  })
+  return canvas
+}
+
+/** Swaps palette colors of a string sprite – handy for item/candy tiers. */
+export const recolor = (rows: readonly string[], palette: Palette) => fromStrings(rows, palette)
+
+/* ---------- GPU resets ---------- */
+
+const resets: Array<() => void> = []
+/** The resets of the caches only the lobby draws from (`ArtScope`), for `dropLobbyArt`. */
+const lobbyResets: Array<() => void> = []
+const holders: Array<() => unknown> = []
+/** Where each holder was registered (dev builds only), for `heldCanvasesBy`. */
+const holderSites: string[] = []
+
+/**
+ * Registers how to drop a cache of drawn canvases. When the browser loses its GPU context
+ * (memory pressure on phones, a driver reset), every 2D canvas comes back blank, so a cache
+ * kept past that would silently draw nothing: no ground under the horde, which then smears.
+ * `holds` returns what the cache keeps right now (a canvas, or Maps, arrays and plain objects
+ * of them), so `heldCanvases` can weigh it. A `lobby` cache is also dropped as a run starts (`dropLobbyArt`).
+ */
+export const onCanvasReset = (reset: () => void, holds?: () => unknown, scope: ArtScope = 'shared') => {
+  resets.push(reset)
+  if (scope === 'lobby') lobbyResets.push(reset)
+  if (!holds) return
+  holders.push(holds)
+  if (import.meta.env.DEV) holderSites.push(new Error().stack?.split('\n').find((l, i) => i > 1 && !l.includes('pixelart.ts'))?.trim() ?? '?')
+}
+
+/**
+ * Who draws from a cache: `shared` (a run, or both), or only the `lobby` (the plaza, the Estádio,
+ * the Dojo, the title's logo), whose art a run never shows and lets go of as it starts.
+ */
+export type ArtScope = 'shared' | 'lobby'
+
+/**
+ * Drops the lobby's caches (`ArtScope`) as a run starts loading, so a phone doesn't hold them
+ * through the run (nor through its first seconds, when it decodes its own): back in the lobby,
+ * each is drawn again on first use.
+ */
+export const dropLobbyArt = () => {
+  for (const reset of lobbyResets) reset()
+}
+
+/** Drops every registered cache so it redraws. Called when a canvas gets its context back (`canvasRestored`). */
+export const resetCanvases = () => {
+  for (const reset of resets) reset()
+}
+
+let resetQueued = false
+
+/**
+ * The `contextrestored` listener of every canvas the game draws on (`createCanvas`'s, and the
+ * game canvas'). One GPU reset restores them all in a burst: the caches drop once for it.
+ */
+export const canvasRestored = () => {
+  if (resetQueued) return
+  resetQueued = true
+  queueMicrotask(() => {
+    resetQueued = false
+    resetCanvases()
+  })
+}
+
+/** What `canvasWatch` paints and reads back: a 2D context, or a stand-in for one. */
+export type Probe = {
+  fillStyle: string | CanvasGradient | CanvasPattern
+  fillRect: (x: number, y: number, w: number, h: number) => void
+  getImageData: (x: number, y: number, w: number, h: number) => { data: ArrayLike<number> }
+}
+
+/**
+ * Watches for the browser dropping every canvas' pixels without a word. iOS Safari fires no
+ * `contextrestored`: after the GPU process gives way under memory pressure, or the pixels of a
+ * tab left in the background are purged, the caches' canvases come back blank and the ground
+ * draws nothing (a black screen). `check` reads back one pixel of a canvas it painted opaque;
+ * gone, it drops the caches as a restore would, on a new probe in case this one stays lost.
+ * True if it found them blank (or the probe unreadable). A read every few seconds costs little.
+ */
+export const canvasWatch = (make: () => Probe | null) => {
+  let probe: Probe | null = null
+  const paint = () => {
+    probe = make()
+    if (!probe) return
+    probe.fillStyle = '#f0f'
+    probe.fillRect(0, 0, 1, 1)
+  }
+  /** The last probe couldn't be read either: the caches were dropped for it already. */
+  let unreadable = false
+  const read = (p: Probe) => {
+    try {
+      return p.getImageData(0, 0, 1, 1).data[3] ?? 0
+    } catch {
+      return null
+    }
+  }
+  return () => {
+    if (!probe) {
+      paint()
+      return false
+    }
+    // WebKit throws on a canvas whose pixels it let go (`readPixels`): lost like a blank one, but
+    // only the first time in a row, so a page held past its memory budget doesn't redraw every check.
+    const alpha = read(probe)
+    if (alpha === 255) {
+      unreadable = false
+      return false
+    }
+    const again = alpha === null && unreadable
+    unreadable = alpha === null
+    paint()
+    if (again) return false
+    canvasLosses.wiped++
+    canvasRestored()
+    return true
+  }
+}
+
+/** Side of the watched canvas: big enough that WebKit keeps it on the GPU like the caches' (small ones may stay in memory). */
+const WATCHED = 256
+
+/** The canvas `checkCanvases` watches. */
+let watched: HTMLCanvasElement | null = null
+
+/** `canvasWatch` over the game's canvases. Call it every few seconds and when the page comes back into view. */
+export const checkCanvases = canvasWatch(() => (watched = createCanvas(WATCHED, WATCHED)).getContext('2d'))
+
+/** Blanks every canvas the caches hold and the watched one, as iOS does unannounced (`ps.wipeCanvases`, to see the game recover). */
+export const wipeCanvases = () => {
+  for (const c of [...reachableCanvases(holders.map((holds) => holds())), watched]) {
+    if (c instanceof HTMLCanvasElement) c.getContext('2d')?.clearRect(0, 0, c.width, c.height)
+  }
+}
+
+/** Canvases (anything with `getContext` and a size), told apart from the images and patterns caches also keep. */
+type Sized = { width: number; height: number; getContext: unknown }
+const isCanvas = (v: object): v is Sized => 'getContext' in v && 'width' in v && typeof v.width === 'number' && 'height' in v && typeof v.height === 'number'
+
+/** How deep `weighCanvases` looks: three nested Maps, then a value holding sheets holding canvases. */
+const WEIGH_DEPTH = 6
+
+/**
+ * The distinct canvases reachable from `roots` (through Maps, Sets, arrays, plain objects and 2D
+ * contexts, `WEIGH_DEPTH` deep) and their pixels in bytes (w×h×4). A canvas freed by sizing it to
+ * 0×0 weighs nothing and doesn't count.
+ */
+export const weighCanvases = (roots: Iterable<unknown>) => {
+  const canvases = reachableCanvases(roots)
+  return { canvases: canvases.length, bytes: canvases.reduce((sum, c) => sum + c.width * c.height * 4, 0) }
+}
+
+/** The distinct canvases (not freed to 0×0) reachable from `roots`, as `weighCanvases` counts them. */
+const reachableCanvases = (roots: Iterable<unknown>) => {
+  const seen = new Set<object>()
+  const out: Sized[] = []
+  const visit = (v: unknown, depth: number): void => {
+    if (typeof v !== 'object' || v === null || seen.has(v)) return
+    seen.add(v)
+    if (isCanvas(v)) {
+      if (v.width * v.height > 0) out.push(v)
+      return
+    }
+    if (depth === 0) return
+    if ('canvas' in v && 'drawImage' in v) return visit(v.canvas, depth)
+    if (v instanceof Map) for (const x of v.values()) visit(x, depth - 1)
+    else if (Array.isArray(v) || v instanceof Set) for (const x of v) visit(x, depth - 1)
+    else if (Object.getPrototypeOf(v) === Object.prototype) for (const x of Object.values(v)) visit(x, depth - 1)
+  }
+  for (const root of roots) visit(root, WEIGH_DEPTH)
+  return out
+}
+
+/**
+ * The canvases the game's caches hold right now (`onCanvasReset`'s `holds`) and their pixels in bytes:
+ * what the page keeps for good, unlike a count of canvases made, which includes the garbage
+ * the collector hasn't got to yet. Walks every cache, so it's for a sample every few seconds, not a frame.
+ */
+export const heldCanvases = () => weighCanvases(holders.map((holds) => holds()))
+
+/** `heldCanvases` per cache, heaviest first, named by where it registered (dev builds: `ps.canvases()`). */
+export const heldCanvasesBy = () =>
+  holders
+    .map((holds, i) => ({ at: holderSites[i] ?? '?', ...weighCanvases([holds()]) }))
+    .filter((h) => h.canvases > 0)
+    .sort((a, b) => b.bytes - a.bytes)
+
+/** A Map holding drawn canvases, emptied on a GPU reset (and, the lobby's, as a run starts). */
+export const canvasCache = <K, V>(scope: ArtScope = 'shared') => {
+  const cache = new Map<K, V>()
+  onCanvasReset(
+    () => cache.clear(),
+    () => cache,
+    scope,
+  )
+  return cache
+}
+
+/** Sweeps so far (`sweepArt`): the clock `lazy` art is stamped with when asked for. */
+let artSweeps = 0
+const idleArt: Array<(before: number) => void> = []
+
+/** Builds a value holding canvases on first use, and again after a GPU reset, once `sweepArt` let it go or (the lobby's) as a run starts. */
+export const lazy = <T>(build: () => T, scope: ArtScope = 'shared') => {
+  let value: T | undefined
+  let used = 0
+  onCanvasReset(
+    () => (value = undefined),
+    () => value,
+    scope,
+  )
+  idleArt.push((before) => {
+    if (used < before) value = undefined
+  })
+  return () => {
+    used = artSweeps
+    return (value ??= build())
+  }
+}
+
+/**
+ * Lets go of the `lazy` art not asked for in the last `idle` sweeps: the moves of runs gone by,
+ * the lobby's art during a run. A session would otherwise keep every sprite it ever drew, a
+ * canvas each. Whatever asks again builds it again; the collector frees the old one meanwhile.
+ */
+export const sweepArt = (idle: number) => {
+  artSweeps++
+  const before = artSweeps - idle
+  for (const drop of idleArt) drop(before)
+}
+
+/* ---------- The shape atlas ---------- */
+
+/**
+ * Where a packed shape sits: a spot on a page of the shape atlas or, until the task after the
+ * frame packs it, a canvas of its own. Draw it with `drawPacked` or `blitPacked`, and don't keep
+ * it past the frame: its page gets reused for other shapes (an evicted one is 0×0 and draws nothing).
+ */
+export type Packed = { canvas: HTMLCanvasElement; x: number; y: number; w: number; h: number }
+
+type AtlasEntry = { packed: Packed; loose: HTMLCanvasElement | null; forget: () => void }
+type AtlasPage = { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D; shelves: Shelves; entries: AtlasEntry[]; loose: number }
+
+/**
+ * The atlas' pages: 256 px squares (256 KB each), made as shapes need them, `ATLAS_PAGES` at most.
+ * Once the last fills, the oldest is wiped and filled again: what's still drawn is made again on
+ * its next use, the rest goes. The pages stand for the thousand-odd small canvases (every
+ * shadow, ring and damage number of a crowded fight) that killed phones' tabs mid-run.
+ */
+const ATLAS_PAGE = 256
+const ATLAS_PAGES = 12
+/** Shapes too big for a page keep a canvas of their own, a few per page, and go with it. */
+const LOOSE_PER_PAGE = 8
+
+let atlasPages: AtlasPage[] = []
+let atlasAt = 0
+let unpacked: AtlasEntry[] = []
+let packing = false
+const atlasForgets: Array<() => void> = []
+onCanvasReset(
+  () => {
+    atlasPages = []
+    atlasAt = 0
+    unpacked = []
+    for (const forget of atlasForgets) forget()
+  },
+  () => [atlasPages.map((p) => p.canvas), atlasPages.map((p) => p.entries.map((e) => e.loose)), unpacked.map((e) => e.loose)],
+)
+
+/** Drops a packed shape: its cache forgets it, it draws nothing, and a canvas of its own is freed now. */
+const evictPacked = (e: AtlasEntry) => {
+  e.forget()
+  e.packed.w = e.packed.h = 0
+  if (e.loose) e.loose.width = e.loose.height = 0
+  e.loose = null
+}
+
+const newPage = (): AtlasPage => {
+  const canvas = createCanvas(ATLAS_PAGE, ATLAS_PAGE)
+  return { canvas, ctx: context2d(canvas), shelves: shelves(ATLAS_PAGE), entries: [], loose: 0 }
+}
+
+/** Copies an entry's own canvas to `spot` on `page` and frees it: from now on it draws from the page. */
+const settle = (e: AtlasEntry, loose: HTMLCanvasElement, page: AtlasPage, spot: { x: number; y: number }) => {
+  page.ctx.drawImage(loose, spot.x, spot.y)
+  e.packed.canvas = page.canvas
+  e.packed.x = spot.x
+  e.packed.y = spot.y
+  e.loose = null
+  loose.width = loose.height = 0
+}
+
+/** Packs what was made since the last task (`packShapes`, `packKept`), once per task. */
+const schedulePack = () => {
+  if (packing) return
+  packing = true
+  setTimeout(() => {
+    packing = false
+    packShapes()
+    packKept()
+  }, 0)
+}
+
+/** The page shapes go to next: a new one while there's room for it, else the oldest, wiped. */
+const turnPage = (): AtlasPage => {
+  if (atlasPages.length > 0) atlasAt = (atlasAt + 1) % ATLAS_PAGES
+  const old = atlasPages[atlasAt]
+  if (!old) return (atlasPages[atlasAt] = newPage())
+  for (const e of old.entries) evictPacked(e)
+  old.entries.length = 0
+  old.loose = 0
+  clearShelves(old.shelves)
+  old.ctx.clearRect(0, 0, ATLAS_PAGE, ATLAS_PAGE)
+  return old
+}
+
+/**
+ * Copies the shapes made since the last task onto the atlas and frees their own canvases. It runs
+ * after the frame, so writing a page doesn't make the browser copy it under a frame drawing from it.
+ */
+const packShapes = () => {
+  for (const e of unpacked) {
+    const loose = e.loose
+    // Evicted (or dropped by a GPU reset) before it was packed.
+    if (!loose || e.packed.w === 0) continue
+    let page = atlasPages[atlasAt] ?? turnPage()
+    let spot = place(page.shelves, loose.width, loose.height)
+    if (!spot && loose.width <= ATLAS_PAGE && loose.height <= ATLAS_PAGE) {
+      page = turnPage()
+      spot = place(page.shelves, loose.width, loose.height)
+    }
+    page.entries.push(e)
+    if (!spot) {
+      if (++page.loose >= LOOSE_PER_PAGE) turnPage()
+      continue
+    }
+    settle(e, loose, page, spot)
+  }
+  unpacked = []
+}
+
+/* ---------- Kept sprites ---------- */
+
+/**
+ * Sprites kept a while in named groups (a biome's terrain), packed on the group's own pages so a
+ * biome's hundred sculpted pieces take a few canvases, and freed together (`dropKept`) when the
+ * run leaves the biome.
+ */
+type KeptGroup = { pages: AtlasPage[]; loose: AtlasEntry[]; dropped: boolean }
+const keptGroups = new Map<string, KeptGroup>()
+let unkept: { group: KeptGroup; e: AtlasEntry }[] = []
+onCanvasReset(
+  () => {
+    keptGroups.clear()
+    unkept = []
+  },
+  () => [[...keptGroups.values()].map((g) => [g.pages.map((p) => p.canvas), g.loose.map((e) => e.loose)]), unkept.map((u) => u.e.loose)],
+)
+
+const noop = () => {}
+
+/**
+ * Pixels from which a kept sprite stays a canvas of its own: the few big ones (a ridge, a lake,
+ * a cottage) would leave pages half empty, and the count that hurts is the small ones'.
+ */
+const KEPT_OWN = 128 * 128
+
+/**
+ * Hands `sprite` (a canvas no one else draws to or keeps) over to `group`: it's drawn from the
+ * returned `Packed`, which keeps pointing at it until the task after the frame copies it onto
+ * the group's pages and frees it. A big one (`KEPT_OWN`) stays as it is, freed with the group.
+ */
+export const keepPacked = (group: string, sprite: HTMLCanvasElement): Packed => {
+  let g = keptGroups.get(group)
+  if (!g) keptGroups.set(group, (g = { pages: [], loose: [], dropped: false }))
+  const e: AtlasEntry = { packed: { canvas: sprite, x: 0, y: 0, w: sprite.width, h: sprite.height }, loose: sprite, forget: noop }
+  unkept.push({ group: g, e })
+  schedulePack()
+  return e.packed
+}
+
+/** Frees a group's pages (and its sprites too big for one) now: what it packed draws nothing from here on. */
+export const dropKept = (group: string) => {
+  const g = keptGroups.get(group)
+  if (!g) return
+  keptGroups.delete(group)
+  g.dropped = true
+  for (const page of g.pages) {
+    for (const e of page.entries) evictPacked(e)
+    page.canvas.width = page.canvas.height = 0
+  }
+  for (const e of g.loose) evictPacked(e)
+}
+
+/** Copies the kept sprites made since the last task onto their groups' pages, first fit. */
+const packKept = () => {
+  for (const { group, e } of unkept) {
+    const loose = e.loose
+    if (!loose) continue
+    // Its group was dropped before it was packed.
+    if (group.dropped) {
+      evictPacked(e)
+      continue
+    }
+    if (loose.width * loose.height >= KEPT_OWN || loose.width > ATLAS_PAGE || loose.height > ATLAS_PAGE) {
+      group.loose.push(e)
+      continue
+    }
+    let page: AtlasPage | null = null
+    let spot: { x: number; y: number } | null = null
+    for (const p of group.pages) {
+      spot = place(p.shelves, loose.width, loose.height)
+      if (spot) {
+        page = p
+        break
+      }
+    }
+    if (!page || !spot) {
+      group.pages.push((page = newPage()))
+      spot = place(page.shelves, loose.width, loose.height)!
+    }
+    page.entries.push(e)
+    settle(e, loose, page, spot)
+  }
+  unkept = []
+}
+
+/**
+ * Caches a three-argument shape painter on the shape atlas: a hit (hundreds per frame: every
+ * shadow, every damage number) allocates nothing, and the shapes share a few page canvases
+ * instead of holding a canvas each. `make` paints the shape on a fresh canvas, which the atlas
+ * takes over. Put the argument with the most values last: its Map drops evicted entries, the
+ * outer ones only empty on a GPU reset.
+ */
+export const packed3 = <A, B, C>(make: (a: A, b: B, c: C) => HTMLCanvasElement) => {
+  let root = new Map<A, Map<B, Map<C, AtlasEntry>>>()
+  atlasForgets.push(() => (root = new Map()))
+  return (a: A, b: B, c: C): Packed => {
+    let byB = root.get(a)
+    if (!byB) root.set(a, (byB = new Map()))
+    let byC = byB.get(b)
+    if (!byC) byB.set(b, (byC = new Map()))
+    const hit = byC.get(c)
+    if (hit) return hit.packed
+    const loose = make(a, b, c)
+    const home = byC
+    const e: AtlasEntry = {
+      packed: { canvas: loose, x: 0, y: 0, w: loose.width, h: loose.height },
+      loose,
+      forget: () => {
+        if (home.get(c) === e) home.delete(c)
+      },
+    }
+    home.set(c, e)
+    unpacked.push(e)
+    schedulePack()
+    return e.packed
+  }
+}
+
+/** Draws a packed shape with its top-left corner at (x, y). */
+export const drawPacked = (ctx: CanvasRenderingContext2D, p: Packed, x: number, y: number) => {
+  if (p.w > 0) ctx.drawImage(p.canvas, p.x, p.y, p.w, p.h, x, y, p.w, p.h)
+}
+
+/** Draws a packed shape centered at (x, y), snapped to whole pixels, as `blitCentered` draws a canvas. */
+export const blitPacked = (ctx: CanvasRenderingContext2D, p: Packed, x: number, y: number) =>
+  drawPacked(ctx, p, Math.round(x - p.w / 2), Math.round(y - p.h / 2))
+
+/** Paints a hard-edged filled ellipse whose bounding box starts at (left, top). */
+const paintEllipse = (ctx: CanvasRenderingContext2D, left: number, top: number, rx: number, ry: number, color: string) => {
+  beginRects(ctx, color)
+  traceEllipse(ctx, left, top, rx, ry)
+  ctx.fill()
+}
+
+/**
+ * Adds a hard-edged ellipse's rows to the current path, its bounding box at (left, top): many
+ * small ones (the loot's shadows) fill as one path (`beginRects`) instead of a sprite drawn each.
+ */
+const traceEllipse = (ctx: CanvasRenderingContext2D, left: number, top: number, rx: number, ry: number) => {
+  const w = Math.round(rx) * 2 + 1
+  const h = Math.round(ry) * 2 + 1
+  const cx = (w - 1) / 2
+  const cy = (h - 1) / 2
+  for (let y = 0; y < h; y++) {
+    const dy = (y - cy) / (ry + 0.5)
+    const span = Math.sqrt(Math.max(0, 1 - dy * dy)) * (rx + 0.5)
+    const x0 = Math.round(cx - span)
+    const x1 = Math.round(cx + span)
+    if (x1 > x0) ctx.rect(left + x0, top + y, x1 - x0, 1)
+  }
+}
+
+/** Adds `ellipse(rx, ry)` centered at (x, y) to the current path, where `blitEllipse` would draw it. */
+export const traceEllipseAt = (ctx: CanvasRenderingContext2D, rx: number, ry: number, x: number, y: number) =>
+  traceEllipse(ctx, Math.round(x - (Math.round(rx) * 2 + 1) / 2), Math.round(y - (Math.round(ry) * 2 + 1) / 2), rx, ry)
+
+/** The rightmost x ≥ 0 on row `y` with `Math.hypot(x, y) <= lim` (-1 if none): the same test a pixel-by-pixel scan makes. */
+const reach = (lim: number, y: number) => {
+  if (!(Math.abs(y) <= lim)) return -1
+  let x = Math.floor(Math.sqrt(Math.max(0, lim * lim - y * y)))
+  while (x > 0 && Math.hypot(x, y) > lim) x--
+  while (Math.hypot(x + 1, y) <= lim) x++
+  return x
+}
+
+/**
+ * Paints a hard-edged ring of radius `r` (whole px) and `thickness`, its bounding box starting at
+ * (left, top): every pixel whose center lies within r + 0.5 of the middle but past r + 0.5 - thickness,
+ * filled a row span at a time.
+ */
+const paintRing = (ctx: CanvasRenderingContext2D, left: number, top: number, r: number, thickness: number, color: string) => {
+  ctx.fillStyle = color
+  const outer = r + 0.5
+  const inner = outer - thickness
+  for (let y = -r; y <= r; y++) {
+    const xo = reach(outer, y)
+    if (xo < 0) continue
+    const xi = reach(inner, y)
+    if (xi < 0) ctx.fillRect(left + r - xo, top + r + y, xo * 2 + 1, 1)
+    else if (xo > xi) {
+      ctx.fillRect(left + r - xo, top + r + y, xo - xi, 1)
+      ctx.fillRect(left + r + xi + 1, top + r + y, xo - xi, 1)
+    }
+  }
+}
+
+/** Hard-edged filled ellipse (no antialiasing), on the shape atlas. */
+export const ellipse = packed3((rx: number, ry: number, color: string) => {
+  const canvas = createCanvas(Math.round(rx) * 2 + 1, Math.round(ry) * 2 + 1)
+  paintEllipse(context2d(canvas), 0, 0, rx, ry, color)
+  return canvas
+})
+
+/** A soft round light in hard rings, brightest in the middle (pixel art: no gradients). */
+export const glow = (radius: number, color: string, alpha: number) => {
+  const canvas = createCanvas(radius * 2 + 1, radius * 2 + 1)
+  const ctx = context2d(canvas)
+  for (const [k, a] of [[1, 0.35], [0.7, 0.6], [0.42, 1]] as const) {
+    ctx.globalAlpha = alpha * a
+    paintEllipse(ctx, Math.round(radius - radius * k), Math.round(radius - radius * k * 0.75), Math.round(radius * k), Math.round(radius * k * 0.75), color)
+  }
+  return canvas
+}
+
+/** Hard-edged ring (circle outline) of a given thickness, on the shape atlas like `ellipse`. */
+export const ring = packed3((radius: number, thickness: number, color: string) => {
+  const r = Math.round(radius)
+  const canvas = createCanvas(r * 2 + 1, r * 2 + 1)
+  paintRing(context2d(canvas), 0, 0, r, thickness, color)
+  return canvas
+})
+
+/** Shapes past this many pixels stay off the atlas (`bigShape`): a shockwave or a telegraph grows through every size. */
+const BIG_SHAPE = 64 * 64
+
+let stage: { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D } | null = null
+onCanvasReset(
+  () => (stage = null),
+  () => stage,
+)
+
+/**
+ * Paints a `w`×`h` shape on a shared staging canvas and draws it centered at (x, y) the way
+ * `blitCentered` draws a cached one: same pixels, composited the same way, without keeping
+ * a canvas per size (a ripple across the screen would leave megabytes of them each second).
+ */
+const stamp = (ctx: CanvasRenderingContext2D, w: number, h: number, x: number, y: number, paint: (s: CanvasRenderingContext2D) => void) => {
+  if (!stage || stage.canvas.width < w || stage.canvas.height < h) {
+    // Grown in 64 px steps, so a shape swelling a pixel a frame doesn't make a canvas a frame.
+    const grow = (need: number, had = 0) => Math.max(had, Math.ceil(need / 64) * 64)
+    const canvas = createCanvas(grow(w, stage?.canvas.width), grow(h, stage?.canvas.height))
+    stage = { canvas, ctx: context2d(canvas) }
+  }
+  stage.ctx.clearRect(0, 0, w, h)
+  paint(stage.ctx)
+  ctx.drawImage(stage.canvas, 0, 0, w, h, Math.round(x - w / 2), Math.round(y - h / 2), w, h)
+}
+
+/** Pixels the big shapes kept (`bigShape`) may hold in all (about 2 MB); the least recently drawn go first. */
+const KEEP_BIG = 512 * 1024
+
+/** Big shapes drawn more than once (a comet's scorch mark, a field holding its size), by key, least recently drawn first. */
+const keptBig = new Map<string, HTMLCanvasElement>()
+let keptBigPx = 0
+/** Keys of big shapes drawn once so far: only a second draw keeps one, so a shockwave growing every frame keeps none. */
+const seenBig = new Set<string>()
+onCanvasReset(
+  () => {
+    keptBig.clear()
+    keptBigPx = 0
+  },
+  () => keptBig,
+)
+
+/**
+ * Draws a big shape (`key` names its kind, size and color) centered at (x, y) as `stamp`
+ * does. One drawn again comes from a canvas of its own, kept while it fits `KEEP_BIG`:
+ * a late-game screen holds dozens of scorch marks and fields, and painting each one row
+ * by row every frame cost more than the rest of the moves together.
+ */
+const bigShape = (ctx: CanvasRenderingContext2D, key: string, w: number, h: number, x: number, y: number, paint: (s: CanvasRenderingContext2D) => void) => {
+  let canvas = keptBig.get(key)
+  if (canvas) {
+    keptBig.delete(key)
+    keptBig.set(key, canvas)
+  } else {
+    if (!seenBig.has(key) || w * h > KEEP_BIG / 8) {
+      if (seenBig.size >= 512) seenBig.clear()
+      seenBig.add(key)
+      return stamp(ctx, w, h, x, y, paint)
+    }
+    canvas = createCanvas(w, h)
+    paint(context2d(canvas))
+    keptBig.set(key, canvas)
+    keptBigPx += w * h
+    for (const [old, kept] of keptBig) {
+      if (keptBigPx <= KEEP_BIG) break
+      keptBig.delete(old)
+      keptBigPx -= kept.width * kept.height
+    }
+  }
+  ctx.drawImage(canvas, Math.round(x - w / 2), Math.round(y - h / 2))
+}
+
+/** `blitCentered(ctx, ellipse(rx, ry, color), x, y)`, with big ellipses painted fresh until one is drawn again (`bigShape`). */
+export const blitEllipse = (ctx: CanvasRenderingContext2D, rx: number, ry: number, color: string, x: number, y: number) => {
+  const w = Math.round(rx) * 2 + 1
+  const h = Math.round(ry) * 2 + 1
+  if (w * h <= BIG_SHAPE) return blitPacked(ctx, ellipse(rx, ry, color), x, y)
+  bigShape(ctx, `e${rx},${ry},${color}`, w, h, x, y, (s) => paintEllipse(s, 0, 0, rx, ry, color))
+}
+
+/** `blitCentered(ctx, ring(radius, thickness, color), x, y)`, with big rings painted fresh until one is drawn again (`bigShape`). */
+export const blitRing = (ctx: CanvasRenderingContext2D, radius: number, thickness: number, color: string, x: number, y: number) => {
+  const r = Math.round(radius)
+  const size = r * 2 + 1
+  if (size * size <= BIG_SHAPE) return blitPacked(ctx, ring(radius, thickness, color), x, y)
+  bigShape(ctx, `r${r},${thickness},${color}`, size, size, x, y, (s) => paintRing(s, 0, 0, r, thickness, color))
+}
+
+/** What filling rects as paths needs of a 2D context. */
+export type RectSink = Pick<CanvasRenderingContext2D, 'fillStyle' | 'beginPath' | 'rect' | 'fill'>
+
+/**
+ * Starts a batch of whole-pixel rects in one color: `ctx.rect(x, y, w, h)` each, then one
+ * `ctx.fill()`. A late run's moves plot ten thousand single pixels a frame (rings, beams,
+ * waves): one fill per color instead of a `fillRect` (and often a `fillStyle`) per pixel is
+ * less work for the page and far fewer draw calls for the GPU process. On whole pixels (the
+ * camera's translation is whole) the path covers exactly what `fillRect` would; rects that
+ * overlap fill once, so a see-through color doesn't darken where they cross.
+ */
+export const beginRects = (ctx: RectSink, color: string) => {
+  ctx.fillStyle = color
+  ctx.beginPath()
+}
+
+/** The rects `plot` holds for one color until `fillPlotted`: x, y, w, h each, in a buffer kept from frame to frame. */
+type Plotted = { rects: Int32Array; n: number }
+const plotted = new Map<string, Plotted>()
+/** Colors plotted since the last fill, in the order they were first plotted. */
+const plotOrder: Plotted[] = []
+const plotColors: string[] = []
+
+/**
+ * Queues a whole-pixel rect in `color`, where a `fillStyle` + `fillRect` pair would draw it,
+ * for `fillPlotted` to fill. A move's art that plots its pixels in a loop of mixed colors
+ * (a ring's rim and its glints, a crescent's bands) goes from a draw call per pixel to one
+ * per color. Colors fill in the order they were first plotted, so a loop that draws its dark
+ * edge before its bright core still layers the same way; same-color rects that overlap
+ * fill once (see `beginRects`).
+ */
+export const plot = (color: string, x: number, y: number, w = 1, h = 1) => {
+  let p = plotted.get(color)
+  if (!p) {
+    p = { rects: new Int32Array(256), n: 0 }
+    plotted.set(color, p)
+  }
+  if (p.n === 0) {
+    plotOrder.push(p)
+    plotColors.push(color)
+  }
+  if (p.n + 4 > p.rects.length) {
+    const grown = new Int32Array(p.rects.length * 2)
+    grown.set(p.rects)
+    p.rects = grown
+  }
+  const r = p.rects
+  r[p.n] = Math.round(x)
+  r[p.n + 1] = Math.round(y)
+  r[p.n + 2] = w
+  r[p.n + 3] = h
+  p.n += 4
+}
+
+/** Fills everything `plot` queued, one path per color, at the context's current alpha, and empties the queue. */
+export const fillPlotted = (ctx: RectSink) => {
+  for (let c = 0; c < plotOrder.length; c++) {
+    const p = plotOrder[c]!
+    const r = p.rects
+    beginRects(ctx, plotColors[c]!)
+    for (let i = 0; i < p.n; i += 4) ctx.rect(r[i]!, r[i + 1]!, r[i + 2]!, r[i + 3]!)
+    ctx.fill()
+    p.n = 0
+  }
+  plotOrder.length = 0
+  plotColors.length = 0
+  // Colors made up on the fly (an rgba per alpha) would pile up: start over now and then.
+  if (plotted.size > 256) plotted.clear()
+}
+
+/** Draws a sprite centered at (x, y), snapped to whole pixels. */
+export const blitCentered = (ctx: CanvasRenderingContext2D, sprite: CanvasImageSource & { width: number; height: number }, x: number, y: number) =>
+  ctx.drawImage(sprite, Math.round(x - sprite.width / 2), Math.round(y - sprite.height / 2))
+
+/** Draws a sprite centered at (x, y) rotated by `angle`. Rotation keeps the chunky pixel look at low res. */
+export const blitRotated = (ctx: CanvasRenderingContext2D, sprite: PixelSprite, x: number, y: number, angle: number, scale = 1) => {
+  ctx.save()
+  ctx.translate(Math.round(x), Math.round(y))
+  ctx.rotate(angle)
+  if (scale !== 1) ctx.scale(scale, scale)
+  ctx.drawImage(sprite, -sprite.width / 2, -sprite.height / 2)
+  ctx.restore()
+}
+
+/* ---------- Bitmap font for in-world numbers (3x5 glyphs, outlined) ---------- */
+
+const GLYPHS: Record<string, readonly string[]> = {
+  '0': ['111', '101', '101', '101', '111'],
+  '1': ['010', '110', '010', '010', '111'],
+  '2': ['111', '001', '111', '100', '111'],
+  '3': ['111', '001', '011', '001', '111'],
+  '4': ['101', '101', '111', '001', '001'],
+  '5': ['111', '100', '111', '001', '111'],
+  '6': ['111', '100', '111', '101', '111'],
+  '7': ['111', '001', '010', '010', '010'],
+  '8': ['111', '101', '111', '101', '111'],
+  '9': ['111', '101', '111', '001', '111'],
+  '!': ['1', '1', '1', '0', '1'],
+  '+': ['000', '010', '111', '010', '000'],
+  '₽': ['0110', '0101', '0110', '1110', '0100'],
+  // For co-op name tags (`render/team.ts`).
+  ' ': ['00', '00', '00', '00', '00'], '.': ['0', '0', '0', '0', '1'], '-': ['000', '000', '111', '000', '000'], '_': ['000', '000', '000', '000', '111'],
+  // Capitals, for short in-world tags (an Alpha's "ALFA").
+  A: ['010', '101', '111', '101', '101'], B: ['110', '101', '110', '101', '110'], C: ['011', '100', '100', '100', '011'],
+  D: ['110', '101', '101', '101', '110'], E: ['111', '100', '110', '100', '111'], F: ['111', '100', '110', '100', '100'],
+  G: ['011', '100', '101', '101', '011'], H: ['101', '101', '111', '101', '101'], I: ['111', '010', '010', '010', '111'],
+  J: ['001', '001', '001', '101', '010'], K: ['101', '101', '110', '101', '101'], L: ['100', '100', '100', '100', '111'],
+  M: ['10001', '11011', '10101', '10001', '10001'], N: ['1001', '1101', '1011', '1001', '1001'], O: ['010', '101', '101', '101', '010'],
+  P: ['110', '101', '110', '100', '100'], Q: ['010', '101', '101', '110', '011'], R: ['110', '101', '110', '101', '101'],
+  S: ['011', '100', '010', '001', '110'], T: ['111', '010', '010', '010', '010'], U: ['101', '101', '101', '101', '111'],
+  V: ['101', '101', '101', '101', '010'], W: ['10001', '10001', '10101', '11011', '10001'], X: ['101', '101', '010', '101', '101'],
+  Y: ['101', '101', '010', '010', '010'], Z: ['111', '001', '010', '100', '111'],
+}
+
+/** Where the in-world font's outline is stamped around each glyph. */
+const OUTLINE_NUDGES = [[-1, 0], [1, 0], [0, -1], [0, 1], [1, 1]] as const
+
+/**
+ * Renders text with a 1px dark outline, on the shape atlas: a damage total changes with every
+ * merged hit, so a canvas per text would pile up thousands of them. The text goes last (`packed3`).
+ */
+const outlinedText = packed3((color: string, outline: string, text: string) => {
+  const chars = [...text].map((c) => GLYPHS[c] ?? GLYPHS['0']!)
+  const width = chars.reduce((w, g) => w + g[0]!.length + 1, 1)
+  const canvas = createCanvas(width + 1, 7)
+  const ctx = context2d(canvas)
+  // Painted as one path per color (`beginRects`): a late run's merged totals make dozens of new numbers a frame.
+  const plot = (dx: number, dy: number) => {
+    let ox = 1
+    for (const g of chars) {
+      for (let y = 0; y < g.length; y++) {
+        const row = g[y]!
+        for (let x = 0; x < row.length; x++) if (row[x] === '1') ctx.rect(ox + x + dx, 1 + y + dy, 1, 1)
+      }
+      ox += g[0]!.length + 1
+    }
+  }
+  beginRects(ctx, outline)
+  for (const [dx, dy] of OUTLINE_NUDGES) plot(dx, dy)
+  ctx.fill()
+  beginRects(ctx, color)
+  plot(0, 0)
+  ctx.fill()
+  return canvas
+})
+
+/** A number or short word in the in-world font, with the usual dark outline unless told otherwise. Packed: draw it with `blitPacked`. */
+export const textSprite = (text: string, color: string, outline = '#181010') => outlinedText(color, outline, text)
