@@ -46,9 +46,9 @@ describe('partida', () => {
     expect(textoFim(p).frase).toMatch(/mandaram bem/);
   });
 
-  it('depois do gol a seta mostra o lado e o botão solta a bola para esse lado', () => {
+  it('depois do gol a seta mostra o lado de quem sofreu e o botão solta a bola para esse lado', () => {
     const p = nova();
-    aplicarGol(p, 'vermelho');
+    aplicarGol(p, 'azul');
     expect(p.fase).toBe('gol');
     expect(textoSeta(p)).toEqual({ lado: 'esquerda', frase: 'A bola vai para a esquerda' });
     const tempo = p.tempo;
@@ -58,7 +58,7 @@ describe('partida', () => {
     soltarBola(p);
     expect(p.fase).toBe('jogando');
     expect(p.bola.vx).toBeLessThan(0);
-    expect(Math.abs(p.bola.vx)).toBe(p.ajustes.saque);
+    expect(Math.hypot(p.bola.vx, p.bola.vy)).toBeCloseTo(p.ajustes.saque, 6);
   });
 
   it('o Fácil tem gol maior, bola mais lenta e chute mais fraco', () => {

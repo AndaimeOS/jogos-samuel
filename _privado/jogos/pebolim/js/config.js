@@ -43,9 +43,14 @@ export const CONFIG = {
   barra: {
     velTeclado: 480,
   },
+  // Saque — PROVISÓRIO (Game Design). A bola sai do meio sem ficar parada.
+  // Velocidades em px/s; precisam deixar a bola chegar até uma barra (ver testes de saque).
   saque: {
-    velocidade: 200,
-    velocidadeFacil: 120,
+    velocidade: 200, // começo da partida e depois do gol, no Normal
+    velocidadeFacil: 120, // idem, no Fácil
+    destravar: 150, // saque leve quando a bola presa volta para o meio, no Normal
+    destravarFacil: 90, // idem, no Fácil
+    anguloMax: 0.3, // desvio vertical sorteado, em radianos (~17°)
   },
   partida: {
     golsVitoria: 5,
@@ -116,6 +121,7 @@ export function ajustesDe(cfg, dificuldade) {
     velMax: facil ? cfg.bola.velMaxFacil : cfg.bola.velMax,
     impulso: facil ? cfg.bola.impulsoChuteFacil : cfg.bola.impulsoChute,
     saque: facil ? cfg.saque.velocidadeFacil : cfg.saque.velocidade,
+    destravar: facil ? cfg.saque.destravarFacil : cfg.saque.destravar,
     ia: facil ? cfg.ia.facil : cfg.ia.normal,
   };
 }

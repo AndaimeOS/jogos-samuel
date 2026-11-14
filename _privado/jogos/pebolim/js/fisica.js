@@ -134,20 +134,34 @@ function limitarVelocidade(bola, max) {
   }
 }
 
-function centralizar(partida) {
+// Sorteio injetável: partida.sorteio() devolve um número em [0, 1).
+export function sortearLado(partida) {
+  return partida.sorteio() < 0.5 ? -1 : 1;
+}
+
+// Põe a bola no meio e já manda para o lado pedido (-1 esquerda, 1 direita),
+// com um pequeno desvio vertical sorteado. A bola nunca sai daqui parada.
+export function sacar(partida, lado, velocidade) {
   const cfg = partida.cfg;
-  const longe = Math.hypot(
-    partida.bola.x - cfg.campo.comprimento / 2,
-    partida.bola.y - cfg.campo.largura / 2,
-  ) > 24;
+  const angulo = (partida.sorteio() * 2 - 1) * cfg.saque.anguloMax;
   partida.bola.x = cfg.campo.comprimento / 2;
   partida.bola.y = cfg.campo.largura / 2;
-  partida.bola.vx = 0;
-  partida.bola.vy = 0;
+  partida.bola.vx = lado * velocidade * Math.cos(angulo);
+  partida.bola.vy = velocidade * Math.sin(angulo);
   partida.trava.acumulado = 0;
   partida.trava.janela = 0;
   partida.trava.x = partida.bola.x;
   partida.trava.y = partida.bola.y;
+}
+
+function centralizar(partida) {
+  const cfg = partida.cfg;
+  const a = partida.ajustes || ajustesDe(cfg, partida.dificuldade);
+  const longe = Math.hypot(
+    partida.bola.x - cfg.campo.comprimento / 2,
+    partida.bola.y - cfg.campo.largura / 2,
+  ) > 24;
+  sacar(partida, sortearLado(partida), a.destravar);
   if (longe) {
     partida.aviso = 'A bola voltou para o meio!';
     partida.avisoTempo = cfg.partida.avisoSegundos;

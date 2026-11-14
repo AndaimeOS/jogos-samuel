@@ -12,10 +12,14 @@ function partidaParada() {
   return p;
 }
 
-function simular(p, segundos) {
+function simular(p, segundos, pararNoDestravar = false) {
   const eventos = [];
   const n = Math.round(segundos / PASSO);
-  for (let i = 0; i < n; i++) eventos.push(...avancar(p, PASSO));
+  for (let i = 0; i < n; i++) {
+    const novos = avancar(p, PASSO);
+    eventos.push(...novos);
+    if (pararNoDestravar && novos.some((e) => e.tipo === 'destravou')) break;
+  }
   return eventos;
 }
 
@@ -31,16 +35,15 @@ function colocar(p, x, y, vx = 0, vy = 0) {
 }
 
 describe('destravar a bola', () => {
-  it('bola parada no canto volta para o meio', () => {
+  it('bola parada no canto volta para o meio, já com um saque leve', () => {
     const p = partidaParada();
     const raio = CONFIG.bola.raio;
     colocar(p, raio, raio);
-    const eventos = simular(p, CONFIG.bola.segundosParada + 0.6);
+    const eventos = simular(p, CONFIG.bola.segundosParada + 0.6, true);
     expect(eventos.some((e) => e.tipo === 'destravou')).toBe(true);
     expect(p.bola.x).toBe(CONFIG.campo.comprimento / 2);
     expect(p.bola.y).toBe(CONFIG.campo.largura / 2);
-    expect(p.bola.vx).toBe(0);
-    expect(p.bola.vy).toBe(0);
+    expect(Math.hypot(p.bola.vx, p.bola.vy)).toBeCloseTo(p.ajustes.destravar, 6);
     expect(p.placar).toEqual({ vermelho: 0, azul: 0 });
   });
 
@@ -51,7 +54,7 @@ describe('destravar a bola', () => {
     const y = trave.y + trave.h / 2;
     colocar(p, x, y, 0, 0);
     expect(bolaPresaNumSolido(p)).toBe(false);
-    const eventos = simular(p, CONFIG.bola.segundosParada + 0.6);
+    const eventos = simular(p, CONFIG.bola.segundosParada + 0.6, true);
     expect(eventos.some((e) => e.tipo === 'destravou')).toBe(true);
     expect(p.bola.x).toBe(CONFIG.campo.comprimento / 2);
     expect(p.bola.y).toBe(CONFIG.campo.largura / 2);

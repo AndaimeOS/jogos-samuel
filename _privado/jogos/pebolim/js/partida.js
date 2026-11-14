@@ -1,5 +1,7 @@
 import { CONFIG, ajustesDe } from './config.js';
-import { passoFisico, chutar, moverBarra, travarDeslize } from './fisica.js';
+import {
+  passoFisico, chutar, moverBarra, travarDeslize, sacar, sortearLado,
+} from './fisica.js';
 import { passoIA } from './ia.js';
 
 export function mulberry32(semente) {
@@ -11,6 +13,10 @@ export function mulberry32(semente) {
     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
+}
+
+function sorteioDoSaque(semente) {
+  return mulberry32((semente ^ 0x9e3779b9) >>> 0);
 }
 
 export function criarPartida(opcoes = {}) {
@@ -40,6 +46,9 @@ export function criarPartida(opcoes = {}) {
     ia: { espera: 0, pausa: 0, alvo: cfg.campo.largura / 2, recarga: 0.4 },
     semente: opcoes.semente ?? 1,
     rng: mulberry32(opcoes.semente ?? 1),
+    // Sorteio do saque, separado do computador. Pode vir de fora (testes, Math.random).
+    sorteioFixo: opcoes.sorteio || null,
+    sorteio: opcoes.sorteio || sorteioDoSaque(opcoes.semente ?? 1),
     animChute: { vermelho: 0, azul: 0 },
     aviso: '',
     avisoTempo: 0,
@@ -75,14 +84,16 @@ export function comecar(partida) {
   partida.motivo = null;
   partida.deslize = { vermelho: 0, azul: 0 };
   partida.velBarra = { vermelho: 0, azul: 0 };
-  partida.seta = 1;
   partida.aviso = '';
   partida.avisoTempo = 0;
   partida.ia = { espera: 0, pausa: 0, alvo: partida.cfg.campo.largura / 2, recarga: 0.45 };
   partida.animChute = { vermelho: 0, azul: 0 };
   partida.ajustes = ajustesDe(partida.cfg, partida.dificuldade);
   partida.rng = mulberry32(partida.semente ?? 1);
-  zerarBola(partida);
+  partida.sorteio = partida.sorteioFixo || sorteioDoSaque(partida.semente ?? 1);
+  // Saque do meio para um lado sorteado.
+  partida.seta = sortearLado(partida);
+  sacar(partida, partida.seta, partida.ajustes.saque);
 }
 
 export function textoSeta(partida) {
@@ -117,17 +128,15 @@ export function aplicarGol(partida, time) {
     return;
   }
   partida.fase = 'gol';
-  // Quem sofreu o gol repõe. A seta aponta para o lado em que a bola sai.
-  partida.seta = time === 'vermelho' ? -1 : 1;
+  // A bola sai para o lado de quem sofreu o gol (Vermelho defende a esquerda,
+  // Azul a direita). A seta aponta para esse lado.
+  partida.seta = time === 'vermelho' ? 1 : -1;
 }
 
 export function soltarBola(partida) {
   if (partida.fase !== 'gol') return false;
   partida.fase = 'jogando';
-  zerarBola(partida);
-  partida.bola.vx = partida.seta * partida.ajustes.saque;
-  partida.trava.x = partida.bola.x;
-  partida.trava.y = partida.bola.y;
+  sacar(partida, partida.seta, partida.ajustes.saque);
   return true;
 }
 

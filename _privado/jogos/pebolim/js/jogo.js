@@ -31,7 +31,7 @@ const ui = {
   deite: document.getElementById('deite'),
 };
 
-const partida = criarPartida({ modo: '1', dificuldade: 'facil', semente: 1 });
+const partida = criarPartida({ modo: '1', dificuldade: 'facil', semente: 1, sorteio: Math.random });
 const teclas = new Set();
 const chutesPendentes = [];
 const ponteiros = new Map();
