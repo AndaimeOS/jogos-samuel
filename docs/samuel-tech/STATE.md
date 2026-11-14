@@ -19,7 +19,7 @@ Vale o que está aqui e no Notion, não a memória do chat.
     servidor da Ilha e precisa de build e teste na VPS antes.
   - **`publicacao`**: o pacote do WeBoaz (`2c33177`, + Mestre do Cubo) não tinha Minigolfe nem Ilha 0.2 e derrubaria os dois se
     fosse publicado. Agora espelha a produção (`0a8e5416…48b1`, conferido em produção).
-- **Pendente:** PR WeBoaz/jogos-samuel#1 é legado (fechar ou deixar); o AndaimeOS ainda aparece como fork do WeBoaz no GitHub
+- **PR WeBoaz/jogos-samuel#1:** fechado com aviso (pedido do Boaz). **Pendente:** o AndaimeOS ainda aparece como fork do WeBoaz no GitHub
   (desligar exige o dono do WeBoaz ou o suporte do GitHub).
 
 ## 2026-11-01 — Claude (Corrida do Jack — etapa 1)
