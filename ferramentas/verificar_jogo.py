@@ -51,6 +51,21 @@ def linha(texto, pos):
     return texto.count("\n", 0, pos) + 1
 
 
+def navegacao_declarada(texto, m, permitidos):
+    """Exceção declarada no catálogo (campo navegacao_externa): um <a href="URL" target="_top"> para uma URL listada
+    é navegação para fora do portal (ex.: jogo que precisa de página própria), não recurso carregado pelo jogo.
+    Só perdoa o próprio atributo href dessa tag; qualquer outro recurso externo na tag (style, onclick…) continua erro."""
+    if not permitidos or not m.group(0).lower().startswith("href") or re.match(r"[\w-]", texto[m.start() - 1:m.start()]):
+        return False   # só o atributo href de verdade (não data-href)
+    ini, fim = texto.rfind("<", 0, m.start()), texto.find(">", m.start())
+    if ini < 0 or fim < 0 or ">" in texto[ini:m.start()]:
+        return False   # o href precisa estar dentro da tag aberta em ini
+    tag = texto[ini:fim + 1]
+    href = re.compile(r"""\bhref\s*=\s*(["'])([^"']+)\1""", re.I).match(texto, m.start(), fim + 1)
+    return (re.match(r"<a\s", tag, re.I) is not None and href is not None and href.group(2) in permitidos
+            and re.search(r"""(?<![\w-])target\s*=\s*["']_top["']""", tag, re.I) is not None)
+
+
 def verificar(slug, exts, cat):
     erros, avisos = [], []
     pasta = os.path.join(RAIZ, "_privado", "jogos", slug)
@@ -63,6 +78,7 @@ def verificar(slug, exts, cat):
             avisos.append("jogos.json sem: " + ", ".join(faltam))
     if not os.path.isdir(pasta):
         return [f"pasta não existe: _privado/jogos/{slug}/"], avisos
+    permitidos = set((g or {}).get("navegacao_externa", []))
     entrada = (g or {}).get("entry", "index.html")
     if not os.path.isfile(os.path.join(pasta, entrada)):
         erros.append(f"arquivo de entrada ausente: {entrada}")
@@ -96,6 +112,9 @@ def verificar(slug, exts, cat):
                 regras.append((ABSOLUTO_CSS, "caminho absoluto do site"))
             for rx, msg in regras:
                 for m in rx.finditer(texto):
+                    if rx is EXTERNO and nome.lower().endswith((".html", ".htm")) and navegacao_declarada(texto, m, permitidos):
+                        avisos.append(f"navegação externa declarada: {rel}:{linha(texto, m.start())}")
+                        continue
                     trecho = texto[m.start():m.start() + 60].splitlines()[0]
                     erros.append(f"{msg}: {rel}:{linha(texto, m.start())}: {trecho}")
     if n > LIMITE_ARQUIVOS:

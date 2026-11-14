@@ -1,0 +1,24 @@
+/* Corrida do Jack — HUD e telas próprias (o resto vem de ui-blocos.css). */
+#jogo { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; background: #a9dcf2; touch-action: none; }
+.hud-corrida { position: fixed; top: max(10px, env(safe-area-inset-top)); left: max(10px, env(safe-area-inset-left));
+  right: max(10px, env(safe-area-inset-right)); display: flex; gap: 8px; align-items: flex-start; z-index: 6; pointer-events: none; }
+.hud-corrida .painel { display: flex; align-items: baseline; gap: 6px; background: var(--paper); border: var(--line);
+  box-shadow: var(--shadow); padding: 6px 12px; font: 900 24px var(--mono); }
+.hud-corrida .painel small { font: 700 13px var(--mono); }
+.hud-corrida .ic { font-size: 20px; }
+.hud-corrida .topo-btns { margin-left: auto; pointer-events: auto; }
+.dica-gesto { position: fixed; left: 50%; bottom: max(28px, env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 6;
+  background: var(--gold); border: var(--line); box-shadow: var(--shadow); padding: 10px 16px; font: 900 20px var(--sans);
+  pointer-events: none; white-space: normal; text-align: center; width: max-content; max-width: calc(100vw - 32px); }
+.resultado-corrida { display: flex; justify-content: center; gap: 12px; margin: 6px 0 10px; flex-wrap: wrap; }
+.resultado-corrida > div { background: var(--cream); border: var(--line); box-shadow: var(--shadow); padding: 8px 14px; min-width: 96px;
+  display: flex; flex-direction: column; align-items: center; }
+.resultado-corrida b { font: 900 30px var(--mono); }
+.resultado-corrida small { font: 700 12px var(--mono); color: var(--muted); }
+.recorde { font: 700 16px var(--sans); margin: 6px 0 0; min-height: 1.2em; }
+.recorde:empty { display: none; }
+@media (max-height: 480px) {
+  .hud-corrida .painel { font-size: 18px; padding: 4px 8px; }
+  .logo { font-size: 30px; }
+  .opcao { min-height: 60px; }
+}

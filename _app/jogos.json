@@ -25,6 +25,28 @@
       "version": "1.0.1"
     },
     {
+      "slug": "mestre-do-cubo",
+      "title": "Mestre do Cubo",
+      "category": "Desafio",
+      "description": "Tire foto do seu cubo mágico (2×2, 3×3, 4×4 ou 5×5) e veja em 3D, passo a passo, como resolver!",
+      "cover": "mestre-do-cubo.webp",
+      "entry": "index.html",
+      "instructions": [
+        "Escolha o tamanho do seu cubo: 2×2, 3×3, 4×4 ou 5×5.",
+        "Tire foto das 6 faces seguindo as dicas e ajuste as bolinhas amarelas nos cantos da face.",
+        "Confira as cores no mapa: toque para corrigir se alguma estiver errada.",
+        "Aperte Resolver e siga cada movimento no cubo 3D. ◀ ▶ voltam e avançam; no computador use as setas e o ESPAÇO."
+      ],
+      "input": [
+        "touch",
+        "mouse",
+        "keyboard"
+      ],
+      "status": "rascunho",
+      "novo": true,
+      "version": "1.0"
+    },
+    {
       "slug": "reino-dos-blocos",
       "title": "Reino dos Blocos",
       "category": "Plataforma",
@@ -139,6 +161,29 @@
       ],
       "novo": true,
       "version": "0.2"
+    },
+    {
+      "slug": "ilha-da-vida",
+      "title": "Ilha da Vida",
+      "category": "Sobrevivência",
+      "description": "Sobrevivência em blocos no mundo da família: junte madeira, faça ferramentas, plante e construa um abrigo antes da noite. Abre em tela própria; melhor no computador.",
+      "cover": "ilha-da-vida.webp",
+      "status": "pronto",
+      "entry": "index.html",
+      "instructions": [
+        "Toque em Abrir a Ilha da Vida. Escolha um apelido e digite a senha da família (a mesma da Ilha dos Blocos).",
+        "Computador: W A S D andam, o mouse olha, espaço pula; clique segura para quebrar, botão direito coloca; I abre o inventário.",
+        "Na primeira entrada o jogo baixa as texturas; pode levar um minuto."
+      ],
+      "input": [
+        "mouse",
+        "keyboard"
+      ],
+      "novo": true,
+      "version": "0.1",
+      "navegacao_externa": [
+        "https://srv2114451.hstgr.cloud:8443/vida/jogo/"
+      ]
     },
     {
       "slug": "pokemon-survivors",

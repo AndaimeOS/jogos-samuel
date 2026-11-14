@@ -1,0 +1,10 @@
+# Ponte da Ilha da Vida (samuel.tech): só WebSocket local, atrás do nginx com TLS e senha.
+# Únicos destinos UDP aceitos (chave no topo, antes das tabelas).
+udp_allow = ["127.0.0.2:30000"]
+
+[[serve]]
+protocol = "ws"
+bind_address = "127.0.0.1:7777"
+
+[http_proxy]
+allowed_hosts = []

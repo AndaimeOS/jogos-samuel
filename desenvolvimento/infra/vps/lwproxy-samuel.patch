@@ -1,0 +1,100 @@
+diff --git a/settings.toml b/settings.toml
+index 45acebc..2e8cf07 100644
+--- a/settings.toml
++++ b/settings.toml
+@@ -1,40 +1,10 @@
++# Ponte da Ilha da Vida (samuel.tech): só WebSocket local, atrás do nginx com TLS e senha.
++# Únicos destinos UDP aceitos (chave no topo, antes das tabelas).
++udp_allow = ["127.0.0.2:30000"]
++
+ [[serve]]
+ protocol = "ws"
+-# Binding to [::] accepts both IPv6 and IPv4 clients on a dual stack host,
+-# where an IPv4 client shows up as an IPv4-mapped address. A host that does
+-# not allow that (a container without IPv6, or bindv6only set) needs one
+-# serve block per family instead, listening on 0.0.0.0 and on [::].
+-bind_address = "[::]:7777"
+-
+-# Uncomment to enable secure websocket
+-#[[serve]]
+-#protocol = "wss"
+-#bind_address = "0.0.0.0:7778"
+-#tls_cert = "/path/to/certs.pem"
+-#tls_key = "/path/to/privkey.pem"
+-
+-# Uncomment to enable secure webtransport
+-#[[serve]]
+-#protocol = "wt"
+-#bind_address = "0.0.0.0:1433"
+-#tls_cert = "/path/to/certs.pem"
+-#tls_key = "/path/to/privkey.pem"
+-
+-# Use tls_self to create and use a self-signed certificate.
+-# This provides no security and should only be used for testing.
+-#[[serve]]
+-#protocol = "wt"
+-#bind_address = "0.0.0.0:1433"
+-#tls_self = true
+-
+-# Real internet UDP ports the proxy will use for listening for
+-# external connections. These must not be firewalled.
+-# Omit to let the OS choose the ports.
+-[invite]
+-port_range = [10000, 65000]
++bind_address = "127.0.0.1:7777"
+ 
+ [http_proxy]
+-allowed_hosts = [
+-  "content.luanti.org",
+-  "servers.luanti.org",
+-]
++allowed_hosts = []
+diff --git a/src/service/commands.rs b/src/service/commands.rs
+index 8e9dc12..bbefc56 100644
+--- a/src/service/commands.rs
++++ b/src/service/commands.rs
+@@ -95,6 +95,11 @@ impl<'a> CommandProcessor<'a> {
+                 if tokens.len() != 2 {
+                     anyhow::bail!("Bad args to JOIN");
+                 }
++                // samuel.tech: convites (portas UDP abertas para a internet) desligados.
++                if true {
++                    response = format!("JOIN FAILED");
++                    return Ok(CommandResult { response, new_lease, relay_udp });
++                }
+                 let joincode = JoinCode::parse(tokens[1]).context("Bad join code in JOIN")?;
+                 let peer = self.client.remote_addr().ip();
+                 match self.service.join(&joincode, peer).await {
+diff --git a/src/service/net/network.rs b/src/service/net/network.rs
+index 9feb281..0e456b3 100644
+--- a/src/service/net/network.rs
++++ b/src/service/net/network.rs
+@@ -603,7 +603,13 @@ impl LeaseHandler for BindHandler {
+                     .deliver(self.key, (v6, peer.port()), frame.data);
+             }
+         }
+-        self.egress.send((peer, frame.data))?;
++        // samuel.tech: a ponte não é um relé aberto — só fala com os servidores da lista.
++        let alvo = SocketAddr::new(unmap(peer.ip()), peer.port());
++        if !Settings::get().udp_allow.contains(&alvo) {
++            log::info!("{}:{} destino recusado {}", self.key.0, self.key.1, alvo);
++            return Ok(());
++        }
++        self.egress.send((alvo, frame.data))?;
+         Ok(())
+     }
+ 
+diff --git a/src/settings.rs b/src/settings.rs
+index ee151b7..3364ad1 100644
+--- a/src/settings.rs
++++ b/src/settings.rs
+@@ -44,6 +44,9 @@ pub struct Settings {
+     pub http_proxy: HttpProxyConfig,
+     // Ports used to let desktop Luanti reach a game hosted in a browser
+     pub invite: Option<InviteConfig>,
++    // samuel.tech: únicos destinos UDP que a ponte aceita (ex.: "127.0.0.1:30000"). Vazio = nenhum.
++    #[serde(default)]
++    pub udp_allow: Vec<SocketAddr>,
+ }
+ 
+ impl Settings {

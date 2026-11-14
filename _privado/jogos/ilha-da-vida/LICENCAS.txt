@@ -1,0 +1,15 @@
+Ilha da Vida — créditos e licenças de terceiros
+
+O jogo roda com software livre. Nada aqui é Minecraft nem usa arquivos da Mojang/Microsoft.
+
+- Luanti (motor do jogo, cliente e servidor) — LGPL-2.1 ou posterior (código); mídias do motor CC BY-SA 3.0.
+  https://github.com/luanti-org/luanti
+- VoxeLibre 0.92.3 (jogo de sobrevivência) — código GPL-3.0; texturas, sons e modelos CC BY-SA 4.0 e outras licenças
+  livres listadas pelo projeto. https://git.minetest.land/VoxeLibre/VoxeLibre
+- luanti-wasm 5bfae52 (Luanti compilado para WebAssembly, cliente no navegador) — MIT (scripts), sobre o fork
+  paradust7/luanti 6f532b5 (LGPL-2.1+) e webshims 70653a9 (MIT). https://github.com/paradust7/luanti-wasm
+- lwproxy fc74795 (ponte WebSocket → UDP) — MIT, com alteração da família: só fala com o servidor da Ilha da Vida.
+  https://github.com/paradust7/lwproxy
+
+O código-fonte correspondente e as alterações estão registrados no repositório do samuel.tech
+(desenvolvimento/jogos/ilha-da-vida/ e desenvolvimento/infra/vps/).
