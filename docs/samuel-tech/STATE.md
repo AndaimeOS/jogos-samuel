@@ -3,6 +3,14 @@
 Atualizado ao fim de cada sessão (ST-090). Um bloco por sessão, o mais novo em cima.
 Vale o que está aqui e no Notion, não a memória do chat.
 
+## 2026-11-15 — Samuel Corredor 0.1.0 (zoom do retrato em 1,4)
+
+- **Pedido do Boaz:** só o zoom do retrato. O 2,2 passou do ponto: o Samuel ocupava cerca de um terço da largura e o buraco aparecia em cima da hora. Ficar entre 1,4 e 1,5. Sem mexer no resto. Sem merge e sem deploy.
+- **Feito:** `zoomDaFase` no retrato passou de 2,2 para 1,4. A tela lógica tem 180 px de largura, então a câmera mostra 129 px. A corrida é 110 px/s; 1,5 s à frente seriam 165 px, o que não cabe nessa largura. Com o Samuel no centro sobram 64 px (0,6 s). No começo, com a câmera grudada na esquerda e ele em x ≈ 40, sobram 89 px (0,8 s).
+- **Testes:** regras 7/7 e iPad WebKit 7/7, inclusive 60 s nos dois sentidos e no iframe. `verificar_jogo.py --todos` ok. Smoke dos jogos prontos ok.
+- **Não feito:** merge e deploy. O Boaz publica.
+- **NEXT:** o Boaz olha os prints do retrato.
+
 ## 2026-11-15 — Samuel Corredor 0.1.0 (rodada 2, ainda sem publicar)
 
 - **Pedido:** última rodada. Mapa com o fundo de cada fase, retrato sem o céu vazio, buraco que pareça buraco, print do bloco com o Samuel em cima, vitória com uma estrela cheia. Sem merge e sem deploy.

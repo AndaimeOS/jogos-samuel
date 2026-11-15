@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "release_id": "samuel-corredor@0.1.0+d47b0ac.producao",
+  "release_id": "samuel-corredor@0.1.0+0be28b0.producao",
   "game_slug": "samuel-corredor",
   "version": "0.1.0",
-  "source_commit": "d47b0ac05504c36b5a20c587bafe970ac64a1e4f",
+  "source_commit": "0be28b0295794b1e4cea06631e8d2f3a88b08a90",
   "environment": "producao",
-  "built_at": "2026-11-15T23:32:27+00:00",
+  "built_at": "2026-11-15T23:51:47+00:00",
   "public_url": "https://samuel.tech/jogar/?jogo=samuel-corredor",
   "files_base_url": "https://samuel.tech/jogo/samuel-corredor/",
   "files": {
@@ -47,6 +47,6 @@
     "index.html": "0f0c62c0696af97f50301e45988e158f51588333196c1ee781ffdd1213f3b7a1",
     "jogo.js": "f51ca9a8d97cf219da98aab32329ad52b4db995eb237507a0eadef22ca1250f6",
     "phaser.min.js": "c6fe1d0a04b69118a13afb68116d116e947552c103d7a53ec6f9d214b7584868",
-    "regras.js": "19da68b2797775c93be1946fa9bbbd0994f2e1e2dafd07fe87dfc6c08f710fde"
+    "regras.js": "71208f2f92063d8c3906cf6fefc85b5188f15fb6aedaf1bf19ae54ae97c0e38d"
   }
 }
