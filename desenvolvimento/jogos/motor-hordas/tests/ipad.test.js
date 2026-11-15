@@ -90,7 +90,7 @@ async function fotoCombate(alvo, api, chefe = false) {
     const jogo = window[nome]
     const e = jogo.estado
     const j = e.jogador
-    const dist = (b) => Math.hypot(b.x - j.x, b.y - j.y)
+    const dist = (b) => Math.hypot(b.x - j.x, b.y - (b.footY || 0) - j.y)
     if (forcarChefe) {
       if (!e.chefe || e.chefe.morrendo >= 0) jogo.trazerChefe()
       const c = e.chefe

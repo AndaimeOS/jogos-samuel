@@ -515,7 +515,8 @@ function nascer(p, id, x, y, extra) {
     vx: 0,
     vy: 0,
     ttl: extra && extra.ttl ? extra.ttl : 0,
-    altura: def.altura || (chefe ? 34 : 20)
+    altura: def.altura || (chefe ? 34 : 20),
+    footY: def.footY || 0
   };
   if (extra && extra.vx != null) {
     bicho2.vx = extra.vx;
@@ -717,10 +718,14 @@ function separarCorpos(p) {
     }
   }
 }
+function acertaPonto(x, y, b, folga) {
+  const q = pontoMira(b);
+  return Math.hypot(b.x - x, b.y - y) <= folga || Math.hypot(q.x - x, q.y - y) <= folga;
+}
 function acertarRaio(p, x, y, r, dano, golpe2, deX, deY) {
   for (const b of p.inimigos) {
     if (b.morrendo >= 0) continue;
-    if (Math.hypot(b.x - x, b.y - y) <= r + b.raio) ferirBicho(p, b, dano, deX, deY, golpe2);
+    if (acertaPonto(x, y, b, r + b.raio)) ferirBicho(p, b, dano, deX, deY, golpe2);
   }
 }
 function alcanceMira(p) {
@@ -733,8 +738,12 @@ function alcanceMira(p) {
   }
   return maior;
 }
+function pontoMira(b) {
+  return { x: b.x, y: b.y - (b.footY || 0) };
+}
 function distanciaDoJogador(p, b) {
-  return Math.hypot(b.x - p.jogador.x, b.y - p.jogador.y);
+  const q = pontoMira(b);
+  return Math.hypot(q.x - p.jogador.x, q.y - p.jogador.y);
 }
 function escolherAlvo(p) {
   const j = p.jogador;
@@ -771,7 +780,8 @@ function passoGolpes(p, dt) {
       g.cd = 0.12;
       continue;
     }
-    const dist = Math.hypot(alvo.x - j.x, alvo.y - j.y);
+    const onde = pontoMira(alvo);
+    const dist = Math.hypot(onde.x - j.x, onde.y - j.y);
     const alcance = (def.alcance || 240) * j.stats.area;
     if (dist > alcance + alvo.raio) {
       g.cd = 0.12;
@@ -787,15 +797,16 @@ function passoGolpes(p, dt) {
       puxa: (def.puxa || 0) + (mod.puxa || 0)
     };
     const n = Math.max(1, def.n + extra);
-    const ang = Math.atan2(alvo.y - j.y, alvo.x - j.x);
+    const ang = Math.atan2(onde.y - j.y, onde.x - j.x);
     if (def.tipo === "estocada") {
       ferirBicho(p, alvo, dano, j.x, j.y, golpe2);
       p.ataques.push({
         tipo: "estocada",
         x: j.x,
         y: j.y - 6,
-        ax: alvo.x,
-        ay: alvo.y,
+        ax: onde.x,
+        ay: onde.y,
+        alvoId: alvo.id,
         dano: 0,
         ttl: def.duracao,
         golpe: golpe2,
@@ -827,8 +838,8 @@ function passoGolpes(p, dt) {
     } else if (def.tipo === "noalvo") {
       p.ataques.push({
         tipo: "noalvo",
-        x: alvo.x,
-        y: alvo.y,
+        x: onde.x,
+        y: onde.y,
         alvoId: alvo.id,
         raio: (def.raio + (mod.raio || 0)) * j.stats.area,
         dano,
@@ -842,26 +853,41 @@ function passoGolpes(p, dt) {
   for (const a of p.ataques) {
     a.ttl -= dt;
     if (a.tipo === "estocada") {
+      if (alvo) {
+        const q = pontoMira(alvo);
+        a.ax = q.x;
+        a.ay = q.y;
+        a.alvoId = alvo.id;
+      }
       continue;
     } else if (a.tipo === "noalvo") {
-      const dono = p.inimigos.find((b) => b.id === a.alvoId && b.morrendo < 0) || (p.chefe && p.chefe.id === a.alvoId ? p.chefe : null);
-      if (!dono) {
+      if (!alvo) {
         a.ttl = 0;
         continue;
       }
-      a.x = dono.x;
-      a.y = dono.y;
+      const q = pontoMira(alvo);
+      a.x = q.x;
+      a.y = q.y;
+      a.alvoId = alvo.id;
       a.cd -= dt;
       if (a.cd <= 0) {
         a.cd = 0.35;
         acertarRaio(p, a.x, a.y, a.raio, a.dano, a.golpe, j.x, j.y);
       }
     } else if (a.tipo === "tiro") {
+      if (alvo) {
+        const q = pontoMira(alvo);
+        const vel = a.vel || Math.hypot(a.vx, a.vy) || 1;
+        const rumo = Math.atan2(q.y - a.y, q.x - a.x);
+        a.vx = Math.cos(rumo) * vel;
+        a.vy = Math.sin(rumo) * vel;
+        a.alvoId = alvo.id;
+      }
       a.x += a.vx * dt;
       a.y += a.vy * dt;
       for (const b of p.inimigos) {
         if (b.morrendo >= 0 || a.acertou.has(b.id)) continue;
-        if (Math.hypot(b.x - a.x, b.y - a.y) <= a.r + b.raio) {
+        if (acertaPonto(a.x, a.y, b, a.r + b.raio)) {
           a.acertou.add(b.id);
           ferirBicho(p, b, a.dano, a.x - a.vx, a.y - a.vy, a.golpe);
           if (a.acertou.size > a.atravessa) a.ttl = 0;
@@ -882,7 +908,7 @@ function passoGolpes(p, dt) {
         if (b.morrendo >= 0) continue;
         const marca = `${b.id}:${a.fase}`;
         if (a.acertou.has(marca)) continue;
-        if (Math.hypot(b.x - a.x, b.y - a.y) <= a.r + b.raio) {
+        if (acertaPonto(a.x, a.y, b, a.r + b.raio)) {
           a.acertou.add(marca);
           ferirBicho(p, b, a.dano, a.x, a.y, a.golpe);
         }
@@ -897,11 +923,12 @@ function passoEspeciais(p, dt, entrada) {
   if (entrada.acao && j.especial <= 0 && p.pausa === "jogo") {
     j.especial = 8;
     const alvo = p.alvo && p.alvo.morrendo < 0 ? p.alvo : null;
-    if (alvo && Math.hypot(alvo.x - j.x, alvo.y - j.y) <= (p.alcanceMira || alcanceMira(p))) {
-      const ang = Math.atan2(alvo.y - j.y, alvo.x - j.x);
+    const onde = alvo ? pontoMira(alvo) : null;
+    if (onde && Math.hypot(onde.x - j.x, onde.y - j.y) <= (p.alcanceMira || alcanceMira(p))) {
+      const ang = Math.atan2(onde.y - j.y, onde.x - j.x);
       tremer(p, 4);
-      estouro(p, alvo.x, alvo.y, ["#E02020", "#FF9D52", "#F6E27A"], 16, 90);
-      acertarRaio(p, alvo.x, alvo.y, 34 * j.stats.area, 28 * j.stats.might, { empurrao: 110, queima: false, puxa: 0 }, j.x, j.y);
+      estouro(p, onde.x, onde.y, ["#E02020", "#FF9D52", "#F6E27A"], 16, 90);
+      acertarRaio(p, onde.x, onde.y, 34 * j.stats.area, 28 * j.stats.might, { empurrao: 110, queima: false, puxa: 0 }, j.x, j.y);
       p.ataques.push({
         tipo: "tiro",
         x: j.x,
@@ -1247,6 +1274,10 @@ async function iniciar(conteudo) {
       await Promise.all(srcs.map((src) => carga(src, src)));
     }
   } catch {
+  }
+  for (const def of Object.values(conteudo.inimigos || {})) {
+    const corpo = motor[def.sprite] && motor[def.sprite].body;
+    if (corpo) def.footY = corpo.footY || 0;
   }
   let partida = null;
   let save = lerSave(conteudo);
@@ -1895,7 +1926,16 @@ async function iniciar(conteudo) {
       const nuvem = pecas.aviso;
       const yNuvem = ev.fase === "aviso" ? -nuvem.frameH + Math.min(1, ev.t / ev.aviso) * (nuvem.frameH + 4) : 4;
       if (camada === "chao") {
-        blitPeca(pecas.sombra, vista.w / 2 - pecas.sombra.frameW / 2, yNuvem + nuvem.frameH - 8, 0);
+        const sw = pecas.sombra.frameW;
+        const sh = pecas.sombra.frameH;
+        const sx = vista.w / 2;
+        const sy = yNuvem + nuvem.frameH - 8 + sh / 2;
+        ctx.save();
+        ctx.fillStyle = "rgba(20, 36, 48, 0.35)";
+        ctx.beginPath();
+        ctx.ellipse(sx, sy, sw / 2, sh / 2, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
         if (ev.raio && ev.raio.fase === "pisca") {
           const [x, y] = mundo(ev.raio.x, ev.raio.y);
           const col = quadroDaPeca(pecas.alvo, ev.raio.t, false);

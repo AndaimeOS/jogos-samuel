@@ -50,6 +50,10 @@ export async function iniciar(conteudo) {
       await Promise.all(srcs.map((src) => carga(src, src)))
     }
   } catch { /* perigos opcionais */ }
+  for (const def of Object.values(conteudo.inimigos || {})) {
+    const corpo = motor[def.sprite] && motor[def.sprite].body
+    if (corpo) def.footY = corpo.footY || 0
+  }
 
   let partida = null
   let save = lerSave(conteudo)
@@ -702,7 +706,16 @@ export async function iniciar(conteudo) {
       const nuvem = pecas.aviso
       const yNuvem = ev.fase === 'aviso' ? -nuvem.frameH + Math.min(1, ev.t / ev.aviso) * (nuvem.frameH + 4) : 4
       if (camada === 'chao') {
-        blitPeca(pecas.sombra, vista.w / 2 - pecas.sombra.frameW / 2, yNuvem + nuvem.frameH - 8, 0)
+        const sw = pecas.sombra.frameW
+        const sh = pecas.sombra.frameH
+        const sx = vista.w / 2
+        const sy = yNuvem + nuvem.frameH - 8 + sh / 2
+        ctx.save()
+        ctx.fillStyle = 'rgba(20, 36, 48, 0.35)'
+        ctx.beginPath()
+        ctx.ellipse(sx, sy, sw / 2, sh / 2, 0, 0, Math.PI * 2)
+        ctx.fill()
+        ctx.restore()
         if (ev.raio && ev.raio.fase === 'pisca') {
           const [x, y] = mundo(ev.raio.x, ev.raio.y)
           const col = quadroDaPeca(pecas.alvo, ev.raio.t, false)

@@ -420,4 +420,47 @@ describe('contas do motor', () => {
     tick(p, 1 / 60, parado)
     expect(p.ataques.some((a) => a.tipo === 'noalvo' && a.ttl > 0)).toBe(false)
   })
+
+  it('o grandão perto ganha do pequeno, e a lança vai no mesmo ponto da mira', () => {
+    const p = criarPartida(conteudoPlaneta, { fase: 0, seed: 1, modo: 'facil' })
+    escolherCarta(p, 0)
+    const j = p.jogador
+    j.x = 0
+    j.y = 0
+    j.golpes = [
+      { id: 'lanca', nivel: 1, cd: 0, caminho: 0 },
+      { id: 'funda', nivel: 1, cd: 0, caminho: 0 },
+    ]
+    const pequeno = {
+      id: 1, x: 60, y: 0, raio: 8, massa: 1, morrendo: -1, dano: 0, comportamento: 'chase',
+      hp: 900, hpMax: 900, vel: 0, xp: 0, chefe: false, elite: false, footY: 0,
+      kx: 0, ky: 0, dir: 0, idade: 1, ferido: 0, queima: 0, faseChefe: 1,
+      ataque: 9, ttl: 0, altura: 16, sprite: 'seixo-vivo', tipo: 'marca',
+    }
+    const grande = {
+      id: 2, x: 0, y: 90, raio: 16, massa: 1, morrendo: -1, dano: 0, comportamento: 'chase',
+      hp: 900, hpMax: 900, vel: 0, xp: 0, chefe: false, elite: false, footY: 50,
+      kx: 0, ky: 0, dir: 0, idade: 1, ferido: 0, queima: 0, faseChefe: 1,
+      ataque: 9, ttl: 0, altura: 42, sprite: 'mamute', tipo: 'marca',
+    }
+    p.inimigos = [pequeno, grande]
+    p.chefe = null
+    p.eventos = { bando: true, anel: true, elite: true, chefe: true }
+    const parado = { x: 0, y: 0, acao: false, acaoSegurada: false }
+    tick(p, 1 / 60, parado)
+    expect(Math.hypot(grande.x - j.x, grande.y - j.y)).toBeGreaterThan(Math.hypot(pequeno.x - j.x, pequeno.y - j.y))
+    expect(p.alvo).toBe(grande)
+    const lanca = p.ataques.find((a) => a.tipo === 'estocada')
+    const tiro = p.ataques.find((a) => a.tipo === 'tiro')
+    expect(lanca.ax).toBeCloseTo(grande.x, 0)
+    expect(lanca.ay).toBeCloseTo(grande.y - grande.footY, 0)
+    expect(lanca.alvoId).toBe(grande.id)
+    expect(tiro.vy).toBeGreaterThan(Math.abs(tiro.vx))
+    grande.morrendo = 0
+    tick(p, 1 / 60, parado)
+    expect(p.alvo).toBe(pequeno)
+    expect(lanca.ax).toBeCloseTo(pequeno.x, 0)
+    expect(lanca.ay).toBeCloseTo(pequeno.y, 0)
+    expect(lanca.alvoId).toBe(pequeno.id)
+  })
 })
