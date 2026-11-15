@@ -1,0 +1,1508 @@
+{
+ "samuel-parado": {
+  "src": "arte/samuel/idle.png",
+  "frameW": 32,
+  "frameH": 48,
+  "colunas": 2,
+  "linhas": 5,
+  "quadros": 2,
+  "espelho": true,
+  "duracoes": [
+   40,
+   8
+  ],
+  "pivo": [
+   16,
+   47
+  ]
+ },
+ "samuel-andar": {
+  "src": "arte/samuel/walk.png",
+  "frameW": 32,
+  "frameH": 48,
+  "colunas": 4,
+  "linhas": 5,
+  "quadros": 4,
+  "espelho": true,
+  "duracoes": [
+   4,
+   4,
+   4,
+   4
+  ],
+  "pivo": [
+   16,
+   47
+  ]
+ },
+ "lobo-da-pedra": {
+  "src": "arte/inimigos/lobo-da-pedra.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 4,
+  "linhas": 5,
+  "quadros": 4,
+  "espelho": true,
+  "duracoes": [
+   4,
+   4,
+   4,
+   4
+  ],
+  "pivo": [
+   16,
+   31
+  ]
+ },
+ "urso-da-caverna": {
+  "src": "arte/chefes/urso-da-caverna.png",
+  "frameW": 64,
+  "frameH": 64,
+  "colunas": 4,
+  "linhas": 5,
+  "quadros": 4,
+  "espelho": true,
+  "duracoes": [
+   8,
+   8,
+   8,
+   8
+  ],
+  "pivo": [
+   32,
+   63
+  ]
+ },
+ "guerreiro-de-bronze": {
+  "src": "arte/inimigos/guerreiro-de-bronze.png",
+  "frameW": 32,
+  "frameH": 48,
+  "colunas": 4,
+  "linhas": 5,
+  "quadros": 4,
+  "espelho": true,
+  "duracoes": [
+   4,
+   4,
+   4,
+   4
+  ],
+  "pivo": [
+   16,
+   47
+  ]
+ },
+ "escorpiao": {
+  "src": "arte/inimigos/escorpiao.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 4,
+  "linhas": 5,
+  "quadros": 4,
+  "espelho": true,
+  "duracoes": [
+   8,
+   8,
+   8,
+   8
+  ],
+  "pivo": [
+   16,
+   31
+  ]
+ },
+ "golem-de-barro": {
+  "src": "arte/inimigos/golem-de-barro.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 4,
+  "linhas": 3,
+  "quadros": 4,
+  "espelho": true,
+  "duracoes": [
+   8,
+   8,
+   8,
+   8
+  ],
+  "pivo": [
+   24,
+   47
+  ]
+ },
+ "sentinela-de-bronze": {
+  "src": "arte/chefes/sentinela-de-bronze_v2.png",
+  "frameW": 48,
+  "frameH": 64,
+  "colunas": 4,
+  "linhas": 5,
+  "quadros": 4,
+  "espelho": true,
+  "duracoes": [
+   8,
+   8,
+   8,
+   8
+  ],
+  "pivo": [
+   24,
+   63
+  ]
+ },
+ "soldado-de-ferro": {
+  "src": "arte/inimigos/soldado-de-ferro.png",
+  "frameW": 32,
+  "frameH": 48,
+  "colunas": 4,
+  "linhas": 5,
+  "quadros": 4,
+  "espelho": true,
+  "duracoes": [
+   4,
+   4,
+   4,
+   4
+  ],
+  "pivo": [
+   16,
+   47
+  ]
+ },
+ "catapulta": {
+  "src": "arte/inimigos/catapulta.png",
+  "frameW": 48,
+  "frameH": 32,
+  "colunas": 2,
+  "linhas": 3,
+  "quadros": 2,
+  "espelho": true,
+  "duracoes": [
+   15,
+   15
+  ],
+  "pivo": [
+   24,
+   31
+  ]
+ },
+ "lobo-de-ferro": {
+  "src": "arte/inimigos/lobo-de-ferro.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 4,
+  "linhas": 5,
+  "quadros": 4,
+  "espelho": true,
+  "duracoes": [
+   4,
+   4,
+   4,
+   4
+  ],
+  "pivo": [
+   16,
+   31
+  ]
+ },
+ "colosso-de-ferro": {
+  "src": "arte/chefes/colosso-de-ferro_v2.png",
+  "frameW": 64,
+  "frameH": 80,
+  "colunas": 4,
+  "linhas": 3,
+  "quadros": 4,
+  "espelho": true,
+  "duracoes": [
+   8,
+   8,
+   8,
+   8
+  ],
+  "pivo": [
+   32,
+   79
+  ]
+ },
+ "seixo-vivo": {
+  "src": "arte/inimigos/seixo-vivo.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 4,
+  "linhas": 1,
+  "quadros": 4,
+  "espelho": false,
+  "duracoes": [
+   8,
+   8,
+   8,
+   8
+  ],
+  "pivo": [
+   16,
+   31
+  ]
+ },
+ "enxame": {
+  "src": "arte/inimigos/enxame.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   8,
+   8
+  ],
+  "pivo": [
+   8,
+   8
+  ]
+ },
+ "lasca": {
+  "src": "arte/ataques/lasca.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   8,
+   8
+  ],
+  "pivo": [
+   8,
+   8
+  ]
+ },
+ "lanca": {
+  "src": "arte/ataques/lanca.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   8
+  ]
+ },
+ "faisca": {
+  "src": "arte/ataques/faisca.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 4,
+  "linhas": 1,
+  "quadros": 4,
+  "espelho": false,
+  "duracoes": [
+   4,
+   4,
+   4,
+   4
+  ],
+  "pivo": [
+   8,
+   8
+  ]
+ },
+ "pedregulho": {
+  "src": "arte/ataques/pedregulho.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   8
+  ]
+ },
+ "telegraph": {
+  "src": "arte/ataques/telegraph.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   15,
+   15
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "acerto": {
+  "src": "arte/efeitos/acerto.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   4,
+   4
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "morte": {
+  "src": "arte/efeitos/morte.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 4,
+  "linhas": 1,
+  "quadros": 4,
+  "espelho": false,
+  "duracoes": [
+   4,
+   4,
+   4,
+   4
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "xp-brilho": {
+  "src": "arte/efeitos/xp-brilho.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   8,
+   8
+  ],
+  "pivo": [
+   8,
+   8
+  ]
+ },
+ "levelup": {
+  "src": "arte/efeitos/levelup.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 4,
+  "linhas": 1,
+  "quadros": 4,
+  "espelho": false,
+  "duracoes": [
+   8,
+   8,
+   8,
+   8
+  ],
+  "pivo": [
+   24,
+   47
+  ]
+ },
+ "xp-1": {
+  "src": "arte/coleta/xp-1.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   15,
+   15
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "xp-2": {
+  "src": "arte/coleta/xp-2.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   15,
+   15
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "xp-3": {
+  "src": "arte/coleta/xp-3.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   15,
+   15
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "icone-lasca": {
+  "src": "arte/ui/lasca.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "icone-lanca": {
+  "src": "arte/ui/lanca.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "icone-faisca": {
+  "src": "arte/ui/faisca.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "icone-fogueira-carta": {
+  "src": "arte/ui/fogueira-carta.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "icone-vida": {
+  "src": "arte/ui/vida.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   8
+  ]
+ },
+ "icone-vida-vazia": {
+  "src": "arte/ui/vida-vazia.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   8
+  ]
+ },
+ "carta-upgrade": {
+  "src": "arte/ui/carta-upgrade.png",
+  "frameW": 64,
+  "frameH": 80,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   32,
+   40
+  ]
+ },
+ "chao-pedra-grama": {
+  "src": "arte/chao/pedra/grama.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "chao-pedra-grama-var": {
+  "src": "arte/chao/pedra/grama-var.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "chao-pedra-areia": {
+  "src": "arte/chao/pedra/areia.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "chao-pedra-agua": {
+  "src": "arte/chao/pedra/agua.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   30,
+   30
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "chao-bronze-grama": {
+  "src": "arte/chao/bronze/grama.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "chao-bronze-grama-var": {
+  "src": "arte/chao/bronze/grama-var.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "chao-bronze-areia": {
+  "src": "arte/chao/bronze/areia.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "chao-bronze-agua": {
+  "src": "arte/chao/bronze/agua.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   30,
+   30
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "chao-ferro-grama": {
+  "src": "arte/chao/ferro/grama.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "chao-ferro-grama-var": {
+  "src": "arte/chao/ferro/grama-var.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "chao-ferro-areia": {
+  "src": "arte/chao/ferro/areia.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "chao-ferro-agua": {
+  "src": "arte/chao/ferro/agua.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   30,
+   30
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "mamute": {
+  "src": "arte/alternativas/inimigos/mamute.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 4,
+  "linhas": 1,
+  "quadros": 4,
+  "espelho": false,
+  "duracoes": [
+   8,
+   8,
+   8,
+   8
+  ],
+  "pivo": [
+   24,
+   47
+  ]
+ },
+ "caranguejo-gigante": {
+  "src": "arte/alternativas/inimigos/caranguejo-gigante.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 4,
+  "linhas": 1,
+  "quadros": 4,
+  "espelho": false,
+  "duracoes": [
+   8,
+   8,
+   8,
+   8
+  ],
+  "pivo": [
+   16,
+   31
+  ]
+ },
+ "robo-enferrujado": {
+  "src": "arte/alternativas/inimigos/robo-enferrujado.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 4,
+  "linhas": 1,
+  "quadros": 4,
+  "espelho": false,
+  "duracoes": [
+   8,
+   8,
+   8,
+   8
+  ],
+  "pivo": [
+   16,
+   31
+  ]
+ },
+ "meteoro": {
+  "src": "arte/alternativas/eventos/meteoro.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 4,
+  "linhas": 1,
+  "quadros": 4,
+  "espelho": false,
+  "duracoes": [
+   4,
+   4,
+   4,
+   4
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "meteoro-impacto": {
+  "src": "arte/alternativas/eventos/meteoro-impacto.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 4,
+  "linhas": 1,
+  "quadros": 4,
+  "espelho": false,
+  "duracoes": [
+   4,
+   4,
+   4,
+   4
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "enchente": {
+  "src": "arte/alternativas/eventos/enchente.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 4,
+  "linhas": 1,
+  "quadros": 4,
+  "espelho": false,
+  "duracoes": [
+   8,
+   8,
+   8,
+   8
+  ],
+  "pivo": [
+   16,
+   31
+  ]
+ },
+ "enchente-telegraph": {
+  "src": "arte/alternativas/eventos/enchente-telegraph.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   15,
+   15
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "raio": {
+  "src": "arte/alternativas/eventos/raio.png",
+  "frameW": 32,
+  "frameH": 64,
+  "colunas": 4,
+  "linhas": 1,
+  "quadros": 4,
+  "espelho": false,
+  "duracoes": [
+   4,
+   4,
+   4,
+   4
+  ],
+  "pivo": [
+   16,
+   63
+  ]
+ },
+ "raio-telegraph": {
+  "src": "arte/alternativas/eventos/raio-telegraph.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   15,
+   15
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "farol-0": {
+  "src": "arte/estacoes/farol-0.png",
+  "frameW": 48,
+  "frameH": 96,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   24,
+   95
+  ]
+ },
+ "farol-1": {
+  "src": "arte/estacoes/farol-1.png",
+  "frameW": 48,
+  "frameH": 96,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   24,
+   95
+  ]
+ },
+ "farol-2": {
+  "src": "arte/estacoes/farol-2.png",
+  "frameW": 48,
+  "frameH": 96,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   24,
+   95
+  ]
+ },
+ "farol-aceso": {
+  "src": "arte/estacoes/farol-aceso.png",
+  "frameW": 48,
+  "frameH": 96,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   20,
+   20
+  ],
+  "pivo": [
+   24,
+   95
+  ]
+ },
+ "sentinela-de-bronze-backup": {
+  "src": "arte/chefes/sentinela-de-bronze.png",
+  "frameW": 48,
+  "frameH": 64,
+  "colunas": 4,
+  "linhas": 5,
+  "quadros": 4,
+  "espelho": true,
+  "duracoes": [
+   8,
+   8,
+   8,
+   8
+  ],
+  "pivo": [
+   24,
+   63
+  ]
+ },
+ "colosso-de-ferro-backup": {
+  "src": "arte/chefes/colosso-de-ferro.png",
+  "frameW": 64,
+  "frameH": 80,
+  "colunas": 4,
+  "linhas": 3,
+  "quadros": 4,
+  "espelho": true,
+  "duracoes": [
+   8,
+   8,
+   8,
+   8
+  ],
+  "pivo": [
+   32,
+   79
+  ]
+ },
+ "joystick-base": {
+  "src": "arte/controles/joystick-base.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   1,
+   1
+  ],
+  "pivo": [
+   24,
+   24
+  ]
+ },
+ "joystick-bola": {
+  "src": "arte/controles/joystick-bola.png",
+  "frameW": 24,
+  "frameH": 24,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   1,
+   1
+  ],
+  "pivo": [
+   12,
+   11
+  ]
+ },
+ "botao-acao": {
+  "src": "arte/controles/botao-acao.png",
+  "frameW": 40,
+  "frameH": 40,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   1,
+   1
+  ],
+  "pivo": [
+   20,
+   20
+  ]
+ },
+ "botao-pausa": {
+  "src": "arte/controles/botao-pausa.png",
+  "frameW": 24,
+  "frameH": 24,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   1,
+   1
+  ],
+  "pivo": [
+   12,
+   12
+  ]
+ },
+ "botao-tela-cheia": {
+  "src": "arte/controles/botao-tela-cheia.png",
+  "frameW": 24,
+  "frameH": 24,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   1,
+   1
+  ],
+  "pivo": [
+   12,
+   12
+  ]
+ },
+ "botao-sair-tela-cheia": {
+  "src": "arte/controles/botao-sair-tela-cheia.png",
+  "frameW": 24,
+  "frameH": 24,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   1,
+   1
+  ],
+  "pivo": [
+   12,
+   12
+  ]
+ },
+ "botao-proxima": {
+  "src": "arte/controles/botao-proxima.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   1,
+   1
+  ],
+  "pivo": [
+   24,
+   24
+  ]
+ },
+ "botao-repetir": {
+  "src": "arte/controles/botao-repetir.png",
+  "frameW": 24,
+  "frameH": 24,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   1,
+   1
+  ],
+  "pivo": [
+   12,
+   12
+  ]
+ },
+ "no-travada": {
+  "src": "arte/mapa/no-travada.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   16,
+   19
+  ]
+ },
+ "no-aberta": {
+  "src": "arte/mapa/no-aberta.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   20,
+   20
+  ],
+  "pivo": [
+   16,
+   19
+  ]
+ },
+ "no-vencida": {
+  "src": "arte/mapa/no-vencida.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   16,
+   19
+  ]
+ },
+ "no-chefe-urso-da-caverna-travada": {
+  "src": "arte/mapa/no-chefe-urso-da-caverna-travada.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   24,
+   32
+  ]
+ },
+ "no-chefe-urso-da-caverna-aberta": {
+  "src": "arte/mapa/no-chefe-urso-da-caverna-aberta.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   20,
+   20
+  ],
+  "pivo": [
+   24,
+   32
+  ]
+ },
+ "no-chefe-urso-da-caverna-vencida": {
+  "src": "arte/mapa/no-chefe-urso-da-caverna-vencida.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   24,
+   32
+  ]
+ },
+ "no-chefe-sentinela-de-bronze-travada": {
+  "src": "arte/mapa/no-chefe-sentinela-de-bronze-travada.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   24,
+   32
+  ]
+ },
+ "no-chefe-sentinela-de-bronze-aberta": {
+  "src": "arte/mapa/no-chefe-sentinela-de-bronze-aberta.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   20,
+   20
+  ],
+  "pivo": [
+   24,
+   32
+  ]
+ },
+ "no-chefe-sentinela-de-bronze-vencida": {
+  "src": "arte/mapa/no-chefe-sentinela-de-bronze-vencida.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   24,
+   32
+  ]
+ },
+ "no-chefe-colosso-de-ferro-travada": {
+  "src": "arte/mapa/no-chefe-colosso-de-ferro-travada.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   24,
+   32
+  ]
+ },
+ "no-chefe-colosso-de-ferro-aberta": {
+  "src": "arte/mapa/no-chefe-colosso-de-ferro-aberta.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   20,
+   20
+  ],
+  "pivo": [
+   24,
+   32
+  ]
+ },
+ "no-chefe-colosso-de-ferro-vencida": {
+  "src": "arte/mapa/no-chefe-colosso-de-ferro-vencida.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   24,
+   32
+  ]
+ },
+ "caminho-ponto": {
+  "src": "arte/mapa/caminho-ponto.png",
+  "frameW": 8,
+  "frameH": 8,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   4,
+   4
+  ]
+ },
+ "caminho-ponto-apagado": {
+  "src": "arte/mapa/caminho-ponto-apagado.png",
+  "frameW": 8,
+  "frameH": 8,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   4,
+   4
+  ]
+ },
+ "seta-marcador": {
+  "src": "arte/mapa/seta-marcador.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "confete": {
+  "src": "arte/mapa/vitoria/confete.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   10,
+   10
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "trofeu": {
+  "src": "arte/mapa/vitoria/trofeu.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   24,
+   47
+  ]
+ },
+ "samuel-comemora": {
+  "src": "arte/mapa/vitoria/samuel-comemora.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   24,
+   47
+  ]
+ },
+ "doguinho-pulando": {
+  "src": "arte/mapa/vitoria/doguinho-pulando.png",
+  "frameW": 24,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   12,
+   31
+  ]
+ },
+ "marcador-samuel": {
+  "src": "arte/mapa/marcador-samuel.png",
+  "frameW": 32,
+  "frameH": 48,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   16,
+   47
+  ]
+ }
+}

@@ -3,6 +3,15 @@
 Atualizado ao fim de cada sessão (ST-090). Um bloco por sessão, o mais novo em cima.
 Vale o que está aqui e no Notion, não a memória do chat.
 
+## 2026-11-15 — Planeta 0.3 e Pescador no motor da horda
+
+- **Pedido do Boaz (15/11 16:49 BRT):** refazer o Planeta com o motor do Pokémon Survivors e usar o mesmo no Pescador. Branch nova, PR em rascunho. Sem merge, sem push na `main`, sem deploy.
+- **Feito:** `desenvolvimento/jogos/motor-hordas/` porta a partida solo do código MIT (Copyright (c) 2026 Pedro Barretto): vista, joystick flutuante, região de 1100 px, spawn fora da tela, separação, empurrão, XP, 6 golpes e 6 itens, tremor, número de dano e partículas. Sem sprite, nome de criatura ou som daquele jogo. Planeta 0.3.0: 3 eras × 3 fases, chefe na terceira, farol no fim. Pescador 0.1.0: 3 águas × 3 fases, 10ª do peixe lendário, porto. Fácil não perde e não teleporta. Tela cheia com `requestFullscreen` e `webkitRequestFullscreen`. Sprites Walk/Idle/Hurt/Sumico do Gerador em `arte/sprites/<id>/`, escala 1. Respostas em `desenvolvimento/jogos/motor-hordas/RESPOSTAS-GERADOR.md`.
+- **Testes:** motor 5/5. iPad WebKit (gen 7, toque, 1024×768 e 768×1024, página direta e iframe) 6/6, com 60 s de jogo em cada um na paisagem. `verificar_jogo.py --todos` ok. Pebolim 35/35, Reino 18/18, Minigolfe 53/53. Pokémon Survivors e a Ilha não foram reinstalados aqui; o código deles não mudou.
+- **Não feito:** publicar no samuel.tech. O visual do barco (cinza ou colete) ainda espera o Boaz; o padrão desta versão é o colete.
+- **Notion:** esta sessão não veio de um card da fila; o hub não foi atualizado.
+- **NEXT:** o Boaz olha o rascunho no iPad. O Gerador pode seguir a opção A dos tiles (chão procedural + decoração). Sem deploy daqui.
+
 ## 2026-11-15 — Pebolim 0.1.2 (faixa no iPad, sem rótulo nas hastes)
 
 - **Pedido:** no iPad em pé a faixa "A bola voltou para o meio!" fica mais larga que a mesa e é cortada. Tirar VERMELHO/AZUL de baixo das hastes. Branch `fix/pebolim-faixa-ipad`, PR rascunho. Sem merge e sem publicar.

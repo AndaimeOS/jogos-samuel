@@ -1,17 +1,17 @@
-Planeta do Samuel — proposta (PROPOSTA)
-Portal samuel.tech. A arte desta versão é placeholder desenhado em código, neste jogo.
-Sem assets de terceiros. Nenhum sprite, nome ou criatura de Pokémon.
+Créditos — motor das hordas
 
-Motor de apresentação reescrito do Pokémon Survivors, Copyright (c) 2026 Pedro Barretto,
-licença MIT (só o código; ver LICENSE.txt e desenvolvimento/jogos/planeta-do-samuel/ORIGEM.md).
+Código
+  Copyright (c) 2026 Pedro Barretto
+  Pokémon Survivors, licença MIT
+  https://github.com/pedrobarretto/pokemon-survivors
+  O aviso completo está em LICENSE.txt.
 
-Referência de mecânicas, licença MIT:
-Isle of Embers © 2026 Jaineil Rana (JaiGod)
-https://github.com/JaiGod/isle-of-embers
-O aviso completo está em LICENSE.txt. O JavaScript daqui é uma reescrita original.
-Não há armas, chefes, ataques nem inimigos.
+  Entram aqui os sistemas da partida solo: vista, joystick flutuante,
+  mapa de regiões, horda que nasce fora da tela, separação dos corpos,
+  empurrão, experiência, cartas, tremor, número de dano e partículas.
+  Não entram conta, ranking, co-op, arena nem os arquivos de public/assets
+  daquele repositório (licença CC BY-NC, que este jogo não usa).
 
-Inspiração de gênero apenas, obra fechada, nada copiado: Alia Domus
-(nenhum código, arte, texto ou nome).
-
-Personagem no visual do portal: jaqueta laranja, camiseta amarela, calça azul-petróleo.
+Arte
+  Desenhos originais do samuel.tech, ainda em escala de placeholder.
+  Nenhuma foto real. Nenhum sprite, nome de criatura ou som de Pokémon.

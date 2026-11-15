@@ -112,3 +112,17 @@ Não apagar decisões antigas: acrescentar uma nova com alternativa, motivo e ef
 - **Limites conhecidos (P2, fila):** sem limite de edições por segundo no servidor (só a família tem o código);
   mensagens grandes aceitas pelo motor; JS total com workers ≈ 591 KB gzip (orçamento de 450 KB vale para o bundle
   principal: 425 KB); sem cópia do backup fora da VPS.
+
+## DEC-014 — Planeta 0.3 e Pescador no motor da horda (2026-11-15)
+
+- **Decisão:** os dois jogos usam a partida solo portada do código MIT de Pedro
+  Barretto (vista, horda fora da tela, separação, cartas, tremor, partículas).
+  A arte, os nomes e os sons são nossos. O chefe desenha em escala 1. A morte
+  toca `Sumico.png` e as partículas. O chão fica procedural (opção A), e a água
+  do Pescador é o piso do barco.
+- **Alternativa descartada:** publicar o bundle inteiro do Pokémon Survivors
+  com outro nome. Ele carrega criatura, sprite e nome que este portal não pode
+  servir, além de conta e rastreador.
+- **Efeito:** o código mora em `desenvolvimento/jogos/motor-hordas/` e o site
+  recebe só o pacote de cada slug. Respostas ao Gerador em
+  `desenvolvimento/jogos/motor-hordas/RESPOSTAS-GERADOR.md`. Sem deploy nesta sessão.

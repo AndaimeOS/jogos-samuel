@@ -14,3 +14,5 @@ desenvolvimento/provas/
 *.env
 !.env.example
 samuel-config.php
+
+node_modules/

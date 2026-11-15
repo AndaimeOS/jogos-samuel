@@ -1,0 +1,17 @@
+{
+  "name": "motor-hordas",
+  "private": true,
+  "version": "0.3.0",
+  "type": "module",
+  "description": "Motor das hordas do Planeta e do Pescador. O que o site serve fica em _privado/jogos/.",
+  "scripts": {
+    "build": "node empacotar.mjs",
+    "test": "node empacotar.mjs && vitest run"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12",
+    "playwright": "1.58.2",
+    "sharp": "0.34.4",
+    "vitest": "3.2.7"
+  }
+}
