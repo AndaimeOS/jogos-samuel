@@ -63,6 +63,11 @@ describe('tablet deitado 1024×768', () => {
     page.on('pageerror', (e) => erros.push(String(e)));
     await page.goto(url, { waitUntil: 'networkidle' });
     await page.waitForFunction(() => window.__planeta && window.__planeta.estado);
+    expect(await page.locator('#btnContinuar').isHidden()).toBe(true);
+    await page.evaluate(() => localStorage.setItem(window.__planeta.CONFIG.chaveSave, '{'));
+    await page.reload({ waitUntil: 'networkidle' });
+    await page.waitForFunction(() => window.__planeta && window.__planeta.saveUtil);
+    expect(await page.locator('#btnContinuar').isHidden()).toBe(true);
 
     const titulo = await alvos(page);
     expect(titulo.map((b) => b.id)).toContain('btnComecar');

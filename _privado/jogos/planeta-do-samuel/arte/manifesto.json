@@ -1,0 +1,688 @@
+{
+  "versao": 1,
+  "imagem": "atlas.webp",
+  "grade": 16,
+  "perspectiva": "3/4",
+  "ticksPorSegundo": 60,
+  "direcoes": [
+    "baixo",
+    "baixo-direita",
+    "direita",
+    "cima-direita",
+    "cima",
+    "cima-esquerda",
+    "esquerda",
+    "baixo-esquerda"
+  ],
+  "sprites": {
+    "samuel-andar": {
+      "arquivo": "samuel/walk.png",
+      "origem": "codigo",
+      "frameW": 32,
+      "frameH": 48,
+      "colunas": 4,
+      "linhas": 8,
+      "duracoes": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "loop": true,
+      "pe": "base",
+      "espelhoDaDireita": true
+    },
+    "samuel-parado": {
+      "arquivo": "samuel/idle.png",
+      "origem": "codigo",
+      "frameW": 32,
+      "frameH": 48,
+      "colunas": 2,
+      "linhas": 8,
+      "duracoes": [
+        40,
+        8
+      ],
+      "loop": true,
+      "pe": "base",
+      "espelhoDaDireita": true
+    },
+    "cao-parado": {
+      "arquivo": "cao/idle.png",
+      "origem": "codigo",
+      "frameW": 32,
+      "frameH": 24,
+      "colunas": 2,
+      "linhas": 1,
+      "duracoes": [
+        24,
+        12
+      ],
+      "loop": true,
+      "pe": "base"
+    },
+    "chao-pedra-grama": {
+      "arquivo": "chao/pedra/grama.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "chao-pedra-grama-var": {
+      "arquivo": "chao/pedra/grama-var.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "chao-pedra-areia": {
+      "arquivo": "chao/pedra/areia.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "chao-pedra-agua": {
+      "arquivo": "chao/pedra/agua.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 2,
+      "linhas": 1,
+      "duracoes": [
+        30,
+        30
+      ],
+      "loop": true,
+      "pe": "base"
+    },
+    "chao-bronze-grama": {
+      "arquivo": "chao/bronze/grama.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "chao-bronze-grama-var": {
+      "arquivo": "chao/bronze/grama-var.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "chao-bronze-areia": {
+      "arquivo": "chao/bronze/areia.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "chao-bronze-agua": {
+      "arquivo": "chao/bronze/agua.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 2,
+      "linhas": 1,
+      "duracoes": [
+        30,
+        30
+      ],
+      "loop": true,
+      "pe": "base"
+    },
+    "chao-ferro-grama": {
+      "arquivo": "chao/ferro/grama.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "chao-ferro-grama-var": {
+      "arquivo": "chao/ferro/grama-var.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "chao-ferro-areia": {
+      "arquivo": "chao/ferro/areia.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "chao-ferro-agua": {
+      "arquivo": "chao/ferro/agua.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 2,
+      "linhas": 1,
+      "duracoes": [
+        30,
+        30
+      ],
+      "loop": true,
+      "pe": "base"
+    },
+    "graveto": {
+      "arquivo": "recursos/graveto.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "seixo": {
+      "arquivo": "recursos/seixo.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "arbusto": {
+      "arquivo": "recursos/arbusto.png",
+      "origem": "codigo",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "arbusto-vazio": {
+      "arquivo": "recursos/arbusto-vazio.png",
+      "origem": "codigo",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "arvore": {
+      "arquivo": "recursos/arvore.png",
+      "origem": "codigo",
+      "frameW": 48,
+      "frameH": 64,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "toco": {
+      "arquivo": "recursos/toco.png",
+      "origem": "codigo",
+      "frameW": 32,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "rocha": {
+      "arquivo": "recursos/rocha.png",
+      "origem": "codigo",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "veio": {
+      "arquivo": "recursos/veio.png",
+      "origem": "codigo",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "veio-vazio": {
+      "arquivo": "recursos/veio-vazio.png",
+      "origem": "codigo",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "toca": {
+      "arquivo": "estacoes/toca.png",
+      "origem": "codigo",
+      "frameW": 48,
+      "frameH": 40,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "fogueira-apagada": {
+      "arquivo": "estacoes/fogueira-apagada.png",
+      "origem": "codigo",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "fogueira-acesa": {
+      "arquivo": "estacoes/fogueira-acesa.png",
+      "origem": "codigo",
+      "frameW": 32,
+      "frameH": 48,
+      "colunas": 4,
+      "linhas": 1,
+      "duracoes": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "base"
+    },
+    "pesquisa-bronze": {
+      "arquivo": "estacoes/pesquisa-bronze.png",
+      "origem": "codigo",
+      "frameW": 48,
+      "frameH": 40,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "bancada": {
+      "arquivo": "estacoes/bancada.png",
+      "origem": "codigo",
+      "frameW": 48,
+      "frameH": 40,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "fornalha-fria": {
+      "arquivo": "estacoes/fornalha-fria.png",
+      "origem": "codigo",
+      "frameW": 48,
+      "frameH": 48,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "fornalha-acesa": {
+      "arquivo": "estacoes/fornalha-acesa.png",
+      "origem": "codigo",
+      "frameW": 48,
+      "frameH": 48,
+      "colunas": 2,
+      "linhas": 1,
+      "duracoes": [
+        12,
+        12
+      ],
+      "loop": true,
+      "pe": "base"
+    },
+    "canteiro": {
+      "arquivo": "estacoes/canteiro.png",
+      "origem": "codigo",
+      "frameW": 48,
+      "frameH": 32,
+      "colunas": 5,
+      "linhas": 1,
+      "duracoes": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "pesquisa-ferro": {
+      "arquivo": "estacoes/pesquisa-ferro.png",
+      "origem": "codigo",
+      "frameW": 48,
+      "frameH": 40,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "ferramentas": {
+      "arquivo": "estacoes/ferramentas.png",
+      "origem": "codigo",
+      "frameW": 48,
+      "frameH": 40,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "casinha-obra": {
+      "arquivo": "estacoes/casinha-obra.png",
+      "origem": "codigo",
+      "frameW": 64,
+      "frameH": 64,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "casinha-pronta": {
+      "arquivo": "estacoes/casinha-pronta.png",
+      "origem": "codigo",
+      "frameW": 64,
+      "frameH": 64,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "farol-0": {
+      "arquivo": "estacoes/farol-0.png",
+      "origem": "codigo",
+      "frameW": 48,
+      "frameH": 96,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "farol-1": {
+      "arquivo": "estacoes/farol-1.png",
+      "origem": "codigo",
+      "frameW": 48,
+      "frameH": 96,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "farol-2": {
+      "arquivo": "estacoes/farol-2.png",
+      "origem": "codigo",
+      "frameW": 48,
+      "frameH": 96,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "farol-aceso": {
+      "arquivo": "estacoes/farol-aceso.png",
+      "origem": "codigo",
+      "frameW": 48,
+      "frameH": 96,
+      "colunas": 2,
+      "linhas": 1,
+      "duracoes": [
+        20,
+        20
+      ],
+      "loop": true,
+      "pe": "base"
+    },
+    "icone-madeira": {
+      "arquivo": "ui/madeira.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "icone-pedra": {
+      "arquivo": "ui/pedra.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "icone-minerio": {
+      "arquivo": "ui/minerio.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "icone-fruta": {
+      "arquivo": "ui/fruta.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "icone-barra": {
+      "arquivo": "ui/barra.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "icone-fome": {
+      "arquivo": "ui/fome.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "icone-calor": {
+      "arquivo": "ui/calor.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "icone-dia": {
+      "arquivo": "ui/dia.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "icone-noite": {
+      "arquivo": "ui/noite.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "icone-seta": {
+      "arquivo": "ui/seta.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    }
+  }
+}
