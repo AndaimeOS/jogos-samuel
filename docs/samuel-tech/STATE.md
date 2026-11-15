@@ -3,6 +3,15 @@
 Atualizado ao fim de cada sessão (ST-090). Um bloco por sessão, o mais novo em cima.
 Vale o que está aqui e no Notion, não a memória do chat.
 
+## 2026-11-15 — Pebolim 0.1.2 (faixa no iPad, sem rótulo nas hastes)
+
+- **Pedido:** no iPad em pé a faixa "A bola voltou para o meio!" fica mais larga que a mesa e é cortada. Tirar VERMELHO/AZUL de baixo das hastes. Branch `fix/pebolim-faixa-ipad`, PR rascunho. Sem merge e sem publicar.
+- **Feito:** a faixa usa a largura da mesa, quebra a linha e a fonte fica no máximo em 46 px, nos dois sentidos. Saíram da mesa as palavras VERMELHO, AZUL, você e computador (as duas últimas também passavam por baixo da haste). O aviso de deitar o tablet desce para baixo do placar e cabe na tela. Catálogo e manifesto em `0.1.2`. Código em `cceefb7`.
+- **Testes de novo, já com a main `78c592d`:** Pebolim `npm test` 35/35 (WebKit/iPad incluso). Planeta 24/24, Minigolfe 53/53, Reino 18/18, Corrida do Jack 19/19, Ilha cliente 12/12, Ilha servidor `cargo test` 6/6, Pokémon Survivors 1941 passaram (59 pulados). `verificar_jogo.py --todos` ok.
+- **Aprovação:** Boaz, 15/11 11:22 BRT: "Sim, publica os ajustes do Pebolim". Isso autoriza o merge. O deploy continua fora daqui.
+- **Notion:** esta sessão não veio de um card da fila; o hub não foi atualizado.
+- **NEXT:** o Boaz publica. Este agente não faz o deploy.
+
 ## 2026-11-15 — Cache dos assets do portal (v=8)
 
 - **Pedido:** a correção do Pebolim no iPad (PR #9, `db39790`) mudou `assets/js/site.js` e `assets/css/samuel.css`, mas as páginas ainda pediam `?v=7`. O `/assets` fica 7 dias em cache, então um iPad que já abriu o site pode continuar com a versão velha.

@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process';
 import { createConnection } from 'node:net';
-import { readFileSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -186,6 +186,132 @@ describe('Pebolim no WebKit, iPad, só com toque', () => {
       }
     }
   }, 90000);
+});
+
+const ARTE = '/opt/cursor/artifacts';
+
+async function pararBolaNoCanto(alvo) {
+  await alvo.evaluate(() => {
+    const p = window.__pebolim.estado;
+    p.bola.x = 500;
+    p.bola.y = 90;
+    p.bola.vx = 0;
+    p.bola.vy = 0;
+    p.trava.x = p.bola.x;
+    p.trava.y = p.bola.y;
+    p.trava.acumulado = 2.4;
+    p.trava.janela = 0.45;
+    p.aviso = '';
+    p.avisoTempo = 0;
+  });
+  await alvo.waitForFunction(() => document.getElementById('aviso').textContent.includes('voltou para o meio'));
+  await alvo.evaluate(() => { window.__pebolim.estado.avisoTempo = 8; });
+}
+
+async function medidaFaixa(alvo) {
+  return alvo.evaluate(() => {
+    const aviso = document.getElementById('aviso');
+    const r = aviso.getBoundingClientRect();
+    const mesaEl = document.getElementById('mesa');
+    const mesa = mesaEl.getBoundingClientRect();
+    const aspect = mesaEl.width / mesaEl.height;
+    const box = mesa.width / Math.max(1, mesa.height);
+    const larguraMesa = box > aspect ? mesa.height * aspect : mesa.width;
+    const esquerda = mesa.left + (mesa.width - larguraMesa) / 2;
+    return {
+      texto: aviso.textContent,
+      escondida: aviso.hidden,
+      left: r.left,
+      right: r.right,
+      top: r.top,
+      bottom: r.bottom,
+      vw: window.innerWidth,
+      vh: window.innerHeight,
+      esquerda,
+      direita: esquerda + larguraMesa,
+      scrollW: aviso.scrollWidth,
+      clientW: aviso.clientWidth,
+      fonte: parseFloat(getComputedStyle(aviso).fontSize),
+    };
+  });
+}
+
+async function hastesSemRotulo(alvo) {
+  return alvo.evaluate(() => {
+    const canvas = document.getElementById('mesa');
+    const ctx = canvas.getContext('2d');
+    const claros = (x, y, w, h) => {
+      const dados = ctx.getImageData(x, y, w, h).data;
+      let n = 0;
+      for (let i = 0; i < dados.length; i += 4) {
+        if (dados[i] > 210 && dados[i + 1] > 200 && dados[i + 2] > 180) n++;
+      }
+      return n;
+    };
+    return {
+      vermelho: claros(168, 54, 60, 12),
+      azul: claros(828, 54, 22, 12) + claros(866, 54, 18, 12),
+      voce: claros(190, 72, 36, 16),
+      computador: claros(810, 72, 36, 16) + claros(868, 72, 36, 16),
+      haste: claros(233, 80, 6, 120),
+    };
+  });
+}
+
+describe('faixa da bola e rótulos das hastes', () => {
+  it('cabe na mesa nos dois sentidos, direto e no iframe, e as hastes ficam sem VERMELHO/AZUL', async () => {
+    mkdirSync(ARTE, { recursive: true });
+    const browser = await webkit.launch();
+    const casos = [
+      [1024, 768, '/jogo/pebolim/index.html', 'pebolim-faixa-ipad-1024x768.png'],
+      [768, 1024, '/jogo/pebolim/index.html', 'pebolim-faixa-ipad-768x1024.png'],
+      [1024, 768, '/jogar/?jogo=pebolim', 'pebolim-faixa-ipad-iframe-1024x768.png'],
+      [768, 1024, '/jogar/?jogo=pebolim', 'pebolim-faixa-ipad-iframe-768x1024.png'],
+    ];
+    try {
+      for (const [w, h, caminho, arquivo] of casos) {
+        const ctx = await contexto(browser, w, h);
+        const page = await ctx.newPage();
+        const erros = ouvir(page);
+        await page.goto(base + caminho, { waitUntil: 'domcontentloaded' });
+        await page.waitForTimeout(400);
+        const frame = page.frames().find((f) => f !== page.mainFrame() && /\/jogo\/pebolim\//.test(f.url()));
+        if (frame) {
+          frame.on('pageerror', (e) => erros.push('iframe: ' + e.message));
+          frame.on('console', (m) => { if (m.type() === 'error') erros.push('iframe: ' + m.text()); });
+        }
+        const alvo = frame ?? page.mainFrame();
+        await alvo.waitForSelector('#bJogar');
+        await tocarJogar(page, frame);
+        await page.waitForTimeout(300);
+        const fase = await alvo.evaluate(() => window.__pebolim.estado.fase);
+        expect(fase, caminho).toBe('jogando');
+        await pararBolaNoCanto(alvo);
+        const faixa = await medidaFaixa(alvo);
+        expect(faixa.texto, caminho).toBe('A bola voltou para o meio!');
+        expect(faixa.escondida, caminho).toBe(false);
+        expect(faixa.left, caminho).toBeGreaterThanOrEqual(Math.max(0, faixa.esquerda) - 2);
+        expect(faixa.right, caminho).toBeLessThanOrEqual(Math.min(faixa.vw, faixa.direita) + 2);
+        expect(faixa.top, caminho).toBeGreaterThanOrEqual(-2);
+        expect(faixa.bottom, caminho).toBeLessThanOrEqual(faixa.vh + 2);
+        expect(faixa.scrollW, caminho).toBeLessThanOrEqual(faixa.clientW + 2);
+        expect(faixa.fonte, caminho).toBeLessThanOrEqual(46);
+        const pixels = await hastesSemRotulo(alvo);
+        expect(pixels.vermelho, caminho).toBeLessThan(12);
+        expect(pixels.azul, caminho).toBeLessThan(12);
+        expect(pixels.voce, caminho).toBeLessThan(12);
+        expect(pixels.computador, caminho).toBeLessThan(12);
+        expect(pixels.haste, caminho).toBeGreaterThan(40);
+        const destino = `${ARTE}/${arquivo}`;
+        if (frame) await page.locator('#jogo').screenshot({ path: destino });
+        else await page.screenshot({ path: destino });
+        expect(erros, `${caminho}\n${erros.join('\n')}`).toEqual([]);
+        await ctx.close();
+      }
+    } finally {
+      await browser.close();
+    }
+  }, 120000);
 });
 
 describe('smoke WebKit/iPad dos jogos prontos', () => {
