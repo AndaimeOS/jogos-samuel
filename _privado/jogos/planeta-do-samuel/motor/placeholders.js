@@ -103,8 +103,9 @@ function samuel(spec, coluna, linha, parado) {
   const chao = spec.frameH - 2 + (parado ? bob : 0);
   const cx = (spec.frameW >> 1) + (linha === 1 || linha === 3 ? 1 : 0);
   const perna = (ox, dy) => {
-    p.ret(cx + ox, chao - 14 + dy, 4, 9, CALCA);
-    p.ret(cx + ox, chao - 5 + dy, 4, 4, TINTA);
+    p.ret(cx + ox, chao - 14 + dy, 4, 8, '#C8CDCF');
+    p.ret(cx + ox, chao - 6 + dy, 4, 3, '#3C454B');
+    p.ret(cx + ox, chao - 3 + dy, 4, 2, '#FFFDF7');
   };
   if (linha === 2) {
     perna(-1, passo > 0 ? -2 : 0);
@@ -115,16 +116,16 @@ function samuel(spec, coluna, linha, parado) {
   }
   const corpo = chao - 24;
   if (linha === 4) {
-    p.ret(cx - 7, corpo, 14, 12, JAQUETA);
-    p.ret(cx - 8, corpo + 2, 3, 8, '#E07A30');
-    p.ret(cx + 5, corpo + 2, 3, 8, '#E07A30');
+    p.ret(cx - 7, corpo, 14, 12, '#8D9397');
+    p.ret(cx - 8, corpo + 2, 3, 8, '#6C7479');
+    p.ret(cx + 5, corpo + 2, 3, 8, '#6C7479');
   } else if (linha === 2) {
-    p.ret(cx - 5, corpo, 10, 12, JAQUETA);
-    p.ret(cx - 1, corpo + 2, 4, 6, CAMISA);
+    p.ret(cx - 5, corpo, 10, 12, '#8D9397');
+    p.ret(cx - 1, corpo + 2, 4, 6, '#B4B9BC');
     p.ret(cx + 3, corpo + 3, 3, 8, PELE);
   } else {
-    p.ret(cx - 7, corpo, 14, 12, JAQUETA);
-    p.ret(cx - 2, corpo + 2, 5, 7, CAMISA);
+    p.ret(cx - 7, corpo, 14, 12, '#8D9397');
+    p.ret(cx - 2, corpo + 2, 5, 7, '#B4B9BC');
     if (linha !== 1) p.ret(cx - 9, corpo + 2, 3, 8, PELE);
     p.ret(cx + 6, corpo + 2, 3, 8, PELE);
   }
@@ -441,6 +442,12 @@ const COMBATE = {
   'icone-fogueira-carta': ['#FF9D52', '#F2D15A', 'ponto'],
   'icone-vida': ['#E2544A', '#F5F2E8', 'bola'],
   'carta-upgrade': ['#F5F2E8', '#FF9D52', 'carta'],
+  mamute: ['#8A5E3E', '#E2E2D6', 'bicho'],
+  'caranguejo-gigante': ['#FF9D52', '#F2D15A', 'bicho'],
+  'robo-enferrujado': ['#91A3AE', '#C9813F', 'bloco'],
+  meteoro: ['#8D98A0', '#FF9D52', 'bola'],
+  enchente: ['#1F6F78', '#8FDCD2', 'bloco'],
+  'tempestade-de-raios': ['#F5F2E8', '#F2D15A', 'bloco'],
 };
 
 function combate(spec, coluna, linha, pal) {

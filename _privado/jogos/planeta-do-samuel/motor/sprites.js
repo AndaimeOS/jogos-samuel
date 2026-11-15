@@ -52,6 +52,7 @@ export const ligarAtlas = () => {
 };
 
 export const quandoAtlas = (fn) => aoPronto.push(fn);
+export const atlasCarregado = () => atlasOk || !Object.values(manifesto.sprites).some((s) => s.origem === 'atlas');
 
 const usarAtlas = (s) => s.origem === 'atlas' && atlasOk && atlas;
 

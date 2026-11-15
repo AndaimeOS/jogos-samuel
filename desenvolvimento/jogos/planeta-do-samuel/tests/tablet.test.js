@@ -78,6 +78,7 @@ describe('tablet deitado 1024×768', () => {
     await page.screenshot({ path: path.join(arte, 'planeta-v2-titulo.png') });
 
     await page.locator('#btnComecar').click();
+    await page.waitForFunction(() => window.__planeta.atlasPronto());
     await page.waitForFunction(() => document.getElementById('titulo').hidden);
     const jogo = await alvos(page);
     const ids = jogo.map((b) => b.id);
@@ -111,17 +112,79 @@ describe('tablet deitado 1024×768', () => {
 
     await page.evaluate(() => {
       const p = window.__planeta;
+      const e = p.estado;
       p.definirEixo(0, 0);
       p.simular(2.5);
+      const def = p.CONFIG.inimigos.mamute;
+      e.inimigos = e.inimigos.filter((i) => Math.hypot(i.x - e.x, i.y - e.y) > 100);
+      e.inimigos.push({
+        id: 9001, tipo: 'mamute', sprite: 'mamute', x: e.x + 64, y: e.y + 4,
+        hp: def.hp, hpMax: def.hp, raio: def.raio, direcao: 0, comportamento: 'chase',
+        contatoEm: 0, lascaEm: 0, auraEm: 0,
+      });
+      p.travar(true);
       p.desenhar();
     });
-    expect(await page.evaluate(() => window.__planeta.estado.inimigos.length)).toBeGreaterThan(0);
+    expect(await page.evaluate(() => window.__planeta.estado.inimigos.some((i) => i.tipo === 'mamute'))).toBe(true);
     expect(await page.evaluate(() => window.__planeta.estado.era)).toBe('pedra');
     await page.screenshot({ path: path.join(arte, 'planeta-v2-horda.png') });
+    await page.evaluate(() => window.__planeta.travar(false));
 
     await page.evaluate(() => {
       const p = window.__planeta;
-      p.ganharXp(p.estado, p.estado.xpProx);
+      const e = p.estado;
+      e.tempo = p.CONFIG.marcos.pedraMeteoros.em - 0.02;
+      e.eventosFeitos.pedraMeteoros = false;
+      e.zonas = [];
+      p.simular(0.12);
+      p.desenhar();
+    });
+    expect(await page.evaluate(() => window.__planeta.estado.zonas.some((z) => z.evento === 'meteoros'))).toBe(true);
+    await page.screenshot({ path: path.join(arte, 'planeta-v2-meteoros.png') });
+
+    await page.evaluate(() => {
+      const p = window.__planeta;
+      const e = p.estado;
+      e.zonas = [];
+      e.inimigos = [];
+      e.tempo = p.CONFIG.marcos.bronzeEnchente.em - 0.02;
+      e.era = 'bronze';
+      e.chefesMortos.pedra = true;
+      for (const k of Object.keys(p.CONFIG.marcos)) if (k !== 'bronzeEnchente') e.eventosFeitos[k] = true;
+      e.eventosFeitos.bronzeEnchente = false;
+      e.enchente = null;
+      p.simular(0.12);
+      p.desenhar();
+    });
+    expect(await page.evaluate(() => !!window.__planeta.estado.enchente)).toBe(true);
+    await page.screenshot({ path: path.join(arte, 'planeta-v2-enchente.png') });
+
+    await page.evaluate(() => {
+      const p = window.__planeta;
+      const e = p.estado;
+      e.enchente = null;
+      e.zonas = [];
+      e.inimigos = [];
+      e.tempo = p.CONFIG.marcos.ferroRaios.em - 0.02;
+      e.era = 'ferro';
+      e.chefesMortos.bronze = true;
+      for (const k of Object.keys(p.CONFIG.marcos)) if (k !== 'ferroRaios') e.eventosFeitos[k] = true;
+      e.eventosFeitos.ferroRaios = false;
+      e.tempestade = null;
+      p.simular(0.12);
+      p.desenhar();
+    });
+    expect(await page.evaluate(() => window.__planeta.estado.zonas.some((z) => z.evento === 'raios'))).toBe(true);
+    await page.screenshot({ path: path.join(arte, 'planeta-v2-raios.png') });
+
+    await page.evaluate(() => {
+      const p = window.__planeta;
+      const e = p.estado;
+      e.zonas = [];
+      e.enchente = null;
+      e.tempestade = null;
+      e.inimigos = [];
+      p.ganharXp(e, e.xpProx);
       p.desenhar();
     });
     await page.waitForSelector('#levelup:not([hidden]) #carta-0');
@@ -141,6 +204,7 @@ describe('tablet deitado 1024×768', () => {
       e.pausa = false;
       e.cartas = [];
       e.chefesMortos.pedra = true;
+      e.chefesMortos.bronze = false;
       e.era = 'bronze';
       e.tempo = p.CONFIG.marcos.bronzeChefe.em - 0.02;
       for (const k of Object.keys(p.CONFIG.marcos)) if (k !== 'bronzeChefe') e.eventosFeitos[k] = true;
@@ -165,6 +229,9 @@ describe('tablet deitado 1024×768', () => {
       e.chefe = null;
       e.inimigos = [];
       e.projeteis = [];
+      e.zonas = [];
+      e.enchente = null;
+      e.tempestade = null;
       e.chefesMortos.bronze = true;
       e.era = 'ferro';
       e.fogueira = true;

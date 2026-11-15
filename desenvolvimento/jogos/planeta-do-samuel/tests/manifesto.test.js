@@ -24,6 +24,7 @@ const ESPERADOS = [
   'lasca', 'lanca', 'faisca', 'pedregulho', 'telegraph',
   'acerto', 'morte', 'xp-brilho', 'levelup', 'xp-1', 'xp-2', 'xp-3',
   'icone-lasca', 'icone-lanca', 'icone-faisca', 'icone-fogueira-carta', 'icone-vida', 'carta-upgrade',
+  'mamute', 'caranguejo-gigante', 'robo-enferrujado', 'meteoro', 'enchente', 'tempestade-de-raios',
 ];
 
 describe('manifesto', () => {
@@ -51,16 +52,26 @@ describe('manifesto', () => {
       expect(s.arquivo, id).toMatch(/\.png$/);
     }
     expect(manifesto.sprites['samuel-andar']).toMatchObject({
-      frameW: 32, frameH: 48, colunas: 4, linhas: 8, espelhoDaDireita: true, origem: 'codigo',
+      frameW: 32, frameH: 48, colunas: 4, linhas: 8, espelhoDaDireita: true,
     });
   });
 
-  it('sem PNG mestre, o empacotador não troca o manifesto publicado', async () => {
+  it('sem PNG mestre, o empacotador devolve origem codigo e não mexe no jogo publicado', async () => {
     const antes = await readFile(path.join(jogoReal, 'arte', 'manifesto.json'), 'utf8');
-    const r = await empacotar({ mestre: path.join(aqui, 'sem-png'), jogo: jogoReal });
+    const raiz = await mkdtemp(path.join(tmpdir(), 'planeta-sem-png-'));
+    const jogo = path.join(raiz, 'jogo');
+    await mkdir(path.join(jogo, 'arte'), { recursive: true });
+    const doc = JSON.parse(antes);
+    doc.sprites = { lasca: { ...doc.sprites.lasca, origem: 'codigo' } };
+    delete doc.sprites.lasca.x;
+    delete doc.sprites.lasca.y;
+    await writeFile(path.join(jogo, 'arte', 'manifesto.json'), JSON.stringify(doc));
+    const r = await empacotar({ mestre: path.join(raiz, 'vazio'), jogo });
     expect(r.empacotados).toBe(0);
-    const depois = await readFile(path.join(jogoReal, 'arte', 'manifesto.json'), 'utf8');
-    expect(depois).toBe(antes);
+    const saida = JSON.parse(await readFile(path.join(jogo, 'arte', 'manifesto.json'), 'utf8'));
+    expect(saida.sprites.lasca.origem).toBe('codigo');
+    expect(await readFile(path.join(jogoReal, 'arte', 'manifesto.json'), 'utf8')).toBe(antes);
+    await rm(raiz, { recursive: true, force: true });
   });
 
   it('com um PNG, gera atlas.webp sem perdas e marca origem atlas', async () => {

@@ -63,6 +63,54 @@ describe('ondas', () => {
   });
 });
 
+describe('acontecimentos', () => {
+  it('a chuva de meteoros abre telegraph na Pedra', () => {
+    const e = partida();
+    e.tempo = CONFIG.marcos.pedraMeteoros.em - 0.02;
+    avancar(e, 0.1);
+    const zonas = e.zonas.filter((z) => z.evento === 'meteoros');
+    expect(e.eventosFeitos.pedraMeteoros).toBe(true);
+    expect(zonas).toHaveLength(CONFIG.meteoros.n);
+    expect(zonas.every((z) => z.sprite === 'telegraph' && z.dano === CONFIG.meteoros.dano)).toBe(true);
+  });
+
+  it('a enchente cobre uma área no Bronze e deixa o passo lento', () => {
+    const e = partida();
+    e.tempo = CONFIG.marcos.bronzeEnchente.em - 0.02;
+    for (const chave of Object.keys(CONFIG.marcos)) {
+      if (chave !== 'bronzeEnchente') e.eventosFeitos[chave] = true;
+    }
+    avancar(e, 0.1);
+    expect(e.enchente).toBeTruthy();
+    expect(e.enchente.raio).toBe(CONFIG.enchente.raio);
+    expect(e.enchente.resta).toBeGreaterThan(0);
+    const x0 = e.x;
+    tick(e, 0.2, { x: 1, y: 0 });
+    const comAgua = e.x - x0;
+    e.enchente = null;
+    const x1 = e.x;
+    tick(e, 0.2, { x: 1, y: 0 });
+    expect(comAgua).toBeLessThan(e.x - x1);
+  });
+
+  it('a tempestade de raios abre telegraph no Ferro', () => {
+    const e = partida();
+    e.chefesMortos.pedra = true;
+    e.chefesMortos.bronze = true;
+    e.era = 'ferro';
+    e.tempo = CONFIG.marcos.ferroRaios.em - 0.02;
+    for (const chave of Object.keys(CONFIG.marcos)) {
+      if (chave !== 'ferroRaios') e.eventosFeitos[chave] = true;
+    }
+    avancar(e, 0.1);
+    const zonas = e.zonas.filter((z) => z.evento === 'raios');
+    expect(e.eventosFeitos.ferroRaios).toBe(true);
+    expect(zonas).toHaveLength(CONFIG.raios.n);
+    expect(zonas.every((z) => z.sprite === 'telegraph')).toBe(true);
+    expect(e.tempestade.resta).toBeGreaterThan(0);
+  });
+});
+
 describe('XP e level-up', () => {
   it('a gema tem três faixas e o nível abre três cartas', () => {
     expect(faixaXp(1)).toBe(1);

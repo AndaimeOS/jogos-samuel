@@ -70,21 +70,27 @@ export const CONFIG = {
     'urso-da-caverna': { hp: 110, velocidade: 34, raio: 18, xp: 12, dano: 14, comportamento: 'chefe', sprite: 'urso-da-caverna' },
     'sentinela-de-bronze': { hp: 140, velocidade: 22, raio: 16, xp: 14, dano: 12, comportamento: 'chefe', sprite: 'sentinela-de-bronze' },
     'colosso-de-ferro': { hp: 180, velocidade: 30, raio: 20, xp: 16, dano: 16, comportamento: 'chefe', sprite: 'colosso-de-ferro' },
+    mamute: { hp: 46, velocidade: 22, raio: 16, xp: 4, dano: 12, comportamento: 'chase', sprite: 'mamute' },
+    'caranguejo-gigante': { hp: 30, velocidade: 40, raio: 14, xp: 3, dano: 11, comportamento: 'chase', sprite: 'caranguejo-gigante' },
+    'robo-enferrujado': { hp: 16, velocidade: 36, raio: 10, xp: 2, dano: 9, comportamento: 'zigue', sprite: 'robo-enferrujado' },
   },
+  meteoros: { n: 4, raio: 18, aviso: 0.75, dano: 14 },
+  enchente: { raio: 72, dano: 4, intervalo: 0.8, lenta: 0.55, duracao: 4.5 },
+  raios: { n: 5, raio: 16, aviso: 0.55, dano: 16, duracao: 1.4 },
   eras: {
-    pedra: { ate: 90, taxa: 0.8, max: 12, horda: ['seixo-vivo', 'lobo-da-pedra'] },
-    bronze: { ate: 180, taxa: 1.2, max: 18, horda: ['guerreiro-de-bronze', 'escorpiao', 'golem-de-barro'] },
-    ferro: { ate: 270, taxa: 1.6, max: 24, horda: ['soldado-de-ferro', 'catapulta', 'lobo-de-ferro'] },
+    pedra: { ate: 90, taxa: 0.8, max: 12, horda: ['seixo-vivo', 'lobo-da-pedra', 'mamute'] },
+    bronze: { ate: 180, taxa: 1.2, max: 18, horda: ['guerreiro-de-bronze', 'escorpiao', 'golem-de-barro', 'caranguejo-gigante'] },
+    ferro: { ate: 270, taxa: 1.6, max: 24, horda: ['soldado-de-ferro', 'catapulta', 'lobo-de-ferro', 'robo-enferrujado'] },
   },
   marcos: {
     pedraBando: { em: 30, tipo: 'enxame', n: 5, kind: 'swarm' },
-    pedraAnel: { em: 45, tipo: 'seixo-vivo', n: 6, kind: 'ring' },
+    pedraMeteoros: { em: 45, kind: 'meteoros' },
     pedraChefe: { em: 90, tipo: 'urso-da-caverna' },
     bronzeBando: { em: 120, tipo: 'lanca-chuva', n: 6, kind: 'swarm' },
-    bronzeAnel: { em: 135, tipo: 'guerreiro-de-bronze', n: 6, kind: 'ring' },
+    bronzeEnchente: { em: 135, kind: 'enchente' },
     bronzeChefe: { em: 180, tipo: 'sentinela-de-bronze' },
     ferroBando: { em: 210, tipo: 'lobo-de-ferro', n: 4, kind: 'swarm' },
-    ferroAnel: { em: 225, tipo: 'faisca-anel', n: 8, kind: 'ring' },
+    ferroRaios: { em: 225, kind: 'raios' },
     ferroChefe: { em: 270, tipo: 'colosso-de-ferro' },
   },
 };
@@ -306,6 +312,8 @@ export function criarPartida() {
     inimigos: [],
     projeteis: [],
     zonas: [],
+    enchente: null,
+    tempestade: null,
     gemas: [],
     efeitos: [],
     nascer: 0,
@@ -340,7 +348,8 @@ function moverJogador(estado, dt, eixo) {
   }
   if (len === 0) return;
   estado.direcao = dir8(x, y);
-  const v = CONFIG.velocidade * dt;
+  const lenta = estado.enchente && estado.enchente.resta > 0 ? CONFIG.enchente.lenta : 1;
+  const v = CONFIG.velocidade * lenta * dt;
   const nx = estado.x + x * v;
   const ny = estado.y + y * v;
   if (livre(estado, nx, ny)) {
@@ -462,6 +471,51 @@ function spawnSwarm(estado, tipo, n) {
   }
 }
 
+function spawnMeteoros(estado) {
+  const cfg = CONFIG.meteoros;
+  for (let i = 0; i < cfg.n; i++) {
+    const ang = aleatorio(estado) * Math.PI * 2;
+    const dist = 24 + aleatorio(estado) * 70;
+    estado.zonas.push({
+      evento: 'meteoros',
+      x: estado.x + Math.cos(ang) * dist,
+      y: estado.y + Math.sin(ang) * dist,
+      raio: cfg.raio,
+      resta: cfg.aviso,
+      dano: cfg.dano,
+      sprite: 'telegraph',
+    });
+  }
+}
+
+function abrirEnchente(estado) {
+  estado.enchente = {
+    x: estado.x,
+    y: estado.y,
+    raio: CONFIG.enchente.raio,
+    resta: CONFIG.enchente.duracao,
+    golpeEm: 0.2,
+  };
+}
+
+function spawnRaios(estado) {
+  const cfg = CONFIG.raios;
+  estado.tempestade = { resta: cfg.aviso + cfg.duracao };
+  for (let i = 0; i < cfg.n; i++) {
+    const ang = aleatorio(estado) * Math.PI * 2;
+    const dist = 16 + aleatorio(estado) * 64;
+    estado.zonas.push({
+      evento: 'raios',
+      x: estado.x + Math.cos(ang) * dist,
+      y: estado.y + Math.sin(ang) * dist,
+      raio: cfg.raio,
+      resta: cfg.aviso,
+      dano: cfg.dano,
+      sprite: 'telegraph',
+    });
+  }
+}
+
 function spawnChefe(estado, tipo) {
   const ang = aleatorio(estado) * Math.PI * 2;
   const p = pontoFora(estado, ang);
@@ -493,6 +547,9 @@ function verificarMarcos(estado) {
     estado.eventosFeitos[chave] = true;
     if (marco.kind === 'ring') spawnRing(estado, marco.tipo, marco.n);
     else if (marco.kind === 'swarm') spawnSwarm(estado, marco.tipo, marco.n);
+    else if (marco.kind === 'meteoros') spawnMeteoros(estado);
+    else if (marco.kind === 'enchente') abrirEnchente(estado);
+    else if (marco.kind === 'raios') spawnRaios(estado);
     else spawnChefe(estado, marco.tipo);
   }
 }
@@ -547,6 +604,14 @@ function atualizarInimigos(estado, dt) {
       inimigo.ttl -= dt;
       inimigo.direcao = dir8(inimigo.vx, inimigo.vy);
       if (inimigo.ttl <= 0) continue;
+    } else if (inimigo.comportamento === 'zigue') {
+      const dx = estado.x - inimigo.x;
+      const dy = estado.y - inimigo.y;
+      const len = Math.hypot(dx, dy) || 1;
+      const lado = Math.sin((inimigo.faseZ = (inimigo.faseZ || 0) + dt * 7)) * inimigo.velocidade;
+      inimigo.x += ((dx / len) * inimigo.velocidade + (-dy / len) * lado) * dt;
+      inimigo.y += ((dy / len) * inimigo.velocidade + (dx / len) * lado) * dt;
+      inimigo.direcao = dir8(dx, dy);
     } else if (inimigo.comportamento === 'torre') {
       inimigo.tiroEm -= dt;
       if (inimigo.tiroEm <= 0) {
@@ -805,6 +870,24 @@ function atualizarGemas(estado, dt) {
   estado.gemas = ficam;
 }
 
+function atualizarEnchente(estado, dt) {
+  const agua = estado.enchente;
+  if (!agua) return;
+  agua.resta -= dt;
+  agua.golpeEm -= dt;
+  if (agua.golpeEm <= 0) {
+    agua.golpeEm = CONFIG.enchente.intervalo;
+    if (Math.hypot(estado.x - agua.x, estado.y - agua.y) <= agua.raio) receberDano(estado, CONFIG.enchente.dano);
+  }
+  if (agua.resta <= 0) estado.enchente = null;
+}
+
+function atualizarTempestade(estado, dt) {
+  if (!estado.tempestade) return;
+  estado.tempestade.resta -= dt;
+  if (estado.tempestade.resta <= 0) estado.tempestade = null;
+}
+
 function atualizarEfeitos(estado, dt) {
   for (const fx of estado.efeitos) fx.idade += dt;
   estado.efeitos = estado.efeitos.filter((fx) => fx.idade < fx.duracao);
@@ -824,6 +907,8 @@ function passo(estado, dt, eixo) {
   atualizarProjeteis(estado, dt);
   atualizarZonas(estado, dt);
   atualizarGemas(estado, dt);
+  atualizarEnchente(estado, dt);
+  atualizarTempestade(estado, dt);
   atualizarEfeitos(estado, dt);
   estado.era = estado.vitoria ? 'ferro' : eraDaHorda(estado);
 }

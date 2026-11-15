@@ -11,7 +11,7 @@ import { escolherVista, vistaQueCabe } from './motor/viewport.js';
 import { desenharNoite } from './motor/noite.js';
 import { desenharChao, limparChao } from './motor/chao.js';
 import {
-  desenharSprite, ligarAtlas, manifesto, quandoAtlas,
+  atlasCarregado, desenharSprite, ligarAtlas, manifesto, quandoAtlas,
 } from './motor/sprites.js';
 import { quadroCodigo } from './motor/placeholders.js';
 
@@ -112,8 +112,15 @@ function desenhar() {
   desenharChao(ctx, estado, cam, relogio);
   ctx.save();
   ctx.translate(-cam.x, -cam.y);
+  if (estado.enchente && estado.enchente.resta > 0) {
+    desenharSprite(ctx, 'enchente', relogio, estado.enchente.x, estado.enchente.y, { alfa: 0.85 });
+  }
   for (const z of estado.zonas) {
-    desenharSprite(ctx, 'telegraph', relogio, z.x, z.y, { alfa: 0.85 });
+    desenharSprite(ctx, 'telegraph', relogio, z.x, z.y, { alfa: 0.9 });
+    if (z.evento === 'meteoros') desenharSprite(ctx, 'meteoro', relogio, z.x, z.y - 18);
+  }
+  if (estado.tempestade && estado.tempestade.resta > 0) {
+    desenharSprite(ctx, 'tempestade-de-raios', relogio, estado.x, estado.y - 46, { alfa: 0.95 });
   }
   const fila = [];
   const por = (y, desenha) => fila.push({ y, i: fila.length, desenha });
@@ -379,6 +386,8 @@ window.__planeta = {
     atualizarHud();
   },
   desenhar() { desenhar(); atualizarHud(); },
+  travar(ligado) { pausado = !!ligado; },
+  atlasPronto: atlasCarregado,
 };
 
 addEventListener('resize', () => desenhar());

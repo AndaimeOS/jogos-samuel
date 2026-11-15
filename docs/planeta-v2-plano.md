@@ -100,7 +100,7 @@ Armas automáticas do Samuel, uma liberada por era (carta “nova”):
 
 ## (c) Ids novos para o Gerador
 
-O Samuel andando e parado, o cão, o chão, o farol aceso/apagado e os ícones de UI que não são de combate continuam os do plano anterior. Abaixo só entra o que a batalha pede. Personagem baseado no Samuel: jaqueta laranja `#FF9D52`, camiseta amarela `#F2D15A`, calça azul-petróleo `#1F6F78`, contorno `#193337`. Sem panda. Sem criatura de Pokémon.
+O Samuel andando e parado, o cão, o chão, o farol aceso/apagado e os ícones de UI que não são de combate continuam os do plano anterior. Abaixo só entra o que a batalha pede. Personagem baseado no Samuel, aprovado em 15/11: camiseta cinza mesclada `#8D9397`, bermuda cinza-clara `#C8CDCF`, tênis escuro `#3C454B` de sola branca `#FFFDF7`. Sem jaqueta laranja. Contorno `#193337`. Sem panda. Sem criatura de Pokémon.
 
 PNG mestre: `desenvolvimento/jogos/planeta-do-samuel/arte/<caminho>`.
 
@@ -136,5 +136,11 @@ PNG mestre: `desenvolvimento/jogos/planeta-do-samuel/arte/<caminho>`.
 | `icone-fogueira-carta` | `ui/fogueira-carta.png` | 32×32 | 1 | 1 | — |
 | `icone-vida` | `ui/vida.png` | 16×16 | 1 | 1 | — |
 | `carta-upgrade` | `ui/carta-upgrade.png` | 64×80 | 1 | 1 | — |
+| `mamute` | `inimigos/mamute.png` | 48×48 | 4, loop | 4, espelho da esquerda | 8 |
+| `caranguejo-gigante` | `inimigos/caranguejo-gigante.png` | 48×32 | 4, loop | 4, espelho da esquerda | 8 |
+| `robo-enferrujado` | `inimigos/robo-enferrujado.png` | 32×48 | 4, loop | 8, espelho | 8 |
+| `meteoro` | `ataques/meteoro.png` | 16×16 | 2, loop | 1 | 8 |
+| `enchente` | `ataques/enchente.png` | 96×64 | 1 | 1 | — |
+| `tempestade-de-raios` | `ataques/tempestade-de-raios.png` | 96×64 | 1 | 1 | — |
 
-`carta-upgrade` é o miolo ilustrado da carta (a moldura, o texto e o botão são HTML do kit, ≥ 48 px). `telegraph` é o círculo no chão antes da investida e do pedregulho. `desmoronamento` e `chuva-de-lancas` e `faiscas-da-forja` não têm sprite próprio: usam `seixo-vivo`, `lanca` e `faisca`.
+`carta-upgrade` é o miolo ilustrado da carta (a moldura, o texto e o botão são HTML do kit, ≥ 48 px). `telegraph` é o círculo no chão antes da investida, do meteoro e do raio. A chuva de meteoros substitui o desmoronamento. `chuva-de-lancas` e `faiscas-da-forja` não têm sprite próprio: usam `lanca` e `faisca`.
