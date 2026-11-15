@@ -2,7 +2,7 @@
 
 Pedido do Boaz: o jogo pode seguir 100% a dinâmica do Pokémon Survivors, inclusive as batalhas. As batalhas são com monstros e acontecimentos da época. A regra “nenhum inimigo e nenhuma arma” **não vale mais**.
 
-Isto é só o plano. Sem código novo nesta etapa, sem merge, sem deploy. O PR #8 continua rascunho. O catálogo em `_app/jogos.json` continua `pronto` / `0.1.0` até um deploy, que não é esta etapa.
+O plano abaixo é o desenho da v0.2. A publicação no catálogo (`_app/jogos.json`, `0.2.0`, `pronto`) e o merge do PR #8 são uma etapa seguinte. O deploy na Hostinger continua separado.
 
 Licença: reescrever em JS os trechos MIT (Pedro Barretto, `desenvolvimento/jogos/pokemon-survivors/LICENSE`). Nenhum arquivo de `public/assets/`, nenhum nome, sprite, grito ou criatura de Pokémon. Aviso MIT no arquivo copiado e em `ORIGEM.md`. O `jogo.php` não importa a pasta do outro jogo.
 

@@ -11,7 +11,7 @@ import { escolherVista, vistaQueCabe } from './motor/viewport.js';
 import { desenharNoite } from './motor/noite.js';
 import { desenharChao, limparChao } from './motor/chao.js';
 import {
-  atlasCarregado, desenharSprite, ligarAtlas, manifesto, quandoAtlas,
+  atlasCarregado, desenharSprite, ligarAtlas, manifesto, quandoAtlas, quadroUi,
 } from './motor/sprites.js';
 import { quadroCodigo } from './motor/placeholders.js';
 
@@ -174,40 +174,60 @@ function desenhar() {
 
 function relogioTexto(seg) {
   const s = Math.max(0, Math.floor(seg));
-  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+  return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+}
+
+function copiarIcone(id) {
+  const src = quadroUi(id);
+  if (!src) return null;
+  const c = document.createElement('canvas');
+  c.width = src.width;
+  c.height = src.height;
+  const g = c.getContext('2d');
+  g.imageSmoothingEnabled = false;
+  g.drawImage(src, 0, 0);
+  return c;
+}
+
+function pintarVidas() {
+  const por = CONFIG.vidaMax / 5;
+  const total = Math.max(1, Math.ceil(estado.vidaMax / por));
+  const cheios = estado.vida <= 0 ? 0 : Math.max(0, Math.min(total, Math.ceil(estado.vida / por)));
+  const caixa = document.getElementById('vidas');
+  const chave = `${total}:${cheios}:${atlasCarregado() ? 1 : 0}`;
+  if (caixa.dataset.chave === chave) return;
+  caixa.dataset.chave = chave;
+  caixa.replaceChildren();
+  caixa.setAttribute('aria-label', `Vida ${cheios} de ${total}`);
+  for (let i = 0; i < total; i++) {
+    const c = copiarIcone(i < cheios ? 'icone-vida' : 'icone-vida-vazia');
+    if (c) caixa.appendChild(c);
+  }
 }
 
 function atualizarHud() {
-  document.getElementById('era').textContent = ERAS[estado.era].nome;
   document.getElementById('relogio').textContent = relogioTexto(estado.tempo);
-  document.getElementById('nivel').textContent = `Nível ${estado.nivel}`;
-  document.getElementById('barraVida').style.width = `${Math.max(0, Math.round(100 * estado.vida / estado.vidaMax))}%`;
+  document.getElementById('nivel').textContent = String(estado.nivel);
   document.getElementById('barraXp').style.width = `${Math.max(0, Math.min(100, Math.round(100 * estado.xp / estado.xpProx)))}%`;
+  pintarVidas();
   const chefe = document.getElementById('medChefe');
   if (estado.chefe) {
     chefe.hidden = false;
-    document.getElementById('nomeChefe').textContent = NOMES_CHEFE[estado.chefe.tipo] || 'Chefe';
+    chefe.setAttribute('aria-label', NOMES_CHEFE[estado.chefe.tipo] || 'Chefe');
     document.getElementById('barraChefe').style.width = `${Math.max(0, Math.round(100 * estado.chefe.hp / estado.chefe.hpMax))}%`;
   } else chefe.hidden = true;
   document.getElementById('dica').textContent = estado.vitoria ? TEXTOS.dica.farol : TEXTOS.dica[estado.era];
   const armas = document.getElementById('armas');
   const ids = ['lasca', 'lanca', 'faisca'].filter((id) => estado.armas[id]);
   if (estado.fogueira) ids.push('fogueira');
-  if (armas.dataset.ids !== ids.join()) {
-    armas.dataset.ids = ids.join();
+  const chaveArmas = `${ids.join()}|${atlasCarregado() ? 1 : 0}`;
+  if (armas.dataset.ids !== chaveArmas) {
+    armas.dataset.ids = chaveArmas;
     armas.replaceChildren();
     for (const id of ids) {
       const icon = id === 'fogueira' ? 'icone-fogueira-carta' : `icone-${id}`;
-      const buf = quadroCodigo(icon, 0, 0);
-      const c = document.createElement('canvas');
-      c.width = buf.w;
-      c.height = buf.h;
-      const g = c.getContext('2d');
-      g.imageSmoothingEnabled = false;
-      const img = g.createImageData(buf.w, buf.h);
-      img.data.set(buf.data);
-      g.putImageData(img, 0, 0);
-      armas.appendChild(c);
+      const c = copiarIcone(icon);
+      if (c) armas.appendChild(c);
     }
   }
   mostrarCartas();
@@ -323,11 +343,22 @@ document.getElementById('btnDeNovo').addEventListener('click', () => {
   document.getElementById('pausa').hidden = true;
   comecar(true);
 });
-document.getElementById('btnTela').addEventListener('click', () => {
+function elementoCheio() {
+  return document.fullscreenElement || document.webkitFullscreenElement || null;
+}
+
+function alternarTela() {
   const raiz = document.getElementById('jogo');
-  if (document.fullscreenElement) document.exitFullscreen();
-  else raiz.requestFullscreen?.();
-});
+  if (elementoCheio()) {
+    const sair = document.exitFullscreen || document.webkitExitFullscreen || document.webkitCancelFullScreen;
+    if (typeof sair === 'function') sair.call(document);
+    return;
+  }
+  const pedir = raiz.requestFullscreen || raiz.webkitRequestFullscreen || raiz.webkitRequestFullScreen;
+  if (typeof pedir === 'function') pedir.call(raiz);
+}
+
+document.getElementById('btnTela').addEventListener('click', alternarTela);
 
 addEventListener('keydown', (e) => {
   teclas[e.code] = true;

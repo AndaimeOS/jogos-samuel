@@ -1,5 +1,6 @@
 {
   "versao": 1,
+  "jogo": "0.2.0",
   "imagem": "atlas.webp",
   "grade": 16,
   "perspectiva": "3/4",

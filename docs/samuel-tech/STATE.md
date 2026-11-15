@@ -3,6 +3,13 @@
 Atualizado ao fim de cada sessão (ST-090). Um bloco por sessão, o mais novo em cima.
 Vale o que está aqui e no Notion, não a memória do chat.
 
+## 2026-11-15 — Planeta do Samuel 0.2.0 (barra sem texto, merge autorizado)
+
+- **Pedido do Boaz:** tirar o selo PROPOSTA da tela, trocar a barra de cima por nível, XP, corações, timer e ícones (sem texto), marcar o Planeta como `0.2.0` / `pronto` e fazer o merge do PR #8. O deploy no ar fica para outra etapa.
+- **Feito:** o HUD não mostra mais a palavra PROPOSTA; os números continuam `PROPOSTA` no `CONFIG`. A barra usa `icone-vida` e `icone-vida-vazia` do atlas. O botão Tela chama `webkitRequestFullscreen` quando não há `requestFullscreen`. Teste novo em WebKit, perfil iPad, nos dois sentidos e dentro de `/jogar/?jogo=planeta-do-samuel`.
+- **Regra:** daqui para a frente, todo jogo passa nesse teste de iPad/WebKit antes do merge.
+- **Não mexido:** o deploy da Hostinger.
+
 ## 2026-11-15 — Planeta do Samuel 0.1.0 (proposta, sem publicar)
 
 - **Pedido:** jogo novo `planeta-do-samuel` na branch `feat/planeta-do-samuel`, a partir da `main` `83aed98` (Pebolim já na main). PR rascunho. Sem merge e sem deploy.

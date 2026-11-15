@@ -29,8 +29,11 @@ describe('proposta', () => {
     expect(e.era).toBe('pedra');
     expect(e.morte).toBe(false);
     expect(e.armas.lasca).toBeTruthy();
-    expect(TEXTOS.fim).toMatch(/PROPOSTA/);
-    expect(TEXTOS.cartas.lasca.texto).toMatch(/PROPOSTA/);
+    expect(TEXTOS.proposta).toBe('PROPOSTA');
+    expect(TEXTOS.fim).toBe('O farol está aceso. O planetinha ficou visível.');
+    expect(TEXTOS.dica.pedra).toBe('A Pedra chegou. A lasca gira sozinha.');
+    expect(JSON.stringify(TEXTOS.dica)).not.toMatch(/PROPOSTA/);
+    expect(TEXTOS.cartas.lasca.texto).not.toMatch(/PROPOSTA/);
   });
 });
 
@@ -122,7 +125,7 @@ describe('XP e level-up', () => {
     expect(e.nivel).toBe(2);
     expect(e.pausa).toBe(true);
     expect(e.cartas).toHaveLength(3);
-    expect(e.cartas.every((c) => c.proposta && /PROPOSTA/.test(c.texto))).toBe(true);
+    expect(e.cartas.every((c) => c.proposta && !/PROPOSTA/.test(c.texto) && !/PROPOSTA/.test(c.nome))).toBe(true);
     const antes = e.tempo;
     avancar(e, 2);
     expect(e.tempo).toBe(antes);

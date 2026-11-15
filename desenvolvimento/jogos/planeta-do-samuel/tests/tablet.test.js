@@ -97,8 +97,11 @@ describe('tablet deitado 1024×768', () => {
     }));
     expect(rolagem.sw).toBeLessThanOrEqual(rolagem.cw + 1);
     expect(rolagem.sh).toBeLessThanOrEqual(rolagem.ch + 1);
-    expect(await page.locator('#dica').textContent()).toMatch(/PROPOSTA/);
-    expect(await page.locator('.selo').first().textContent()).toBe('PROPOSTA');
+    expect(await page.locator('#dica').textContent()).toBe('A Pedra chegou. A lasca gira sozinha.');
+    expect(await page.locator('.selo').count()).toBe(0);
+    expect(await page.locator('body').innerText()).not.toMatch(/PROPOSTA/);
+    expect(await page.locator('#nivel').textContent()).toMatch(/^\d+$/);
+    expect(await page.locator('#vidas canvas').count()).toBeGreaterThan(0);
 
     const caixa = await page.locator('#joystick').boundingBox();
     const cdp = await context.newCDPSession(page);
@@ -127,7 +130,7 @@ describe('tablet deitado 1024×768', () => {
     });
     expect(await page.evaluate(() => window.__planeta.estado.inimigos.some((i) => i.tipo === 'mamute'))).toBe(true);
     expect(await page.evaluate(() => window.__planeta.estado.era)).toBe('pedra');
-    await page.screenshot({ path: path.join(arte, 'planeta-v2-pedra.png') });
+    await page.screenshot({ path: path.join(arte, 'planeta-v2-pedra-chromium.png') });
     await page.evaluate(() => window.__planeta.travar(false));
 
     await page.evaluate(() => {
@@ -176,7 +179,7 @@ describe('tablet deitado 1024×768', () => {
       p.travar(true);
       p.desenhar();
     });
-    await page.screenshot({ path: path.join(arte, 'planeta-v2-bronze.png') });
+    await page.screenshot({ path: path.join(arte, 'planeta-v2-bronze-chromium.png') });
     await page.evaluate(() => window.__planeta.travar(false));
 
     await page.evaluate(() => {
@@ -217,7 +220,7 @@ describe('tablet deitado 1024×768', () => {
       p.desenhar();
     });
     expect(await page.evaluate(() => window.__planeta.escuridao(window.__planeta.estado))).toBeGreaterThan(0.5);
-    await page.screenshot({ path: path.join(arte, 'planeta-v2-ferro.png') });
+    await page.screenshot({ path: path.join(arte, 'planeta-v2-ferro-chromium.png') });
     await page.evaluate(() => window.__planeta.travar(false));
 
     await page.evaluate(() => {
@@ -238,7 +241,7 @@ describe('tablet deitado 1024×768', () => {
       expect(b.w, b.id).toBeGreaterThanOrEqual(48);
       expect(b.h, b.id).toBeGreaterThanOrEqual(48);
     }
-    await page.screenshot({ path: path.join(arte, 'planeta-v2-levelup.png') });
+    await page.screenshot({ path: path.join(arte, 'planeta-v2-levelup-chromium.png') });
     await page.evaluate(() => window.__planeta.escolherCarta(window.__planeta.estado, 0));
 
     await page.evaluate(() => {
@@ -264,7 +267,7 @@ describe('tablet deitado 1024×768', () => {
       p.desenhar();
     });
     expect(await page.evaluate(() => window.__planeta.estado.chefe && window.__planeta.estado.chefe.tipo)).toBe('sentinela-de-bronze');
-    await page.screenshot({ path: path.join(arte, 'planeta-v2-chefe.png') });
+    await page.screenshot({ path: path.join(arte, 'planeta-v2-chefe-chromium.png') });
 
     await page.evaluate(() => {
       const p = window.__planeta;
@@ -297,7 +300,7 @@ describe('tablet deitado 1024×768', () => {
       p.desenhar();
     });
     expect(await page.evaluate(() => window.__planeta.estado.farol)).toBe(true);
-    await page.screenshot({ path: path.join(arte, 'planeta-v2-farol.png') });
+    await page.screenshot({ path: path.join(arte, 'planeta-v2-farol-chromium.png') });
 
     await page.locator('#btnPausa').click();
     await page.waitForSelector('#pausa:not([hidden])');

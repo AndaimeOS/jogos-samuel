@@ -1,7 +1,7 @@
 # Planeta do Samuel
 
-Proposta 0.2. O arquivo que roda é `_privado/jogos/planeta-do-samuel/index.html`.
-Os números ajustáveis ficam em `CONFIG`, dentro de `regras.js`, todos marcados como **PROPOSTA**.
+Versão 0.2.0. O arquivo que roda é `_privado/jogos/planeta-do-samuel/index.html`.
+Os números ajustáveis ficam em `CONFIG`, dentro de `regras.js`, todos marcados como **PROPOSTA**. Essa palavra não aparece na tela.
 
 Vista 3/4, em pixel, pensada para o tablet deitado. O ataque é automático.
 Três idades (Pedra, Bronze e Ferro), cada uma com horda e um chefe, até acender o farol.

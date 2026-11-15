@@ -103,21 +103,21 @@ export const ERAS = {
 
 export const TEXTOS = {
   proposta: 'PROPOSTA',
-  fim: 'O farol está aceso. O planetinha ficou visível. PROPOSTA.',
+  fim: 'O farol está aceso. O planetinha ficou visível.',
   dica: {
-    pedra: 'A Pedra chegou. A lasca gira sozinha. PROPOSTA.',
-    bronze: 'O Bronze chegou. Escolha a lança quando o nível subir. PROPOSTA.',
-    ferro: 'O Ferro escurece. A faísca e a fogueira iluminam. PROPOSTA.',
-    farol: 'O farol está aceso. O planetinha ficou visível. PROPOSTA.',
+    pedra: 'A Pedra chegou. A lasca gira sozinha.',
+    bronze: 'O Bronze chegou. Escolha a lança quando o nível subir.',
+    ferro: 'O Ferro escurece. A faísca e a fogueira iluminam.',
+    farol: 'O farol está aceso. O planetinha ficou visível.',
   },
   cartas: {
-    lasca: { nome: 'Lasca de pedra', texto: 'Pedras passam a girar em volta. PROPOSTA.' },
-    lanca: { nome: 'Lança de bronze', texto: 'Um tiro vai no inimigo mais perto. PROPOSTA.' },
-    faisca: { nome: 'Faísca de ferro', texto: 'Uma aura curta queima quem chega. PROPOSTA.' },
-    fogueira: { nome: 'Fogueira', texto: 'A aura cresce e acende uma luz. PROPOSTA.' },
-    dano: { nome: 'Golpe mais forte', texto: 'As armas que você tem doem mais. PROPOSTA.' },
-    ritmo: { nome: 'Mais rápido', texto: 'As armas disparam com menos espera. PROPOSTA.' },
-    vida: { nome: 'Mais fôlego', texto: 'A vida máxima sobe e você se cura. PROPOSTA.' },
+    lasca: { nome: 'Lasca de pedra', texto: 'Pedras passam a girar em volta.' },
+    lanca: { nome: 'Lança de bronze', texto: 'Um tiro vai no inimigo mais perto.' },
+    faisca: { nome: 'Faísca de ferro', texto: 'Uma aura curta queima quem chega.' },
+    fogueira: { nome: 'Fogueira', texto: 'A aura cresce e acende uma luz.' },
+    dano: { nome: 'Golpe mais forte', texto: 'As armas que você tem doem mais.' },
+    ritmo: { nome: 'Mais rápido', texto: 'As armas disparam com menos espera.' },
+    vida: { nome: 'Mais fôlego', texto: 'A vida máxima sobe e você se cura.' },
   },
 };
 

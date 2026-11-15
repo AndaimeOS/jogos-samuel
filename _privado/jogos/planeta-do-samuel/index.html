@@ -17,20 +17,36 @@
   }
   button:focus-visible, a.btn:focus-visible { outline: 3px solid #9956E0; outline-offset: 2px; }
   #hud {
-    position: absolute; top: 8px; left: 8px; right: 8px; z-index: 2;
-    display: flex; flex-wrap: wrap; gap: 8px; align-items: center; pointer-events: none;
+    position: absolute; top: 8px; left: 8px; right: 8px; z-index: 4;
+    display: flex; flex-direction: column; gap: 8px; pointer-events: none;
   }
+  .hud-topo, .hud-base { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .hud-topo { flex-wrap: wrap; }
+  .hud-base { flex-wrap: wrap; }
   #hud button { pointer-events: auto; }
-  #hud strong, #relogio, .selo {
-    background: #F5F2E8; border: 2px solid #193337; min-height: 48px; box-sizing: border-box;
-    display: inline-flex; align-items: center; padding: 0 10px; font-weight: 900;
+  #nivel, #relogio {
+    background: #F5F2E8; border: 2px solid #193337; box-shadow: 3px 3px 0 #193337;
+    min-width: 48px; min-height: 48px; box-sizing: border-box;
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 0 10px; font-weight: 900; font-size: 22px;
   }
-  .selo { background: #FF9D52; }
-  .medidor { display: flex; align-items: center; gap: 6px; background: #F5F2E8; border: 2px solid #193337; min-height: 48px; padding: 0 8px; box-sizing: border-box; }
-  .medidor i { display: block; width: 72px; height: 14px; border: 2px solid #193337; background: #fff; }
-  .medidor b { display: block; height: 100%; width: 0; background: #FF9D52; }
-  #medCalor b { background: #F2D15A; }
-  .empurra { flex: 1; }
+  #nivel { font-size: 28px; }
+  #hud .acoes { display: flex; gap: 8px; margin-left: auto; pointer-events: auto; }
+  #hud button {
+    width: 48px; height: 48px; min-width: 48px; min-height: 48px; padding: 0;
+    background: #F5F2E8; font-size: 22px;
+  }
+  .ico-tela { width: 18px; height: 18px; display: block; }
+  .medidor { display: flex; align-items: center; background: #F5F2E8; border: 2px solid #193337; box-shadow: 3px 3px 0 #193337; box-sizing: border-box; }
+  #medXp { flex: 1 1 120px; min-width: 96px; height: 48px; padding: 8px; }
+  #medXp i { display: block; width: 100%; height: 100%; border: 2px solid #193337; background: #fff; }
+  #medXp b { display: block; height: 100%; width: 0; background: #CEB7EF; }
+  #vidas { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+  #vidas canvas { width: 32px; height: 32px; image-rendering: pixelated; image-rendering: crisp-edges; }
+  #medChefe { flex: 1 1 100%; height: 22px; min-height: 22px; padding: 4px; }
+  #medChefe i { display: block; width: 100%; height: 100%; border: 2px solid #193337; background: #fff; }
+  #medChefe b { display: block; height: 100%; width: 0; background: #E2544A; }
+  #medChefe[hidden] { display: none !important; }
   #dica {
     position: absolute; z-index: 2; left: 156px; right: 168px; bottom: 76px; margin: 0;
     background: #F5F2E8; border: 2px solid #193337; box-shadow: 3px 3px 0 #193337;
@@ -51,11 +67,15 @@
     position: absolute; z-index: 3; left: 156px; right: 148px; bottom: 12px;
     display: flex; justify-content: center; gap: 8px;
   }
-  #armas { display: flex; gap: 6px; align-items: center; }
-  #armas canvas { width: 24px; height: 24px; image-rendering: pixelated; background: #F5F2E8; border: 2px solid #193337; }
+  #armas { display: flex; gap: 8px; align-items: center; }
+  #armas canvas {
+    width: 48px; height: 48px; box-sizing: border-box; image-rendering: pixelated; image-rendering: crisp-edges;
+    background: #F5F2E8; border: 2px solid #193337; box-shadow: 3px 3px 0 #193337;
+  }
   #medChefe[hidden] { display: none !important; }
   #levelup {
-    position: absolute; inset: 0; z-index: 6; display: flex; align-items: center; justify-content: center;
+    position: absolute; left: 0; right: 0; bottom: 0; top: 132px; z-index: 3;
+    display: flex; align-items: center; justify-content: center;
     background: rgba(25, 51, 55, .45);
   }
   #levelup .painel { max-width: 860px; }
@@ -85,27 +105,29 @@
 <div id="jogo">
   <canvas id="tela"></canvas>
   <header id="hud">
-    <strong id="era">Idade da Pedra</strong>
-    <span id="relogio">0:00</span>
-    <span class="selo">PROPOSTA</span>
-    <strong id="nivel">Nível 1</strong>
-    <div class="medidor" id="medVida"><span>Vida</span><i><b id="barraVida"></b></i></div>
-    <div class="medidor" id="medXp"><span>XP</span><i><b id="barraXp"></b></i></div>
-    <div class="medidor" id="medChefe" hidden><span id="nomeChefe">Chefe</span><i><b id="barraChefe"></b></i></div>
-    <span id="armas"></span>
-    <span class="empurra"></span>
-    <button id="btnPausa" type="button" data-alvo>Pausa</button>
-    <button id="btnTela" type="button" data-alvo aria-label="Tela cheia">Tela</button>
+    <div class="hud-topo">
+      <strong id="nivel">1</strong>
+      <div class="medidor" id="medXp" aria-label="Experiência"><i><b id="barraXp"></b></i></div>
+      <span id="armas"></span>
+      <span class="acoes">
+        <button id="btnPausa" type="button" data-alvo aria-label="Pausa"><span aria-hidden="true">II</span></button>
+        <button id="btnTela" type="button" data-alvo aria-label="Tela cheia"><svg class="ico-tela" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 7V2h5M16 7V2h-5M2 11v5h5M16 11v5h-5" fill="none" stroke="#193337" stroke-width="2"/></svg></button>
+      </span>
+    </div>
+    <div class="hud-base">
+      <span id="vidas"></span>
+      <span id="relogio">00:00</span>
+      <div class="medidor" id="medChefe" hidden aria-label="Chefe"><i><b id="barraChefe"></b></i></div>
+    </div>
   </header>
   <p id="aviso" role="status"></p>
   <p id="dica"></p>
   <div id="joystick" data-alvo aria-label="Joystick"><div id="knob"></div></div>
   <div id="titulo">
     <div class="painel">
-      <p class="selo">PROPOSTA</p>
       <h1>Planeta do Samuel</h1>
       <p>Ande, deixe as armas baterem sozinhas e escolha um upgrade quando o nível subir. Três idades, três chefes, e o farol no fim.</p>
-      <p>No Fácil ninguém perde: se a vida zera, você volta ao centro e não perde o progresso. Os números são provisórios.</p>
+      <p>No Fácil ninguém perde: se a vida zera, você volta ao centro e não perde o progresso.</p>
       <div class="botoes">
         <button id="btnContinuar" type="button" data-alvo hidden>Continuar</button>
         <button id="btnComecar" type="button" data-alvo>Começar</button>
@@ -116,7 +138,7 @@
   <div id="pausa" hidden>
     <div class="painel">
       <h1>Pausa</h1>
-      <p>PROPOSTA. O jogo guarda sozinho neste aparelho.</p>
+      <p>O jogo guarda sozinho neste aparelho.</p>
       <div class="botoes">
         <button id="btnSeguir" type="button" data-alvo>Continuar</button>
         <button id="btnDeNovo" type="button" data-alvo>Começar de novo</button>
@@ -126,7 +148,6 @@
   </div>
   <div id="levelup" hidden>
     <div class="painel">
-      <p class="selo">PROPOSTA</p>
       <h1>Subiu de nível</h1>
       <div class="botoes" id="cartas"></div>
     </div>

@@ -9,6 +9,7 @@ Idioma: **português do Brasil**, sempre. O briefing visual original está em `k
   [`docs/samuel-tech/DECISOES.md`](docs/samuel-tech/DECISOES.md).
 - Material de desenvolvimento e procedência de código de terceiros: [`desenvolvimento/`](desenvolvimento/README.md) (não publicado).
 - Antes de commitar um jogo: `python3 ferramentas/verificar_jogo.py <slug>` (recusa CDN, caminho absoluto, analytics, arquivo que o `jogo.php` não entrega).
+- Antes do merge, o jogo passa no Playwright com WebKit no perfil de iPad: Safari no iOS, `hasTouch`, `isMobile`, 1024×768 (paisagem) e 768×1024 (retrato), interação só por toque, e também dentro do iframe de `/jogar/?jogo=<slug>`. O botão de tela cheia chama `webkitRequestFullscreen` quando `requestFullscreen` não existe.
 - Sem PHP no Mac: portal pelo Docker (`php:8.3-cli`), comando em `desenvolvimento/README.md`.
 
 ## Stack

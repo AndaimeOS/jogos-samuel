@@ -126,3 +126,17 @@ export const desenharSprite = (ctx, id, segundos, x, y, opts = {}) => {
 
 export const larguraSprite = (id) => manifesto.sprites[id]?.frameW ?? 16;
 export const alturaSprite = (id) => manifesto.sprites[id]?.frameH ?? 16;
+
+/** Primeiro quadro do sprite, no tamanho do manifesto, para ícone de HUD. */
+export function quadroUi(id) {
+  const s = manifesto.sprites[id];
+  if (!s || typeof document === 'undefined') return null;
+  const c = document.createElement('canvas');
+  c.width = s.frameW;
+  c.height = s.frameH;
+  const g = c.getContext('2d');
+  g.imageSmoothingEnabled = false;
+  const { px, py } = pivoDe(s);
+  desenharSprite(g, id, 0, px, s.pe === 'centro' ? py : py + 1);
+  return c;
+}

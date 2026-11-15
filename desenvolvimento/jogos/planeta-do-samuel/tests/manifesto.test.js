@@ -31,6 +31,7 @@ const ESPERADOS = [
 describe('manifesto', () => {
   it('lista a arte da v0.2 em codigo, sem Player 2 e sem Pokémon', () => {
     expect(manifesto.versao).toBe(1);
+    expect(manifesto.jogo).toBe('0.2.0');
     expect(manifesto.imagem).toBe('atlas.webp');
     expect(manifesto.perspectiva).toBe('3/4');
     expect(manifesto.ticksPorSegundo).toBe(60);
