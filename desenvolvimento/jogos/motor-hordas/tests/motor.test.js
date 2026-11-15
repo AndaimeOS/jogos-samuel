@@ -160,7 +160,13 @@ describe('contas do motor', () => {
     expect(folhas['lobo-da-pedra'].anims.Sumico.quadros).toBe(5)
     expect(folhas['lobo-da-pedra'].anims.Walk.linhas).toBe(8)
     expect(folhas.urso.anims.Walk.frameH).toBe(72)
-    expect(barco['samuel-barco-colete'].body.bodyW).toBe(20)
+    expect(barco['samuel-barco-colete'].body).toEqual({ bodyW: 20, bodyH: 39, footY: 21 })
+    const folhaBarco = barco['samuel-barco-colete'].anims
+    expect(folhaBarco.Walk).toMatchObject({ frameW: 48, frameH: 48, quadros: 4, linhas: 8 })
+    expect(folhaBarco.Idle).toMatchObject({ frameW: 48, frameH: 48, quadros: 3, linhas: 8 })
+    const png = await readFile(path.join(aqui, '../arte/pescador/sprites/samuel-barco-colete/Walk.png'))
+    expect(png.readUInt32BE(16)).toBe(48 * 4)
+    expect(png.readUInt32BE(20)).toBe(48 * 8)
     expect(barco['peixe-lendario'].anims.Sumico).toBeTruthy()
     expect(folhas.samuel.anims.Sumico).toBeUndefined()
     expect(folhas.mamute.anims.Walk.linhas).toBe(8)
@@ -323,5 +329,95 @@ describe('contas do motor', () => {
     expect(tiro).toBeTruthy()
     expect(tiro.vx).toBeGreaterThan(0)
     expect(p.ataques.some((a) => a.tipo === 'orbita')).toBe(false)
+  })
+
+  it('a mira usa o mundo, troca para o mais perto e o chefe só ganha no alcance', () => {
+    function bicho(id, x, y, extra = {}) {
+      return {
+        id, x, y, raio: 8, massa: 1, morrendo: -1, dano: 0, comportamento: 'chase',
+        hp: 900, hpMax: 900, vel: 0, xp: 0, chefe: false, elite: false,
+        kx: 0, ky: 0, dir: 0, idade: 1, ferido: 0, queima: 0, faseChefe: 1,
+        ataque: 9, ttl: 0, altura: 16, sprite: 'seixo-vivo', tipo: 'marca',
+        ...extra,
+      }
+    }
+    const parado = { x: 0, y: 0, acao: false, acaoSegurada: false }
+    for (const conteudo of [conteudoPlaneta, conteudoPescador]) {
+      const p = criarPartida(conteudo, { fase: 0, seed: 1, modo: 'facil', vista: { w: 320, h: 240 } })
+      escolherCarta(p, 0)
+      p.jogador.x = 500
+      p.jogador.y = -200
+      p.eventos = { bando: true, anel: true, elite: true, chefe: true }
+      const j = p.jogador
+      const perto = bicho(1, j.x + 30, j.y)
+      const meio = bicho(2, j.x, j.y + 80)
+      const longe = bicho(3, j.x - 140, j.y)
+      p.inimigos = [perto, meio, longe]
+      p.chefe = null
+      tick(p, 1 / 60, parado)
+      expect(p.alvo, conteudo.slug).toBe(perto)
+      expect(p.alcanceMira).toBeGreaterThan(200)
+      meio.x = j.x + 12
+      meio.y = j.y
+      tick(p, 1 / 60, parado)
+      expect(p.alvo, conteudo.slug).toBe(meio)
+      meio.morrendo = 0
+      tick(p, 1 / 60, parado)
+      expect(p.alvo, conteudo.slug).toBe(perto)
+      const fora = bicho(4, j.x + 400, j.y, { chefe: true })
+      p.inimigos.push(fora)
+      p.chefe = fora
+      tick(p, 1 / 60, parado)
+      expect(p.alvo, conteudo.slug).toBe(perto)
+      fora.x = j.x + 100
+      fora.y = j.y + 40
+      tick(p, 1 / 60, parado)
+      expect(p.alvo, conteudo.slug).toBe(fora)
+      expect(Math.hypot(fora.x - j.x, fora.y - j.y)).toBeLessThan(p.alcanceMira)
+    }
+  })
+
+  it('as gemas se agrupam e são puxadas até o personagem', () => {
+    const p = criarPartida(conteudoPescador, { fase: 0, seed: 9, modo: 'facil' })
+    escolherCarta(p, 0)
+    const j = p.jogador
+    p.gemas = [
+      { x: j.x + 4, y: j.y + 2, xp: 1, faixa: 1, viva: true, idade: 0 },
+      { x: j.x + 10, y: j.y, xp: 1, faixa: 1, viva: true, idade: 0 },
+      { x: j.x + 8, y: j.y + 6, xp: 2, faixa: 2, viva: true, idade: 0 },
+      { x: j.x + 70, y: j.y, xp: 1, faixa: 1, viva: true, idade: 0 },
+    ]
+    tick(p, 1 / 60, { x: 0, y: 0, acao: false, acaoSegurada: false })
+    const vivas = p.gemas.filter((g) => g.viva)
+    expect(vivas.length).toBeLessThan(4)
+    const longe = vivas.find((g) => Math.hypot(g.x - j.x, g.y - j.y) > 20)
+    expect(longe).toBeTruthy()
+    const antes = longe.x
+    for (let i = 0; i < 20; i++) tick(p, 1 / 60, { x: 0, y: 0, acao: false, acaoSegurada: false })
+    expect(longe.viva === false || longe.x).not.toBe(antes)
+  })
+
+  it('a rede acompanha o alvo e some quando ele morre', () => {
+    const p = criarPartida(conteudoPescador, { fase: 0, seed: 3, modo: 'facil' })
+    escolherCarta(p, 0)
+    const j = p.jogador
+    j.golpes = [{ id: 'rede', nivel: 1, cd: 0, caminho: 0 }]
+    p.inimigos = [{
+      id: 7, x: j.x + 24, y: j.y, raio: 8, massa: 1, morrendo: -1, dano: 0,
+      comportamento: 'chase', hp: 900, hpMax: 900, vel: 0, xp: 0, chefe: false,
+      elite: false, kx: 0, ky: 0, dir: 0, idade: 1, ferido: 0, queima: 0,
+      faseChefe: 1, ataque: 9, ttl: 0, altura: 16, sprite: 'piranha', tipo: 'marca',
+    }]
+    p.chefe = null
+    p.eventos = { bando: true, anel: true, elite: true, chefe: true }
+    const parado = { x: 0, y: 0, acao: false, acaoSegurada: false }
+    tick(p, 1 / 60, parado)
+    const rede = p.ataques.find((a) => a.tipo === 'noalvo')
+    expect(rede).toBeTruthy()
+    expect(rede.raio).toBeGreaterThan(10)
+    expect(rede.x).toBeCloseTo(p.inimigos[0].x, 0)
+    p.inimigos[0].morrendo = 0
+    tick(p, 1 / 60, parado)
+    expect(p.ataques.some((a) => a.tipo === 'noalvo' && a.ttl > 0)).toBe(false)
   })
 })

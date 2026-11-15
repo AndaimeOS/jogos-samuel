@@ -205,7 +205,7 @@ var BASE = {
   duration: 1,
   amount: 0,
   projectileSpeed: 1,
-  magnet: 42,
+  magnet: 110,
   regen: 0,
   armor: 0,
   growth: 1
@@ -327,7 +327,23 @@ function ferirBicho(p, bicho2, dano, deX, deY, golpe2) {
 }
 function soltarGema(p, x, y, xp) {
   const faixaXp = xp >= 6 ? 3 : xp >= 3 ? 2 : 1;
-  p.gemas.push({ x, y, xp: Math.max(1, xp), faixa: faixaXp, viva: true });
+  p.gemas.push({ x, y, xp: Math.max(1, xp), faixa: faixaXp, viva: true, idade: 0 });
+}
+function agruparGemas(p) {
+  const vivas = p.gemas.filter((g) => g.viva);
+  for (let i = 0; i < vivas.length; i++) {
+    const a = vivas[i];
+    if (!a.viva) continue;
+    for (let k = i + 1; k < vivas.length; k++) {
+      const b = vivas[k];
+      if (!b.viva) continue;
+      if (Math.hypot(a.x - b.x, a.y - b.y) > 18) continue;
+      a.xp += b.xp;
+      a.faixa = Math.max(a.faixa, b.faixa);
+      a.idade = Math.min(a.idade || 0, b.idade || 0);
+      b.viva = false;
+    }
+  }
 }
 function ganharXp(p, qtd) {
   const j = p.jogador;
@@ -707,24 +723,38 @@ function acertarRaio(p, x, y, r, dano, golpe2, deX, deY) {
     if (Math.hypot(b.x - x, b.y - y) <= r + b.raio) ferirBicho(p, b, dano, deX, deY, golpe2);
   }
 }
-var MIRA = 420;
+function alcanceMira(p) {
+  const j = p.jogador;
+  let maior = 0;
+  for (const g of j.golpes) {
+    const def = defGolpe(p.conteudo, g.id);
+    if (!def) continue;
+    maior = Math.max(maior, (def.alcance || 240) * j.stats.area);
+  }
+  return maior;
+}
+function distanciaDoJogador(p, b) {
+  return Math.hypot(b.x - p.jogador.x, b.y - p.jogador.y);
+}
 function escolherAlvo(p) {
   const j = p.jogador;
+  const alcance = alcanceMira(p);
+  p.alcanceMira = alcance;
   const chefe = p.chefe && p.chefe.morrendo < 0 ? p.chefe : null;
-  if (chefe && Math.hypot(chefe.x - j.x, chefe.y - j.y) <= MIRA) {
+  if (chefe && distanciaDoJogador(p, chefe) <= alcance + (chefe.raio || 0)) {
     p.alvo = chefe;
   } else {
     let melhor = null;
-    let perto = MIRA;
+    let perto = Infinity;
     for (const b of p.inimigos) {
-      if (b.morrendo >= 0) continue;
-      const d = Math.hypot(b.x - j.x, b.y - j.y);
+      if (b.morrendo >= 0 || b === chefe) continue;
+      const d = distanciaDoJogador(p, b);
       if (d < perto) {
         perto = d;
         melhor = b;
       }
     }
-    p.alvo = melhor;
+    p.alvo = melhor && perto <= alcance + (melhor.raio || 0) ? melhor : null;
   }
   if (p.alvo) j.dir = dir8(p.alvo.x - j.x, p.alvo.y - j.y);
 }
@@ -815,10 +845,12 @@ function passoGolpes(p, dt) {
       continue;
     } else if (a.tipo === "noalvo") {
       const dono = p.inimigos.find((b) => b.id === a.alvoId && b.morrendo < 0) || (p.chefe && p.chefe.id === a.alvoId ? p.chefe : null);
-      if (dono) {
-        a.x = dono.x;
-        a.y = dono.y;
+      if (!dono) {
+        a.ttl = 0;
+        continue;
       }
+      a.x = dono.x;
+      a.y = dono.y;
       a.cd -= dt;
       if (a.cd <= 0) {
         a.cd = 0.35;
@@ -865,7 +897,7 @@ function passoEspeciais(p, dt, entrada) {
   if (entrada.acao && j.especial <= 0 && p.pausa === "jogo") {
     j.especial = 8;
     const alvo = p.alvo && p.alvo.morrendo < 0 ? p.alvo : null;
-    if (alvo && Math.hypot(alvo.x - j.x, alvo.y - j.y) <= MIRA) {
+    if (alvo && Math.hypot(alvo.x - j.x, alvo.y - j.y) <= (p.alcanceMira || alcanceMira(p))) {
       const ang = Math.atan2(alvo.y - j.y, alvo.x - j.x);
       tremer(p, 4);
       estouro(p, alvo.x, alvo.y, ["#E02020", "#FF9D52", "#F6E27A"], 16, 90);
@@ -939,9 +971,11 @@ function passoMundo(p, dt, entrada) {
   p.bioma = biomaEm(p.seed, j.x, j.y, p.fase.biomas);
   for (const g of p.gemas) {
     if (!g.viva) continue;
+    g.idade = (g.idade || 0) + dt;
     const d = Math.hypot(g.x - j.x, g.y - j.y);
-    if (d < j.stats.magnet) {
-      const passo = (140 + j.stats.magnet) * dt;
+    const alcance = j.stats.magnet + (g.idade > 4 ? 80 : 0);
+    if (d < alcance) {
+      const passo = (180 + j.stats.magnet) * dt;
       if (d <= passo || d < j.raio + 6) {
         g.viva = false;
         ganharXp(p, g.xp);
@@ -951,6 +985,7 @@ function passoMundo(p, dt, entrada) {
       }
     }
   }
+  agruparGemas(p);
   reter(p.gemas, (g) => g.viva);
   if (p.conteudo.pesca && p.rng() < dt / 5) {
     const ang = faixa(p.rng, 0, TAU);
@@ -1098,6 +1133,7 @@ function criarPartida(conteudo, opcoes = {}) {
     inimigos: [],
     ataques: [],
     alvo: null,
+    alcanceMira: 0,
     gemas: [],
     cardumes: [],
     zonas: [],
@@ -1629,13 +1665,13 @@ async function iniciar(conteudo) {
         const [x2, y2] = mundo(a.ax, a.ay);
         ctx.lineCap = "round";
         ctx.strokeStyle = "#193337";
-        ctx.lineWidth = 7;
+        ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.moveTo(x12, y12);
         ctx.lineTo(x2, y2);
         ctx.stroke();
         ctx.strokeStyle = "#FF9D52";
-        ctx.lineWidth = 4;
+        ctx.lineWidth = 1;
         ctx.stroke();
         ctx.lineCap = "butt";
       }
@@ -1643,29 +1679,16 @@ async function iniciar(conteudo) {
       const y = a.y != null ? a.y : partida.jogador.y;
       const [sx2, sy2] = mundo(x, y);
       if (a.tipo === "noalvo") {
-        ctx.strokeStyle = "#193337";
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.arc(sx2, sy2, a.raio, 0, Math.PI * 2);
-        ctx.stroke();
         ctx.strokeStyle = "#FF9D52";
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(sx2, sy2, Math.min(10, a.raio), 0, Math.PI * 2);
         ctx.stroke();
       }
-      if (a.tipo !== "estocada" && a.tipo !== "noalvo") {
-        ctx.fillStyle = "#193337";
-        ctx.beginPath();
-        ctx.arc(sx2, sy2, 11, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = "#F6E27A";
-        ctx.beginPath();
-        ctx.arc(sx2, sy2, 7, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      if (a.sprite && a.tipo !== "estocada") desenharSprite(a.sprite, sx2, sy2 + 8, 2, partida.tempo, 16, false);
+      if (a.sprite && a.tipo !== "estocada") desenharSprite(a.sprite, sx2, sy2 + 4, 2, partida.tempo, 8, false);
       else if (!a.sprite && a.tipo !== "estocada" && a.tipo !== "noalvo") {
         ctx.fillStyle = "#FF9D52";
-        ctx.fillRect(sx2 - 4, sy2 - 4, 8, 8);
+        ctx.fillRect(sx2 - 2, sy2 - 2, 4, 4);
       }
     }
     for (const part of partida.particulas) {
@@ -1698,26 +1721,82 @@ async function iniciar(conteudo) {
     desenharPerigo("frente", mundo);
     sincronizarHud();
   }
+  const caixaSprite = {};
+  function caixaDoQuadro(id, anim, linha) {
+    const chave2 = `${id}:${anim}:${linha}`;
+    if (caixaSprite[chave2] !== void 0) return caixaSprite[chave2];
+    const sp = motor[id];
+    const folha = sp && sp.anims[anim];
+    const img = imagens[`${id}:${anim}`];
+    if (!folha || !img) {
+      caixaSprite[chave2] = null;
+      return null;
+    }
+    const w = folha.frameW;
+    const h = folha.frameH;
+    const off = document.createElement("canvas");
+    off.width = w * folha.quadros;
+    off.height = h;
+    const g = off.getContext("2d", { willReadFrequently: true });
+    g.drawImage(img, 0, linha * h, off.width, h, 0, 0, off.width, h);
+    let data;
+    try {
+      data = g.getImageData(0, 0, off.width, h).data;
+    } catch {
+      caixaSprite[chave2] = null;
+      return null;
+    }
+    let minX = w;
+    let minY = h;
+    let maxX = -1;
+    let maxY = -1;
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < off.width; x++) {
+        if (data[(y * off.width + x) * 4 + 3] < 8) continue;
+        const lx = x % w;
+        if (lx < minX) minX = lx;
+        if (lx > maxX) maxX = lx;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      }
+    }
+    caixaSprite[chave2] = maxX < 0 ? null : { minX, minY, maxX, maxY };
+    return caixaSprite[chave2];
+  }
   function desenharMoldura(mundo, b) {
     const [x, y] = mundo(b.x, b.y);
     const sp = motor[b.sprite];
-    const folha = sp && sp.anims.Walk;
-    const largura = folha ? folha.frameW : b.altura || b.raio * 2;
-    const altura = folha ? folha.frameH : b.altura || b.raio * 2;
-    const pe = sp ? sp.body.footY : altura / 2;
-    const topo = y - (altura / 2 + pe);
-    const margem = 6;
-    const rx = Math.round(x - largura / 2 - margem);
-    const ry = Math.round(topo - margem);
-    const rw = largura + margem * 2;
-    const rh = altura + margem * 2;
+    const nomeAnim = b.ferido > 0 && sp && sp.anims.Hurt ? "Hurt" : "Walk";
+    const folha = sp && (sp.anims[nomeAnim] || sp.anims.Walk);
+    const linha = folha ? (b.dir || 0) % folha.linhas : 0;
+    const caixa = folha && caixaDoQuadro(b.sprite, folha === sp.anims[nomeAnim] ? nomeAnim : "Walk", linha);
+    let rx;
+    let ry;
+    let rw;
+    let rh;
+    if (caixa) {
+      const esquerda = x - folha.frameW / 2;
+      const topo = y - (folha.frameH / 2 + sp.body.footY);
+      const margem = 2;
+      rx = Math.round(esquerda + caixa.minX - margem);
+      ry = Math.round(topo + caixa.minY - margem);
+      rw = caixa.maxX - caixa.minX + 1 + margem * 2;
+      rh = caixa.maxY - caixa.minY + 1 + margem * 2;
+    } else {
+      const largura = Math.max(8, (b.raio || 8) * 2);
+      const altura = largura;
+      rx = Math.round(x - largura / 2 - 2);
+      ry = Math.round(y - altura - 2);
+      rw = largura + 4;
+      rh = altura + 4;
+    }
+    const t = 2;
     ctx.save();
-    ctx.strokeStyle = "#193337";
-    ctx.lineWidth = 7;
-    ctx.strokeRect(rx, ry, rw, rh);
-    ctx.strokeStyle = "#E02020";
-    ctx.lineWidth = 4;
-    ctx.strokeRect(rx, ry, rw, rh);
+    ctx.fillStyle = "#E02020";
+    ctx.fillRect(rx, ry, rw, t);
+    ctx.fillRect(rx, ry + rh - t, rw, t);
+    ctx.fillRect(rx, ry, t, rh);
+    ctx.fillRect(rx + rw - t, ry, t, rh);
     ctx.restore();
   }
   function quadroDaPeca(peca, tempo, umaVez) {
@@ -1761,10 +1840,6 @@ async function iniciar(conteudo) {
   function faixa2(peca, col, y) {
     if (col < 0) return;
     for (let x = 0; x < vista.w; x += peca.frameW) blitPeca(peca, x, y, col);
-  }
-  function degrauEscuro(ev) {
-    const t = ev.fase === "aviso" ? ev.t : ev.aviso + ev.t;
-    return Math.min(2, Math.floor(t));
   }
   function desenharPerigo(camada, mundo) {
     const ev = partida.perigoAtual;
@@ -1834,8 +1909,15 @@ async function iniciar(conteudo) {
           blitPeca(pecas.raio, x - pecas.raio.frameW / 2, y - pecas.raio.frameH, col < 0 ? 2 : col);
           if (ev.raio.t < 2 / 60) ladrilho(pecas.clarao, 0, 0, 0, vista.w, vista.h);
         }
-        if (ev.fase === "ativo") ladrilho(pecas.chuva, quadroDaPeca(pecas.chuva, ev.t, false), 0, 0, vista.w, vista.h);
-        ladrilho(pecas.escurecer, degrauEscuro(ev), 0, 0, vista.w, vista.h);
+        if (ev.fase === "ativo") {
+          ctx.save();
+          ctx.globalAlpha = 0.35;
+          ladrilho(pecas.chuva, quadroDaPeca(pecas.chuva, ev.t, false), 0, 0, vista.w, vista.h);
+          ctx.restore();
+        }
+        const escuro = ev.fase === "aviso" ? 0.08 * Math.min(1, ev.t / Math.max(0.2, ev.aviso)) : 0.16;
+        ctx.fillStyle = `rgba(20, 36, 48, ${escuro})`;
+        ctx.fillRect(0, 0, vista.w, vista.h);
         blitPeca(nuvem, vista.w / 2 - nuvem.frameW / 2, yNuvem, quadroDaPeca(nuvem, ev.t, false));
       }
     }

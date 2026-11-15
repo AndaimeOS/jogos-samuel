@@ -90,6 +90,7 @@ async function fotoCombate(alvo, api, chefe = false) {
     const jogo = window[nome]
     const e = jogo.estado
     const j = e.jogador
+    const dist = (b) => Math.hypot(b.x - j.x, b.y - j.y)
     if (forcarChefe) {
       if (!e.chefe || e.chefe.morrendo >= 0) jogo.trazerChefe()
       const c = e.chefe
@@ -98,48 +99,42 @@ async function fotoCombate(alvo, api, chefe = false) {
         c.hp = c.hpMax
         c.kx = 0
         c.ky = 0
-        c.x = j.x + 100
+        c.vel = 0
+        c.x = j.x + 72
         c.y = j.y
       }
-      for (const g of j.golpes) g.cd = 0
-      if (e.pausa !== 'jogo') e.pausa = 'jogo'
-      jogo.simular(0.08)
-      if (c) {
-        c.x = j.x + 100
-        c.y = j.y
-        c.kx = 0
-        c.ky = 0
-      }
     }
-    let foco = forcarChefe && e.chefe && e.chefe.morrendo < 0 ? e.chefe : (e.alvo && e.alvo.morrendo < 0 ? e.alvo : null)
-    if (foco && !forcarChefe) {
-      const dx0 = foco.x - j.x
-      const dy0 = foco.y - j.y
-      const dist0 = Math.hypot(dx0, dy0)
-      const rumo = dist0 > 4 ? dist0 : 1
-      if (dist0 < 90) {
-        foco.x = j.x + (dx0 / rumo) * 110
-        foco.y = j.y + (dy0 / rumo) * 110
+    if (e.pausa !== 'jogo') e.pausa = 'jogo'
+    let leitura = null
+    for (let i = 0; i < 30; i++) {
+      if (e.pausa === 'cartas') jogo.escolher(0)
+      jogo.simular(0.05)
+      const alcance = e.alcanceMira || 0
+      const chefe = e.chefe && e.chefe.morrendo < 0 && dist(e.chefe) <= alcance + (e.chefe.raio || 0) ? e.chefe : null
+      let perto = null
+      let menor = Infinity
+      for (const b of e.inimigos) {
+        if (b.morrendo >= 0 || b === e.chefe) continue
+        const d = dist(b)
+        if (d < menor) {
+          menor = d
+          perto = b
+        }
       }
+      const esperado = chefe || (perto && menor <= alcance + (perto.raio || 0) ? perto : null)
+      const tiros = (e.ataques || []).filter((a) => (a.tipo === 'tiro' || a.tipo === 'estocada') && a.ttl > 0)
+      leitura = {
+        mira: e.alvo === esperado,
+        chefe: !!(forcarChefe && e.chefe && e.alvo === e.chefe),
+        tiros: tiros.length,
+        distAlvo: e.alvo ? Math.round(dist(e.alvo)) : null,
+        distPerto: Number.isFinite(menor) ? Math.round(menor) : null,
+      }
+      if (leitura.mira && leitura.tiros > 0 && (!forcarChefe || leitura.chefe)) break
     }
-    if (foco) e.alvo = foco
-    const dx = foco ? foco.x - j.x : 1
-    const dy = foco ? foco.y - j.y : 0
-    const dist = Math.hypot(dx, dy) || 1
-    const tiros = (e.ataques || []).filter((a) => a.tipo === 'tiro')
-    tiros.forEach((tiro, i) => {
-      const along = Math.min(36 + i * 16, Math.max(28, dist - 34))
-      tiro.x = j.x + (dx / dist) * along
-      tiro.y = j.y + (dy / dist) * along
-      tiro.ttl = 3
-    })
     e.pausa = 'foto'
     jogo.desenhar()
-    return {
-      chefe: !!(forcarChefe && e.chefe && e.alvo === e.chefe),
-      tiros: tiros.length,
-      dist,
-    }
+    return leitura
   }, { nome: api, forcarChefe: chefe })
 }
 
@@ -312,7 +307,9 @@ function suite(slug, api, titulo) {
       }, api)
       expect(aos30.alvo, `${nome} moldura aos 30s`).toBe(true)
       expect(aos30.tiro, `${nome} projetil aos 30s`).toBe(true)
-      await fotoCombate(dentro, api)
+      const foto30 = await fotoCombate(dentro, api)
+      expect(foto30.mira, `${nome} mira no mais perto (${foto30.distAlvo} vs ${foto30.distPerto})`).toBe(true)
+      expect(foto30.tiros, `${nome} projetil aos 30s`).toBeGreaterThan(0)
       await shot(path.join(arte, `${nome}-30s.png`))
       await soltarFoto(dentro, api)
     }

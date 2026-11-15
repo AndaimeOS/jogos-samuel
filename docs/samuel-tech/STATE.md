@@ -3,6 +3,14 @@
 Atualizado ao fim de cada sessão (ST-090). Um bloco por sessão, o mais novo em cima.
 Vale o que está aqui e no Notion, não a memória do chat.
 
+## 2026-11-15 — Planeta e Pescador: mira, moldura, tempestade e tela limpa
+
+- **Pedido:** na mesma branch do PR #12, sem merge e sem deploy. Os prints de 30 s do Pescador ainda barravam o Boaz: a moldura ia num bicho longe, a moldura era grande demais, a tempestade pontilhava a tela inteira, tinha ícone e anel demais, e o barco parecia pequeno e borrado.
+- **Causas e o que mudou:** a mira do jogo já usava o mundo e o bicho vivo mais perto, mas o print antigo empurrava o alvo para 110 px e deixava a moldura presa nele. O alcance da mira agora é o da ferramenta mais longa (o chefe só ganha dentro desse alcance). A moldura lê os pixels opacos do quadro e fica 2 px fora deles. A tempestade não usa mais o pontilhado de `escurecer.png`: um véu uniforme de 16% e a chuva a 35%. As gemas puxam de 110 px, juntam as que estão a 18 px e, depois de 4 s, vêm de mais longe. O anel da rede deixou de ter o raio do dano (cerca de 42 px) e marca o alvo com um círculo de no máximo 10 px; some quando esse bicho morre. O barco `samuel-barco-colete` já estava na escala 1, quadro 48×48, corpo opaco 20×39: no iPad ele ocupa uns 20 px do mundo (~342 de largura), por isso parece pequeno. O recorte e a direção estão certos.
+- **Testes:** motor 10/10. iPad WebKit 6/6. `verificar_jogo.py --todos` ok. Pebolim 35/35, Reino 18/18, Minigolfe 53/53, Corrida do Jack 19/19.
+- **Não feito:** publicar no samuel.tech.
+- **NEXT:** o Boaz olha o rascunho no iPad. Sem deploy daqui.
+
 ## 2026-11-15 — Planeta e Pescador: combate no alvo e quatro correções de tela
 
 - **Pedido do Boaz (15/11 18:20 BRT):** "Sim, troca o combate nos dois jogos por esse estilo." Vale para o Planeta e para o Pescador, na branch do PR #12, sem merge e sem deploy. Junto, fechar as quatro falhas visuais do QA.

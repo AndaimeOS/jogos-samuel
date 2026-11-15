@@ -35,7 +35,7 @@ export const DIFICULDADE = {
 
 const BASE = {
   hpMax: 100, speed: 68, might: 1, area: 1, cooldown: 1, duration: 1,
-  amount: 0, projectileSpeed: 1, magnet: 42, regen: 0, armor: 0, growth: 1,
+  amount: 0, projectileSpeed: 1, magnet: 110, regen: 0, armor: 0, growth: 1,
 }
 
 const VIZINHOS = []
@@ -158,7 +158,24 @@ function ferirBicho(p, bicho, dano, deX, deY, golpe) {
 
 function soltarGema(p, x, y, xp) {
   const faixaXp = xp >= 6 ? 3 : xp >= 3 ? 2 : 1
-  p.gemas.push({ x, y, xp: Math.max(1, xp), faixa: faixaXp, viva: true })
+  p.gemas.push({ x, y, xp: Math.max(1, xp), faixa: faixaXp, viva: true, idade: 0 })
+}
+
+function agruparGemas(p) {
+  const vivas = p.gemas.filter((g) => g.viva)
+  for (let i = 0; i < vivas.length; i++) {
+    const a = vivas[i]
+    if (!a.viva) continue
+    for (let k = i + 1; k < vivas.length; k++) {
+      const b = vivas[k]
+      if (!b.viva) continue
+      if (Math.hypot(a.x - b.x, a.y - b.y) > 18) continue
+      a.xp += b.xp
+      a.faixa = Math.max(a.faixa, b.faixa)
+      a.idade = Math.min(a.idade || 0, b.idade || 0)
+      b.viva = false
+    }
+  }
 }
 
 export function ganharXp(p, qtd) {
@@ -542,25 +559,41 @@ function acertarRaio(p, x, y, r, dano, golpe, deX, deY) {
   }
 }
 
-const MIRA = 420
+function alcanceMira(p) {
+  const j = p.jogador
+  let maior = 0
+  for (const g of j.golpes) {
+    const def = defGolpe(p.conteudo, g.id)
+    if (!def) continue
+    maior = Math.max(maior, (def.alcance || 240) * j.stats.area)
+  }
+  return maior
+}
 
+function distanciaDoJogador(p, b) {
+  return Math.hypot(b.x - p.jogador.x, b.y - p.jogador.y)
+}
+
+/** Mundo, não tela. Recalcula todo quadro: o mais perto no alcance da arma; o chefe só se também estiver nesse alcance. */
 function escolherAlvo(p) {
   const j = p.jogador
+  const alcance = alcanceMira(p)
+  p.alcanceMira = alcance
   const chefe = p.chefe && p.chefe.morrendo < 0 ? p.chefe : null
-  if (chefe && Math.hypot(chefe.x - j.x, chefe.y - j.y) <= MIRA) {
+  if (chefe && distanciaDoJogador(p, chefe) <= alcance + (chefe.raio || 0)) {
     p.alvo = chefe
   } else {
     let melhor = null
-    let perto = MIRA
+    let perto = Infinity
     for (const b of p.inimigos) {
-      if (b.morrendo >= 0) continue
-      const d = Math.hypot(b.x - j.x, b.y - j.y)
+      if (b.morrendo >= 0 || b === chefe) continue
+      const d = distanciaDoJogador(p, b)
       if (d < perto) {
         perto = d
         melhor = b
       }
     }
-    p.alvo = melhor
+    p.alvo = melhor && perto <= alcance + (melhor.raio || 0) ? melhor : null
   }
   if (p.alvo) j.dir = dir8(p.alvo.x - j.x, p.alvo.y - j.y)
 }
@@ -629,10 +662,12 @@ function passoGolpes(p, dt) {
       continue
     } else if (a.tipo === 'noalvo') {
       const dono = p.inimigos.find((b) => b.id === a.alvoId && b.morrendo < 0) || (p.chefe && p.chefe.id === a.alvoId ? p.chefe : null)
-      if (dono) {
-        a.x = dono.x
-        a.y = dono.y
+      if (!dono) {
+        a.ttl = 0
+        continue
       }
+      a.x = dono.x
+      a.y = dono.y
       a.cd -= dt
       if (a.cd <= 0) {
         a.cd = 0.35
@@ -680,7 +715,7 @@ function passoEspeciais(p, dt, entrada) {
   if (entrada.acao && j.especial <= 0 && p.pausa === 'jogo') {
     j.especial = 8
     const alvo = p.alvo && p.alvo.morrendo < 0 ? p.alvo : null
-    if (alvo && Math.hypot(alvo.x - j.x, alvo.y - j.y) <= MIRA) {
+    if (alvo && Math.hypot(alvo.x - j.x, alvo.y - j.y) <= (p.alcanceMira || alcanceMira(p))) {
       const ang = Math.atan2(alvo.y - j.y, alvo.x - j.x)
       tremer(p, 4)
       estouro(p, alvo.x, alvo.y, ['#E02020', '#FF9D52', '#F6E27A'], 16, 90)
@@ -747,9 +782,11 @@ function passoMundo(p, dt, entrada) {
 
   for (const g of p.gemas) {
     if (!g.viva) continue
+    g.idade = (g.idade || 0) + dt
     const d = Math.hypot(g.x - j.x, g.y - j.y)
-    if (d < j.stats.magnet) {
-      const passo = (140 + j.stats.magnet) * dt
+    const alcance = j.stats.magnet + (g.idade > 4 ? 80 : 0)
+    if (d < alcance) {
+      const passo = (180 + j.stats.magnet) * dt
       if (d <= passo || d < j.raio + 6) {
         g.viva = false
         ganharXp(p, g.xp)
@@ -759,6 +796,7 @@ function passoMundo(p, dt, entrada) {
       }
     }
   }
+  agruparGemas(p)
   reter(p.gemas, (g) => g.viva)
 
   if (p.conteudo.pesca && p.rng() < dt / 5) {
@@ -913,6 +951,7 @@ export function criarPartida(conteudo, opcoes = {}) {
     inimigos: [],
     ataques: [],
     alvo: null,
+    alcanceMira: 0,
     gemas: [],
     cardumes: [],
     zonas: [],

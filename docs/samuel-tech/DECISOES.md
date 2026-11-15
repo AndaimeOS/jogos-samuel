@@ -155,3 +155,19 @@ Não apagar decisões antigas: acrescentar uma nova com alternativa, motivo e ef
   o idle inteiro (andar sozinho, poção, mercado, grupo).
 - **Efeito:** o código mora em `desenvolvimento/jogos/motor-hordas/`. Sem deploy
   nesta sessão.
+
+## DEC-017 — Mira no alcance da arma, moldura no sprite, tempestade sem pontilhado (2026-11-15)
+
+- **Decisão:** a mira mede distância no mundo, todo quadro, e escolhe o bicho vivo
+  mais perto. O chefe só passa na frente se estiver dentro do alcance da
+  ferramenta mais longa. A moldura vermelha abraça os pixels opacos do quadro
+  que está na tela, com 2 px de folga. A tempestade escurece a tela inteira com
+  um véu uniforme (16% com a chuva caindo, até 8% no aviso) e não espalha mais
+  o pontilhado de `escurecer.png`. As gemas andam até o Samuel (ímã de 110 px,
+  e mais 80 px depois de 4 s) e as que nascem juntas viram uma só. O círculo
+  desenhado da rede, da espuma e das outras armas no alvo tem no máximo 10 px;
+  o raio que acerta continua o da carta. Esse círculo some quando o bicho morre.
+- **Alternativa descartada:** manter os três degraus do pontilhado (DEC-015) e
+  a mira fixa de 420 px (DEC-016). No print de 30 s o pontilhado virava ruído e
+  a moldura ia parar longe do barco.
+- **Efeito:** vale para o Planeta e para o Pescador. Sem deploy nesta sessão.
