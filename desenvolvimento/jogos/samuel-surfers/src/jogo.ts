@@ -57,6 +57,7 @@ export class Jogo {
   private acumulador = 0;
   private vista = 0;
   private avisoTimer = 0;
+  private avisoDesde = 0;
   private tutorialTimer = 0;
   private viuFaixa = false;
   private viuPulo = false;
@@ -221,8 +222,9 @@ export class Jogo {
     const el = this.q('#aviso');
     el.textContent = texto;
     el.hidden = false;
+    this.avisoDesde = performance.now();
     window.clearTimeout(this.avisoTimer);
-    this.avisoTimer = window.setTimeout(() => { el.hidden = true; }, 1400);
+    this.avisoTimer = window.setTimeout(() => { el.hidden = true; }, 1000);
   }
 
   private marcar(): void {
@@ -239,7 +241,11 @@ export class Jogo {
     this.q('#hud').hidden = estado !== 'correndo';
     this.q('#tPausa').hidden = estado !== 'pausa';
     this.q('#tFim').hidden = estado !== 'fim';
-    if (estado !== 'correndo') this.q('#tutorial').hidden = true;
+    if (estado !== 'correndo') {
+      this.q('#tutorial').hidden = true;
+      this.q('#aviso').hidden = true;
+      window.clearTimeout(this.avisoTimer);
+    }
     this.marcar();
   }
 
@@ -301,6 +307,7 @@ export class Jogo {
           tropecando: foto?.tropecando ?? false,
           acabou: foto?.acabou ?? false,
           tutorial: !jogo.q('#tutorial').hidden,
+          avisoDesde: jogo.avisoDesde,
           pronto: jogo.pronto,
           recorde: jogo.recorde.distancia,
           particulas: jogo.cena.particulasVivas,

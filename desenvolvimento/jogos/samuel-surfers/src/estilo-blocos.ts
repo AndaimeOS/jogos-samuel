@@ -202,6 +202,28 @@ function faixaTrilho(n: number, seed: number): THREE.Group {
   return faixa;
 }
 
+export function montarCenario(
+  grupo: THREE.Group,
+  comprimento: number,
+  ceu: boolean,
+  fixos?: THREE.Object3D,
+): void {
+  const n = Math.max(1, Math.round(comprimento / 10));
+  const faixa = faixaTrilho(n, ceu ? 1 : 9);
+  faixa.position.z = CONFIG.pistaRecuo;
+  grupo.add(faixa);
+  if (ceu && fixos && !fixos.getObjectByName('sol')) {
+    const sol = new THREE.Mesh(
+      new THREE.CircleGeometry(8, 20),
+      new THREE.MeshBasicMaterial({ color: 0xfff0a6, fog: false }),
+    );
+    sol.name = 'sol';
+    sol.position.set(-28, 27, 110);
+    sol.lookAt(0, 0, 0);
+    fixos.add(sol);
+  }
+}
+
 export async function montarBlocos(): Promise<Visual> {
   const samuelModelo = samuel('parado', 0) as THREE.Group;
   compactar(samuelModelo);
@@ -311,19 +333,7 @@ export async function montarBlocos(): Promise<Visual> {
       return garantir(tipo, () => ima() as THREE.Object3D, 0.2, 0);
     },
     async montarPista(grupo, comprimento, ceu) {
-      const n = Math.max(1, Math.round(comprimento / 10));
-      const faixa = faixaTrilho(n, ceu ? 1 : 9);
-      faixa.position.z = 5;
-      grupo.add(faixa);
-      if (ceu) {
-        const sol = new THREE.Mesh(
-          new THREE.CircleGeometry(8, 20),
-          new THREE.MeshBasicMaterial({ color: 0xfff0a6, fog: false }),
-        );
-        sol.position.set(-28, 27, 110);
-        sol.lookAt(0, 0, 0);
-        fixos.add(sol);
-      }
+      montarCenario(grupo, comprimento, ceu, fixos);
     },
     descartar() {
       raizSamuel.removeFromParent();

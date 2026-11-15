@@ -72,6 +72,15 @@ export class Cena {
     const enchimento = new THREE.DirectionalLight(0xffffff, 0.8);
     enchimento.position.set(6, 6, -12);
     this.scene.add(enchimento);
+    const chao = new THREE.Mesh(
+      new THREE.PlaneGeometry(90, 120),
+      new THREE.MeshLambertMaterial({ color: 0x87938f }),
+    );
+    chao.rotation.x = -Math.PI / 2;
+    chao.position.set(0, -0.45, 10);
+    chao.frustumCulled = false;
+    chao.name = 'chao-fundo';
+    this.scene.add(chao);
     this.camera.position.set(0, CONFIG.cameraY, CONFIG.cameraZ);
     this.camera.lookAt(0, CONFIG.olharY, CONFIG.olharZ);
     const geo = new THREE.BufferGeometry();

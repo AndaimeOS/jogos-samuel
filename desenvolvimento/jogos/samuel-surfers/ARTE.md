@@ -4,8 +4,9 @@ A v1 joga no estilo **Blocos**: modelos low-poly feitos em código (`src/modelos
 cor sólida, no mesmo espírito do `GameScene.ts` do MetroDash. O estilo **Pixel**
 (billboard com as folhas do Gerador) existe no menu e só carrega os PNG dele.
 A escolha fica em `localStorage` na chave `samuel-surfers:estilo` (`blocos` ou `pixel`).
-O padrão é `blocos`. Trocar de estilo descarta o outro: o 3D não pede PNG, o pixel
-não pede o pedaço de código dos modelos.
+O padrão é `blocos`. Trocar de estilo descarta o outro: o 3D não pede PNG.
+O Pixel usa as folhas dos personagens e dos obstáculos, e o cenário (trilhos,
+árvores, postes e prédios) é o mesmo dos Blocos.
 
 Os números abaixo estão em `src/config.ts` e `src/contrato-arte.ts`. Se este texto
 divergir, vale o código.
@@ -85,7 +86,9 @@ divergir, vale o código.
 
 5. **Escala.** Faixa de 3,1 confirmada. O pé continua em y = 0. Na pista a escala
    do Samuel é 1,15 (cerca de 2,3) e a câmera está mais alta e atrás, para a
-   criança ver a pista. O Doguinho fica à direita (x − 1,9, z − 0,8), escala 1,05.
+   criança ver a pista. A faixa começa atrás da câmera (`pistaRecuo` −12), e um
+   plano de pedra em y = −0,45 cobre o que sobra, para o chão chegar até a borda
+   de baixo no retrato. O Doguinho fica à direita (x − 1,9, z − 0,8), escala 1,05.
 
 6. **Sombra falsa.** Sim. Um disco escuro debaixo de cada um
    (`MeshBasicMaterial`, sem escrever profundidade). `shadowMap` fica desligado,

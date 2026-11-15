@@ -128,6 +128,20 @@ describe('contrato da arte', () => {
     expect(CONFIG.faixa).toBe(3.1);
     expect(CONFIG.samuelAltura).toBe(2.3);
     expect(CONFIG.cameraZ).toBeLessThan(-14);
+    expect(CONFIG.pistaRecuo).toBeLessThanOrEqual(-12);
+    const perto = CONFIG.pistaRecuo - 5;
+    for (const [aspecto, fov] of [[1024 / 768, 57], [768 / 1024, 68]] as const) {
+      const cam = new THREE.PerspectiveCamera(fov, aspecto, 0.1, 180);
+      cam.position.set(0, CONFIG.cameraY, CONFIG.cameraZ);
+      cam.lookAt(0, CONFIG.olharY, CONFIG.olharZ);
+      cam.updateProjectionMatrix();
+      cam.updateMatrixWorld(true);
+      const canto = new THREE.Vector3(aspecto < 1 ? 1 : 1, -1, 0.5).unproject(cam);
+      const dir = canto.sub(cam.position).normalize();
+      const t = (0 - cam.position.y) / dir.y;
+      const chao = cam.position.clone().add(dir.multiplyScalar(t));
+      expect(perto).toBeLessThan(chao.z);
+    }
     const aFrente = CONFIG.velocidadeInicial * 1.5;
     for (const [aspecto, fov] of [[1024 / 768, 57], [768 / 1024, 68]] as const) {
       const cam = new THREE.PerspectiveCamera(fov, aspecto, 0.1, 180);

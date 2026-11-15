@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { CONFIG } from './config';
 import { PIXEL, PX_POR_UNIDADE } from './contrato-arte';
+import { montarCenario } from './estilo-blocos';
 import { carregarTextura } from './textura';
 import type { TipoEntidade } from './tipos';
 import type { Visual } from './visual';
@@ -98,27 +99,12 @@ export async function montarPixel(): Promise<Visual> {
     return mesh;
   };
 
-  const cascalho = await pedir('arte/texturas/cascalho_32.png');
-  const trilho = await pedir('arte/texturas/trilho_32.png');
-  const muro = await pedir('arte/texturas/muro_32.png');
-  const fachadas = await Promise.all([
-    pedir('arte/texturas/fachada_lilas_32.png'),
-    pedir('arte/texturas/fachada_verde_32.png'),
-    pedir('arte/texturas/fachada_amarela_32.png'),
-    pedir('arte/texturas/fachada_rosa_32.png'),
-  ]);
-  const horizonte = await pedir('arte/texturas/horizonte_256x80.png');
-
-  const matChao = new THREE.MeshLambertMaterial({ map: cascalho });
-  const matTrilho = new THREE.MeshLambertMaterial({ map: trilho });
-  const matMuro = new THREE.MeshLambertMaterial({ map: muro });
-  const matCeu = new THREE.MeshBasicMaterial({ map: horizonte });
-  const matsCasa = fachadas.map((map) => new THREE.MeshLambertMaterial({ map }));
-  materiais.push(matChao, matTrilho, matMuro, matCeu, ...matsCasa);
+  const fixos = new THREE.Group();
 
   return {
     arquivos,
     atualizar(foto, tempo) {
+      if (samuel.parent && fixos.parent !== samuel.parent) samuel.parent.add(fixos);
       const quadros = PIXEL.samuel.quadros;
       let pose = 'parado';
       let indice = quadro('parado_0', quadros);
@@ -166,53 +152,12 @@ export async function montarPixel(): Promise<Visual> {
     samuel,
     dog,
     async montarPista(grupo, comprimento, ceu) {
-      const tile = CONFIG.larguraTrilho;
-      cascalho.wrapS = THREE.RepeatWrapping;
-      cascalho.wrapT = THREE.RepeatWrapping;
-      cascalho.repeat.set(16 / tile, comprimento / tile);
-      trilho.wrapS = THREE.RepeatWrapping;
-      trilho.wrapT = THREE.RepeatWrapping;
-      trilho.repeat.set(1, comprimento / tile);
-      muro.wrapS = THREE.RepeatWrapping;
-      muro.wrapT = THREE.RepeatWrapping;
-      muro.repeat.set(comprimento / tile, 1);
-
-      const geoChao = new THREE.BoxGeometry(16, 0.4, comprimento);
-      const geoTira = new THREE.BoxGeometry(CONFIG.larguraTrilho, 0.08, comprimento);
-      const geoMuro = new THREE.BoxGeometry(0.4, 1.1, comprimento);
-      geos.push(geoChao, geoTira, geoMuro);
-      const chao = new THREE.Mesh(geoChao, matChao);
-      chao.position.y = -0.28;
-      grupo.add(chao);
-      for (const faixa of [-1, 0, 1]) {
-        const tira = new THREE.Mesh(geoTira, matTrilho);
-        tira.position.set(faixa * CONFIG.faixa, 0, 0);
-        grupo.add(tira);
-      }
-      for (const lado of [-1, 1]) {
-        const parede = new THREE.Mesh(geoMuro, matMuro);
-        parede.position.set(lado * 6.4, 0.45, 0);
-        grupo.add(parede);
-      }
-      for (let i = 0; i < 2; i++) {
-        const mat = matsCasa[(i + (ceu ? 0 : 2)) % matsCasa.length];
-        const geo = new THREE.BoxGeometry(2.2, 2.4 + i * 0.6, 2.2);
-        geos.push(geo);
-        const casa = new THREE.Mesh(geo, mat);
-        casa.position.set(8.2, 1.15, -comprimento / 2 + (i + 1) * (comprimento / 3));
-        grupo.add(casa);
-      }
-      if (ceu) {
-        const geo = new THREE.PlaneGeometry(46, 14);
-        geos.push(geo);
-        const fundo = new THREE.Mesh(geo, matCeu);
-        fundo.position.set(0, 7.2, comprimento * 0.42);
-        grupo.add(fundo);
-      }
+      montarCenario(grupo, comprimento, ceu, fixos);
     },
     descartar() {
       samuel.removeFromParent();
       dog.removeFromParent();
+      fixos.removeFromParent();
       texturas.forEach((tex) => tex.dispose());
       materiais.forEach((mat) => mat.dispose());
       geos.forEach((geo) => geo.dispose());

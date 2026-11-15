@@ -27,6 +27,8 @@ export const CONFIG = {
   cameraY: 9.2,
   cameraZ: -16,
   cameraAcompanha: 0.72,
+  /** Onde o primeiro segmento da pista começa, atrás da câmera, para o chão chegar na borda de baixo. */
+  pistaRecuo: -12,
   olharY: 1.15,
   olharZ: 22,
   dogOffsetX: -1.9,
