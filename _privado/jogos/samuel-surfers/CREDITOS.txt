@@ -1,0 +1,27 @@
+Samuel Surfers
+
+A corrida em três faixas foi adaptada de MetroDash
+Copyright (c) 2026 Frank Valdez
+https://github.com/frankstop/MetroDash
+commit e2db18bf511acf94478d0044f070efbcc55059b5
+Licença MIT — veja LICENSE.txt.
+
+O que entrou do MetroDash: o passo fixo da simulação, a troca de faixa,
+o pulo, a rolagem, as moedas e a ideia de pedaços de pista que se repetem.
+O script de analytics da demo pública não entra. O service worker e o PWA também não.
+
+Three.js r170
+Copyright (c) 2010-2024 three.js authors
+Licença MIT — veja THREE-LICENSE.txt.
+O three.js vai dentro do pacote, sem CDN.
+
+Modelos 3D: código original do samuel.tech (folha de estilo 3D),
+cores sólidas, no jeito dos primitivos do MetroDash. Os GLB da folha
+não são carregados.
+
+Arte pixel (só se o estilo Pixel estiver escolhido): folhas do Gerador,
+originais, uso comercial. Não são os desenhos finais.
+
+Sem nome, desenho ou som de corrida comercial de terceiro.
+Textos em português. Sons gerados no aparelho (Web Audio), sem arquivo de áudio.
+Sem rastreamento.
