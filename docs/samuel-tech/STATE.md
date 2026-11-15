@@ -8,9 +8,16 @@ Vale o que está aqui e no Notion, não a memória do chat.
 - **Pedido:** no iPad em pé a faixa "A bola voltou para o meio!" fica mais larga que a mesa e é cortada. Tirar VERMELHO/AZUL de baixo das hastes. Branch `fix/pebolim-faixa-ipad`, PR rascunho. Sem merge e sem publicar.
 - **Feito:** a faixa usa a largura da mesa, quebra a linha e a fonte fica no máximo em 46 px, nos dois sentidos. Saíram da mesa as palavras VERMELHO, AZUL, você e computador (as duas últimas também passavam por baixo da haste). O aviso de deitar o tablet desce para baixo do placar e cabe na tela. Catálogo e manifesto em `0.1.2`. Código em `cceefb7`.
 - **Testes:** `npm test` do Pebolim 35/35 (inclui WebKit, iPad gen 7, só toque, 1024×768 e 768×1024, direto e no iframe). `verificar_jogo.py --todos` ok.
-- **Não feito:** merge e publicação. Espera o Boaz.
+- **Aprovação:** Boaz, 15/11 11:22 BRT: "Sim, publica os ajustes do Pebolim". Isso autoriza o merge. A branch foi atualizada com a main `78c592d` (`?v=8`). O deploy continua fora daqui.
 - **Notion:** esta sessão não veio de um card da fila; o hub não foi atualizado.
-- **NEXT:** o Boaz aprova o PR. Sem isso, não publicar.
+- **NEXT:** merge na main depois dos testes nesta base. Publicar fica com o Boaz.
+
+## 2026-11-15 — Cache dos assets do portal (v=8)
+
+- **Pedido:** a correção do Pebolim no iPad (PR #9, `db39790`) mudou `assets/js/site.js` e `assets/css/samuel.css`, mas as páginas ainda pediam `?v=7`. O `/assets` fica 7 dias em cache, então um iPad que já abriu o site pode continuar com a versão velha.
+- **Feito:** `?v=7` passou a `?v=8` no layout compartilhado (`_app/layout.php`), que é o cabeçalho e o rodapé da home, `/jogos/`, `/jogar/` e do resto do PHP. Não há constante central de versão; os dois links são o único lugar. Desde o `v=7` (`9d1d7de`) os únicos assets compartilhados alterados foram esses dois. As capas novas em `assets/img/` foram arquivos novos, sem `?v=`. `verificar_jogo.py`, `empacotar.sh` e `conferir_producao.py` não conferem essa versão.
+- **Não feito:** publicar no samuel.tech.
+- **NEXT:** o Boaz publica. Sem o `?v=8` no ar, o iPad antigo segue com o Pebolim quebrado.
 
 ## 2026-11-15 — Pebolim no iPad (WebKit)
 
