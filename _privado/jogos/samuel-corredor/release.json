@@ -1,18 +1,18 @@
 {
   "schema_version": 1,
-  "release_id": "samuel-corredor@0.1.0+bde1aad.producao",
+  "release_id": "samuel-corredor@0.1.0+f9b7af2.producao",
   "game_slug": "samuel-corredor",
   "version": "0.1.0",
-  "source_commit": "bde1aad5e4b9e6c8407b19f228b19613aeb49671",
+  "source_commit": "f9b7af23f4ab4c490adf50231b857690d7f83969",
   "environment": "producao",
-  "built_at": "2026-11-15T22:32:22+00:00",
+  "built_at": "2026-11-15T23:10:10+00:00",
   "public_url": "https://samuel.tech/jogar/?jogo=samuel-corredor",
   "files_base_url": "https://samuel.tech/jogo/samuel-corredor/",
   "files": {
-    "CREDITOS.txt": "15e77be4d6f84b7cfe6d2fa9e2b7d494d4fa7169fb5db4ee393f728b0efc5350",
+    "CREDITOS.txt": "b7a7c84a4d057cd7726b3398a31ecb2fbe5dc46132e4cab4c06cedbd4ef26b98",
     "LICENSE.txt": "c3123cd25de4eccf1fd5a5a0a6fc872299116d1dbbb48b00f2554a4c35220a65",
-    "arte/atlas.json": "762d1e63bf56ff06080727f7395ec1aafc9d6c4035feab078e7d57df630502d7",
-    "arte/atlas.png": "f22518b404a9675254aca99858db352857935dd3abb01de20470249f1151aa03",
+    "arte/atlas.json": "f7f412ad9e9e3c3e6cf089b705b13d593666f998cadf903bb7bc962696090900",
+    "arte/atlas.png": "434bd643f303ec2a9f9785c7da08172a16772a4f8ebc19a3ef155084b1344647",
     "arte/controles/botao-direita.png": "6ce89b39657b55062df41cd58a81d52aca5e6695376bbbf51c33d0d74595acbe",
     "arte/controles/botao-esquerda.png": "54a6a090bddf3ee5080329be1a31a5ea975e9f86ce8af2570cb07265cf8f4e5b",
     "arte/controles/botao-pausa.png": "4d68e627e90044c8ea25f8bcff80151d8233b50f3b4d177acfbb619737e89986",
@@ -41,11 +41,12 @@
     "arte/hud/coracao-vazio.png": "e8b86ab1ddb8291fea490e7cce3197377ccf41e53c88d1e0f16c003885969936",
     "arte/hud/coracao.png": "ae6418db1e03d498612d875b33f260a4fc254fa42fa735ab58833a2ea53d2f11",
     "arte/hud/digitos.png": "e1a5b1dd168dfb7fbd951d4fdad941695849ea907bc0c9269d70f988fc41bc04",
+    "arte/hud/estrela-slot.png": "7f5be4df0bf634530463aaf3f91e050b60fd6dba96e2e37fa3f80a9e388bbd0d",
     "arte/tiles.png": "697486b0ef0859ac88375741d063f2deab0a838347648b021c1f83e4a219da5e",
-    "estilo.css": "b6704e8b8677b6c872ac2187389f379aa9ae6abcbfada690d6409a1d71116b87",
-    "index.html": "33987fc7dde94b339122586f588f6a0edd3806b1c83374a4deb93e6785bc41ca",
-    "jogo.js": "9502b282088395822c0c5386419d447e98b2473863799d094a4faad133d150a3",
+    "estilo.css": "cc6d55c76355eb8e7cdf2f95650e6fc66ade38b81438ca738ee129ea100ae55e",
+    "index.html": "0f0c62c0696af97f50301e45988e158f51588333196c1ee781ffdd1213f3b7a1",
+    "jogo.js": "09401e5cfc00feefc8637c62d8878ef2cd879c80af0228bd0cfb2e04bc5c153d",
     "phaser.min.js": "c6fe1d0a04b69118a13afb68116d116e947552c103d7a53ec6f9d214b7584868",
-    "regras.js": "e01b1e98aaccd3ff90b97adb9e5d4b715389cf34f826ff668513201b0afb641e"
+    "regras.js": "4249804591eb3391cf7d144b9b27f014421a702afeb7db3cea3c5104fdc39dfa"
   }
 }

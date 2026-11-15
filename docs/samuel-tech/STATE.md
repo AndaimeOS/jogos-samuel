@@ -3,6 +3,15 @@
 Atualizado ao fim de cada sessão (ST-090). Um bloco por sessão, o mais novo em cima.
 Vale o que está aqui e no Notion, não a memória do chat.
 
+## 2026-11-15 — Samuel Corredor 0.1.0 (arte final, ainda sem publicar)
+
+- **Pedido:** entrar a entrega final do Gerador (`corredor-entrega`) no lugar dos placeholders e fechar a rodada dos prints (moedas e 3 cristais, mapa com nós, castelinho, floresta e caverna provadas, 60 s de toque no retrato e no iframe). Sem merge, sem push na `main` e sem deploy.
+- **Feito:** arte em `f9b7af2`. Atlas 256×256, 54 quadros, JSON Hash, vão de 2 px, `trimmed: false`. O castelinho com troféu fecha a caverna; o marco acende no checkpoint; a vitória segura a pose em V (`samuel/comemorar_0`). As fases do Gerador são iguais byte a byte ao `gerar-fases.mjs` (`gid = linha*12 + coluna + 1`, especial da caverna = 35). Hitbox segue 14×40, offset (9, 8); no campo o pé encosta em y = 192. Os fps sugeridos dos extras ficaram em 4. O buraco do campo e da floresta mostra o pé do céu (faixa verde chapada): falta um fundo `_v2` mais fundo. O jogo não tapa isso com cor.
+- **Testes:** `npx vitest run` no jogo — regras 7/7 e iPad WebKit (geração 7) 7/7: 60 s em 1024×768 e em 768×1024, 60 s no iframe de `/jogar/?jogo=samuel-corredor` nos dois sentidos, sem erro no console. `verificar_jogo.py samuel-corredor` ok. As outras suítes já tinham passado depois do catálogo e não foram reexecutadas nesta leva (o texto do catálogo só mudou a frase da bandeira e do castelinho).
+- **Não feito:** merge, deploy, playtest no iPad de verdade, fundo `_v2` dos buracos.
+- **Notion:** esta sessão não veio de um card da fila; o hub não foi atualizado.
+- **NEXT:** o Boaz olha os prints, pede o fundo `_v2` se quiser, faz o merge e publica. Este agente não faz o deploy.
+
 ## 2026-11-15 — Samuel Corredor 0.1.0 (Phaser, proposta jogável)
 
 - **Pedido do Boaz (15/11 18:42 e 18:44 BRT):** testar o Phaser num jogo novo, "Faz o Samuel Corredor". Plataforma 2D de lado, três fases curtas, mapa, modo Fácil. Sem merge, sem push na `main` e sem deploy: o Boaz confere os prints e publica.
