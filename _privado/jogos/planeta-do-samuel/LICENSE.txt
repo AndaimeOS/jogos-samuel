@@ -1,6 +1,13 @@
 Planeta do Samuel — código original em JavaScript para o samuel.tech.
 Não é uma cópia do repositório isle-of-embers: nenhum arquivo de lá foi vendorizado.
 
+A apresentação da v0.2 reescreve, em JavaScript, trechos do motor do Pokémon Survivors
+(Copyright (c) 2026 Pedro Barretto, licença MIT), que está neste repositório em
+desenvolvimento/jogos/pokemon-survivors/. Entram só câmera, joystick, direção,
+pixel, sombra, ordenação, chão em cache e noite em pixel. Não entra arquivo de
+public/assets/, nem nome, sprite, grito ou criatura de Pokémon. O aviso MIT
+desse código está mais abaixo.
+
 Referência de mecânicas (não de código, arte ou texto):
 Isle of Embers, Copyright (c) 2026 Jaineil Rana
 https://github.com/JaiGod/isle-of-embers
@@ -34,3 +41,30 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
+
+MIT License
+
+Copyright (c) 2026 Pedro Barretto
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+Este segundo aviso cobre só os trechos reescritos do motor (ver ORIGEM.md).
+Não cobre arte de Pokémon nem os arquivos em public/assets/ daquele jogo.
