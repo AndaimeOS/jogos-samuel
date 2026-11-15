@@ -115,9 +115,10 @@ export const FUNDOS = {
   ],
 };
 
-/** No retrato a câmera aproxima para o chão ocupar a tela. 1 na paisagem. */
+/** No retrato a câmera aproxima só o bastante para o chão crescer.
+ *  1,4 na tela de 180 px mostra 129 px de largura. 1 na paisagem. */
 export function zoomDaFase(largura) {
-  return largura < 220 ? 2.2 : 1;
+  return largura < 220 ? 1.4 : 1;
 }
 
 /** Largura lógica para a altura fixa de 240, sem tarja 16:9. */

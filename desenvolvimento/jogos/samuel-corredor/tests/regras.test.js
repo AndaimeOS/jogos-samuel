@@ -46,7 +46,7 @@ describe('regras', () => {
     expect(layoutNos(320)[1].x).toBeGreaterThan(layoutNos(320)[0].x);
     expect(layoutNos(180)[1].y).toBeGreaterThan(layoutNos(180)[0].y);
     expect(layoutNos(180)[0].w).toBeGreaterThanOrEqual(48);
-    expect(zoomDaFase(180)).toBe(2.2);
+    expect(zoomDaFase(180)).toBe(1.4);
     expect(zoomDaFase(320)).toBe(1);
     const faixas = layoutMapa(180);
     expect(faixas[0].y).toBeGreaterThanOrEqual(40);
