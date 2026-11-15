@@ -123,6 +123,7 @@ async function jogar(alvo, page, ms, prefixo, fotos = true) {
         expect(moedas).toBeGreaterThan(0);
         fez.moedas = moedas;
         const cheios = await alvo.locator('#vitoriaCristais .cristal.cheio').count();
+        expect(cheios).toBeGreaterThanOrEqual(1);
         expect(cheios).toBeLessThanOrEqual(3);
         if (fotos) await page.screenshot({ path: path.join(arte, `samuel-corredor-vitoria-${prefixo}.png`) });
         fez.vitoria = true;
@@ -405,7 +406,7 @@ describe('iPad WebKit (geração 7)', () => {
       await page.evaluate(() => window.__corredor.provar('bloco'));
       await page.waitForFunction(() => {
         const o = window.__corredor.olhar();
-        if (o.prova === 'bloco' && o.blocoCaindo === true && o.blocoQueda > 36) {
+        if (o.prova === 'bloco' && o.blocoCaindo === true && o.blocoQueda > 16 && o.noBloco) {
           window.__corredor.congelar();
           return true;
         }

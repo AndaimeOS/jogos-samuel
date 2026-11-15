@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   ANIMS, COLUNAS, CONFIG, GID_QUEDA, GIDS_ENFEITE, GIDS_PLATAFORMA, GIDS_SOLIDO,
   ORDEM, aoZerarVidas, botaoEmPtZoomInteiro, botaoEmPxCss, classificarContato,
-  cortarPulo, decidirBuraco, decidirContato, gid, layoutMapa, layoutNos, medida, proximaFase,
+  cortarPulo, decidirBuraco, decidirContato, gid, layoutMapa, layoutNos, medida, proximaFase, zoomDaFase,
 } from '../../../../_privado/jogos/samuel-corredor/regras.js';
 
 const raiz = new URL('../../../../_privado/jogos/samuel-corredor/', import.meta.url);
@@ -46,6 +46,12 @@ describe('regras', () => {
     expect(layoutNos(320)[1].x).toBeGreaterThan(layoutNos(320)[0].x);
     expect(layoutNos(180)[1].y).toBeGreaterThan(layoutNos(180)[0].y);
     expect(layoutNos(180)[0].w).toBeGreaterThanOrEqual(48);
+    expect(zoomDaFase(180)).toBe(2.2);
+    expect(zoomDaFase(320)).toBe(1);
+    const faixas = layoutMapa(180);
+    expect(faixas[0].y).toBeGreaterThanOrEqual(40);
+    expect(faixas[2].y + faixas[2].h).toBeCloseTo(240);
+    expect(faixas[2].chao).toBeGreaterThan(faixas[0].chao);
     expect(proximaFase('campo')).toBe('floresta');
     expect(proximaFase('caverna')).toBeNull();
   });

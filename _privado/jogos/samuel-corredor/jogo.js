@@ -1,7 +1,7 @@
 import {
   ANIMS, CONFIG, FUNDOS, GID_QUEDA, GIDS_PLATAFORMA, GIDS_SOLIDO, ORDEM,
   aoZerarVidas, classificarContato, cortarPulo, decidirBuraco, decidirContato,
-  layoutNos, medida, proximaFase,
+  layoutMapa, layoutNos, medida, proximaFase, zoomDaFase,
 } from './regras.js';
 
 const PLAT = new Set(GIDS_PLATAFORMA);
@@ -416,13 +416,20 @@ class Boot extends Phaser.Scene {
   }
 }
 
+const FUNDO_MAPA = {
+  campo: ['campo-morros-longe', 'campo-morros', 'campo-nuvens', 'campo-moitas'],
+  floresta: ['floresta-mata-longe', 'floresta-troncos', 'floresta-copas', 'floresta-samambaias'],
+  caverna: ['caverna-castelo', 'caverna-estalactites', 'caverna-pedras'],
+};
+
 class Mapa extends Phaser.Scene {
   constructor() { super('mapa'); }
   create() {
     api.tela = 'mapa';
-    this.g = this.add.graphics().setDepth(0);
-    this.frente = this.add.graphics().setDepth(5);
+    this.g = this.add.graphics().setDepth(6);
+    this.frente = this.add.graphics().setDepth(8);
     this.bonecos = [];
+    this.mascaras = [];
     this.desenhar();
     this.scale.on('resize', () => this.desenhar());
     faixas(true);
@@ -436,20 +443,30 @@ class Mapa extends Phaser.Scene {
     this.frente.clear();
     for (const s of this.bonecos) s.destroy();
     this.bonecos = [];
-    this.cameras.main.setBackgroundColor('#cfefff');
-    const nos = layoutNos(this.scale.width);
+    for (const m of this.mascaras) m.destroy();
+    this.mascaras = [];
+    this.cameras.main.setBackgroundColor('#193337');
+    const largura = this.scale.width;
+    const altura = this.scale.height;
+    const faixasMapa = layoutMapa(largura, altura);
+    const nos = layoutNos(largura, altura);
     const atual = ORDEM.find((id) => liberada(id) && !api.vencidas.includes(id)) || 'campo';
-    this.g.lineStyle(4, 0x193337, 1);
-    this.g.beginPath();
-    this.g.moveTo(nos[0].x, nos[0].y);
-    for (const n of nos.slice(1)) this.g.lineTo(n.x, n.y);
-    this.g.strokePath();
-    this.g.fillStyle(0xf5f2e8, 1);
-    for (let i = 0; i < nos.length - 1; i++) {
-      const a = nos[i];
-      const b = nos[i + 1];
-      for (let t = 0.2; t < 1; t += 0.2) this.g.fillCircle(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, 2);
+    const retrato = largura < 220;
+    if (retrato) {
+      const faixaTitulo = this.add.rectangle(largura / 2, 24, largura, 48, 0xf5f2e8).setDepth(9);
+      this.bonecos.push(faixaTitulo);
     }
+    const titulo = this.add.text(largura / 2, retrato ? 30 : 6, 'Escolha a fase', {
+      fontFamily: 'Courier New, Courier, monospace',
+      fontSize: retrato ? '13px' : '15px',
+      fontStyle: 'bold',
+      color: '#193337',
+      backgroundColor: '#f5f2e8',
+      padding: { x: 5, y: 2 },
+    }).setOrigin(0.5, 0).setDepth(10);
+    this.bonecos.push(titulo);
+    faixasMapa.forEach((f) => this.faixaDoMapa(f));
+    this.caminho(nos, retrato);
     const icones = { campo: 'samuel/parado_0', floresta: 'bandeira/tremular_0', caverna: 'morcego/voar_0' };
     nos.forEach((n, i) => {
       const aberto = liberada(n.id);
@@ -462,23 +479,79 @@ class Mapa extends Phaser.Scene {
       this.g.strokeCircle(n.x, n.y, raio);
       if (corrente) {
         this.frente.fillStyle(0xff9d52, 1);
-        this.frente.fillTriangle(n.x, n.y - raio - 16, n.x - 7, n.y - raio - 6, n.x + 7, n.y - raio - 6);
+        this.frente.fillTriangle(n.x, n.y - raio - 14, n.x - 7, n.y - raio - 4, n.x + 7, n.y - raio - 4);
+        const samuel = this.add.image(n.x, n.chao + 1, 'atlas', 'samuel/parado_0').setOrigin(0.5, 1).setScale(retrato ? 0.55 : 0.8).setDepth(7);
+        this.bonecos.push(samuel);
+      } else {
+        const escala = n.id === 'floresta' ? 0.32 : n.id === 'caverna' ? 0.62 : 0.4;
+        const icone = this.add.image(n.x, n.y + 4, 'atlas', icones[n.id]).setScale(escala).setDepth(7);
+        this.bonecos.push(icone);
       }
-      const escala = n.id === 'campo' ? 0.42 : n.id === 'floresta' ? 0.32 : 0.7;
-      const icone = this.add.image(n.x, n.y + 6, 'atlas', icones[n.id]).setScale(escala).setDepth(2);
-      this.bonecos.push(icone);
-      const numero = this.add.image(n.x, n.y - 12, 'digitos', i + 1).setScale(1.4).setDepth(3);
+      const numero = this.add.image(n.x, n.y - raio + 8, 'digitos', i + 1).setScale(1.15).setDepth(7);
       this.bonecos.push(numero);
-      if (!aberto) this.cadeado(n.x, n.y + 2);
+      if (!aberto) this.cadeado(n.x, n.y + 4);
       else if (vencido) {
-        this.visto(n.x + raio - 10, n.y - raio + 10);
+        this.visto(n.x + raio - 8, n.y - raio + 8);
         const ganhos = Math.max(0, Math.min(3, api.estrelasPorFase[n.id] || 0));
         for (let s = 0; s < 3; s++) {
-          const estrela = this.add.image(n.x - 11 + s * 11, n.y + raio - 8, 'atlas', s < ganhos ? 'estrela/brilhar_0' : 'estrela/apagada_0').setScale(0.5).setDepth(4);
+          const estrela = this.add.image(n.x - 10 + s * 10, n.chao - 4, 'atlas', s < ganhos ? 'estrela/brilhar_0' : 'estrela/apagada_0').setScale(0.42).setDepth(7);
           this.bonecos.push(estrela);
         }
       }
     });
+  }
+
+  faixaDoMapa(f) {
+    const corte = this.make.graphics({ add: false });
+    corte.fillStyle(0xffffff);
+    corte.fillRect(f.x, f.y, f.w, f.h);
+    const mask = corte.createGeometryMask();
+    this.mascaras.push(corte);
+    const ceu = this.add.tileSprite(f.x, f.y, f.w, f.h, `${f.id}-ceu`).setOrigin(0, 0).setDepth(0);
+    ceu.setMask(mask);
+    this.bonecos.push(ceu);
+    FUNDO_MAPA[f.id].forEach((key, i) => {
+      const img = this.add.image(f.x + f.w / 2, f.chao, key).setOrigin(0.5, 1).setDepth(i + 1);
+      img.setMask(mask);
+      this.bonecos.push(img);
+    });
+    const linha = ORDEM.indexOf(f.id);
+    const fileiras = f.h - (f.chao - f.y) >= 32 ? 2 : 1;
+    for (let linhaTile = 0; linhaTile < fileiras; linhaTile++) {
+      const y = f.chao + linhaTile * 16;
+      for (let x = f.x; x < f.x + f.w - 1; x += 16) {
+        const naBordaEsq = x < f.x + 12;
+        const naBordaDir = x > f.x + f.w - 28;
+        const coluna = linhaTile === 0
+          ? (naBordaEsq ? 0 : naBordaDir ? 2 : 1)
+          : (naBordaEsq ? 3 : naBordaDir ? 5 : 4);
+        const tile = this.add.image(x, y, 'pecas', linha * 12 + coluna).setOrigin(0, 0).setDepth(4);
+        tile.setMask(mask);
+        this.bonecos.push(tile);
+      }
+    }
+    if (f.w > f.h) {
+      const x = f.x + f.w / 2 - 8;
+      for (let y = f.y; y < f.chao; y += 16) {
+        const tile = this.add.image(x, y, 'pecas', linha * 12 + 4).setOrigin(0, 0).setDepth(4);
+        tile.setMask(mask);
+        this.bonecos.push(tile);
+      }
+    }
+  }
+
+  caminho(nos, retrato) {
+    this.g.fillStyle(0x193337, 1);
+    if (retrato) {
+      const x = nos[0].x;
+      for (let y = nos[0].chao + 8; y <= nos[nos.length - 1].chao + 8; y += 10) this.g.fillCircle(x, y, 2);
+      return;
+    }
+    const y = nos[0].chao + 8;
+    for (let x = nos[0].x; x <= nos[nos.length - 1].x; x += 12) {
+      const dentro = nos.some((n) => Math.abs(n.x - x) < n.w / 2 - 4);
+      if (!dentro) this.g.fillCircle(x, y, 2.2);
+    }
   }
 
   cadeado(x, y) {
@@ -538,8 +611,9 @@ class Fase extends Phaser.Scene {
       const y = ancora === 'topo' ? extra : CONFIG.altura + extra;
       const img = this.add.tileSprite(0, y, this.scale.width, h, item[0]);
       img.setOrigin(0, ancora === 'topo' ? 0 : 1).setScrollFactor(0).setDepth(i);
-      this.fundos.push({ img, fator, h });
+      this.fundos.push({ img, fator, h, ancora, extra });
     });
+    if (data.id !== 'caverna') this.pintarBuraco(map.widthInPixels);
     const fundo = map.createLayer('fundo', tiles, 0, 0).setDepth(8);
     this.solido = map.createLayer('solido', tiles, 0, 0).setDepth(9);
     fundo.setScrollFactor(1);
@@ -625,23 +699,24 @@ class Fase extends Phaser.Scene {
     this.cameras.main.setRoundPixels(true);
     this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
     this.cameras.main.startFollow(this.player, true, CONFIG.cameraLerp, CONFIG.cameraLerp);
-    this.cameras.main.setBackgroundColor(data.id === 'caverna' ? '#223841' : '#cfefff');
+    this.cameras.main.setBackgroundColor(data.id === 'caverna' ? '#101820' : '#0c2420');
 
     this.coracoes = [];
     for (let i = 0; i < CONFIG.vidas; i++) {
       this.coracoes.push(this.add.image(6 + i * 16, 6, 'coracao').setOrigin(0, 0).setScrollFactor(0).setDepth(40));
     }
-    this.add.image(6, 23, 'atlas', 'moeda/girar_0').setOrigin(0, 0).setScrollFactor(0).setDepth(40);
+    this.iconeMoeda = this.add.image(6, 23, 'atlas', 'moeda/girar_0').setOrigin(0, 0).setScrollFactor(0).setDepth(40);
     this.digitoA = this.add.image(24, 25, 'digitos', 0).setOrigin(0, 0).setScrollFactor(0).setDepth(40);
     this.digitoB = this.add.image(32, 25, 'digitos', 0).setOrigin(0, 0).setScrollFactor(0).setDepth(40);
     const marcaCaverna = this.id === 'caverna';
     this.marca = this.add.sprite(0, 0, 'atlas', marcaCaverna ? 'castelinho/parado_0' : 'bandeira/tremular_0').setScrollFactor(0).setDepth(40).setScale(marcaCaverna ? 0.34 : 0.5).setOrigin(0.5, 0.5);
     if (!marcaCaverna) this.marca.play('bandeira/tremular');
     this.desenharMarco();
+    this.enquadrar();
     this.atualizarHud();
     this.scale.on('resize', (tamanho) => {
       this.cameras.main.setSize(tamanho.width, tamanho.height);
-      for (const f of this.fundos) f.img.setSize(tamanho.width, f.h);
+      this.enquadrar();
     });
     this.prova = data.prova || null;
     this.molaDisparou = false;
@@ -751,6 +826,54 @@ class Fase extends Phaser.Scene {
     animar(this.marcoSprite, this.marcoAtivo ? 'marco/aceso' : 'marco/apagado');
   }
 
+  pintarBuraco(largura) {
+    const chave = 'buraco-fundo';
+    if (!this.textures.exists(chave)) {
+      const g = this.make.graphics({ add: false });
+      const h = 56;
+      for (let i = 0; i < h; i++) {
+        const t = i / (h - 1);
+        const r = Math.round(86 * (1 - t) + 8 * t);
+        const gv = Math.round(140 * (1 - t) + 32 * t);
+        const b = Math.round(78 * (1 - t) + 28 * t);
+        g.fillStyle(Phaser.Display.Color.GetColor(r, gv, b), Math.min(1, 0.2 + t * 1.1));
+        g.fillRect(0, i, 4, 1);
+      }
+      g.generateTexture(chave, 4, h);
+      g.destroy();
+    }
+    this.add.tileSprite(0, 200, largura, 56, chave).setOrigin(0, 0).setDepth(7).setScrollFactor(1);
+  }
+
+  enquadrar() {
+    this.zoom = zoomDaFase(this.scale.width);
+    this.cameras.main.setZoom(this.zoom);
+    this.posicionarFixos();
+    this.rolarFundos();
+  }
+
+  fixo(obj, x, y, escala = 1) {
+    if (!obj) return;
+    const z = this.zoom || 1;
+    const w = this.scale.width;
+    const h = this.scale.height;
+    obj.setScrollFactor(0);
+    obj.setScale(escala / z);
+    obj.setPosition(w / 2 + (x - w / 2) / z, h / 2 + (y - h / 2) / z);
+  }
+
+  posicionarFixos() {
+    const z = this.zoom || 1;
+    this.coracoes?.forEach((c, i) => this.fixo(c, 6 + i * 16, 6));
+    this.fixo(this.iconeMoeda, 6, 23);
+    this.fixo(this.digitoA, 24, 25);
+    this.fixo(this.digitoB, this.moedaLarga ? 32 : 24, 25);
+    if (this.marca) {
+      const base = this.id === 'caverna' ? 0.34 : 0.5;
+      this.marca.setScale(base / z);
+    }
+  }
+
   atualizarHud() {
     this.coracoes.forEach((c, i) => c.setTexture(i < api.vidas ? 'coracao' : 'coracao-vazio'));
     const n = Math.max(0, Math.min(99, api.moedas));
@@ -758,7 +881,8 @@ class Fase extends Phaser.Scene {
     const unidade = n % 10;
     this.digitoA.setFrame(dezena).setVisible(n >= 10);
     this.digitoB.setFrame(unidade);
-    this.digitoB.x = n >= 10 ? 32 : 24;
+    this.moedaLarga = n >= 10;
+    this.posicionarFixos();
   }
 
   olhar() {
@@ -779,9 +903,18 @@ class Fase extends Phaser.Scene {
         if (inimigoDx === null || Math.abs(dx) < Math.abs(inimigoDx)) inimigoDx = dx;
       }
     }
+    let estrelaDx = null;
+    for (const s of this.estrelas?.getChildren?.() || []) {
+      if (!s.active) continue;
+      const dx = s.x - p.x;
+      const dy = s.y - p.y;
+      if (dx > -28 && dx < 34 && dy > -64 && dy < 16 && (estrelaDx === null || Math.abs(dx) < Math.abs(estrelaDx))) estrelaDx = dx;
+    }
+    const noBloco = (this.blocos || []).some((b) => b.active && b.getData('caindo') && p.body.right > b.body.left + 2 && p.body.left < b.body.right - 2 && Math.abs(p.body.bottom - b.body.top) < 8);
     const noChao = p.body.blocked.down || p.body.touching.down;
     let pulo = false;
     if (inimigoDx !== null && Math.abs(inimigoDx) <= 30 && Math.abs(inimigoDx) >= 8 && noChao) pulo = inimigoDx < 0 ? 'volta' : 'curto';
+    else if (api.estrelas < 1 && estrelaDx !== null && noChao) pulo = estrelaDx < 6 ? 'volta' : 'alto';
     else if ((parede || !chao) && (noChao || this.coyote > 0)) pulo = 'alto';
     return {
       tela: api.tela, fase: this.id, pular: pulo, prova: this.prova || null,
@@ -793,6 +926,7 @@ class Fase extends Phaser.Scene {
       mola: !!this.molaDisparou,
       plataformaDelta: this.plataformas[0] ? this.plataformas[0].x - this.plataformas[0].getData('ox') : 0,
       blocoCaindo: this.blocos.some((b) => b.active && b.getData('caindo')),
+      noBloco,
       blocoQueda: this.blocos[0] && this.blocos[0].active ? this.blocos[0].y - (this.blocos[0].getData('oy') || this.blocos[0].y) : 0,
       tipos: this.inimigos.getChildren().filter((i) => i.active && i.getData('vivo')).map((i) => i.getData('tipo')),
     };
@@ -921,8 +1055,15 @@ class Fase extends Phaser.Scene {
     animar(this.castelo, 'castelinho/brilhar');
     animar(this.dog, 'doguinho/comemorar');
     this.cameras.main.stopFollow();
-    const limite = Math.max(0, this.map.widthInPixels - this.scale.width);
-    this.cameras.main.scrollX = Phaser.Math.Clamp(this.player.x - this.scale.width * 0.68, 0, limite);
+    if ((this.zoom || 1) > 1) {
+      this.zoom = 1;
+      this.cameras.main.setZoom(1);
+      this.posicionarFixos();
+      this.rolarFundos();
+    }
+    const visW = this.scale.width / (this.zoom || 1);
+    const limite = Math.max(0, this.map.widthInPixels - visW);
+    this.cameras.main.scrollX = Phaser.Math.Clamp(this.player.x - visW * 0.68, 0, limite);
     tocar('vitoria');
     estouro(this, this.player.x, this.player.y - 36, 'brilho/piscar', 6);
     mostrarVitoria(api.moedas, api.estrelas, !!proximaFase(this.id));
@@ -944,9 +1085,10 @@ class Fase extends Phaser.Scene {
       cam.centerOn(plat.x, plat.y - 20);
     } else if (qual === 'bloco' && this.blocos[0]) {
       const b = this.blocos[0];
-      this.player.setPosition(b.x, b.y - 20);
-      this.player.body.setVelocity(0, 0);
-      cam.centerOn(b.x, b.y - 40);
+      this.player.setPosition(b.x, b.body.top);
+      this.player.body.setVelocity(0, 20);
+      b.setData('peso', CONFIG.blocoEspera);
+      cam.centerOn(b.x, b.body.top - 28);
     } else if (qual === 'inimigos') {
       const chao = 191;
       const base = 220;
@@ -987,14 +1129,18 @@ class Fase extends Phaser.Scene {
       p.y = plat.body.top + 1;
       p.body.setVelocity(0, 0);
       this.cameras.main.centerOn(plat.x, plat.y - 24);
-    } else if (this.prova === 'bloco' && this.blocos[0]) {
+    } else if (this.prova === 'bloco' && this.blocos[0]?.active) {
       const b = this.blocos[0];
       if (!b.getData('caindo')) {
         p.x = b.x;
-        if (p.y > b.y - 16) p.y = b.y - 18;
-        p.body.setVelocity(0, 40);
+        const dy = b.body.top - p.body.bottom;
+        if (Math.abs(dy) > 1) {
+          p.y += dy;
+          p.body.y += dy;
+        }
+        p.body.setVelocity(0, 20);
       }
-      this.cameras.main.centerOn(b.x, Math.max(150, Math.min(b.y - 8, 210)));
+      this.cameras.main.centerOn(b.x, b.body.top - 28);
     }
     if (this.invencivel > 0) this.invencivel -= dt;
 
@@ -1077,18 +1223,28 @@ class Fase extends Phaser.Scene {
     if (p.y > this.map.heightInPixels + 6) this.cairNoBuraco();
     this.rolarFundos();
     const cam = this.cameras.main;
-    const fora = this.metaX < cam.scrollX + 12 || this.metaX > cam.scrollX + cam.width - 12;
+    const vista = cam.worldView;
+    const fora = this.metaX < vista.x + 12 || this.metaX > vista.right - 12;
     this.marca.setVisible(fora);
     if (fora) {
       const direita = this.metaX > cam.midPoint.x;
+      const base = this.id === 'caverna' ? 0.34 : 0.5;
       this.marca.setFlipX(!direita);
-      this.marca.setPosition(direita ? cam.width - 18 : 18, cam.height * 0.42);
+      this.fixo(this.marca, direita ? cam.width - 18 : 18, cam.height * 0.42, base);
     }
   }
 
   rolarFundos() {
-    const x = this.cameras.main.scrollX;
-    for (const f of this.fundos) f.img.tilePositionX = x * f.fator;
+    const cam = this.cameras.main;
+    for (const f of this.fundos) {
+      const yWorld = f.ancora === 'topo' ? f.extra : this.map.heightInPixels + f.extra;
+      f.img.setScrollFactor(1);
+      f.img.setScale(1);
+      f.img.setSize(this.map.widthInPixels, f.h);
+      f.img.x = 0;
+      f.img.y = yWorld;
+      f.img.tilePositionX = cam.scrollX * (1 - f.fator);
+    }
   }
 
   andarInimigo(ini, dt, time) {
@@ -1124,20 +1280,40 @@ class Fase extends Phaser.Scene {
 
   andarBloco(b, dt, time) {
     if (b.getData('caindo')) {
-      if (b.y > this.map.heightInPixels + 32) b.destroy();
+      if (!b.active || b.y > this.map.heightInPixels + 48) {
+        if (b.active) b.destroy();
+        return;
+      }
+      b.body.setAllowGravity(false);
+      b.body.setImmovable(true);
+      b.body.setVelocity(0, 72);
+      this.levarNoBloco(b);
       return;
     }
     const p = this.player;
-    const emCima = p.body.velocity.y >= 0 && p.body.bottom <= b.body.top + 8 && p.body.right > b.body.left + 2 && p.body.left < b.body.right - 2;
+    const emCima = p?.body && p.body.velocity.y >= 0 && p.body.bottom <= b.body.top + 8 && p.body.right > b.body.left + 2 && p.body.left < b.body.right - 2;
     b.setData('peso', emCima ? b.getData('peso') + dt : 0);
     if (b.getData('peso') > 0.28) b.x = b.getData('ox') + Math.sin(time / 28) * 1;
     else b.x = b.getData('ox');
     if (b.getData('peso') > CONFIG.blocoEspera) {
       b.setData('caindo', true);
-      b.body.setImmovable(false);
-      b.body.setAllowGravity(true);
+      b.body.setAllowGravity(false);
+      b.body.setImmovable(true);
+      b.body.setVelocity(0, 72);
       b.setDepth(8);
     }
+  }
+
+  levarNoBloco(b) {
+    const p = this.player;
+    if (!p?.body || this.venceu) return;
+    const sobre = p.body.right > b.body.left + 2 && p.body.left < b.body.right - 2;
+    const perto = p.body.bottom <= b.body.top + 10 && p.body.bottom >= b.body.top - 6;
+    if (!sobre || !perto || p.body.velocity.y < -20) return;
+    const dy = b.body.top - p.body.bottom;
+    p.y += dy;
+    p.body.y += dy;
+    p.body.velocity.y = 72;
   }
 
   soltarNoBuraco() {

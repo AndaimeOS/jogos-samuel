@@ -115,6 +115,11 @@ export const FUNDOS = {
   ],
 };
 
+/** No retrato a câmera aproxima para o chão ocupar a tela. 1 na paisagem. */
+export function zoomDaFase(largura) {
+  return largura < 220 ? 2.2 : 1;
+}
+
 /** Largura lógica para a altura fixa de 240, sem tarja 16:9. */
 export function medida(vw, vh) {
   const altura = CONFIG.altura;
@@ -136,31 +141,36 @@ export function botaoEmPtZoomInteiro(pxJogo, alturaCss, alturaJogo = CONFIG.altu
   return pxJogo * Math.max(1, Math.floor(alturaCss / alturaJogo));
 }
 
-export function layoutMapa(largura) {
+/** Uma faixa por fase, cobrindo a tela. `chao` é o topo do gramado, em px do jogo. */
+export function layoutMapa(largura, altura = CONFIG.altura) {
   if (largura >= 240) {
     const w = largura / 3;
-    return [
-      { id: 'campo', x: 0, y: 0, w, h: 240 },
-      { id: 'floresta', x: w, y: 0, w, h: 240 },
-      { id: 'caverna', x: 2 * w, y: 0, w, h: 240 },
-    ];
+    const chao = altura - 32;
+    return ORDEM.map((id, i) => ({ id, x: i * w, y: 0, w, h: altura, chao }));
   }
-  const h = 240 / 3;
-  return [
-    { id: 'campo', x: 0, y: 0, w: largura, h },
-    { id: 'floresta', x: 0, y: h, w: largura, h },
-    { id: 'caverna', x: 0, y: 2 * h, w: largura, h },
-  ];
+  const titulo = 48;
+  const h = (altura - titulo) / 3;
+  return ORDEM.map((id, i) => ({
+    id,
+    x: 0,
+    y: titulo + i * h,
+    w: largura,
+    h,
+    chao: titulo + (i + 1) * h - 20,
+  }));
 }
 
-/** Três nós com área de toque. x,y é o centro, em px do jogo. */
-export function layoutNos(largura) {
-  const lado = largura < 240 ? 56 : 64;
-  if (largura < 240) {
-    return ORDEM.map((id, i) => ({ id, x: largura / 2, y: 62 + i * 72, w: lado, h: lado }));
-  }
-  const span = largura - 96;
-  return ORDEM.map((id, i) => ({ id, x: 48 + (span / 2) * i, y: 132, w: lado, h: lado }));
+/** Três nós com área de toque, em pé sobre o chão da faixa. x,y é o centro. */
+export function layoutNos(largura, altura = CONFIG.altura) {
+  const lado = largura < 240 ? 48 : 56;
+  return layoutMapa(largura, altura).map((f) => ({
+    id: f.id,
+    x: f.x + f.w / 2,
+    y: f.chao - lado / 2 + (largura < 240 ? 6 : 8),
+    w: lado,
+    h: lado,
+    chao: f.chao,
+  }));
 }
 
 export function decidirContato(modo) {
