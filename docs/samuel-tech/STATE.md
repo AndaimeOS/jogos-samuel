@@ -3,6 +3,15 @@
 Atualizado ao fim de cada sessão (ST-090). Um bloco por sessão, o mais novo em cima.
 Vale o que está aqui e no Notion, não a memória do chat.
 
+## 2026-11-15 — Samuel Corredor 0.1.0 (Phaser, proposta jogável)
+
+- **Pedido do Boaz (15/11 18:42 e 18:44 BRT):** testar o Phaser num jogo novo, "Faz o Samuel Corredor". Plataforma 2D de lado, três fases curtas, mapa, modo Fácil. Sem merge, sem push na `main` e sem deploy: o Boaz confere os prints e publica.
+- **Feito:** slug `samuel-corredor`, branch `cursor/samuel-corredor-2db6`, código em `bde1aad`. Catálogo com `status: "pronto"` e `version: 0.1.0`, então a biblioteca lista o jogo depois do merge. Manifesto `samuel-corredor@0.1.0+bde1aad.producao` (`environment: producao`, como o `release_jogo.py`). Phaser 3.88.2 MIT, build arcade, em `phaser.min.js`. Arte da amostra do Gerador. Respostas no `desenvolvimento/jogos/samuel-corredor/ARTE.md`.
+- **Testes:** `npx vitest run` no jogo — regras 7/7 e iPad WebKit (geração 7) 5/5, inclusive 60 s em 1024×768, retrato 768×1024 e o iframe de `/jogar/?jogo=samuel-corredor`, sem erro no console. `verificar_jogo.py --todos` ok. Os outros jogos não foram alterados; as suítes deles não foram reexecutadas aqui.
+- **Não feito:** merge, deploy, playtest no iPad de verdade. O troféu da caverna não veio na amostra: a meta é a bandeira. O marco do meio é um poste desenhado no código.
+- **Notion:** esta sessão não veio de um card da fila; o hub não foi atualizado.
+- **NEXT:** o Boaz olha os prints, faz o merge e publica. Este agente não faz o deploy.
+
 ## 2026-11-15 — Pebolim 0.1.2 (faixa no iPad, sem rótulo nas hastes)
 
 - **Pedido:** no iPad em pé a faixa "A bola voltou para o meio!" fica mais larga que a mesa e é cortada. Tirar VERMELHO/AZUL de baixo das hastes. Branch `fix/pebolim-faixa-ipad`, PR rascunho. Sem merge e sem publicar.
