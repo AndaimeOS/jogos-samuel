@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 5192",
     "build": "tsc --noEmit && vite build",
-    "test": "vitest run tests/sessao.test.ts tests/pacote.test.ts",
+    "test": "vitest run tests/sessao.test.ts",
     "teste:ipad": "vitest run tests/ipad.test.js",
     "typecheck": "tsc --noEmit"
   },

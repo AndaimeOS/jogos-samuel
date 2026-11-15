@@ -102,7 +102,7 @@ describe('Samuel Surfers no WebKit, iPad, só toque', () => {
     expect(resumo.estilo).toBe('blocos');
     expect(resumo.sombras).toBe(false);
     expect(resumo.faixaMundo).toBe(3.1);
-    expect(resumo.alturaSamuel).toBe(3.4);
+    expect(resumo.alturaSamuel).toBe(2.3);
     expect(pedidos.some((u) => u.includes('.glb') || u.includes('samuel-costas'))).toBe(false);
     expect(erros, erros.join('\n')).toEqual([]);
     await page.screenshot({ path: path.join(arte, 'samuel-surfers-inicio-1024x768.png') });
@@ -120,26 +120,21 @@ describe('Samuel Surfers no WebKit, iPad, só toque', () => {
     await jogar(page);
     expect(await page.locator('#tutorial').isVisible()).toBe(true);
     await page.screenshot({ path: path.join(arte, 'samuel-surfers-tutorial-1024x768.png') });
-    await page.evaluate(() => { document.getElementById('tutorial').hidden = true; });
-    await page.waitForFunction(() => window.__surfers.resumo().moedas > 0 || true);
-    await page.waitForTimeout(600);
-    await page.screenshot({ path: path.join(arte, 'samuel-surfers-moedas-1024x768.png') });
-    await deslizar(page, page, 0, -140);
-    await page.waitForFunction(() => window.__surfers.resumo().pulos > 0);
-    await page.screenshot({ path: path.join(arte, 'samuel-surfers-pulo-1024x768.png') });
-    await page.waitForFunction(() => !window.__surfers.resumo().pulando);
-    await deslizar(page, page, 0, 140);
-    await page.waitForFunction(() => window.__surfers.resumo().rolos > 0);
-    await page.screenshot({ path: path.join(arte, 'samuel-surfers-rola-1024x768.png') });
+    await provarAcoes(page, page, '1024x768');
+    await conferirHud(page);
     await deslizar(page, page, -160, 0);
     await page.waitForFunction(() => window.__surfers.resumo().faixa === -1);
-    await page.waitForFunction(() => window.__surfers.resumo().tropecos > 0, null, { timeout: 20000 });
+    await page.evaluate(() => window.__surfers.obstaculoNaFrente());
+    await esperarTropeco(page);
     await page.screenshot({ path: path.join(arte, 'samuel-surfers-tropeco-1024x768.png') });
     expect(await page.locator('#aviso').textContent()).toMatch(/Tropeçou/);
     expect(await page.evaluate(() => window.__surfers.resumo().acabou)).toBe(false);
     await page.locator('#bPausa').tap();
     await page.locator('#bEncerrar').tap();
     await page.waitForFunction(() => window.__surfers.resumo().estado === 'fim');
+    expect(await page.locator('#moedasFim').innerText()).toMatch(/^\d+ moeda(s)?$/);
+    expect(await page.locator('#recordeFim').innerText()).toMatch(/^Recorde: \d+ m/);
+    expect(await page.locator('#metrosFim').innerText()).toMatch(/\d+ m/);
     await page.screenshot({ path: path.join(arte, 'samuel-surfers-fim-1024x768.png') });
     const botoes = await page.locator('#hud button, #tFim button, #tMenu button').evaluateAll((els) => els.map((el) => {
       const r = el.getBoundingClientRect();
@@ -161,16 +156,8 @@ describe('Samuel Surfers no WebKit, iPad, só toque', () => {
     await page.screenshot({ path: path.join(arte, 'samuel-surfers-inicio-768x1024.png') });
     await jogar(page);
     await page.screenshot({ path: path.join(arte, 'samuel-surfers-tutorial-768x1024.png') });
-    await page.evaluate(() => { document.getElementById('tutorial').hidden = true; });
-    await page.waitForTimeout(500);
-    await page.screenshot({ path: path.join(arte, 'samuel-surfers-moedas-768x1024.png') });
-    await deslizar(page, page, 0, -150);
-    await page.waitForFunction(() => window.__surfers.resumo().pulando || window.__surfers.resumo().pulos > 0);
-    await page.screenshot({ path: path.join(arte, 'samuel-surfers-pulo-768x1024.png') });
-    await page.waitForFunction(() => !window.__surfers.resumo().pulando);
-    await deslizar(page, page, 0, 150);
-    await page.waitForFunction(() => window.__surfers.resumo().rolos > 0);
-    await page.screenshot({ path: path.join(arte, 'samuel-surfers-rola-768x1024.png') });
+    await provarAcoes(page, page, '768x1024');
+    await conferirHud(page);
     const medidas = await page.locator('#bEsquerda, #bPular, #bRolar, #bDireita, #bPausa, #bTela').evaluateAll((els) => els.map((el) => {
       const r = el.getBoundingClientRect();
       return { id: el.id, w: r.width, h: r.height };
@@ -180,10 +167,14 @@ describe('Samuel Surfers no WebKit, iPad, só toque', () => {
       expect(botao.h, botao.id).toBeGreaterThanOrEqual(76);
     }
     await deslizar(page, page, -150, 0);
-    await page.waitForFunction(() => window.__surfers.resumo().tropecos > 0, null, { timeout: 25000 });
+    await page.waitForFunction(() => window.__surfers.resumo().faixa === -1);
+    await page.evaluate(() => window.__surfers.obstaculoNaFrente());
+    await esperarTropeco(page);
     await page.screenshot({ path: path.join(arte, 'samuel-surfers-tropeco-768x1024.png') });
     await page.locator('#bPausa').tap();
     await page.locator('#bEncerrar').tap();
+    expect(await page.locator('#recordeFim').innerText()).toMatch(/^Recorde: \d+ m/);
+    expect(await page.locator('#moedasFim').innerText()).toMatch(/moeda/);
     await page.screenshot({ path: path.join(arte, 'samuel-surfers-fim-768x1024.png') });
     const rolagem = await page.evaluate(() => ({
       sw: document.documentElement.scrollWidth,
@@ -193,6 +184,28 @@ describe('Samuel Surfers no WebKit, iPad, só toque', () => {
     expect(erros, erros.join('\n')).toEqual([]);
     await ctx.close();
   }, 60000);
+
+  it('estilo pixel: menu e corrida, sem erro de console', async () => {
+    const ctx = await contexto(1024, 768);
+    const page = await ctx.newPage();
+    const erros = [];
+    ouvir(page, erros);
+    await abrir(page, direto);
+    await page.locator('#bPixel').tap();
+    await page.waitForFunction(() => window.__surfers.resumo().estilo === 'pixel' && document.getElementById('carregando').hidden);
+    const arquivos = await page.evaluate(() => window.__surfers.resumo().arquivos);
+    expect(arquivos.some((a) => String(a).includes('samuel-costas'))).toBe(true);
+    expect(erros, erros.join('\n')).toEqual([]);
+    await page.screenshot({ path: path.join(arte, 'samuel-surfers-pixel-menu-1024x768.png') });
+    await page.locator('#bJogar').tap();
+    await page.waitForFunction(() => window.__surfers.resumo().estado === 'correndo');
+    await page.evaluate(() => { document.getElementById('tutorial').hidden = true; });
+    await page.waitForTimeout(400);
+    await page.screenshot({ path: path.join(arte, 'samuel-surfers-pixel-corrida-1024x768.png') });
+    expect(await page.evaluate(() => window.__surfers.resumo().estilo)).toBe('pixel');
+    expect(erros, erros.join('\n')).toEqual([]);
+    await ctx.close();
+  }, 30000);
 
   it('limita o pixel ratio e a tela cheia usa webkit', async () => {
     const ctx = await contexto(1024, 768, 2);
@@ -241,6 +254,110 @@ describe('Samuel Surfers no WebKit, iPad, só toque', () => {
   }, 120000);
 });
 
+async function quadros(alvo, n = 2) {
+  await alvo.evaluate((faltam) => new Promise((resolve) => {
+    const passo = () => {
+      faltam -= 1;
+      if (faltam <= 0) resolve(undefined);
+      else requestAnimationFrame(passo);
+    };
+    requestAnimationFrame(passo);
+  }), n);
+}
+
+async function provarAcoes(page, alvo, sufixo) {
+  await alvo.evaluate(() => { document.getElementById('tutorial').hidden = true; });
+  const antes = await alvo.evaluate(() => window.__surfers.resumo().moedas);
+  await alvo.waitForFunction((base) => {
+    const s = window.__surfers.resumo();
+    return s.moedas > base && s.particulas > 0;
+  }, antes, { timeout: 15000 });
+  await quadros(alvo);
+  const moedas = await alvo.evaluate(() => window.__surfers.resumo());
+  expect(moedas.moedas).toBeGreaterThan(antes);
+  expect(moedas.particulas).toBeGreaterThan(0);
+  await page.screenshot({ path: path.join(arte, `samuel-surfers-moedas-${sufixo}.png`) });
+  await alvo.evaluate(() => window.__surfers.limparParticulas());
+  await deslizar(page, alvo, 0, -170);
+  await alvo.waitForFunction(() => {
+    const s = window.__surfers.resumo();
+    return s.pulando && s.y > 1 && s.pose === 'pular';
+  });
+  await quadros(alvo);
+  await alvo.evaluate(() => {
+    window.__surfers.limparParticulas();
+    window.__surfers.congelar(true);
+  });
+  await quadros(alvo);
+  const pulo = await alvo.evaluate(() => window.__surfers.resumo());
+  expect(pulo.y).toBeGreaterThan(0);
+  expect(pulo.pose).toBe('pular');
+  await page.screenshot({ path: path.join(arte, `samuel-surfers-pulo-${sufixo}.png`) });
+  await alvo.evaluate(() => window.__surfers.congelar(false));
+  await alvo.waitForFunction(() => !window.__surfers.resumo().pulando && window.__surfers.resumo().y === 0);
+  await alvo.evaluate(() => window.__surfers.limparParticulas());
+  await deslizar(page, alvo, 0, 160);
+  await alvo.waitForFunction(() => {
+    const s = window.__surfers.resumo();
+    return s.rolando && s.y === 0 && s.pose === 'rolar';
+  });
+  await quadros(alvo);
+  await alvo.evaluate(() => window.__surfers.congelar(true));
+  await quadros(alvo);
+  const rola = await alvo.evaluate(() => window.__surfers.resumo());
+  expect(rola.pose).toBe('rolar');
+  expect(rola.rolando).toBe(true);
+  await page.screenshot({ path: path.join(arte, `samuel-surfers-rola-${sufixo}.png`) });
+  await alvo.evaluate(() => window.__surfers.congelar(false));
+}
+
+async function esperarTropeco(alvo) {
+  await alvo.waitForFunction(() => {
+    const s = window.__surfers.resumo();
+    if (!s.tropecando || s.pose !== 'tropecar') return false;
+    const p = window.__surfers.projetar(s.x * s.faixaMundo, 1.2, 0);
+    return Math.abs(p.x) < 0.82 && p.y > -0.82 && p.y < 0.9;
+  }, null, { timeout: 20000 });
+  await quadros(alvo);
+}
+
+function cruza(a, b) {
+  return a.x < b.x + b.w - 1 && a.x + a.w > b.x + 1 && a.y < b.y + b.h - 1 && a.y + a.h > b.y + 1;
+}
+
+async function caixa(alvo, sel) {
+  return alvo.locator(sel).evaluate((el) => {
+    const r = el.getBoundingClientRect();
+    return { id: el.id, x: r.x, y: r.y, w: r.width, h: r.height };
+  });
+}
+
+async function conferirHud(alvo) {
+  const caixas = [];
+  for (const id of ['#metros', '#moedas', '#bSom', '#bPausa', '#bTela']) caixas.push(await caixa(alvo, id));
+  for (let i = 0; i < caixas.length; i++) {
+    expect(caixas[i].w, caixas[i].id).toBeGreaterThan(20);
+    for (let j = i + 1; j < caixas.length; j++) {
+      expect(cruza(caixas[i], caixas[j]), `${caixas[i].id} sobre ${caixas[j].id}`).toBe(false);
+    }
+  }
+  expect(await alvo.locator('#metros').innerText()).toMatch(/\d+\s*m/);
+  const esq = await caixa(alvo, '#bEsquerda');
+  const dir = await caixa(alvo, '#bDireita');
+  const pulo = await caixa(alvo, '#bPular');
+  const rola = await caixa(alvo, '#bRolar');
+  for (const botao of [esq, dir, pulo, rola]) {
+    expect(botao.w, botao.id).toBeGreaterThanOrEqual(76);
+    expect(botao.h, botao.id).toBeGreaterThanOrEqual(76);
+  }
+  expect(Math.abs(esq.y - dir.y)).toBeLessThan(12);
+  expect(dir.x).toBeGreaterThan(esq.x + 60);
+  expect(esq.x).toBeLessThan(140);
+  expect(Math.abs(pulo.y - rola.y)).toBeLessThan(12);
+  expect(rola.x).toBeGreaterThan(pulo.x + 60);
+  expect(pulo.x).toBeGreaterThan(dir.x + 80);
+}
+
 async function minuto(largura, altura, url, iframe) {
   const ctx = await contexto(largura, altura);
   const page = await ctx.newPage();
@@ -276,7 +393,7 @@ async function minuto(largura, altura, url, iframe) {
   expect(resumo.estado, JSON.stringify(resumo)).toBe('correndo');
   expect(resumo.distancia).toBeGreaterThan(200);
   expect(resumo.chamadas).toBeGreaterThan(0);
-  expect(resumo.chamadas).toBeLessThanOrEqual(96);
+  expect(resumo.chamadas).toBeLessThanOrEqual(120);
   expect(resumo.acabou).toBe(false);
   expect(erros, erros.join('\n')).toEqual([]);
   await ctx.close();

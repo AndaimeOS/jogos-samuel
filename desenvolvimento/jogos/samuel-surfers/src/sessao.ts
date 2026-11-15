@@ -121,6 +121,15 @@ export class Sessao {
     }
   }
 
+  colocarBarreira(): void {
+    this.prancha = 0;
+    this.invulneravel = 0;
+    this.y = 0;
+    this.vy = 0;
+    this.rolar = 0;
+    this.criar('barreira', this.faixaAlvo, 5);
+  }
+
   continuar(): boolean {
     if (this.modo !== 'normal' || !this.acabou || this.jaContinuou) return false;
     this.jaContinuou = true;

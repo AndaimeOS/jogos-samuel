@@ -40,6 +40,7 @@ export async function montarPixel(): Promise<Visual> {
     const mat = new THREE.SpriteMaterial({ map: tex, alphaTest: 0.5, transparent: false });
     materiais.push(mat);
     const s = new THREE.Sprite(mat);
+    s.frustumCulled = false;
     s.center.set(0.5, 0);
     s.scale.set(w, h, 1);
     return s;
@@ -119,11 +120,21 @@ export async function montarPixel(): Promise<Visual> {
     arquivos,
     atualizar(foto, tempo) {
       const quadros = PIXEL.samuel.quadros;
+      let pose = 'parado';
       let indice = quadro('parado_0', quadros);
-      if (foto?.tropecando) indice = quadro('tropecar_0', quadros);
-      else if (foto?.rolando) indice = andar(tempo, quadros, 'rolar');
-      else if (foto?.pulando) indice = quadro('pular_0', quadros);
-      else if (foto) indice = andar(tempo, quadros, 'correr');
+      if (foto?.tropecando) {
+        pose = 'tropecar';
+        indice = quadro('tropecar_0', quadros);
+      } else if (foto?.rolando) {
+        pose = 'rolar';
+        indice = andar(tempo, quadros, 'rolar');
+      } else if (foto?.pulando) {
+        pose = 'pular';
+        indice = quadro('pular_0', quadros);
+      } else if (foto) {
+        pose = 'correr';
+        indice = andar(tempo, quadros, 'correr');
+      }
       samuelTex.offset.x = indice / quadros.length;
 
       const dogQuadros = PIXEL.doguinho.quadros;
@@ -144,6 +155,7 @@ export async function montarPixel(): Promise<Visual> {
       dog.position.set(x + CONFIG.dogOffsetX, y * 0.2, CONFIG.dogOffsetZ);
       prancha.visible = (foto?.prancha ?? 0) > 0;
       prancha.position.set(0, 0.05, 0.15);
+      return pose;
     },
     criar(tipo: TipoEntidade) {
       if (tipo === 'moeda') return plano(geoMoeda, matMoeda, 0.85)();

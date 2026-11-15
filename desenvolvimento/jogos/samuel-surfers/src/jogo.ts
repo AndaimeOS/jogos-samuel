@@ -63,6 +63,7 @@ export class Jogo {
   private viuRolar = false;
   private recorde: Recorde = { schemaVersion: 1, moedas: 0, pontos: 0, distancia: 0 };
   private pronto = false;
+  private congelado = false;
 
   constructor(private raiz: HTMLElement) {
     document.documentElement.style.setProperty('--acao', UI.botaoAcao + 'px');
@@ -186,12 +187,12 @@ export class Jogo {
   private encerrar(batida: boolean): void {
     if (!this.sessao || this.estado === 'fim') return;
     const foto = this.sessao.foto();
-    const antes = this.recorde.moedas;
+    const antes = this.recorde.distancia;
     this.recorde = gravarRecorde({ ler, gravar }, foto);
     this.q('#tituloFim').textContent = batida ? 'FIM DA CORRIDA' : 'CORRIDA ENCERRADA';
-    this.q('#moedasFim').textContent = foto.moedas + ' moedas';
+    this.q('#moedasFim').textContent = textoMoedas(foto.moedas);
     this.q('#metrosFim').textContent = foto.distancia + ' m';
-    this.q('#recordeFim').textContent = 'Recorde: ' + this.recorde.moedas + ' moedas' + (foto.moedas > antes ? ' — novo!' : '');
+    this.q('#recordeFim').textContent = 'Recorde: ' + this.recorde.distancia + ' m' + (foto.distancia > antes ? ' — novo!' : '');
     this.q('#bContinuar').hidden = !foto.podeContinuar;
     this.audio.parar();
     this.mostrar('fim');
@@ -229,7 +230,7 @@ export class Jogo {
     this.q('#bNormal').setAttribute('aria-pressed', String(this.modo === 'normal'));
     this.q('#bPixel').setAttribute('aria-pressed', String(this.estilo === 'pixel'));
     this.q('#bBlocos').setAttribute('aria-pressed', String(this.estilo === 'blocos'));
-    this.q('#recordeMenu').textContent = this.recorde.moedas > 0 ? 'Recorde: ' + this.recorde.moedas + ' moedas' : 'Recorde: ainda não';
+    this.q('#recordeMenu').textContent = this.recorde.distancia > 0 ? 'Recorde: ' + this.recorde.distancia + ' m' : 'Recorde: ainda não';
   }
 
   private mostrar(estado: Estado): void {
@@ -245,15 +246,15 @@ export class Jogo {
   private hud(): void {
     const foto = this.sessao?.foto();
     if (!foto) return;
-    this.q('#moedas').textContent = String(foto.moedas);
     this.q('#metros').textContent = foto.distancia + ' m';
-    this.q('#missao').textContent = Math.min(foto.moedas, CONFIG.missaoMoedas) + '/' + CONFIG.missaoMoedas;
+    this.q('#moedas').textContent = textoMoedas(foto.moedas);
+    this.q('#missao').textContent = 'meta ' + Math.min(foto.moedas, CONFIG.missaoMoedas) + '/' + CONFIG.missaoMoedas;
   }
 
   private loop = (agora: number): void => {
-    const dt = Math.min(0.05, (agora - this.anterior) / 1000);
+    const dt = this.congelado ? 0 : Math.min(0.05, (agora - this.anterior) / 1000);
     this.anterior = agora;
-    if (this.estado === 'correndo' && this.sessao && !this.sessao.acabou) {
+    if (!this.congelado && this.estado === 'correndo' && this.sessao && !this.sessao.acabou) {
       this.acumulador += dt;
       while (this.acumulador >= CONFIG.passo) {
         this.sessao.atualizar(CONFIG.passo);
@@ -272,6 +273,10 @@ export class Jogo {
     const jogo = this;
     window.__surfers = {
       pronto: true,
+      congelar: (valor = true) => { jogo.congelado = valor; },
+      limparParticulas: () => jogo.cena.limparParticulas(),
+      obstaculoNaFrente: () => jogo.sessao?.colocarBarreira(),
+      projetar: (x: number, y: number, z: number) => jogo.cena.projetar(x, y, z),
       resumo: () => {
         const foto = jogo.sessao?.foto();
         return {
@@ -297,7 +302,11 @@ export class Jogo {
           acabou: foto?.acabou ?? false,
           tutorial: !jogo.q('#tutorial').hidden,
           pronto: jogo.pronto,
-          recorde: jogo.recorde.moedas,
+          recorde: jogo.recorde.distancia,
+          particulas: jogo.cena.particulasVivas,
+          y: foto?.y ?? 0,
+          x: foto?.x ?? 0,
+          pose: jogo.cena.pose,
           faixaMundo: CONFIG.faixa,
           alturaSamuel: CONFIG.samuelAltura,
         };
@@ -306,10 +315,18 @@ export class Jogo {
   }
 }
 
+function textoMoedas(n: number): string {
+  return n === 1 ? '1 moeda' : n + ' moedas';
+}
+
 declare global {
   interface Window {
     __surfers?: {
       pronto: boolean;
+      congelar: (valor?: boolean) => void;
+      limparParticulas: () => void;
+      obstaculoNaFrente: () => void;
+      projetar: (x: number, y: number, z: number) => { x: number; y: number; z: number };
       resumo: () => Record<string, unknown>;
     };
   }

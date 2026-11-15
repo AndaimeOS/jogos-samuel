@@ -21,6 +21,11 @@ export class Cena {
   estilo: Estilo = 'pixel';
   chamadas = 0;
   triangulos = 0;
+  pose = 'parado';
+
+  get particulasVivas(): number {
+    return this.faíscas.length;
+  }
   arquivos: readonly string[] = [];
 
   private readonly scene = new THREE.Scene();
@@ -33,6 +38,7 @@ export class Cena {
   private vivos = new Map<number, THREE.Object3D>();
   private pools = new Map<string, THREE.Object3D[]>();
   private tempo = 0;
+  private readonly projetor = new THREE.Vector3();
   private observer: ResizeObserver;
 
   constructor(private host: HTMLElement) {
@@ -66,11 +72,11 @@ export class Cena {
     const enchimento = new THREE.DirectionalLight(0xffffff, 0.8);
     enchimento.position.set(6, 6, -12);
     this.scene.add(enchimento);
-    this.camera.position.set(0, 5.4, -10.2);
-    this.camera.lookAt(0, 2.2, 12);
+    this.camera.position.set(0, CONFIG.cameraY, CONFIG.cameraZ);
+    this.camera.lookAt(0, CONFIG.olharY, CONFIG.olharZ);
     const geo = new THREE.BufferGeometry();
-    geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(48 * 3), 3));
-    this.pontos = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xffe56a, size: 0.18, sizeAttenuation: true }));
+    geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(64 * 3), 3));
+    this.pontos = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xffe56a, size: 0.34, sizeAttenuation: true }));
     this.scene.add(this.pontos);
     this.observer = new ResizeObserver(() => this.redimensionar());
     this.observer.observe(host);
@@ -101,31 +107,44 @@ export class Cena {
     if (!this.renderer || !this.ok) return;
     this.tempo += dt;
     if (delta > 0) this.rolar(delta);
-    this.visual?.atualizar(foto, this.tempo);
+    this.pose = this.visual?.atualizar(foto, this.tempo) ?? 'parado';
     this.sincronizar(entidades);
     this.animarFaíscas(dt);
-    const alvo = (foto?.x ?? 0) * CONFIG.faixa * 0.22;
-    this.camera.position.x += (alvo - this.camera.position.x) * Math.min(1, dt * 3);
-    this.camera.position.y = 5.4;
-    this.camera.position.z = -10.2;
-    this.camera.lookAt(this.camera.position.x * 0.2, 2.2, 12);
+    const alvo = (foto?.x ?? 0) * CONFIG.faixa * CONFIG.cameraAcompanha;
+    this.camera.position.x += (alvo - this.camera.position.x) * Math.min(1, dt * 2.2);
+    this.camera.position.y = CONFIG.cameraY;
+    this.camera.position.z = CONFIG.cameraZ;
+    this.camera.lookAt(this.camera.position.x * 0.15, CONFIG.olharY, CONFIG.olharZ);
     this.renderer.render(this.scene, this.camera);
     this.chamadas = this.renderer.info.render.calls;
     this.triangulos = this.renderer.info.render.triangles;
   }
 
   particulas(faixa: Faixa, z: number): void {
-    for (let i = 0; i < 8 && this.faíscas.length < 48; i++) {
+    for (let i = 0; i < 8 && this.faíscas.length < 64; i++) {
       this.faíscas.push({
-        x: faixa * CONFIG.faixa,
-        y: 0.9,
-        z,
-        vx: (Math.random() - 0.5) * 2.2,
-        vy: 1.4 + Math.random() * 1.4,
-        vz: (Math.random() - 0.5) * 1.2,
-        vida: 0.38,
+        x: faixa * CONFIG.faixa + (Math.random() - 0.5) * 0.55,
+        y: 2.25 + Math.random() * 0.3,
+        z: Math.max(0.3, z) + 0.15,
+        vx: (Math.random() - 0.5) * 1.1,
+        vy: 1.5 + Math.random() * 0.8,
+        vz: (Math.random() - 0.5) * 0.45,
+        vida: 0.5,
       });
     }
+  }
+
+  limparParticulas(): void {
+    this.faíscas.length = 0;
+    const pos = this.pontos.geometry.getAttribute('position') as THREE.BufferAttribute;
+    for (let i = 0; i < pos.count; i++) pos.setXYZ(i, 0, -10, 0);
+    pos.needsUpdate = true;
+    this.pontos.visible = false;
+  }
+
+  projetar(x: number, y: number, z: number): { x: number; y: number; z: number } {
+    this.projetor.set(x, y, z).project(this.camera);
+    return { x: this.projetor.x, y: this.projetor.y, z: this.projetor.z };
   }
 
   private rolar(delta: number): void {

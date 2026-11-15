@@ -69,7 +69,7 @@ h1 { margin: 0 0 8px; font-size: 32px; line-height: 1; }
   background: #1f6f78; color: var(--papel);
   box-shadow: 4px 4px 0 var(--tinta);
 }
-.toque.miudo, .toque.pausa, .toque.tela { width: var(--miudo); height: var(--miudo); min-width: var(--miudo); min-height: var(--miudo); }
+.toque.miudo, .toque.pausa, .toque.cheia { width: var(--miudo); height: var(--miudo); min-width: var(--miudo); min-height: var(--miudo); }
 .toque.jogar, .toque.repetir { width: var(--jogar); height: var(--miudo); min-width: var(--jogar); min-height: var(--miudo); background: var(--verde); color: var(--tinta); }
 .toque.pular, .toque.pausa { background: var(--laranja); }
 .toque.rolar { background: var(--lilas); color: var(--tinta); }
@@ -77,10 +77,18 @@ h1 { margin: 0 0 8px; font-size: 32px; line-height: 1; }
 .toque:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--tinta); }
 .topo {
   position: absolute; top: max(8px, env(safe-area-inset-top)); left: 8px; right: 8px;
-  display: flex; gap: 8px; align-items: center; pointer-events: none;
+  display: flex; flex-wrap: nowrap; justify-content: space-between; align-items: flex-start;
+  gap: 8px; pointer-events: none;
 }
-.topo p { margin: 0; padding: 6px 8px; background: var(--papel); border: 2px solid var(--tinta); }
-.topo button { pointer-events: auto; }
+.placar, .comandos, .linha { display: flex; flex-wrap: nowrap; align-items: center; gap: 8px; }
+.placar { flex: 1 1 auto; min-width: 0; flex-direction: column; align-items: flex-start; gap: 4px; }
+.comandos { flex: 0 0 auto; }
+.topo p {
+  margin: 0; padding: 8px 10px; background: var(--papel); border: 2px solid var(--tinta);
+  white-space: nowrap; flex: 0 0 auto; line-height: 1.1;
+}
+#missao { font-size: 14px; }
+.topo button { pointer-events: auto; flex: 0 0 auto; }
 #tutorial {
   position: absolute; left: 50%; top: 22%; transform: translateX(-50%);
   text-align: center; pointer-events: none; color: var(--tinta);
@@ -98,12 +106,13 @@ h1 { margin: 0 0 8px; font-size: 32px; line-height: 1; }
   pointer-events: none;
 }
 .controles {
-  position: absolute; right: max(10px, env(safe-area-inset-right));
+  position: absolute; left: 0; right: 0;
   bottom: max(10px, env(safe-area-inset-bottom));
-  display: grid; grid-template-columns: var(--acao) var(--acao);
-  gap: 8px;
+  display: flex; justify-content: space-between; align-items: flex-end;
+  padding: 0 max(10px, env(safe-area-inset-right)) 0 max(10px, env(safe-area-inset-left));
+  pointer-events: none;
 }
-#bPular { grid-column: 1 / -1; justify-self: center; }
+.lado { display: flex; gap: 8px; pointer-events: auto; }
 #moedasFim, #recordeFim { font-size: 28px; }
 body.tela-fallback #app { position: fixed; inset: 0; width: 100%; height: 100%; }
 

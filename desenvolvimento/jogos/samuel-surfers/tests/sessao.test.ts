@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
 import { CONFIG } from '../src/config';
 import { BLOCOS, ESTILO_V1, LISTA_GLB, PIXEL, UI } from '../src/contrato-arte';
@@ -125,7 +126,23 @@ describe('contrato da arte', () => {
     expect(BLOCOS.compressao).toBe('nenhuma');
     expect(BLOCOS.formato).toBe('glb');
     expect(CONFIG.faixa).toBe(3.1);
-    expect(CONFIG.samuelAltura).toBe(3.4);
+    expect(CONFIG.samuelAltura).toBe(2.3);
+    expect(CONFIG.cameraZ).toBeLessThan(-14);
+    const aFrente = CONFIG.velocidadeInicial * 1.5;
+    for (const [aspecto, fov] of [[1024 / 768, 57], [768 / 1024, 68]] as const) {
+      const cam = new THREE.PerspectiveCamera(fov, aspecto, 0.1, 180);
+      cam.position.set(0, CONFIG.cameraY, CONFIG.cameraZ);
+      cam.lookAt(0, CONFIG.olharY, CONFIG.olharZ);
+      cam.updateProjectionMatrix();
+      cam.updateMatrixWorld(true);
+      const frente = new THREE.Vector3(0, 1, aFrente).project(cam);
+      const samuel = new THREE.Vector3(0, 1.2, 0).project(cam);
+      expect(Math.abs(frente.x)).toBeLessThan(1);
+      expect(Math.abs(frente.y)).toBeLessThan(0.85);
+      expect(frente.z).toBeGreaterThan(-1);
+      expect(frente.z).toBeLessThan(1);
+      expect(samuel.y).toBeLessThan(frente.y);
+    }
     expect(CONFIG.dogOffsetX).toBe(-1.9);
     expect(UI.botaoAcao).toBe(76);
     expect(UI.botaoMiudo).toBe(76);

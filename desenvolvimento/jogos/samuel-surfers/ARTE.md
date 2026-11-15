@@ -37,9 +37,11 @@ divergir, vale o código.
    tropeça em 1, parado em 1. Doguinho corre em 4, pula em 1, tropeça em 1.
 
 5. **Escala.** A faixa (centro a centro) tem **3,1** unidades, como na demo.
-   O Samuel mede cerca de **3,4** (o modelo em código tem ~2 e entra com escala 1,7).
-   O pivô é o pé, em y = 0. O Doguinho fica à direita de quem corre para +z,
-   em x − 1,9 e um pouco atrás (z − 0,8), escala 1,5.
+   O modelo do Samuel tem cerca de 2 unidades e o pé em y = 0. Na pista ele entra
+   com escala **1,15** (cerca de 2,3), não 1,7: a câmera ficou mais alta e mais
+   atrás (`cameraY` 9,2, `cameraZ` −16, olhando para z = 22) para o obstáculo
+   aparecer cerca de 1,5 s antes. O Doguinho continua à direita de quem corre
+   para +z, em x − 1,9 e z − 0,8, com escala 1,05.
 
 6. **Obstáculos.** No estilo Blocos, caixas e primitivos em código, cor sólida,
    sem PNG de face e sem glTF na hora de jogar. No estilo Pixel, a face usa o PNG
@@ -65,7 +67,7 @@ divergir, vale o código.
    three.js (cerca de 142 KB gzip), e só é baixado no estilo Blocos.
 
 2. **Orçamento por quadro no iPad (gen 7).** Teto de **20 000 triângulos** e
-   **96 draw calls**, sem sombra de mapa e com `pixelRatio` no máximo 1,25.
+   **120 draw calls**, sem sombra de mapa e com `pixelRatio` no máximo 1,25.
    Contas da folha: Samuel 496, Doguinho 168, bondinho 624, segmento 720.
    No WebKit com perfil de iPad, a corrida ficou em torno de **14 mil triângulos**
    e **76 chamadas**. Os dormentes são `InstancedMesh`. As moedas também.
@@ -81,8 +83,9 @@ divergir, vale o código.
 4. **Cor sólida.** Sem atlas de 256 ou 512. Cada cor é um material Lambert ou
    Standard com `flatShading`, guardado por cor. Não há textura para filtrar.
 
-5. **Escala confirmada.** Faixa de 3,1. Samuel com escala 1,7, cerca de 3,4 de
-   altura, pé em y = 0. Doguinho com escala 1,5, à direita (x − 1,9, z − 0,8).
+5. **Escala.** Faixa de 3,1 confirmada. O pé continua em y = 0. Na pista a escala
+   do Samuel é 1,15 (cerca de 2,3) e a câmera está mais alta e atrás, para a
+   criança ver a pista. O Doguinho fica à direita (x − 1,9, z − 0,8), escala 1,05.
 
 6. **Sombra falsa.** Sim. Um disco escuro debaixo de cada um
    (`MeshBasicMaterial`, sem escrever profundidade). `shadowMap` fica desligado,

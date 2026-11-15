@@ -30,7 +30,7 @@
           </div>
           <div class="acoes">
             <button type="button" id="bJogar" class="toque jogar" aria-label="Jogar">JOGAR</button>
-            <button type="button" id="bTelaMenu" class="toque miudo tela" aria-label="Tela cheia"><svg viewBox="0 0 38 38" fill="none" stroke="#F5F2E8" stroke-width="5" stroke-linecap="round"><path d="M5 14V5h9M24 5h9v9M33 24v9h-9M14 33H5v-9"/></svg></button>
+            <button type="button" id="bTelaMenu" class="toque miudo cheia" aria-label="Tela cheia"><svg viewBox="0 0 38 38" fill="none" stroke="#F5F2E8" stroke-width="5" stroke-linecap="round"><path d="M5 14V5h9M24 5h9v9M33 24v9h-9M14 33H5v-9"/></svg></button>
             <button type="button" id="bSomMenu" aria-label="Som ligado">Som</button>
           </div>
           <p id="recordeMenu"></p>
@@ -41,12 +41,18 @@
 
     <div id="hud" hidden>
       <div class="topo">
-        <p id="moedas" aria-label="Moedas">0</p>
-        <p id="metros" aria-label="Distância">0 m</p>
-        <p id="missao">0/50</p>
-        <button type="button" id="bSom" class="toque miudo" aria-label="Som ligado">Som</button>
-        <button type="button" id="bPausa" class="toque miudo pausa" aria-label="Pausar"><svg viewBox="0 0 36 36"><rect x="8" y="6" width="7" height="24" fill="#F5F2E8"/><rect x="21" y="6" width="7" height="24" fill="#F5F2E8"/></svg></button>
-        <button type="button" id="bTela" class="toque miudo tela" aria-label="Tela cheia"><svg viewBox="0 0 38 38" fill="none" stroke="#F5F2E8" stroke-width="5" stroke-linecap="round"><path d="M5 14V5h9M24 5h9v9M33 24v9h-9M14 33H5v-9"/></svg></button>
+        <div class="placar">
+          <div class="linha">
+            <p id="metros" aria-label="Distância">0 m</p>
+            <p id="moedas" aria-label="Moedas">0 moedas</p>
+          </div>
+          <p id="missao">meta 0/50</p>
+        </div>
+        <div class="comandos">
+          <button type="button" id="bSom" class="toque miudo" aria-label="Som ligado">Som</button>
+          <button type="button" id="bPausa" class="toque miudo pausa" aria-label="Pausar"><svg viewBox="0 0 36 36"><rect x="8" y="6" width="7" height="24" fill="#F5F2E8"/><rect x="21" y="6" width="7" height="24" fill="#F5F2E8"/></svg></button>
+          <button type="button" id="bTela" class="toque miudo cheia" aria-label="Tela cheia"><svg viewBox="0 0 38 38" fill="none" stroke="#F5F2E8" stroke-width="5" stroke-linecap="round"><path d="M5 14V5h9M24 5h9v9M33 24v9h-9M14 33H5v-9"/></svg></button>
+        </div>
       </div>
       <div id="tutorial" hidden>
         <p>Deslize o dedo</p>
@@ -60,10 +66,14 @@
       </div>
       <p id="aviso" hidden></p>
       <div class="controles">
-        <button type="button" id="bPular" class="toque acao pular" aria-label="Pular"><svg viewBox="0 0 40 40"><path d="M6 26 L20 10 L34 26" stroke="#193337" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-        <button type="button" id="bEsquerda" class="toque acao esq" aria-label="Faixa da esquerda"><svg viewBox="0 0 40 40"><path d="M26 6 L10 20 L26 34" stroke="#F5F2E8" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-        <button type="button" id="bRolar" class="toque acao rolar" aria-label="Rolar"><svg viewBox="0 0 40 40"><path d="M6 14 L20 30 L34 14" stroke="#193337" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-        <button type="button" id="bDireita" class="toque acao dir" aria-label="Faixa da direita"><svg viewBox="0 0 40 40"><path d="M14 6 L30 20 L14 34" stroke="#F5F2E8" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="lado">
+          <button type="button" id="bEsquerda" class="toque acao esq" aria-label="Faixa da esquerda"><svg viewBox="0 0 40 40"><path d="M26 6 L10 20 L26 34" stroke="#F5F2E8" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <button type="button" id="bDireita" class="toque acao dir" aria-label="Faixa da direita"><svg viewBox="0 0 40 40"><path d="M14 6 L30 20 L14 34" stroke="#F5F2E8" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        </div>
+        <div class="lado">
+          <button type="button" id="bPular" class="toque acao pular" aria-label="Pular"><svg viewBox="0 0 40 40"><path d="M6 26 L20 10 L34 26" stroke="#193337" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <button type="button" id="bRolar" class="toque acao rolar" aria-label="Rolar"><svg viewBox="0 0 40 40"><path d="M6 14 L20 30 L34 14" stroke="#193337" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        </div>
       </div>
     </div>
 
@@ -74,7 +84,7 @@
           <h1>PAUSA</h1>
           <button type="button" id="bContinuarPausa">Continuar</button>
           <button type="button" id="bEncerrar">Encerrar</button>
-          <button type="button" id="bTelaPausa" class="toque miudo tela" aria-label="Tela cheia"><svg viewBox="0 0 38 38" fill="none" stroke="#F5F2E8" stroke-width="5" stroke-linecap="round"><path d="M5 14V5h9M24 5h9v9M33 24v9h-9M14 33H5v-9"/></svg></button>
+          <button type="button" id="bTelaPausa" class="toque miudo cheia" aria-label="Tela cheia"><svg viewBox="0 0 38 38" fill="none" stroke="#F5F2E8" stroke-width="5" stroke-linecap="round"><path d="M5 14V5h9M24 5h9v9M33 24v9h-9M14 33H5v-9"/></svg></button>
           <a class="btn" href="/jogos/" target="_top">← Voltar aos jogos</a>
         </div>
       </div>
@@ -91,7 +101,7 @@
           <div class="acoes">
             <button type="button" id="bDeNovo" class="toque repetir" aria-label="Jogar de novo">De novo</button>
             <button type="button" id="bContinuar">Continuar</button>
-            <button type="button" id="bTelaFim" class="toque miudo tela" aria-label="Tela cheia"><svg viewBox="0 0 38 38" fill="none" stroke="#F5F2E8" stroke-width="5" stroke-linecap="round"><path d="M5 14V5h9M24 5h9v9M33 24v9h-9M14 33H5v-9"/></svg></button>
+            <button type="button" id="bTelaFim" class="toque miudo cheia" aria-label="Tela cheia"><svg viewBox="0 0 38 38" fill="none" stroke="#F5F2E8" stroke-width="5" stroke-linecap="round"><path d="M5 14V5h9M24 5h9v9M33 24v9h-9M14 33H5v-9"/></svg></button>
           </div>
           <a class="btn" href="/jogos/" target="_top">← Voltar aos jogos</a>
         </div>

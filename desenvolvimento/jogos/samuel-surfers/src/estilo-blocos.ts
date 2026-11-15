@@ -74,7 +74,7 @@ function compactar(obj: THREE.Object3D): void {
 function sombra(): THREE.Mesh {
   const malha = new THREE.Mesh(
     new THREE.CircleGeometry(0.85, 14),
-    new THREE.MeshBasicMaterial({ color: 0x193337, transparent: true, opacity: 0.28, depthWrite: false }),
+    new THREE.MeshBasicMaterial({ color: 0x193337, transparent: true, opacity: 0.45, depthWrite: false }),
   );
   malha.rotation.x = -Math.PI / 2;
   malha.position.y = 0.04;
@@ -113,12 +113,15 @@ function poseSamuel(grupo: THREE.Object3D, pose: string, tempo: number): void {
     bracoE.rotation.z = -2.5;
     bracoD.rotation.z = 2.5;
   } else if (pose === 'rolar') {
-    pernaE.rotation.x = -2.2;
-    pernaD.rotation.x = -2.2;
-    bracoE.rotation.x = -1.2;
-    bracoD.rotation.x = -1.2;
-    cabeca.position.set(0, 1.45, 0.12);
-    corpo.position.y = -0.35;
+    pernaE.rotation.x = -1.35;
+    pernaD.rotation.x = -1.35;
+    bracoE.rotation.x = -0.7;
+    bracoD.rotation.x = -0.7;
+    bracoE.rotation.z = -0.35;
+    bracoD.rotation.z = 0.35;
+    cabeca.position.set(0, 1.32, 0.18);
+    corpo.position.y = -0.32;
+    corpo.rotation.x = 0.28;
   } else if (pose === 'tropecar') {
     corpo.position.y = -0.45;
     pernaE.rotation.x = -1.5;
@@ -206,6 +209,7 @@ export async function montarBlocos(): Promise<Visual> {
   const raizSamuel = new THREE.Group();
   const sombraSamuel = sombra();
   raizSamuel.add(samuelModelo, sombraSamuel);
+  raizSamuel.traverse((obj) => { obj.frustumCulled = false; });
   const dogModelo = doguinho('parado', 0) as THREE.Group;
   compactar(dogModelo);
   dogModelo.scale.setScalar(CONFIG.escalaDog);
@@ -213,6 +217,7 @@ export async function montarBlocos(): Promise<Visual> {
   const sombraDog = sombra();
   sombraDog.scale.setScalar(0.65);
   raizDog.add(dogModelo, sombraDog);
+  raizDog.traverse((obj) => { obj.frustumCulled = false; });
   const fixos = new THREE.Group();
 
   const moedaModelo = moeda() as THREE.Group;
@@ -258,10 +263,17 @@ export async function montarBlocos(): Promise<Visual> {
       }
       const pose = poseDe(foto);
       poseSamuel(samuelModelo, pose, tempo);
+      samuelModelo.scale.set(
+        CONFIG.escalaSamuel,
+        pose === 'rolar' ? CONFIG.escalaSamuel * 0.72 : CONFIG.escalaSamuel,
+        CONFIG.escalaSamuel,
+      );
       const x = (foto?.x ?? 0) * CONFIG.faixa;
       const y = foto?.y ?? 0;
       raizSamuel.position.set(foto?.tropecando ? x + Math.sin(tempo * 28) * 0.08 : x, y, 0);
-      raizDog.position.set(x + CONFIG.dogOffsetX, y * 0.2, CONFIG.dogOffsetZ);
+      raizDog.position.set(x + CONFIG.dogOffsetX, y * 0.15, CONFIG.dogOffsetZ);
+      sombraSamuel.position.y = 0.04 - y;
+      sombraDog.position.y = 0.04 - y * 0.15;
       poseDog(dogModelo, !foto || foto.rolando || pose === 'parado' || pose === 'correr' ? 'correr' : pose, tempo);
       let n = 0;
       for (const marca of moedas) {
@@ -281,6 +293,7 @@ export async function montarBlocos(): Promise<Visual> {
         inst.instanceMatrix.needsUpdate = true;
         inst.visible = n > 0;
       }
+      return pose;
     },
     criar(tipo) {
       if (tipo === 'moeda') {
