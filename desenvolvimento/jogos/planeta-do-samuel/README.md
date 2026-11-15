@@ -23,9 +23,9 @@ python3 ferramentas/verificar_jogo.py --todos
 
 A arte que roda hoje é desenhada em código (`_privado/jogos/planeta-do-samuel/motor/placeholders.js`), com os ids de `arte/manifesto.json` (`origem: "codigo"`). O jogo também lê `origem: "atlas"`: recorta `arte/atlas.webp` pelo `x`, `y`, `frameW` e `frameH`.
 
-1. Desenhe o PNG mestre no caminho `arquivo` do manifesto, dentro de `desenvolvimento/jogos/planeta-do-samuel/arte/`. Exemplo: `arte/samuel/walk.png`. Fundo transparente. Sem espaço entre quadros. Coluna = frame, linha = direção (baixo, baixo-direita, direita, cima-direita, cima). A esquerda o empacotador espelha quando `espelhoDaDireita` é true: o mestre pode ter 5 linhas em vez de 8.
-2. A largura tem de ser `frameW × colunas`. A altura, `frameH × linhas` (ou `frameH × 5` no caso do espelho).
-3. Na pasta deste README: `npm run arte`. Isso gera `_privado/jogos/planeta-do-samuel/arte/atlas.webp` (WebP sem perdas) e grava `origem: "atlas"` com `x` e `y` no manifesto. A arte proposta do Gerador está em `arte/origem/gerador/`; `node montar-mestres.mjs` monta as folhas, e o mapa dos nomes está em `arte/MAPEAMENTO.md`. Quando `/final/` chegar, trocar os PNG do mesmo tamanho e rodar `npm run arte` basta.
+1. O PNG mestre fica no caminho `arquivo` do manifesto do jogo, dentro de `desenvolvimento/jogos/planeta-do-samuel/arte/`. A arte final do Gerador já está aí; o mapa dos nomes está em `arte/MAPEAMENTO.md`.
+2. A largura tem de ser `frameW × colunas`. A altura, `frameH × linhas` do atlas, ou menos quando o empacotador espelha: 5 linhas viram 8, e 3 linhas (baixo, direita, cima) viram 4.
+3. Na pasta deste README: `npm run arte`. Isso gera `_privado/jogos/planeta-do-samuel/arte/atlas.webp` (WebP sem perdas) e grava `origem: "atlas"` com `x` e `y`. Trocar o PNG e rodar de novo basta.
 4. Sprite sem PNG continua `codigo`. Apagar o PNG e rodar de novo devolve esse id ao placeholder e, se não sobrar nenhum, apaga o atlas.
 5. Confira no tablet: `npm test`. O contador x/N, a noite e o farol não dependem do arquivo de arte.
 

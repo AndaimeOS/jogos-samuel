@@ -47,6 +47,12 @@ async function lerMestre(png, spec) {
     espelharLinha(data, larguraEsperada, fh, 1, 7, destino);
     return { data: destino, width: larguraEsperada, height: fh * 8 };
   }
+  if (spec.espelhoDaDireita && linhas === 3 && spec.linhas === 4) {
+    const destino = Buffer.alloc(larguraEsperada * fh * 4 * 4);
+    for (let linha = 0; linha < 3; linha++) copiarLinha(data, larguraEsperada, fh, linha, linha, destino);
+    espelharLinha(data, larguraEsperada, fh, 1, 3, destino);
+    return { data: destino, width: larguraEsperada, height: fh * 4 };
+  }
   if (linhas !== spec.linhas) {
     throw new Error(`${spec.arquivo}: ${linhas} linhas, o manifesto pede ${spec.linhas}`);
   }

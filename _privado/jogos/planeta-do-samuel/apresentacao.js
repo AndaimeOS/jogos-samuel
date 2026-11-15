@@ -94,10 +94,11 @@ function desenharFeixe() {
   const co = Math.cos(ang);
   const si = Math.sin(ang);
   ctx.fillStyle = 'rgba(242, 209, 90, 0.55)';
+  const lampada = p.y - 82;
   for (let t = 0; t < 72; t += 2) {
     const largura = 1 + Math.floor(t / 16);
     for (let w = -largura; w <= largura; w++) {
-      ctx.fillRect(Math.round(p.x + co * t - si * w), Math.round(p.y - 70 + si * t + co * w), 1, 1);
+      ctx.fillRect(Math.round(p.x + co * t - si * w), Math.round(lampada + si * t + co * w), 1, 1);
     }
   }
 }
@@ -113,14 +114,25 @@ function desenhar() {
   ctx.save();
   ctx.translate(-cam.x, -cam.y);
   if (estado.enchente && estado.enchente.resta > 0) {
-    desenharSprite(ctx, 'enchente', relogio, estado.enchente.x, estado.enchente.y, { alfa: 0.85 });
+    const agua = estado.enchente;
+    const passo = 28;
+    for (let oy = -agua.raio; oy <= agua.raio; oy += passo) {
+      for (let ox = -agua.raio; ox <= agua.raio; ox += passo) {
+        if (ox * ox + oy * oy > agua.raio * agua.raio) continue;
+        desenharSprite(ctx, 'enchente', relogio + (ox + oy) * 0.01, agua.x + ox, agua.y + oy, { alfa: 0.9 });
+      }
+    }
   }
   for (const z of estado.zonas) {
-    desenharSprite(ctx, 'telegraph', relogio, z.x, z.y, { alfa: 0.9 });
-    if (z.evento === 'meteoros') desenharSprite(ctx, 'meteoro', relogio, z.x, z.y - 18);
-  }
-  if (estado.tempestade && estado.tempestade.resta > 0) {
-    desenharSprite(ctx, 'tempestade-de-raios', relogio, estado.x, estado.y - 46, { alfa: 0.95 });
+    if (z.evento === 'meteoros') {
+      desenharSprite(ctx, 'telegraph', relogio, z.x, z.y, { alfa: 0.9 });
+      desenharSprite(ctx, z.resta > 0 ? 'meteoro' : 'meteoro-impacto', relogio, z.x, z.y - 20);
+    } else if (z.evento === 'raios') {
+      desenharSprite(ctx, 'raio-telegraph', relogio, z.x, z.y, { alfa: 0.9 });
+      desenharSprite(ctx, 'raio', relogio, z.x, z.y);
+    } else {
+      desenharSprite(ctx, z.sprite || 'telegraph', relogio, z.x, z.y, { alfa: 0.9 });
+    }
   }
   const fila = [];
   const por = (y, desenha) => fila.push({ y, i: fila.length, desenha });
@@ -145,7 +157,12 @@ function desenhar() {
   if (estado.armas.faisca || estado.fogueira) {
     desenharSprite(ctx, 'faisca', relogio, estado.x, estado.y + 6, { alfa: 0.8 });
   }
-  for (const p of estado.projeteis) desenharSprite(ctx, p.sprite, relogio, p.x, p.y, { direcao: p.direcao });
+  for (const tiro of estado.projeteis) {
+    desenharSprite(ctx, tiro.sprite, relogio, tiro.x, tiro.y, {
+      direcao: tiro.direcao,
+      angulo: Math.atan2(tiro.vy, tiro.vx),
+    });
+  }
   for (const fx of estado.efeitos) desenharSprite(ctx, fx.tipo === 'acerto' ? 'acerto' : fx.tipo === 'morte' ? 'morte' : 'levelup', fx.idade, fx.x, fx.y);
   desenharFeixe();
   ctx.restore();

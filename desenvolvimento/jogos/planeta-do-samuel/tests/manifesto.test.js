@@ -23,8 +23,9 @@ const ESPERADOS = [
   'soldado-de-ferro', 'catapulta', 'lobo-de-ferro', 'colosso-de-ferro',
   'lasca', 'lanca', 'faisca', 'pedregulho', 'telegraph',
   'acerto', 'morte', 'xp-brilho', 'levelup', 'xp-1', 'xp-2', 'xp-3',
-  'icone-lasca', 'icone-lanca', 'icone-faisca', 'icone-fogueira-carta', 'icone-vida', 'carta-upgrade',
-  'mamute', 'caranguejo-gigante', 'robo-enferrujado', 'meteoro', 'enchente', 'tempestade-de-raios',
+  'icone-lasca', 'icone-lanca', 'icone-faisca', 'icone-fogueira-carta', 'icone-vida', 'icone-vida-vazia', 'carta-upgrade',
+  'mamute', 'caranguejo-gigante', 'robo-enferrujado', 'meteoro', 'meteoro-impacto',
+  'enchente', 'enchente-telegraph', 'raio', 'raio-telegraph',
 ];
 
 describe('manifesto', () => {
@@ -48,8 +49,10 @@ describe('manifesto', () => {
       expect(['codigo', 'atlas'], id).toContain(s.origem);
       expect(s.duracoes, id).toHaveLength(s.colunas);
       expect(s.frameW % manifesto.grade, id).toBe(0);
-      expect(s.pe, id).toBe('base');
+      expect(['base', 'centro'], id).toContain(s.pe);
+      if (s.pivo) expect(s.pivo, id).toHaveLength(2);
       expect(s.arquivo, id).toMatch(/\.png$/);
+      expect(id.endsWith('-backup'), id).toBe(false);
     }
     expect(manifesto.sprites['samuel-andar']).toMatchObject({
       frameW: 32, frameH: 48, colunas: 4, linhas: 8, espelhoDaDireita: true,

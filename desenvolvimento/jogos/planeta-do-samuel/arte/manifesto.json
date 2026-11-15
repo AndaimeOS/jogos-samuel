@@ -1,0 +1,1913 @@
+{
+  "versao": 1,
+  "grade": 16,
+  "perspectiva": "3/4",
+  "ticksPorSegundo": 60,
+  "contorno": "#193337",
+  "sombraNoSprite": false,
+  "direcoes": [
+    "baixo",
+    "baixo-direita",
+    "direita",
+    "cima-direita",
+    "cima",
+    "cima-esquerda",
+    "esquerda",
+    "baixo-esquerda"
+  ],
+  "licenca": "original, feito por nós, livre para uso no repo",
+  "sprites": {
+    "samuel-parado": {
+      "nome": "Samuel parado (respirar / piscar)",
+      "caminho": "samuel/idle.png",
+      "tamanho": [
+        64,
+        240
+      ],
+      "frameW": 32,
+      "frameH": 48,
+      "quadros": 2,
+      "colunas": 2,
+      "linhas": 5,
+      "direcoesMestre": [
+        "baixo",
+        "baixo-direita",
+        "direita",
+        "cima-direita",
+        "cima"
+      ],
+      "direcoesNoJogo": 8,
+      "espelhoDaDireita": true,
+      "duracoes": [
+        40,
+        8
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        16,
+        47
+      ],
+      "origem": "atlas",
+      "fonte": "plano",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final",
+      "nota": "8 direções: mestre traz baixo, baixo-direita, direita, cima-direita, cima; as 3 esquerdas são espelho no empacotador"
+    },
+    "samuel-andar": {
+      "nome": "Samuel andando",
+      "caminho": "samuel/walk.png",
+      "tamanho": [
+        128,
+        240
+      ],
+      "frameW": 32,
+      "frameH": 48,
+      "quadros": 4,
+      "colunas": 4,
+      "linhas": 5,
+      "direcoesMestre": [
+        "baixo",
+        "baixo-direita",
+        "direita",
+        "cima-direita",
+        "cima"
+      ],
+      "direcoesNoJogo": 8,
+      "espelhoDaDireita": true,
+      "duracoes": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        16,
+        47
+      ],
+      "origem": "atlas",
+      "fonte": "plano",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final",
+      "nota": "8 direções: mestre traz baixo, baixo-direita, direita, cima-direita, cima; as 3 esquerdas são espelho no empacotador"
+    },
+    "lobo-da-pedra": {
+      "nome": "lobo da pedra",
+      "caminho": "inimigos/lobo-da-pedra.png",
+      "tamanho": [
+        128,
+        160
+      ],
+      "frameW": 32,
+      "frameH": 32,
+      "quadros": 4,
+      "colunas": 4,
+      "linhas": 5,
+      "direcoesMestre": [
+        "baixo",
+        "baixo-direita",
+        "direita",
+        "cima-direita",
+        "cima"
+      ],
+      "direcoesNoJogo": 8,
+      "espelhoDaDireita": true,
+      "duracoes": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        16,
+        31
+      ],
+      "origem": "atlas",
+      "fonte": "plano-batalha",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final",
+      "nota": "8 direções: mestre traz baixo, baixo-direita, direita, cima-direita, cima; as 3 esquerdas são espelho no empacotador"
+    },
+    "urso-da-caverna": {
+      "nome": "urso da caverna (chefe da Pedra)",
+      "caminho": "chefes/urso-da-caverna.png",
+      "tamanho": [
+        256,
+        320
+      ],
+      "frameW": 64,
+      "frameH": 64,
+      "quadros": 4,
+      "colunas": 4,
+      "linhas": 5,
+      "direcoesMestre": [
+        "baixo",
+        "baixo-direita",
+        "direita",
+        "cima-direita",
+        "cima"
+      ],
+      "direcoesNoJogo": 8,
+      "espelhoDaDireita": true,
+      "duracoes": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        32,
+        63
+      ],
+      "origem": "atlas",
+      "fonte": "plano-batalha",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final",
+      "nota": "8 direções: mestre traz baixo, baixo-direita, direita, cima-direita, cima; as 3 esquerdas são espelho no empacotador"
+    },
+    "guerreiro-de-bronze": {
+      "nome": "guerreiro de bronze (pessoinha chibi)",
+      "caminho": "inimigos/guerreiro-de-bronze.png",
+      "tamanho": [
+        128,
+        240
+      ],
+      "frameW": 32,
+      "frameH": 48,
+      "quadros": 4,
+      "colunas": 4,
+      "linhas": 5,
+      "direcoesMestre": [
+        "baixo",
+        "baixo-direita",
+        "direita",
+        "cima-direita",
+        "cima"
+      ],
+      "direcoesNoJogo": 8,
+      "espelhoDaDireita": true,
+      "duracoes": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        16,
+        47
+      ],
+      "origem": "atlas",
+      "fonte": "plano-batalha",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final",
+      "nota": "8 direções: mestre traz baixo, baixo-direita, direita, cima-direita, cima; as 3 esquerdas são espelho no empacotador"
+    },
+    "escorpiao": {
+      "nome": "escorpião",
+      "caminho": "inimigos/escorpiao.png",
+      "tamanho": [
+        128,
+        160
+      ],
+      "frameW": 32,
+      "frameH": 32,
+      "quadros": 4,
+      "colunas": 4,
+      "linhas": 5,
+      "direcoesMestre": [
+        "baixo",
+        "baixo-direita",
+        "direita",
+        "cima-direita",
+        "cima"
+      ],
+      "direcoesNoJogo": 8,
+      "espelhoDaDireita": true,
+      "duracoes": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        16,
+        31
+      ],
+      "origem": "atlas",
+      "fonte": "plano-batalha",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final",
+      "nota": "8 direções: mestre traz baixo, baixo-direita, direita, cima-direita, cima; as 3 esquerdas são espelho no empacotador"
+    },
+    "golem-de-barro": {
+      "nome": "golem de barro",
+      "caminho": "inimigos/golem-de-barro.png",
+      "tamanho": [
+        192,
+        144
+      ],
+      "frameW": 48,
+      "frameH": 48,
+      "quadros": 4,
+      "colunas": 4,
+      "linhas": 3,
+      "direcoesMestre": [
+        "baixo",
+        "direita",
+        "cima"
+      ],
+      "direcoesNoJogo": 4,
+      "espelhoDaDireita": true,
+      "duracoes": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        24,
+        47
+      ],
+      "origem": "atlas",
+      "fonte": "plano-batalha",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final",
+      "nota": "4 direções: linhas do mestre baixo, direita, cima; esquerda = espelho da direita no empacotador"
+    },
+    "sentinela-de-bronze": {
+      "nome": "sentinela de bronze (chefe do Bronze)",
+      "caminho": "chefes/sentinela-de-bronze_v2.png",
+      "tamanho": [
+        192,
+        320
+      ],
+      "frameW": 48,
+      "frameH": 64,
+      "quadros": 4,
+      "colunas": 4,
+      "linhas": 5,
+      "direcoesMestre": [
+        "baixo",
+        "baixo-direita",
+        "direita",
+        "cima-direita",
+        "cima"
+      ],
+      "direcoesNoJogo": 8,
+      "espelhoDaDireita": true,
+      "duracoes": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        24,
+        63
+      ],
+      "origem": "atlas",
+      "fonte": "plano-batalha",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final",
+      "nota": "8 direções: mestre traz baixo, baixo-direita, direita, cima-direita, cima; as 3 esquerdas são espelho no empacotador",
+      "revisao": "v2: costas com crista, rebites na nuca, coroa vista de trás, pescoço e ombreiras"
+    },
+    "soldado-de-ferro": {
+      "nome": "soldado de ferro (pessoinha chibi)",
+      "caminho": "inimigos/soldado-de-ferro.png",
+      "tamanho": [
+        128,
+        240
+      ],
+      "frameW": 32,
+      "frameH": 48,
+      "quadros": 4,
+      "colunas": 4,
+      "linhas": 5,
+      "direcoesMestre": [
+        "baixo",
+        "baixo-direita",
+        "direita",
+        "cima-direita",
+        "cima"
+      ],
+      "direcoesNoJogo": 8,
+      "espelhoDaDireita": true,
+      "duracoes": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        16,
+        47
+      ],
+      "origem": "atlas",
+      "fonte": "plano-batalha",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final",
+      "nota": "8 direções: mestre traz baixo, baixo-direita, direita, cima-direita, cima; as 3 esquerdas são espelho no empacotador"
+    },
+    "catapulta": {
+      "nome": "catapulta de brinquedo",
+      "caminho": "inimigos/catapulta.png",
+      "tamanho": [
+        96,
+        96
+      ],
+      "frameW": 48,
+      "frameH": 32,
+      "quadros": 2,
+      "colunas": 2,
+      "linhas": 3,
+      "direcoesMestre": [
+        "baixo",
+        "direita",
+        "cima"
+      ],
+      "direcoesNoJogo": 4,
+      "espelhoDaDireita": true,
+      "duracoes": [
+        15,
+        15
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        24,
+        31
+      ],
+      "origem": "atlas",
+      "fonte": "plano-batalha",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final",
+      "nota": "4 direções: linhas do mestre baixo, direita, cima; esquerda = espelho da direita no empacotador"
+    },
+    "lobo-de-ferro": {
+      "nome": "lobo de ferro",
+      "caminho": "inimigos/lobo-de-ferro.png",
+      "tamanho": [
+        128,
+        160
+      ],
+      "frameW": 32,
+      "frameH": 32,
+      "quadros": 4,
+      "colunas": 4,
+      "linhas": 5,
+      "direcoesMestre": [
+        "baixo",
+        "baixo-direita",
+        "direita",
+        "cima-direita",
+        "cima"
+      ],
+      "direcoesNoJogo": 8,
+      "espelhoDaDireita": true,
+      "duracoes": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        16,
+        31
+      ],
+      "origem": "atlas",
+      "fonte": "plano-batalha",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final",
+      "nota": "8 direções: mestre traz baixo, baixo-direita, direita, cima-direita, cima; as 3 esquerdas são espelho no empacotador"
+    },
+    "colosso-de-ferro": {
+      "nome": "colosso de ferro (chefe do Ferro)",
+      "caminho": "chefes/colosso-de-ferro_v2.png",
+      "tamanho": [
+        256,
+        240
+      ],
+      "frameW": 64,
+      "frameH": 80,
+      "quadros": 4,
+      "colunas": 4,
+      "linhas": 3,
+      "direcoesMestre": [
+        "baixo",
+        "direita",
+        "cima"
+      ],
+      "direcoesNoJogo": 4,
+      "espelhoDaDireita": true,
+      "duracoes": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        32,
+        79
+      ],
+      "origem": "atlas",
+      "fonte": "plano-batalha",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final",
+      "nota": "4 direções: linhas do mestre baixo, direita, cima; esquerda = espelho da direita no empacotador",
+      "revisao": "v2: costas com crista, rebites na nuca, coroa vista de trás, pescoço e ombreiras"
+    },
+    "seixo-vivo": {
+      "nome": "seixo vivo",
+      "caminho": "inimigos/seixo-vivo.png",
+      "tamanho": [
+        128,
+        32
+      ],
+      "frameW": 32,
+      "frameH": 32,
+      "quadros": 4,
+      "colunas": 4,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        16,
+        31
+      ],
+      "origem": "atlas",
+      "fonte": "plano-batalha",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "enxame": {
+      "nome": "enxame (mosquitinhos)",
+      "caminho": "inimigos/enxame.png",
+      "tamanho": [
+        32,
+        16
+      ],
+      "frameW": 16,
+      "frameH": 16,
+      "quadros": 2,
+      "colunas": 2,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "centro",
+      "pivo": [
+        8,
+        8
+      ],
+      "origem": "atlas",
+      "fonte": "plano-batalha",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "lasca": {
+      "nome": "lasca (orbita)",
+      "caminho": "ataques/lasca.png",
+      "tamanho": [
+        32,
+        16
+      ],
+      "frameW": 16,
+      "frameH": 16,
+      "quadros": 2,
+      "colunas": 2,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "centro",
+      "pivo": [
+        8,
+        8
+      ],
+      "origem": "atlas",
+      "fonte": "plano-batalha",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "lanca": {
+      "nome": "lança de brinquedo (aponta para a direita; o código gira)",
+      "caminho": "ataques/lanca.png",
+      "tamanho": [
+        16,
+        16
+      ],
+      "frameW": 16,
+      "frameH": 16,
+      "quadros": 1,
+      "colunas": 1,
+      "linhas": 1,
+      "direcoesMestre": [
+        "direita"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [],
+      "loop": false,
+      "pe": "centro",
+      "pivo": [
+        8,
+        8
+      ],
+      "origem": "atlas",
+      "fonte": "plano-batalha",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final",
+      "nota": "desenhada apontando para a direita; o código gira na direção do tiro"
+    },
+    "faisca": {
+      "nome": "faísca",
+      "caminho": "ataques/faisca.png",
+      "tamanho": [
+        64,
+        16
+      ],
+      "frameW": 16,
+      "frameH": 16,
+      "quadros": 4,
+      "colunas": 4,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "loop": true,
+      "pe": "centro",
+      "pivo": [
+        8,
+        8
+      ],
+      "origem": "atlas",
+      "fonte": "plano-batalha",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "pedregulho": {
+      "nome": "pedregulho",
+      "caminho": "ataques/pedregulho.png",
+      "tamanho": [
+        16,
+        16
+      ],
+      "frameW": 16,
+      "frameH": 16,
+      "quadros": 1,
+      "colunas": 1,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [],
+      "loop": false,
+      "pe": "centro",
+      "pivo": [
+        8,
+        8
+      ],
+      "origem": "atlas",
+      "fonte": "plano-batalha",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "telegraph": {
+      "nome": "aviso no chão (telegraph)",
+      "caminho": "ataques/telegraph.png",
+      "tamanho": [
+        64,
+        32
+      ],
+      "frameW": 32,
+      "frameH": 32,
+      "quadros": 2,
+      "colunas": 2,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [
+        15,
+        15
+      ],
+      "loop": true,
+      "pe": "centro",
+      "pivo": [
+        16,
+        16
+      ],
+      "origem": "atlas",
+      "fonte": "plano-batalha",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "acerto": {
+      "nome": "acerto",
+      "caminho": "efeitos/acerto.png",
+      "tamanho": [
+        64,
+        32
+      ],
+      "frameW": 32,
+      "frameH": 32,
+      "quadros": 2,
+      "colunas": 2,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [
+        4,
+        4
+      ],
+      "loop": false,
+      "pe": "centro",
+      "pivo": [
+        16,
+        16
+      ],
+      "origem": "atlas",
+      "fonte": "plano-batalha",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "morte": {
+      "nome": "derrota: fumacinha e estrelas",
+      "caminho": "efeitos/morte.png",
+      "tamanho": [
+        128,
+        32
+      ],
+      "frameW": 32,
+      "frameH": 32,
+      "quadros": 4,
+      "colunas": 4,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "loop": false,
+      "pe": "centro",
+      "pivo": [
+        16,
+        16
+      ],
+      "origem": "atlas",
+      "fonte": "plano-batalha",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "xp-brilho": {
+      "nome": "brilho da gema de XP",
+      "caminho": "efeitos/xp-brilho.png",
+      "tamanho": [
+        32,
+        16
+      ],
+      "frameW": 16,
+      "frameH": 16,
+      "quadros": 2,
+      "colunas": 2,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "centro",
+      "pivo": [
+        8,
+        8
+      ],
+      "origem": "atlas",
+      "fonte": "plano-batalha",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "levelup": {
+      "nome": "subiu de nível",
+      "caminho": "efeitos/levelup.png",
+      "tamanho": [
+        192,
+        48
+      ],
+      "frameW": 48,
+      "frameH": 48,
+      "quadros": 4,
+      "colunas": 4,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "loop": false,
+      "pe": "base",
+      "pivo": [
+        24,
+        47
+      ],
+      "origem": "atlas",
+      "fonte": "plano-batalha",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "xp-1": {
+      "nome": "gema de XP tamanho 1",
+      "caminho": "coleta/xp-1.png",
+      "tamanho": [
+        32,
+        16
+      ],
+      "frameW": 16,
+      "frameH": 16,
+      "quadros": 2,
+      "colunas": 2,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [
+        15,
+        15
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        8,
+        15
+      ],
+      "origem": "atlas",
+      "fonte": "plano-batalha",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "xp-2": {
+      "nome": "gema de XP tamanho 2",
+      "caminho": "coleta/xp-2.png",
+      "tamanho": [
+        32,
+        16
+      ],
+      "frameW": 16,
+      "frameH": 16,
+      "quadros": 2,
+      "colunas": 2,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [
+        15,
+        15
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        8,
+        15
+      ],
+      "origem": "atlas",
+      "fonte": "plano-batalha",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "xp-3": {
+      "nome": "gema de XP tamanho 3",
+      "caminho": "coleta/xp-3.png",
+      "tamanho": [
+        32,
+        16
+      ],
+      "frameW": 16,
+      "frameH": 16,
+      "quadros": 2,
+      "colunas": 2,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [
+        15,
+        15
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        8,
+        15
+      ],
+      "origem": "atlas",
+      "fonte": "plano-batalha",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "icone-lasca": {
+      "nome": "ícone da lasca",
+      "caminho": "ui/lasca.png",
+      "tamanho": [
+        32,
+        32
+      ],
+      "frameW": 32,
+      "frameH": 32,
+      "quadros": 1,
+      "colunas": 1,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [],
+      "loop": false,
+      "pe": "centro",
+      "pivo": [
+        16,
+        16
+      ],
+      "origem": "atlas",
+      "fonte": "plano-batalha",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "icone-lanca": {
+      "nome": "ícone da lança",
+      "caminho": "ui/lanca.png",
+      "tamanho": [
+        32,
+        32
+      ],
+      "frameW": 32,
+      "frameH": 32,
+      "quadros": 1,
+      "colunas": 1,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [],
+      "loop": false,
+      "pe": "centro",
+      "pivo": [
+        16,
+        16
+      ],
+      "origem": "atlas",
+      "fonte": "plano-batalha",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "icone-faisca": {
+      "nome": "ícone da faísca",
+      "caminho": "ui/faisca.png",
+      "tamanho": [
+        32,
+        32
+      ],
+      "frameW": 32,
+      "frameH": 32,
+      "quadros": 1,
+      "colunas": 1,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [],
+      "loop": false,
+      "pe": "centro",
+      "pivo": [
+        16,
+        16
+      ],
+      "origem": "atlas",
+      "fonte": "plano-batalha",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "icone-fogueira-carta": {
+      "nome": "ícone da carta da fogueira",
+      "caminho": "ui/fogueira-carta.png",
+      "tamanho": [
+        32,
+        32
+      ],
+      "frameW": 32,
+      "frameH": 32,
+      "quadros": 1,
+      "colunas": 1,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [],
+      "loop": false,
+      "pe": "centro",
+      "pivo": [
+        16,
+        16
+      ],
+      "origem": "atlas",
+      "fonte": "plano-batalha",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "icone-vida": {
+      "nome": "coração de vida",
+      "caminho": "ui/vida.png",
+      "tamanho": [
+        16,
+        16
+      ],
+      "frameW": 16,
+      "frameH": 16,
+      "quadros": 1,
+      "colunas": 1,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [],
+      "loop": false,
+      "pe": "centro",
+      "pivo": [
+        8,
+        8
+      ],
+      "origem": "atlas",
+      "fonte": "plano-batalha",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "icone-vida-vazia": {
+      "nome": "coração vazio (extra, usado no HUD simulado)",
+      "caminho": "ui/vida-vazia.png",
+      "tamanho": [
+        16,
+        16
+      ],
+      "frameW": 16,
+      "frameH": 16,
+      "quadros": 1,
+      "colunas": 1,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [],
+      "loop": false,
+      "pe": "centro",
+      "pivo": [
+        8,
+        8
+      ],
+      "origem": "atlas",
+      "fonte": "extra",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "carta-upgrade": {
+      "nome": "miolo ilustrado da carta de melhoria",
+      "caminho": "ui/carta-upgrade.png",
+      "tamanho": [
+        64,
+        80
+      ],
+      "frameW": 64,
+      "frameH": 80,
+      "quadros": 1,
+      "colunas": 1,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [],
+      "loop": false,
+      "pe": "centro",
+      "pivo": [
+        32,
+        40
+      ],
+      "origem": "atlas",
+      "fonte": "plano-batalha",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "chao-pedra-grama": {
+      "nome": "chão pedra: grama",
+      "caminho": "chao/pedra/grama.png",
+      "tamanho": [
+        16,
+        16
+      ],
+      "frameW": 16,
+      "frameH": 16,
+      "quadros": 1,
+      "colunas": 1,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [],
+      "loop": false,
+      "pe": "base",
+      "pivo": [
+        8,
+        15
+      ],
+      "origem": "atlas",
+      "fonte": "plano",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "chao-pedra-grama-var": {
+      "nome": "chão pedra: grama-var",
+      "caminho": "chao/pedra/grama-var.png",
+      "tamanho": [
+        16,
+        16
+      ],
+      "frameW": 16,
+      "frameH": 16,
+      "quadros": 1,
+      "colunas": 1,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [],
+      "loop": false,
+      "pe": "base",
+      "pivo": [
+        8,
+        15
+      ],
+      "origem": "atlas",
+      "fonte": "plano",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "chao-pedra-areia": {
+      "nome": "chão pedra: areia",
+      "caminho": "chao/pedra/areia.png",
+      "tamanho": [
+        16,
+        16
+      ],
+      "frameW": 16,
+      "frameH": 16,
+      "quadros": 1,
+      "colunas": 1,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [],
+      "loop": false,
+      "pe": "base",
+      "pivo": [
+        8,
+        15
+      ],
+      "origem": "atlas",
+      "fonte": "plano",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "chao-pedra-agua": {
+      "nome": "chão pedra: água",
+      "caminho": "chao/pedra/agua.png",
+      "tamanho": [
+        32,
+        16
+      ],
+      "frameW": 16,
+      "frameH": 16,
+      "quadros": 2,
+      "colunas": 2,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [
+        30,
+        30
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        8,
+        15
+      ],
+      "origem": "atlas",
+      "fonte": "plano",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "chao-bronze-grama": {
+      "nome": "chão bronze: grama",
+      "caminho": "chao/bronze/grama.png",
+      "tamanho": [
+        16,
+        16
+      ],
+      "frameW": 16,
+      "frameH": 16,
+      "quadros": 1,
+      "colunas": 1,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [],
+      "loop": false,
+      "pe": "base",
+      "pivo": [
+        8,
+        15
+      ],
+      "origem": "atlas",
+      "fonte": "plano",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "chao-bronze-grama-var": {
+      "nome": "chão bronze: grama-var",
+      "caminho": "chao/bronze/grama-var.png",
+      "tamanho": [
+        16,
+        16
+      ],
+      "frameW": 16,
+      "frameH": 16,
+      "quadros": 1,
+      "colunas": 1,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [],
+      "loop": false,
+      "pe": "base",
+      "pivo": [
+        8,
+        15
+      ],
+      "origem": "atlas",
+      "fonte": "plano",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "chao-bronze-areia": {
+      "nome": "chão bronze: areia",
+      "caminho": "chao/bronze/areia.png",
+      "tamanho": [
+        16,
+        16
+      ],
+      "frameW": 16,
+      "frameH": 16,
+      "quadros": 1,
+      "colunas": 1,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [],
+      "loop": false,
+      "pe": "base",
+      "pivo": [
+        8,
+        15
+      ],
+      "origem": "atlas",
+      "fonte": "plano",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "chao-bronze-agua": {
+      "nome": "chão bronze: água",
+      "caminho": "chao/bronze/agua.png",
+      "tamanho": [
+        32,
+        16
+      ],
+      "frameW": 16,
+      "frameH": 16,
+      "quadros": 2,
+      "colunas": 2,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [
+        30,
+        30
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        8,
+        15
+      ],
+      "origem": "atlas",
+      "fonte": "plano",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "chao-ferro-grama": {
+      "nome": "chão ferro: grama",
+      "caminho": "chao/ferro/grama.png",
+      "tamanho": [
+        16,
+        16
+      ],
+      "frameW": 16,
+      "frameH": 16,
+      "quadros": 1,
+      "colunas": 1,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [],
+      "loop": false,
+      "pe": "base",
+      "pivo": [
+        8,
+        15
+      ],
+      "origem": "atlas",
+      "fonte": "plano",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "chao-ferro-grama-var": {
+      "nome": "chão ferro: grama-var",
+      "caminho": "chao/ferro/grama-var.png",
+      "tamanho": [
+        16,
+        16
+      ],
+      "frameW": 16,
+      "frameH": 16,
+      "quadros": 1,
+      "colunas": 1,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [],
+      "loop": false,
+      "pe": "base",
+      "pivo": [
+        8,
+        15
+      ],
+      "origem": "atlas",
+      "fonte": "plano",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "chao-ferro-areia": {
+      "nome": "chão ferro: areia",
+      "caminho": "chao/ferro/areia.png",
+      "tamanho": [
+        16,
+        16
+      ],
+      "frameW": 16,
+      "frameH": 16,
+      "quadros": 1,
+      "colunas": 1,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [],
+      "loop": false,
+      "pe": "base",
+      "pivo": [
+        8,
+        15
+      ],
+      "origem": "atlas",
+      "fonte": "plano",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "chao-ferro-agua": {
+      "nome": "chão ferro: água",
+      "caminho": "chao/ferro/agua.png",
+      "tamanho": [
+        32,
+        16
+      ],
+      "frameW": 16,
+      "frameH": 16,
+      "quadros": 2,
+      "colunas": 2,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [
+        30,
+        30
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        8,
+        15
+      ],
+      "origem": "atlas",
+      "fonte": "plano",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "mamute": {
+      "nome": "mamute peludo (Pedra)",
+      "caminho": "alternativas/inimigos/mamute.png",
+      "tamanho": [
+        192,
+        48
+      ],
+      "frameW": 48,
+      "frameH": 48,
+      "quadros": 4,
+      "colunas": 4,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        24,
+        47
+      ],
+      "origem": "atlas",
+      "fonte": "alternativa",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "caranguejo-gigante": {
+      "nome": "caranguejo gigante (Bronze)",
+      "caminho": "alternativas/inimigos/caranguejo-gigante.png",
+      "tamanho": [
+        128,
+        32
+      ],
+      "frameW": 32,
+      "frameH": 32,
+      "quadros": 4,
+      "colunas": 4,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        16,
+        31
+      ],
+      "origem": "atlas",
+      "fonte": "alternativa",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "robo-enferrujado": {
+      "nome": "robô enferrujado (Ferro)",
+      "caminho": "alternativas/inimigos/robo-enferrujado.png",
+      "tamanho": [
+        128,
+        32
+      ],
+      "frameW": 32,
+      "frameH": 32,
+      "quadros": 4,
+      "colunas": 4,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        16,
+        31
+      ],
+      "origem": "atlas",
+      "fonte": "alternativa",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "meteoro": {
+      "nome": "chuva de meteoros: pedra caindo (usa telegraph)",
+      "caminho": "alternativas/eventos/meteoro.png",
+      "tamanho": [
+        128,
+        32
+      ],
+      "frameW": 32,
+      "frameH": 32,
+      "quadros": 4,
+      "colunas": 4,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "loop": true,
+      "pe": "centro",
+      "pivo": [
+        16,
+        16
+      ],
+      "origem": "atlas",
+      "fonte": "alternativa",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "meteoro-impacto": {
+      "nome": "chuva de meteoros: impacto",
+      "caminho": "alternativas/eventos/meteoro-impacto.png",
+      "tamanho": [
+        128,
+        32
+      ],
+      "frameW": 32,
+      "frameH": 32,
+      "quadros": 4,
+      "colunas": 4,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "loop": false,
+      "pe": "centro",
+      "pivo": [
+        16,
+        16
+      ],
+      "origem": "atlas",
+      "fonte": "alternativa",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "enchente": {
+      "nome": "enchente: onda que rola",
+      "caminho": "alternativas/eventos/enchente.png",
+      "tamanho": [
+        128,
+        32
+      ],
+      "frameW": 32,
+      "frameH": 32,
+      "quadros": 4,
+      "colunas": 4,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        16,
+        31
+      ],
+      "origem": "atlas",
+      "fonte": "alternativa",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "enchente-telegraph": {
+      "nome": "enchente: aviso no chão",
+      "caminho": "alternativas/eventos/enchente-telegraph.png",
+      "tamanho": [
+        64,
+        32
+      ],
+      "frameW": 32,
+      "frameH": 32,
+      "quadros": 2,
+      "colunas": 2,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [
+        15,
+        15
+      ],
+      "loop": true,
+      "pe": "centro",
+      "pivo": [
+        16,
+        16
+      ],
+      "origem": "atlas",
+      "fonte": "alternativa",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "raio": {
+      "nome": "tempestade de raios: raio",
+      "caminho": "alternativas/eventos/raio.png",
+      "tamanho": [
+        128,
+        64
+      ],
+      "frameW": 32,
+      "frameH": 64,
+      "quadros": 4,
+      "colunas": 4,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "loop": false,
+      "pe": "base",
+      "pivo": [
+        16,
+        63
+      ],
+      "origem": "atlas",
+      "fonte": "alternativa",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "raio-telegraph": {
+      "nome": "tempestade de raios: aviso no chão",
+      "caminho": "alternativas/eventos/raio-telegraph.png",
+      "tamanho": [
+        64,
+        32
+      ],
+      "frameW": 32,
+      "frameH": 32,
+      "quadros": 2,
+      "colunas": 2,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [
+        15,
+        15
+      ],
+      "loop": true,
+      "pe": "centro",
+      "pivo": [
+        16,
+        16
+      ],
+      "origem": "atlas",
+      "fonte": "alternativa",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "farol-0": {
+      "nome": "farol: base começando (pedras, estaca e bandeirinha)",
+      "caminho": "estacoes/farol-0.png",
+      "tamanho": [
+        48,
+        96
+      ],
+      "frameW": 48,
+      "frameH": 96,
+      "quadros": 1,
+      "colunas": 1,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [],
+      "loop": false,
+      "pe": "base",
+      "pivo": [
+        24,
+        95
+      ],
+      "origem": "atlas",
+      "fonte": "plano",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "farol-1": {
+      "nome": "farol: metade construído, com andaime",
+      "caminho": "estacoes/farol-1.png",
+      "tamanho": [
+        48,
+        96
+      ],
+      "frameW": 48,
+      "frameH": 96,
+      "quadros": 1,
+      "colunas": 1,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [],
+      "loop": false,
+      "pe": "base",
+      "pivo": [
+        24,
+        95
+      ],
+      "origem": "atlas",
+      "fonte": "plano",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "farol-2": {
+      "nome": "farol: completo e apagado",
+      "caminho": "estacoes/farol-2.png",
+      "tamanho": [
+        48,
+        96
+      ],
+      "frameW": 48,
+      "frameH": 96,
+      "quadros": 1,
+      "colunas": 1,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [],
+      "loop": false,
+      "pe": "base",
+      "pivo": [
+        24,
+        95
+      ],
+      "origem": "atlas",
+      "fonte": "plano",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    },
+    "farol-aceso": {
+      "nome": "farol aceso: lâmpada pulsando (o feixe é do código)",
+      "caminho": "estacoes/farol-aceso.png",
+      "tamanho": [
+        96,
+        96
+      ],
+      "frameW": 48,
+      "frameH": 96,
+      "quadros": 2,
+      "colunas": 2,
+      "linhas": 1,
+      "direcoesMestre": [
+        "baixo"
+      ],
+      "direcoesNoJogo": 1,
+      "espelhoDaDireita": false,
+      "duracoes": [
+        20,
+        20
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        24,
+        95
+      ],
+      "origem": "atlas",
+      "fonte": "plano",
+      "licenca": "original, feito por nós, livre para uso no repo",
+      "status": "final"
+    }
+  }
+}

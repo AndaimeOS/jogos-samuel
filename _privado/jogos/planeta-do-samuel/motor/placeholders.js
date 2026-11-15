@@ -402,6 +402,12 @@ function icone(id, spec) {
   } else if (id === 'icone-noite') {
     p.elipse(9, 8, 5, 5, '#C5CED4');
     p.elipse(11, 7, 4, 4, '#1E2A44');
+  } else if (id === 'icone-vida-vazia') {
+    p.elipse(8, 8, 5, 4, '#E2544A');
+    p.elipse(8, 8, 3, 2, '#000000');
+    for (let i = 0; i < p.data.length; i += 4) {
+      if (p.data[i] === 0 && p.data[i + 1] === 0 && p.data[i + 2] === 0) p.data[i + 3] = 0;
+    }
   } else if (id === 'icone-seta') {
     p.ret(2, 7, 8, 2, JAQUETA);
     p.ret(8, 4, 2, 8, JAQUETA);
@@ -446,8 +452,11 @@ const COMBATE = {
   'caranguejo-gigante': ['#FF9D52', '#F2D15A', 'bicho'],
   'robo-enferrujado': ['#91A3AE', '#C9813F', 'bloco'],
   meteoro: ['#8D98A0', '#FF9D52', 'bola'],
+  'meteoro-impacto': ['#8D98A0', '#FF9D52', 'bola'],
   enchente: ['#1F6F78', '#8FDCD2', 'bloco'],
-  'tempestade-de-raios': ['#F5F2E8', '#F2D15A', 'bloco'],
+  'enchente-telegraph': ['#1F6F78', '#8FDCD2', 'anel'],
+  raio: ['#F2D15A', '#F5F2E8', 'traco'],
+  'raio-telegraph': ['#F2D15A', '#FF9D52', 'anel'],
 };
 
 function combate(spec, coluna, linha, pal) {

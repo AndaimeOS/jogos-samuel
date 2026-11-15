@@ -127,7 +127,7 @@ describe('tablet deitado 1024×768', () => {
     });
     expect(await page.evaluate(() => window.__planeta.estado.inimigos.some((i) => i.tipo === 'mamute'))).toBe(true);
     expect(await page.evaluate(() => window.__planeta.estado.era)).toBe('pedra');
-    await page.screenshot({ path: path.join(arte, 'planeta-v2-horda.png') });
+    await page.screenshot({ path: path.join(arte, 'planeta-v2-pedra.png') });
     await page.evaluate(() => window.__planeta.travar(false));
 
     await page.evaluate(() => {
@@ -157,7 +157,27 @@ describe('tablet deitado 1024×768', () => {
       p.desenhar();
     });
     expect(await page.evaluate(() => !!window.__planeta.estado.enchente)).toBe(true);
-    await page.screenshot({ path: path.join(arte, 'planeta-v2-enchente.png') });
+    await page.evaluate(() => {
+      const p = window.__planeta;
+      const e = p.estado;
+      e.enchente = null;
+      e.zonas = [];
+      e.inimigos = [];
+      e.era = 'bronze';
+      const por = (tipo, ox, oy) => {
+        const def = p.CONFIG.inimigos[tipo];
+        e.inimigos.push({
+          id: e.seq++, tipo, sprite: def.sprite, x: e.x + ox, y: e.y + oy,
+          hp: def.hp, hpMax: def.hp, raio: def.raio, direcao: 0, comportamento: 'chase',
+        });
+      };
+      por('guerreiro-de-bronze', 58, 8);
+      por('caranguejo-gigante', -52, 16);
+      p.travar(true);
+      p.desenhar();
+    });
+    await page.screenshot({ path: path.join(arte, 'planeta-v2-bronze.png') });
+    await page.evaluate(() => window.__planeta.travar(false));
 
     await page.evaluate(() => {
       const p = window.__planeta;
@@ -175,7 +195,30 @@ describe('tablet deitado 1024×768', () => {
       p.desenhar();
     });
     expect(await page.evaluate(() => window.__planeta.estado.zonas.some((z) => z.evento === 'raios'))).toBe(true);
-    await page.screenshot({ path: path.join(arte, 'planeta-v2-raios.png') });
+    await page.evaluate(() => {
+      const p = window.__planeta;
+      const e = p.estado;
+      e.tempestade = null;
+      e.zonas = [];
+      e.enchente = null;
+      e.inimigos = [];
+      e.era = 'ferro';
+      e.fogueira = true;
+      const por = (tipo, ox, oy) => {
+        const def = p.CONFIG.inimigos[tipo];
+        e.inimigos.push({
+          id: e.seq++, tipo, sprite: def.sprite, x: e.x + ox, y: e.y + oy,
+          hp: def.hp, hpMax: def.hp, raio: def.raio, direcao: 0, comportamento: 'chase',
+        });
+      };
+      por('soldado-de-ferro', 54, 6);
+      por('robo-enferrujado', -46, 18);
+      p.travar(true);
+      p.desenhar();
+    });
+    expect(await page.evaluate(() => window.__planeta.escuridao(window.__planeta.estado))).toBeGreaterThan(0.5);
+    await page.screenshot({ path: path.join(arte, 'planeta-v2-ferro.png') });
+    await page.evaluate(() => window.__planeta.travar(false));
 
     await page.evaluate(() => {
       const p = window.__planeta;
