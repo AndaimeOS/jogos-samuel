@@ -1,5 +1,9 @@
-Planeta do Samuel — proposta 0.1.0 (PROPOSTA)
-Portal samuel.tech. Arte desenhada em código, neste jogo. Sem assets de terceiros.
+Planeta do Samuel — proposta (PROPOSTA)
+Portal samuel.tech. A arte desta versão é placeholder desenhado em código, neste jogo.
+Sem assets de terceiros. Nenhum sprite, nome ou criatura de Pokémon.
+
+Motor de apresentação reescrito do Pokémon Survivors, Copyright (c) 2026 Pedro Barretto,
+licença MIT (só o código; ver LICENSE.txt e desenvolvimento/jogos/planeta-do-samuel/ORIGEM.md).
 
 Referência de mecânicas, licença MIT:
 Isle of Embers © 2026 Jaineil Rana (JaiGod)

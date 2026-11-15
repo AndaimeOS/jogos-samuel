@@ -57,12 +57,17 @@ afterAll(async () => {
 });
 
 describe('tablet deitado 1024×768', () => {
-  it('abre em paisagem, com botões grandes, joystick e as quatro cenas', async () => {
+  it('abre com botões grandes, horda, cartas, chefe, noite e farol', async () => {
     const page = await context.newPage();
     const erros = [];
     page.on('pageerror', (e) => erros.push(String(e)));
     await page.goto(url, { waitUntil: 'networkidle' });
     await page.waitForFunction(() => window.__planeta && window.__planeta.estado);
+    expect(await page.locator('#btnContinuar').isHidden()).toBe(true);
+    await page.evaluate(() => localStorage.setItem(window.__planeta.CONFIG.chaveSave, '{'));
+    await page.reload({ waitUntil: 'networkidle' });
+    await page.waitForFunction(() => window.__planeta && window.__planeta.saveUtil);
+    expect(await page.locator('#btnContinuar').isHidden()).toBe(true);
 
     const titulo = await alvos(page);
     expect(titulo.map((b) => b.id)).toContain('btnComecar');
@@ -70,14 +75,16 @@ describe('tablet deitado 1024×768', () => {
       expect(b.w, b.id).toBeGreaterThanOrEqual(48);
       expect(b.h, b.id).toBeGreaterThanOrEqual(48);
     }
+    await page.screenshot({ path: path.join(arte, 'planeta-v2-titulo.png') });
 
     await page.locator('#btnComecar').click();
+    await page.waitForFunction(() => window.__planeta.atlasPronto());
     await page.waitForFunction(() => document.getElementById('titulo').hidden);
     const jogo = await alvos(page);
     const ids = jogo.map((b) => b.id);
-    for (const id of ['joystick', 'btnInteragir', 'btnComer', 'btnPausa', 'btnTela', 'chip-fruta']) {
-      expect(ids).toContain(id);
-    }
+    for (const id of ['joystick', 'btnPausa', 'btnTela']) expect(ids).toContain(id);
+    expect(ids).not.toContain('btnInteragir');
+    expect(ids).not.toContain('btnComer');
     for (const b of jogo) {
       expect(b.w, b.id).toBeGreaterThanOrEqual(48);
       expect(b.h, b.id).toBeGreaterThanOrEqual(48);
@@ -90,95 +97,210 @@ describe('tablet deitado 1024×768', () => {
     }));
     expect(rolagem.sw).toBeLessThanOrEqual(rolagem.cw + 1);
     expect(rolagem.sh).toBeLessThanOrEqual(rolagem.ch + 1);
-    expect(await page.locator('#dica').textContent()).toMatch(/PROPOSTA/);
-    expect(await page.locator('.selo').first().textContent()).toBe('PROPOSTA');
-    await page.screenshot({ path: path.join(arte, 'planeta-idade-da-pedra.png') });
+    expect(await page.locator('#dica').textContent()).toBe('A Pedra chegou. A lasca gira sozinha.');
+    expect(await page.locator('.selo').count()).toBe(0);
+    expect(await page.locator('body').innerText()).not.toMatch(/PROPOSTA/);
+    expect(await page.locator('#nivel').textContent()).toMatch(/^\d+$/);
+    expect(await page.locator('#vidas canvas').count()).toBeGreaterThan(0);
 
     const caixa = await page.locator('#joystick').boundingBox();
-    const cx = caixa.x + caixa.width / 2;
-    const cy = caixa.y + caixa.height / 2;
     const cdp = await context.newCDPSession(page);
-    await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: cx, y: cy, id: 1 }] });
-    await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: cx + 50, y: cy, id: 1 }] });
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: caixa.x + caixa.width / 2, y: caixa.y + caixa.height / 2, id: 1 }] });
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: caixa.x + caixa.width / 2 + 50, y: caixa.y + caixa.height / 2, id: 1 }] });
     const antes = await page.evaluate(() => window.__planeta.estado.x);
     await page.evaluate(() => window.__planeta.simular(0.8));
-    const depois = await page.evaluate(() => ({
-      x: window.__planeta.estado.x,
-      eixo: document.getElementById('knob').style.left,
-    }));
-    expect(depois.x).toBeGreaterThan(antes + 8);
+    const depois = await page.evaluate(() => window.__planeta.estado.x);
+    expect(depois).toBeGreaterThan(antes + 8);
     await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
 
     await page.evaluate(() => {
       const p = window.__planeta;
       const e = p.estado;
-      e.inventario.madeira = 2;
-      e.x = e.postos.toca.x;
-      e.y = e.postos.toca.y;
-      p.interagir(e);
-      p.interagir(e);
+      p.definirEixo(0, 0);
+      p.simular(2.5);
+      const def = p.CONFIG.inimigos.mamute;
+      e.inimigos = e.inimigos.filter((i) => Math.hypot(i.x - e.x, i.y - e.y) > 100);
+      e.inimigos.push({
+        id: 9001, tipo: 'mamute', sprite: 'mamute', x: e.x + 64, y: e.y + 4,
+        hp: def.hp, hpMax: def.hp, raio: def.raio, direcao: 0, comportamento: 'chase',
+        contatoEm: 0, lascaEm: 0, auraEm: 0,
+      });
+      p.travar(true);
       p.desenhar();
     });
-    expect(await page.evaluate(() => window.__planeta.contador(window.__planeta.estado, 'toca').texto)).toBe('2/4');
-    await page.screenshot({ path: path.join(arte, 'planeta-craft.png') });
+    expect(await page.evaluate(() => window.__planeta.estado.inimigos.some((i) => i.tipo === 'mamute'))).toBe(true);
+    expect(await page.evaluate(() => window.__planeta.estado.era)).toBe('pedra');
+    await page.screenshot({ path: path.join(arte, 'planeta-v2-pedra-chromium.png') });
+    await page.evaluate(() => window.__planeta.travar(false));
 
     await page.evaluate(() => {
       const p = window.__planeta;
       const e = p.estado;
-      const n = p.contador(e, 'fogueira').n;
-      e.progresso.fogueira = n;
-      e.efeitos.fogueira = true;
-      e.efeitos.machado = true;
-      e.hora = (p.CONFIG.noiteInicio + p.CONFIG.noiteFim) / 2;
-      e.x = e.postos.fogueira.x + 12;
-      e.y = e.postos.fogueira.y + 6;
+      e.tempo = p.CONFIG.marcos.pedraMeteoros.em - 0.02;
+      e.eventosFeitos.pedraMeteoros = false;
+      e.zonas = [];
+      p.simular(0.12);
       p.desenhar();
     });
-    const noite = await page.evaluate(() => window.__planeta.escuridao(window.__planeta.estado.hora));
-    expect(noite).toBeGreaterThan(0.5);
-    await page.screenshot({ path: path.join(arte, 'planeta-noite.png') });
+    expect(await page.evaluate(() => window.__planeta.estado.zonas.some((z) => z.evento === 'meteoros'))).toBe(true);
+    await page.screenshot({ path: path.join(arte, 'planeta-v2-meteoros.png') });
 
     await page.evaluate(() => {
       const p = window.__planeta;
       const e = p.estado;
-      const ordem = ['toca', 'fogueira', 'pesquisaBronze', 'bancada', 'fornalha', 'canteiro', 'pesquisaFerro', 'ferramentas', 'casinha', 'farol'];
-      for (const id of ordem) {
-        let guarda = 0;
-        while (!p.estacaoPronta(e, id)) {
-          const falta = p.faltando(e, id);
-          if (falta === 'barra') {
-            e.inventario.minerio += 1;
-            e.x = e.postos.fornalha.x;
-            e.y = e.postos.fornalha.y;
-            if (!p.fundir(e).ok) throw new Error('fundir');
-          } else {
-            e.inventario[falta] += 1;
-          }
-          e.x = e.postos[id].x;
-          e.y = e.postos[id].y;
-          const r = p.interagir(e);
-          if (!r.ok) throw new Error(id + ' ' + r.motivo);
-          if (++guarda > 20) throw new Error('laço ' + id);
-        }
+      e.zonas = [];
+      e.inimigos = [];
+      e.tempo = p.CONFIG.marcos.bronzeEnchente.em - 0.02;
+      e.era = 'bronze';
+      e.chefesMortos.pedra = true;
+      for (const k of Object.keys(p.CONFIG.marcos)) if (k !== 'bronzeEnchente') e.eventosFeitos[k] = true;
+      e.eventosFeitos.bronzeEnchente = false;
+      e.enchente = null;
+      p.simular(0.12);
+      p.desenhar();
+    });
+    expect(await page.evaluate(() => !!window.__planeta.estado.enchente)).toBe(true);
+    await page.evaluate(() => {
+      const p = window.__planeta;
+      const e = p.estado;
+      e.enchente = null;
+      e.zonas = [];
+      e.inimigos = [];
+      e.era = 'bronze';
+      const por = (tipo, ox, oy) => {
+        const def = p.CONFIG.inimigos[tipo];
+        e.inimigos.push({
+          id: e.seq++, tipo, sprite: def.sprite, x: e.x + ox, y: e.y + oy,
+          hp: def.hp, hpMax: def.hp, raio: def.raio, direcao: 0, comportamento: 'chase',
+        });
+      };
+      por('guerreiro-de-bronze', 58, 8);
+      por('caranguejo-gigante', -52, 16);
+      p.travar(true);
+      p.desenhar();
+    });
+    await page.screenshot({ path: path.join(arte, 'planeta-v2-bronze-chromium.png') });
+    await page.evaluate(() => window.__planeta.travar(false));
+
+    await page.evaluate(() => {
+      const p = window.__planeta;
+      const e = p.estado;
+      e.enchente = null;
+      e.zonas = [];
+      e.inimigos = [];
+      e.tempo = p.CONFIG.marcos.ferroRaios.em - 0.02;
+      e.era = 'ferro';
+      e.chefesMortos.bronze = true;
+      for (const k of Object.keys(p.CONFIG.marcos)) if (k !== 'ferroRaios') e.eventosFeitos[k] = true;
+      e.eventosFeitos.ferroRaios = false;
+      e.tempestade = null;
+      p.simular(0.12);
+      p.desenhar();
+    });
+    expect(await page.evaluate(() => window.__planeta.estado.zonas.some((z) => z.evento === 'raios'))).toBe(true);
+    await page.evaluate(() => {
+      const p = window.__planeta;
+      const e = p.estado;
+      e.tempestade = null;
+      e.zonas = [];
+      e.enchente = null;
+      e.inimigos = [];
+      e.era = 'ferro';
+      e.fogueira = true;
+      const por = (tipo, ox, oy) => {
+        const def = p.CONFIG.inimigos[tipo];
+        e.inimigos.push({
+          id: e.seq++, tipo, sprite: def.sprite, x: e.x + ox, y: e.y + oy,
+          hp: def.hp, hpMax: def.hp, raio: def.raio, direcao: 0, comportamento: 'chase',
+        });
+      };
+      por('soldado-de-ferro', 54, 6);
+      por('robo-enferrujado', -46, 18);
+      p.travar(true);
+      p.desenhar();
+    });
+    expect(await page.evaluate(() => window.__planeta.escuridao(window.__planeta.estado))).toBeGreaterThan(0.5);
+    await page.screenshot({ path: path.join(arte, 'planeta-v2-ferro-chromium.png') });
+    await page.evaluate(() => window.__planeta.travar(false));
+
+    await page.evaluate(() => {
+      const p = window.__planeta;
+      const e = p.estado;
+      e.zonas = [];
+      e.enchente = null;
+      e.tempestade = null;
+      e.inimigos = [];
+      p.ganharXp(e, e.xpProx);
+      p.desenhar();
+    });
+    await page.waitForSelector('#levelup:not([hidden]) #carta-0');
+    const cartas = await alvos(page);
+    const idsCartas = cartas.map((b) => b.id);
+    for (const id of ['carta-0', 'carta-1', 'carta-2']) expect(idsCartas).toContain(id);
+    for (const b of cartas.filter((c) => c.id.startsWith('carta-'))) {
+      expect(b.w, b.id).toBeGreaterThanOrEqual(48);
+      expect(b.h, b.id).toBeGreaterThanOrEqual(48);
+    }
+    await page.screenshot({ path: path.join(arte, 'planeta-v2-levelup-chromium.png') });
+    await page.evaluate(() => window.__planeta.escolherCarta(window.__planeta.estado, 0));
+
+    await page.evaluate(() => {
+      const p = window.__planeta;
+      const e = p.estado;
+      e.pausa = false;
+      e.cartas = [];
+      e.chefesMortos.pedra = true;
+      e.chefesMortos.bronze = false;
+      e.era = 'bronze';
+      e.tempo = p.CONFIG.marcos.bronzeChefe.em - 0.02;
+      for (const k of Object.keys(p.CONFIG.marcos)) if (k !== 'bronzeChefe') e.eventosFeitos[k] = true;
+      e.eventosFeitos.bronzeChefe = false;
+      e.chefe = null;
+      p.simular(0.2);
+      if (e.chefe) {
+        e.chefe.x = e.x + 48;
+        e.chefe.y = e.y - 8;
+        e.chefe.telegrafo = 0;
+        e.chefe.ataqueEm = 3;
+        e.zonas = [];
       }
-      e.hora = 0.7;
-      e.x = e.postos.farol.x + 28;
-      e.y = e.postos.farol.y + 8;
+      p.desenhar();
+    });
+    expect(await page.evaluate(() => window.__planeta.estado.chefe && window.__planeta.estado.chefe.tipo)).toBe('sentinela-de-bronze');
+    await page.screenshot({ path: path.join(arte, 'planeta-v2-chefe-chromium.png') });
+
+    await page.evaluate(() => {
+      const p = window.__planeta;
+      const e = p.estado;
+      e.chefe = null;
+      e.inimigos = [];
+      e.projeteis = [];
+      e.zonas = [];
+      e.enchente = null;
+      e.tempestade = null;
+      e.chefesMortos.bronze = true;
+      e.era = 'ferro';
+      e.fogueira = true;
+      e.vitoria = false;
+      e.x = e.inicio.x;
+      e.y = e.inicio.y;
+      p.desenhar();
+    });
+    expect(await page.evaluate(() => window.__planeta.escuridao(window.__planeta.estado))).toBeGreaterThan(0.5);
+    await page.screenshot({ path: path.join(arte, 'planeta-v2-noite.png') });
+
+    await page.evaluate(() => {
+      const p = window.__planeta;
+      const e = p.estado;
+      e.farol = true;
+      e.vitoria = true;
+      e.era = 'ferro';
+      e.x = e.farolPos.x + 36;
+      e.y = e.farolPos.y + 24;
       p.desenhar();
     });
     expect(await page.evaluate(() => window.__planeta.estado.farol)).toBe(true);
-    await page.screenshot({ path: path.join(arte, 'planeta-farol.png') });
-
-    await page.evaluate(() => { window.__planeta.estado.desdeSave = window.__planeta.CONFIG.autosaveSegundos; });
-    await page.waitForFunction(() => {
-      const s = localStorage.getItem(window.__planeta.CONFIG.chaveSave);
-      return !!s && JSON.parse(s).farol === true;
-    });
-    const save = await page.evaluate(() => localStorage.getItem(window.__planeta.CONFIG.chaveSave));
-    const lido = JSON.parse(save);
-    expect(lido.schemaVersion).toBe(1);
-    expect(lido.farol).toBe(true);
-    expect(lido.morte).toBe(false);
+    await page.screenshot({ path: path.join(arte, 'planeta-v2-farol-chromium.png') });
 
     await page.locator('#btnPausa').click();
     await page.waitForSelector('#pausa:not([hidden])');
