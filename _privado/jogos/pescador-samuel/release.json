@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "release_id": "pescador-samuel@0.1.0+0a86010.producao",
+  "release_id": "pescador-samuel@0.1.0+ae154bb.producao",
   "game_slug": "pescador-samuel",
   "version": "0.1.0",
-  "source_commit": "0a860109fa698132ed49ce6d0e46fbc74bccde4b",
+  "source_commit": "ae154bbe80fe7dd9a33cd85745afa20ede865dee",
   "environment": "producao",
-  "built_at": "2026-11-15T21:13:29+00:00",
+  "built_at": "2026-11-15T21:52:37+00:00",
   "public_url": "https://samuel.tech/jogar/?jogo=pescador-samuel",
   "files_base_url": "https://samuel.tech/jogo/pescador-samuel/",
   "files": {
@@ -219,6 +219,6 @@
     "arte/sprites/tubarao/Walk.png": "444f5920429466ee1ef45ad32232b93cb430ef361d0aa7ac04b44e9c9e05436a",
     "arte/sprites/tubarao/portrait.png": "d10c880470cf164a1ee48a99397d290c0ae390e6ca2428c055440b9919aa70e0",
     "index.html": "bef717da887b091a58f7c2df78af1c60894de068700f6ee776bc616db9e709b6",
-    "jogo.js": "93ad7b994f66124eb520920f90356950af80365c79eee02ae4878356b181d1c1"
+    "jogo.js": "f45a02fcb58a0b7fd28f2c401087ef00ad3402165934ad718db0612bf0f9ac46"
   }
 }

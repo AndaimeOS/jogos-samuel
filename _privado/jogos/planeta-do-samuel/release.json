@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "release_id": "planeta-do-samuel@0.3.0+0a86010.producao",
+  "release_id": "planeta-do-samuel@0.3.0+ae154bb.producao",
   "game_slug": "planeta-do-samuel",
   "version": "0.3.0",
-  "source_commit": "0a860109fa698132ed49ce6d0e46fbc74bccde4b",
+  "source_commit": "ae154bbe80fe7dd9a33cd85745afa20ede865dee",
   "environment": "producao",
-  "built_at": "2026-11-15T21:13:29+00:00",
+  "built_at": "2026-11-15T21:52:37+00:00",
   "public_url": "https://samuel.tech/jogar/?jogo=planeta-do-samuel",
   "files_base_url": "https://samuel.tech/jogo/planeta-do-samuel/",
   "files": {
@@ -207,6 +207,6 @@
     "arte/ui/vida-vazia.png": "a7648427414b5ce1d219e76a0e36eda139c88e21308fc1a31c10d480688e3071",
     "arte/ui/vida.png": "90cb1f178146bf71ded1f0dd8dcffc564901f9c31520096b2b2f5a14dfd7eea9",
     "index.html": "003f65a10b062281055bbd05eb893744c3f6d12f633f2e268734a9761f844cad",
-    "jogo.js": "d03c0a8072e570a5a9b5bc46eff93b6ff444add73a902258876db69326112b22"
+    "jogo.js": "ebe64e5b27fc9f6f336ecef7769181a1f7e8647b6182e68f01e5fccebafb13e1"
   }
 }
