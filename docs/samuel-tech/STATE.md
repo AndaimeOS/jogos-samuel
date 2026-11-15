@@ -3,6 +3,16 @@
 Atualizado ao fim de cada sessão (ST-090). Um bloco por sessão, o mais novo em cima.
 Vale o que está aqui e no Notion, não a memória do chat.
 
+## 2026-11-15 — Planeta do Samuel 0.1.0 (proposta, sem publicar)
+
+- **Pedido:** jogo novo `planeta-do-samuel` na branch `feat/planeta-do-samuel`, a partir da `main` `83aed98` (Pebolim já na main). PR rascunho. Sem merge e sem deploy.
+- **Feito:** vista de cima em canvas, três idades até o farol, juntar / fabricar com x/N / pesquisar, noite que só escurece, fogueira que aquece e ilumina, Fácil sem derrota, joystick e botões ≥ 48 px, autosave. Números em `CONFIG`, marcados PROPOSTA. Entrada no `_app/jogos.json` com `status: novo` e `version: 0.1.0`.
+- **Não mexido:** Pebolim, Mestre do Cubo (continua rascunho), branch `publicacao`, os outros jogos.
+- **Decisão:** `status: novo` não está em `STATUS_VISIVEIS` nem em `STATUS_TODOS`, então a biblioteca não lista o jogo e o `jogo.php` não entrega os arquivos. A capa existe para quando o status mudar.
+- **Referência:** Isle of Embers (MIT, Jaineil Rana) só como laço de mecânicas. Reescrita original em JS. Créditos em `CREDITOS.txt` e `LICENSE.txt`. Nada de Alia Domus.
+- **Notion:** esta sessão não veio de uma tarefa da fila; o hub não foi atualizado.
+- **NEXT:** playtest no tablet de verdade e, se a proposta ficar, trocar o status para `rascunho` (teste no /admin) ou `pronto` só depois do QA. Não publicar este rascunho.
+
 ## 2026-11-14 — Claude (deploys sem sustos: card `docs/qa/infra-deploy/`)
 
 - **Pedido do Boaz:** corrigir todos os problemas encontrados na publicação da Ilha da Vida para os próximos deploys.

@@ -18,3 +18,19 @@ python3 ferramentas/verificar_jogo.py --todos
 ```
 
 `window.__planeta` existe para o robô de teste. Não aparece em botão nenhum.
+
+## Números provisórios
+
+Ficam em `CONFIG`, dentro de `regras.js`. O save usa `schemaVersion` 1 e a chave `planeta-do-samuel:save`.
+
+| Constante | Valor | O que faz |
+|---|---:|---|
+| velocidade | 72 px/s | passo normal |
+| fatorLentidao | 0,4 | quando fome ou calor chegam a zero |
+| fomePorSegundo / calorPorSegundo | 0,45 / 0,28 | descida devagar |
+| frioNoiteExtra | 0,55 | a mais, no pico da noite, longe do fogo |
+| duracaoDia | 90 s | um dia inteiro |
+| noite | 0,62–0,90 | a tela só escurece |
+| raioFogueira | 80 px | luz e calor |
+
+Não há som, nem segundo modo, nem inimigo. Árvore, rocha e veio pedem o machado de pedra. A fornalha troca 1 minério por 1 barra na hora. O arbusto de fruta rebrota; a árvore, nesta proposta, não.
