@@ -1,0 +1,623 @@
+{
+ "jogo": "Samuel Corredor (proposta)",
+ "etapa": "folha de estilo (não são os sprites finais)",
+ "licenca": "original, feito por nós, livre para uso no repo",
+ "base": {
+  "altura": 240,
+  "largura": "~320 deitado / ~180 em pé",
+  "tile": 16,
+  "samuel": [
+   32,
+   48
+  ],
+  "zoom": "inteiro, nearest (pixelArt)"
+ },
+ "cor": "PNG RGBA, alpha só 0/255, contorno #193337, paleta estilo-v2 + derivados (_src/paleta_corredor.py)",
+ "pecas": {
+  "samuel": {
+   "arquivo": "samuel/samuel-lado.png",
+   "quadro": [
+    32,
+    48
+   ],
+   "quadros": [
+    "parado_0",
+    "correr_0",
+    "correr_1",
+    "correr_2",
+    "pular_0",
+    "cair_0",
+    "dano_0",
+    "comemorar_0"
+   ],
+   "nota": "parte do parado_lado aprovado do Planeta v0.2; braço e pernas redesenhados por pose"
+  },
+  "doguinho": {
+   "arquivo": "doguinho/doguinho-lado.png",
+   "quadro": [
+    28,
+    24
+   ],
+   "quadros": [
+    "parado_0",
+    "correr_0",
+    "correr_1",
+    "feliz_0"
+   ],
+   "nota": "o mesmo Doguinho do Pescador, agora de lado"
+  },
+  "moeda": {
+   "arquivo": "coleta/moeda.png",
+   "quadro": [
+    16,
+    16
+   ],
+   "quadros": [
+    "girar_0",
+    "girar_1",
+    "girar_2",
+    "girar_3"
+   ]
+  },
+  "estrela": {
+   "arquivo": "coleta/estrela.png",
+   "quadro": [
+    16,
+    16
+   ],
+   "quadros": [
+    "brilhar_0",
+    "brilhar_1"
+   ]
+  },
+  "bandeira": {
+   "arquivo": "coleta/bandeira.png",
+   "quadro": [
+    32,
+    64
+   ],
+   "quadros": [
+    "tremular_0",
+    "tremular_1",
+    "tremular_2"
+   ]
+  },
+  "cogumelo": {
+   "arquivo": "coleta/cogumelo.png",
+   "quadro": [
+    32,
+    32
+   ],
+   "quadros": [
+    "mola_0",
+    "mola_1",
+    "mola_2"
+   ]
+  },
+  "plataforma": {
+   "arquivo": "coleta/plataforma.png",
+   "quadro": [
+    48,
+    16
+   ],
+   "quadros": [
+    "helice_0",
+    "helice_1"
+   ]
+  },
+  "lesma": {
+   "arquivo": "inimigos/lesma.png",
+   "quadro": [
+    28,
+    20
+   ],
+   "quadros": [
+    "andar_0",
+    "andar_1",
+    "pof_0"
+   ]
+  },
+  "besouro": {
+   "arquivo": "inimigos/besouro.png",
+   "quadro": [
+    24,
+    20
+   ],
+   "quadros": [
+    "andar_0",
+    "andar_1",
+    "pof_0"
+   ]
+  },
+  "morcego": {
+   "arquivo": "inimigos/morcego.png",
+   "quadro": [
+    28,
+    20
+   ],
+   "quadros": [
+    "voar_0",
+    "voar_1",
+    "pof_0"
+   ]
+  },
+  "poeira": {
+   "arquivo": "efeitos/poeira.png",
+   "quadro": [
+    10,
+    8
+   ],
+   "quadros": [
+    "sumir_0",
+    "sumir_1",
+    "sumir_2"
+   ]
+  },
+  "pof": {
+   "arquivo": "efeitos/pof.png",
+   "quadro": [
+    24,
+    24
+   ],
+   "quadros": [
+    "estourar_0",
+    "estourar_1",
+    "estourar_2"
+   ]
+  },
+  "brilho": {
+   "arquivo": "efeitos/brilho.png",
+   "quadro": [
+    9,
+    9
+   ],
+   "quadros": [
+    "piscar_0",
+    "piscar_1",
+    "piscar_2"
+   ]
+  },
+  "tiles_campo": {
+   "arquivo": "tiles/campo.png",
+   "tile": 16,
+   "ordem": [
+    "chao_esq",
+    "chao_meio",
+    "chao_dir",
+    "terra_esq",
+    "terra_meio",
+    "terra_dir",
+    "plat_esq",
+    "plat_meio",
+    "plat_dir",
+    "bloco",
+    "especial",
+    "enfeite"
+   ]
+  },
+  "tiles_floresta": {
+   "arquivo": "tiles/floresta.png",
+   "tile": 16,
+   "ordem": [
+    "chao_esq",
+    "chao_meio",
+    "chao_dir",
+    "terra_esq",
+    "terra_meio",
+    "terra_dir",
+    "plat_esq",
+    "plat_meio",
+    "plat_dir",
+    "bloco",
+    "especial",
+    "enfeite"
+   ]
+  },
+  "tiles_caverna": {
+   "arquivo": "tiles/caverna.png",
+   "tile": 16,
+   "ordem": [
+    "chao_esq",
+    "chao_meio",
+    "chao_dir",
+    "terra_esq",
+    "terra_meio",
+    "terra_dir",
+    "plat_esq",
+    "plat_meio",
+    "plat_dir",
+    "bloco",
+    "especial",
+    "enfeite"
+   ]
+  },
+  "tiles": {
+   "arquivo": "tiles/tiles-3-fases.png",
+   "tile": 16,
+   "linhas": [
+    "campo",
+    "floresta",
+    "caverna"
+   ],
+   "colunas": [
+    "chao_esq",
+    "chao_meio",
+    "chao_dir",
+    "terra_esq",
+    "terra_meio",
+    "terra_dir",
+    "plat_esq",
+    "plat_meio",
+    "plat_dir",
+    "bloco",
+    "especial",
+    "enfeite"
+   ],
+   "nota": "amostra: ids e ordem finais vêm do ARTE.md do Dev"
+  },
+  "fundo_campo_ceu": {
+   "arquivo": "fundos/campo/ceu.png",
+   "tamanho": [
+    16,
+    240
+   ],
+   "repete": "horizontal",
+   "parallax": 0.0,
+   "ancora": "topo"
+  },
+  "fundo_campo_nuvens": {
+   "arquivo": "fundos/campo/nuvens.png",
+   "tamanho": [
+    256,
+    64
+   ],
+   "repete": "horizontal",
+   "parallax": 0.1,
+   "ancora": "topo:8"
+  },
+  "fundo_campo_morros_longe": {
+   "arquivo": "fundos/campo/morros_longe.png",
+   "tamanho": [
+    256,
+    96
+   ],
+   "repete": "horizontal",
+   "parallax": 0.2,
+   "ancora": "pe:-40"
+  },
+  "fundo_campo_morros": {
+   "arquivo": "fundos/campo/morros.png",
+   "tamanho": [
+    256,
+    80
+   ],
+   "repete": "horizontal",
+   "parallax": 0.4,
+   "ancora": "pe:-32"
+  },
+  "fundo_campo_moitas": {
+   "arquivo": "fundos/campo/moitas.png",
+   "tamanho": [
+    256,
+    96
+   ],
+   "repete": "horizontal",
+   "parallax": 0.7,
+   "ancora": "pe:0"
+  },
+  "fundo_floresta_ceu": {
+   "arquivo": "fundos/floresta/ceu.png",
+   "tamanho": [
+    16,
+    240
+   ],
+   "repete": "horizontal",
+   "parallax": 0.0,
+   "ancora": "topo"
+  },
+  "fundo_floresta_mata_longe": {
+   "arquivo": "fundos/floresta/mata_longe.png",
+   "tamanho": [
+    256,
+    150
+   ],
+   "repete": "horizontal",
+   "parallax": 0.2,
+   "ancora": "pe:-40"
+  },
+  "fundo_floresta_troncos": {
+   "arquivo": "fundos/floresta/troncos.png",
+   "tamanho": [
+    256,
+    240
+   ],
+   "repete": "horizontal",
+   "parallax": 0.45,
+   "ancora": "topo"
+  },
+  "fundo_floresta_copas": {
+   "arquivo": "fundos/floresta/copas.png",
+   "tamanho": [
+    256,
+    56
+   ],
+   "repete": "horizontal",
+   "parallax": 0.6,
+   "ancora": "topo"
+  },
+  "fundo_floresta_samambaias": {
+   "arquivo": "fundos/floresta/samambaias.png",
+   "tamanho": [
+    256,
+    88
+   ],
+   "repete": "horizontal",
+   "parallax": 0.8,
+   "ancora": "pe:0"
+  },
+  "fundo_caverna_ceu": {
+   "arquivo": "fundos/caverna/ceu.png",
+   "tamanho": [
+    16,
+    240
+   ],
+   "repete": "horizontal",
+   "parallax": 0.0,
+   "ancora": "topo"
+  },
+  "fundo_caverna_castelo": {
+   "arquivo": "fundos/caverna/castelo.png",
+   "tamanho": [
+    256,
+    130
+   ],
+   "repete": "horizontal",
+   "parallax": 0.2,
+   "ancora": "pe:-40"
+  },
+  "fundo_caverna_estalactites": {
+   "arquivo": "fundos/caverna/estalactites.png",
+   "tamanho": [
+    256,
+    48
+   ],
+   "repete": "horizontal",
+   "parallax": 0.5,
+   "ancora": "topo"
+  },
+  "fundo_caverna_pedras": {
+   "arquivo": "fundos/caverna/pedras.png",
+   "tamanho": [
+    256,
+    80
+   ],
+   "repete": "horizontal",
+   "parallax": 0.7,
+   "ancora": "pe:0"
+  },
+  "botao-esquerda": {
+   "arquivo": "controles/botao-esquerda.png",
+   "quadro": [
+    32,
+    32
+   ],
+   "quadros": [
+    "normal",
+    "apertado"
+   ],
+   "pt_pior_caso": 96
+  },
+  "botao-direita": {
+   "arquivo": "controles/botao-direita.png",
+   "quadro": [
+    32,
+    32
+   ],
+   "quadros": [
+    "normal",
+    "apertado"
+   ],
+   "pt_pior_caso": 96
+  },
+  "botao-pular": {
+   "arquivo": "controles/botao-pular.png",
+   "quadro": [
+    40,
+    40
+   ],
+   "quadros": [
+    "normal",
+    "apertado"
+   ],
+   "pt_pior_caso": 120
+  },
+  "botao-pausa": {
+   "arquivo": "controles/botao-pausa.png",
+   "quadro": [
+    24,
+    24
+   ],
+   "quadros": [
+    "normal",
+    "apertado"
+   ],
+   "pt_pior_caso": 72
+  },
+  "botao-tela-cheia": {
+   "arquivo": "controles/botao-tela-cheia.png",
+   "quadro": [
+    24,
+    24
+   ],
+   "quadros": [
+    "normal",
+    "apertado"
+   ],
+   "pt_pior_caso": 72
+  },
+  "botao-sair-tela-cheia": {
+   "arquivo": "controles/botao-sair-tela-cheia.png",
+   "quadro": [
+    24,
+    24
+   ],
+   "quadros": [
+    "normal",
+    "apertado"
+   ],
+   "pt_pior_caso": 72
+  },
+  "botao-proxima": {
+   "arquivo": "controles/botao-proxima.png",
+   "quadro": [
+    40,
+    40
+   ],
+   "quadros": [
+    "normal",
+    "apertado"
+   ],
+   "pt_pior_caso": 120
+  },
+  "botao-repetir": {
+   "arquivo": "controles/botao-repetir.png",
+   "quadro": [
+    24,
+    24
+   ],
+   "quadros": [
+    "normal",
+    "apertado"
+   ],
+   "pt_pior_caso": 72
+  },
+  "coracao": {
+   "arquivo": "hud/coracao.png"
+  },
+  "coracao-vazio": {
+   "arquivo": "hud/coracao-vazio.png"
+  },
+  "digitos": {
+   "arquivo": "hud/digitos.png",
+   "quadro": [
+    8,
+    12
+   ],
+   "ordem": "0123456789",
+   "nota": "fonte pixel nossa, só dígitos"
+  },
+  "painel-moedas": {
+   "arquivo": "hud/painel-moedas-exemplo.png",
+   "nota": "exemplo montado: moeda + dígitos sobre fundo petróleo"
+  },
+  "tela_jogo_deitado": {
+   "arquivo": "telas/tela-jogo-campo-320x240.png",
+   "tamanho": [
+    320,
+    240
+   ]
+  },
+  "tela_jogo_em_pe": {
+   "arquivo": "telas/tela-jogo-campo-180x240.png",
+   "tamanho": [
+    180,
+    240
+   ]
+  },
+  "tela_floresta": {
+   "arquivo": "telas/tela-jogo-floresta-320x240.png",
+   "tamanho": [
+    320,
+    240
+   ]
+  },
+  "tela_caverna": {
+   "arquivo": "telas/tela-jogo-caverna-320x240.png",
+   "tamanho": [
+    320,
+    240
+   ]
+  },
+  "mapa_deitado": {
+   "arquivo": "telas/mapa-3-fases-320x240.png",
+   "tamanho": [
+    320,
+    240
+   ]
+  },
+  "mapa_em_pe": {
+   "arquivo": "telas/mapa-3-fases-180x240.png",
+   "tamanho": [
+    180,
+    240
+   ]
+  },
+  "vencida_deitado": {
+   "arquivo": "telas/fase-vencida-320x240.png",
+   "tamanho": [
+    320,
+    240
+   ],
+   "nota": "sem texto e sem estrelas"
+  },
+  "vencida_em_pe": {
+   "arquivo": "telas/fase-vencida-180x240.png",
+   "tamanho": [
+    180,
+    240
+   ]
+  },
+  "amostra_atlas_samuel": {
+   "arquivo": "amostra_tecnica/samuel_atlas.png",
+   "json": "amostra_tecnica/samuel_atlas.json"
+  },
+  "amostra_atlas_completo": {
+   "arquivo": "amostra_tecnica/atlas_amostra.png",
+   "json": "amostra_tecnica/atlas_amostra.json",
+   "quadros": 44
+  },
+  "amostra_anims_samuel": {
+   "arquivo": "amostra_tecnica/samuel_anims.json"
+  },
+  "amostra_tiles": {
+   "arquivo": "amostra_tecnica/tiles_amostra.png",
+   "tile": 16,
+   "nota": "3 linhas (campo, floresta, caverna) x 12 colunas; firstgid 1 no Tiled = canto de cima à esquerda"
+  }
+ },
+ "samuel_caixa_opaca_parado": {
+  "x": 5,
+  "y": 4,
+  "w": 21,
+  "h": 44
+ },
+ "folha_principal": "folha_estilo_corredor.png",
+ "previas": [
+  "previas/amostra_tecnica_magenta_preto.png",
+  "previas/coleta_magenta_preto.png",
+  "previas/controles_magenta_preto.png",
+  "previas/doguinho_magenta_preto.png",
+  "previas/efeitos_magenta_preto.png",
+  "previas/fundos_magenta_preto.png",
+  "previas/hud_magenta_preto.png",
+  "previas/inimigos_magenta_preto.png",
+  "previas/samuel_magenta_preto.png",
+  "previas/tiles_magenta_preto.png"
+ ],
+ "_src": [
+  "_src/base_c.py",
+  "_src/build.py",
+  "_src/cenas.py",
+  "_src/folha.py",
+  "_src/fundos.py",
+  "_src/paleta_corredor.py",
+  "_src/pecas.py",
+  "_src/samuel_lado.py",
+  "_src/tiles.py",
+  "_src/ui.py"
+ ],
+ "reaproveitado": {
+  "samuel": "planeta-v2/estilo-v2 (samuel2.grade lado/frente, aprovado)",
+  "botoes_e_nos_do_mapa": "pescador-samuel/estilo/_src/controles_mapa.py (botao, ic_pausa, ic_tela_cheia, ic_seta, ic_repetir, no_fase, ponto, seta_marcador)"
+ }
+}

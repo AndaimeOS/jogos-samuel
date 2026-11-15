@@ -1,0 +1,53 @@
+:root { --ink: #193337; --paper: #f5f2e8; --green: #b9ed80; --orange: #ff9d52; --lilas: #ceb7ef; }
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: var(--ink); touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+#jogo { position: fixed; inset: 0; overflow: hidden; }
+#jogo.cresceu { position: fixed; inset: 0; z-index: 30; background: var(--ink); }
+#palco { position: absolute; inset: 0; }
+#palco canvas { image-rendering: pixelated; image-rendering: crisp-edges; }
+[hidden] { display: none !important; }
+
+#barra { position: fixed; z-index: 9; top: 8px; left: 8px; display: flex; gap: 8px; }
+#barra a, #barra button, #btnSeguir {
+  min-width: 48px; min-height: 48px; padding: 8px 12px;
+  border: 2px solid var(--ink); background: var(--paper); color: var(--ink);
+  box-shadow: 3px 3px 0 var(--ink); font: 800 16px Arial, Helvetica, sans-serif;
+  text-decoration: none; display: inline-flex; align-items: center; justify-content: center;
+  touch-action: none;
+}
+#barra button[aria-pressed="true"] { background: var(--green); }
+#btnFacil[aria-pressed="true"] { background: var(--lilas); }
+
+.faixa { position: fixed; z-index: 4; margin: 0; padding: 0; border: 0; background: transparent; touch-action: none; }
+.ctrl {
+  position: fixed; z-index: 7; margin: 0; padding: 0; border: 0; background-color: transparent;
+  background-repeat: no-repeat; background-size: 200% 100%; background-position: left center;
+  image-rendering: pixelated; image-rendering: crisp-edges; touch-action: none;
+}
+.ctrl.apertado { background-position: right center; }
+#btnEsq { background-image: url("arte/controles/botao-esquerda.png"); }
+#btnDir { background-image: url("arte/controles/botao-direita.png"); }
+#btnPulo { background-image: url("arte/controles/botao-pular.png"); }
+#btnPausa { background-image: url("arte/controles/botao-pausa.png"); }
+#btnTela { background-image: url("arte/controles/botao-tela-cheia.png"); }
+#btnRepetir { position: relative; background-image: url("arte/controles/botao-repetir.png"); }
+#btnProxima { position: relative; background-image: url("arte/controles/botao-proxima.png"); }
+
+#vitoria, #pausa {
+  position: fixed; inset: 0; z-index: 12; display: grid; place-items: center;
+  background: rgba(25, 51, 55, .35);
+}
+.cartao { width: min(300px, calc(100% - 24px)); background: var(--paper); border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); }
+.barra-janela {
+  display: flex; justify-content: space-between; padding: 6px 10px;
+  border-bottom: 2px solid var(--ink); background: #e8e7db;
+  font: 12px "Courier New", Courier, monospace;
+}
+.corpo { padding: 14px 16px 16px; text-align: center; }
+h2 { margin: 0 0 8px; font: 900 28px/1 "Courier New", Courier, monospace; letter-spacing: -1px; }
+#vitoriaMoedas { margin: 0 0 12px; font: 900 22px "Courier New", Courier, monospace; }
+.acoes { display: flex; gap: 12px; justify-content: center; align-items: flex-end; }
+#btnSeguir { min-width: 140px; background: var(--green); font-size: 18px; }
+button:focus-visible, a:focus-visible { outline: 3px solid #9956e0; outline-offset: 3px; }
+.faixa:focus { outline: none; }
+.faixa:focus-visible { outline: 3px solid #9956e0; outline-offset: -6px; }
