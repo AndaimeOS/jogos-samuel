@@ -54,3 +54,65 @@ Sem tileset de borda, canto ou transição.
 A água do Pescador é o chão por onde o barco anda. Rio, lago e mar são biomas
 andáveis, não um buraco e nem uma camada especial. O barco não nada "por cima"
 de um chão de terra: a água é o piso.
+
+## Respostas ao Gerador (lote 4)
+
+O lote 4 entrou em `arte/chao.json` e `arte/cenario/`. O jogo lê esses caminhos
+relativos à página do jogo (`arte/chao.json`, `arte/cenario/<nome>.png`).
+
+### 1. Biomas
+
+O lote trouxe um estilo por região. O jogo usa esse id direto:
+
+| Jogo | Fase | Id do chão |
+| --- | --- | --- |
+| Planeta | era de Pedra (campo e caverna) | `pedra` |
+| Planeta | era de Bronze (rio e deserto) | `bronze` |
+| Planeta | era de Ferro (forja e floresta) | `ferro` |
+| Planeta | farol | `praia-farol` |
+| Pescador | rio e margem | `rio` |
+| Pescador | lago e taboa | `lago` |
+| Pescador | mar e areia | `mar` |
+
+Não falta arquivo para esta versão. Se o próximo lote quiser um segundo visual
+por era, os ids que ainda não existem são: `caverna`, `deserto`, `forja`,
+`floresta`, `margem`, `taboa`, `areia`.
+
+### 2. Caminhos
+
+`arte/chao.json` e `arte/cenario/<bioma>-rock|tree-0..2.png` são os caminhos
+que o jogo busca. O tile é de 16 px, com a paleta do json. A trilha usa a
+faixa `|ruido-0.5| < 0.08` (um pouco mais larga que 0,025) para aparecer no
+tile, não em cada pixel.
+
+### 3. Sombra do bagre
+
+Não precisa de `_v2`. O `bodyW` 51 conta o bigode. A sombra usa o menor lado
+do corpo, com teto de 28 px. O quadro continua o mesmo.
+
+### 4. Colisão da decoração
+
+Pedra e árvore não bloqueiam o Samuel nem o barco. A água também não bloqueia:
+ela é o piso. O anel de spawn continua `hypot(vista)/2 + 12`. Não encolher a
+decoração por causa de colisão.
+
+## Respostas ao Gerador (lote 5)
+
+O lote 5 substituiu o 4. `motor_v2.json` virou `arte/motor.json` do Planeta
+(16 ids). Mamute, caranguejo-gigante e robô enferrujado entram em escala 1,
+com Walk, Idle, Hurt e Sumico. Não há mais placeholder para esses três.
+
+Os perigos do Pescador estão em `arte/perigos/` e não entram no `motor.json`
+nem na horda. Cada arquivo listado em `perigos.json` existe e o PNG tem o
+tamanho do quadro vezes o número de quadros.
+
+O raio pisca o alvo a 80 px ou mais do barco e não tira vida, nem no Normal.
+A tempestade sobe os três degraus de `escurecer.png` (um por segundo e o
+último fica enquanto durar). O degrau 3 cobre 19% do tile de 16 px; o resto
+continua transparente, e a chuva cobre 3%. Dá para ver o barco, então o jogo
+não para no degrau 1.
+
+Nevoeiro: fiapos 2,5 s antes, depois a camada rolando e a borda presa à tela
+(o centro do PNG é transparente). Onda: aviso 2 s na borda de onde ela vem,
+frente em 1,5 s e espuma uma vez. O ícone da HUD alterna os dois quadros no
+aviso e fica no quadro aceso enquanto o perigo dura.

@@ -35,19 +35,25 @@ const inimigos = {
   'seixo-vivo': bicho('seixo-vivo', 22, 28, 7, 2, 1.2, 9),
   'lobo-da-pedra': bicho('lobo-da-pedra', 16, 52, 8, 2, 0.85, 9),
   enxame: bicho('enxame', 8, 70, 5, 1, 0.45, 6),
-  mamute: bicho('mamute', 48, 22, 11, 4, 2.4, 12),
+  mamute: bicho('mamute', 28, 26, 8, 3, 1.2, 16, 'chase'),
   'guerreiro-de-bronze': bicho('guerreiro-de-bronze', 28, 42, 9, 3, 1.1, 9),
   escorpiao: bicho('escorpiao', 24, 38, 12, 3, 1, 8),
   'golem-de-barro': bicho('golem-de-barro', 70, 22, 10, 5, 2.6, 12),
-  'caranguejo-gigante': bicho('caranguejo-gigante', 36, 34, 10, 3, 1.5, 11),
+  'caranguejo-gigante': bicho('caranguejo-gigante', 26, 34, 8, 3, 1.1, 14, 'chase'),
   'soldado-de-ferro': bicho('soldado-de-ferro', 34, 40, 11, 3, 1.3, 9),
   catapulta: bicho('catapulta', 40, 26, 12, 4, 1.8, 10),
   'lobo-de-ferro': bicho('lobo-de-ferro', 30, 48, 12, 3, 1.1, 9),
-  'robo-enferrujado': bicho('robo-enferrujado', 55, 30, 13, 4, 2, 11),
+  'robo-enferrujado': bicho('robo-enferrujado', 28, 30, 8, 3, 1.1, 14, 'chase'),
   'urso-da-caverna': bicho('urso', 980, 36, 16, 20, 8, 14, 'chase', { chefe: true, altura: 72 }),
   'sentinela-de-bronze': bicho('sentinela-de-bronze', 1400, 34, 18, 24, 10, 16, 'chase', { chefe: true, altura: 64 }),
   'colosso-de-ferro': bicho('colosso-de-ferro', 2100, 32, 20, 30, 14, 16, 'chase', { chefe: true, altura: 72 }),
 }
+
+const PERIGOS = [
+  { id: 'meteoros', em: 8, aviso: 1.1, dura: 3.2, dano: 14 },
+  { id: 'enchente', em: 16, aviso: 1.0, dura: 3.5, dano: 0 },
+  { id: 'raios', em: 26, aviso: 1.0, dura: 4.5, dano: 16 },
+]
 
 const fase = (ordem, regiao, tipo, x, y, extra) => no(ordem, regiao, tipo, x, y, {
   biomas: extra.biomas,
@@ -58,6 +64,7 @@ const fase = (ordem, regiao, tipo, x, y, extra) => no(ordem, regiao, tipo, x, y,
   chefeEm: extra.chefeEm ?? 18,
   chao: extra.chao,
   agua: null,
+  perigos: tipo === 'fim' ? [] : PERIGOS,
 })
 
 const chaoPedra = { campo: 'chao-pedra-grama', caverna: 'chao-pedra-areia' }
@@ -92,16 +99,16 @@ export const conteudoPlaneta = {
   peixes: [],
   chefeDaRegiao: { pedra: 'urso-da-caverna', bronze: 'sentinela-de-bronze', ferro: 'colosso-de-ferro', fim: null },
   fases: [
-    fase(1, 'pedra', 'fase', 24, 180, { biomas: ['campo', 'caverna'], horda: ['seixo-vivo', 'lobo-da-pedra', 'mamute'], bando: 'enxame', chao: chaoPedra }),
-    fase(2, 'pedra', 'fase', 56, 96, { biomas: ['caverna', 'campo'], horda: ['lobo-da-pedra', 'seixo-vivo', 'mamute'], bando: 'enxame', chao: chaoPedra }),
-    fase(3, 'pedra', 'chefe', 94, 168, { biomas: ['caverna', 'campo'], horda: ['seixo-vivo', 'lobo-da-pedra'], chefe: 'urso-da-caverna', chao: chaoPedra, duracao: 90 }),
-    fase(4, 'bronze', 'fase', 128, 88, { biomas: ['rio', 'deserto'], horda: ['guerreiro-de-bronze', 'escorpiao', 'golem-de-barro'], bando: 'caranguejo-gigante', chao: chaoBronze }),
-    fase(5, 'bronze', 'fase', 158, 176, { biomas: ['deserto', 'rio'], horda: ['escorpiao', 'guerreiro-de-bronze', 'caranguejo-gigante'], chao: chaoBronze }),
-    fase(6, 'bronze', 'chefe', 192, 98, { biomas: ['deserto', 'rio'], horda: ['guerreiro-de-bronze', 'golem-de-barro'], chefe: 'sentinela-de-bronze', chao: chaoBronze, duracao: 90 }),
-    fase(7, 'ferro', 'fase', 226, 176, { biomas: ['forja', 'floresta'], horda: ['soldado-de-ferro', 'lobo-de-ferro', 'robo-enferrujado'], bando: 'catapulta', chao: chaoFerro }),
-    fase(8, 'ferro', 'fase', 252, 92, { biomas: ['floresta', 'forja'], horda: ['lobo-de-ferro', 'soldado-de-ferro', 'catapulta'], chao: chaoFerro }),
-    fase(9, 'ferro', 'chefe', 282, 170, { biomas: ['forja', 'floresta'], horda: ['soldado-de-ferro', 'robo-enferrujado'], chefe: 'colosso-de-ferro', chao: chaoFerro, duracao: 90 }),
-    fase(10, 'fim', 'fim', 322, 150, { biomas: ['campo', 'floresta'], horda: ['seixo-vivo'], chao: chaoPedra, duracao: 0 }),
+    fase(1, 'pedra', 'fase', 24, 180, { biomas: ['pedra'], horda: ['seixo-vivo', 'lobo-da-pedra', 'mamute'], bando: 'enxame', chao: chaoPedra }),
+    fase(2, 'pedra', 'fase', 56, 96, { biomas: ['pedra'], horda: ['lobo-da-pedra', 'seixo-vivo', 'mamute'], bando: 'enxame', chao: chaoPedra }),
+    fase(3, 'pedra', 'chefe', 94, 168, { biomas: ['pedra'], horda: ['seixo-vivo', 'lobo-da-pedra'], chefe: 'urso-da-caverna', chao: chaoPedra, duracao: 90 }),
+    fase(4, 'bronze', 'fase', 128, 88, { biomas: ['bronze'], horda: ['guerreiro-de-bronze', 'escorpiao', 'golem-de-barro'], bando: 'caranguejo-gigante', chao: chaoBronze }),
+    fase(5, 'bronze', 'fase', 158, 176, { biomas: ['bronze'], horda: ['escorpiao', 'guerreiro-de-bronze', 'caranguejo-gigante'], chao: chaoBronze }),
+    fase(6, 'bronze', 'chefe', 192, 98, { biomas: ['bronze'], horda: ['guerreiro-de-bronze', 'golem-de-barro'], chefe: 'sentinela-de-bronze', chao: chaoBronze, duracao: 90 }),
+    fase(7, 'ferro', 'fase', 226, 176, { biomas: ['ferro'], horda: ['soldado-de-ferro', 'lobo-de-ferro', 'robo-enferrujado'], bando: 'catapulta', chao: chaoFerro }),
+    fase(8, 'ferro', 'fase', 252, 92, { biomas: ['ferro'], horda: ['lobo-de-ferro', 'soldado-de-ferro', 'catapulta'], chao: chaoFerro }),
+    fase(9, 'ferro', 'chefe', 282, 170, { biomas: ['ferro'], horda: ['soldado-de-ferro', 'robo-enferrujado'], chefe: 'colosso-de-ferro', chao: chaoFerro, duracao: 90 }),
+    fase(10, 'fim', 'fim', 322, 150, { biomas: ['praia-farol'], horda: ['seixo-vivo'], chao: chaoPedra, duracao: 0 }),
   ],
   nos: {
     pedra: { aberta: 'no-aberta', travada: 'no-travada', vencida: 'no-vencida' },
@@ -115,7 +122,7 @@ export const conteudoPlaneta = {
     9: { aberta: 'no-chefe-colosso-de-ferro-aberta', travada: 'no-chefe-colosso-de-ferro-travada', vencida: 'no-chefe-colosso-de-ferro-vencida' },
   },
   cores: {
-    campo: '#8FCB6B', caverna: '#8A8178', rio: '#6BB8C4', deserto: '#E2C56A', forja: '#C47A52', floresta: '#3E6B45',
+    pedra: '#8FD46A', bronze: '#F2CC8E', ferro: '#76726A', 'praia-farol': '#F2E2B0',
   },
   config: {
     proposta: true,

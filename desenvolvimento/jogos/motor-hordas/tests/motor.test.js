@@ -58,6 +58,15 @@ describe('contas do motor', () => {
       }
     }
     expect(nasceuFora).toBe(true)
+    const cedo = criarPartida(conteudoPlaneta, { fase: 0, seed: 7, vista: { w: 400, h: 300 } })
+    escolherCarta(cedo, 0)
+    for (let i = 0; i < 60; i++) tick(cedo, 1 / 60, { x: 0, y: 0, acao: false, acaoSegurada: false })
+    expect(cedo.chefe).toBeNull()
+    expect(cedo.tempo).toBeLessThan(1.05)
+    for (const b of cedo.inimigos) {
+      expect(Math.hypot(b.x - cedo.jogador.x, b.y - cedo.jogador.y)).toBeGreaterThan(80)
+      expect(b.chefe).toBeFalsy()
+    }
     const antes = p.camera.x
     for (let i = 0; i < 30; i++) tick(p, 1 / 60, { x: 1, y: 0, acao: false, acaoSegurada: false })
     expect(p.camera.x).toBeGreaterThan(antes + 10)
@@ -154,6 +163,14 @@ describe('contas do motor', () => {
     expect(barco['samuel-barco-colete'].body.bodyW).toBe(20)
     expect(barco['peixe-lendario'].anims.Sumico).toBeTruthy()
     expect(folhas.samuel.anims.Sumico).toBeUndefined()
+    expect(folhas.mamute.anims.Walk.linhas).toBe(8)
+    expect(folhas.mamute.anims.Sumico).toMatchObject({ linhas: 1, quadros: 5 })
+    expect(folhas['caranguejo-gigante'].anims.Sumico.quadros).toBe(5)
+    expect(folhas['robo-enferrujado'].anims.Walk.linhas).toBe(8)
+    expect(Object.keys(folhas)).toHaveLength(16)
+    expect(barco.nevoeiro).toBeUndefined()
+    expect(barco['onda-gigante']).toBeUndefined()
+    expect(barco.tempestade).toBeUndefined()
 
     const proibidos = /\b(pikachu|charmander|charizard|squirtle|bulbasaur|mewtwo|jigglypuff|rattata|snorlax|eevee|pok[eé]mon|pokeball|pokedex|pokédex|gastly|gengar|lucario|arceus|kyogre)\b/i
     const arquivos = []
@@ -172,5 +189,92 @@ describe('contas do motor', () => {
       const texto = await readFile(arquivo, 'utf8')
       expect(texto, arquivo).not.toMatch(proibidos)
     }
+  })
+
+  it('perigos avisam antes e no fácil não tiram vida', () => {
+    expect(conteudoPescador.inimigos.nevoeiro).toBeUndefined()
+    expect(conteudoPescador.inimigos['onda-gigante']).toBeUndefined()
+    expect(conteudoPescador.inimigos.tempestade).toBeUndefined()
+    for (const f of [...conteudoPescador.fases, ...conteudoPlaneta.fases]) {
+      expect((f.horda || []).join(' ')).not.toMatch(/nevoeiro|onda-gigante/)
+      expect((f.horda || []).includes('tempestade')).toBe(false)
+    }
+    expect(conteudoPlaneta.inimigos.mamute.raio).toBe(16)
+    expect(conteudoPlaneta.fases[0].perigos.map((ev) => ev.id)).toEqual(['meteoros', 'enchente', 'raios'])
+    expect(conteudoPescador.fases[0].perigos.map((ev) => ev.id)).toEqual(['nevoeiro', 'onda-gigante', 'tempestade'])
+    expect(conteudoPescador.fases[0].perigos.find((ev) => ev.id === 'tempestade').dano).toBe(0)
+    expect(conteudoPlaneta.fases[9].perigos).toEqual([])
+    expect(conteudoPescador.fases[10].perigos).toEqual([])
+
+    const parado = { x: 0, y: 0, acao: false, acaoSegurada: false }
+    function passo(p) {
+      if (p.pausa === 'cartas') escolherCarta(p, 0)
+      else tick(p, 1 / 60, parado)
+      p.inimigos.length = 0
+      p.acumulo = 0
+    }
+    function ate(p, id) {
+      let guarda = 0
+      while (guarda++ < 4000 && !(p.perigoAtual && p.perigoAtual.id === id)) passo(p)
+      return p.perigoAtual
+    }
+    function soltar(p) {
+      let guarda = 0
+      while (p.perigoAtual && p.perigoAtual.fase === 'aviso' && guarda++ < 200) passo(p)
+    }
+
+    const facil = criarPartida(conteudoPlaneta, { fase: 0, seed: 3, modo: 'facil' })
+    escolherCarta(facil, 0)
+    const aviso = ate(facil, 'raios')
+    expect(aviso.fase).toBe('aviso')
+    expect(aviso.marcas).toHaveLength(4)
+    facil.jogador.x = aviso.marcas[0].x
+    facil.jogador.y = aviso.marcas[0].y
+    soltar(facil)
+    expect(facil.perigoAtual.fase).toBe('ativo')
+    expect(facil.jogador.hp).toBe(100)
+
+    const normal = criarPartida(conteudoPlaneta, { fase: 0, seed: 3, modo: 'normal' })
+    escolherCarta(normal, 0)
+    const raio = ate(normal, 'raios')
+    normal.jogador.x = raio.marcas[0].x
+    normal.jogador.y = raio.marcas[0].y
+    normal.jogador.iframes = 0
+    soltar(normal)
+    expect(normal.jogador.hp).toBeLessThan(100)
+
+    const barco = criarPartida(conteudoPescador, { fase: 0, seed: 4, modo: 'facil' })
+    escolherCarta(barco, 0)
+    expect(ate(barco, 'nevoeiro').fase).toBe('aviso')
+    soltar(barco)
+    expect(barco.visao).toBe(70)
+    expect(barco.jogador.hp).toBe(100)
+    const onda = ate(barco, 'onda-gigante')
+    expect(onda.fase).toBe('aviso')
+    expect(onda.marcas).toHaveLength(0)
+    soltar(barco)
+    const x0 = barco.jogador.x
+    const y0 = barco.jogador.y
+    for (let i = 0; i < 20; i++) passo(barco)
+    expect(Math.hypot(barco.jogador.x - x0, barco.jogador.y - y0)).toBeGreaterThan(20)
+    expect(barco.jogador.hp).toBe(100)
+    const chuva = ate(barco, 'tempestade')
+    expect(chuva.fase).toBe('aviso')
+    expect(chuva.marcas).toHaveLength(0)
+    soltar(barco)
+    let guardaRaio = 0
+    while (guardaRaio++ < 200 && !(barco.perigoAtual && barco.perigoAtual.raio)) passo(barco)
+    expect(barco.perigoAtual.raio.dist).toBeGreaterThanOrEqual(64)
+    expect(Math.hypot(barco.perigoAtual.raio.x - barco.jogador.x, barco.perigoAtual.raio.y - barco.jogador.y)).toBeGreaterThanOrEqual(64)
+    expect(barco.jogador.hp).toBe(100)
+    const normalBarco = criarPartida(conteudoPescador, { fase: 0, seed: 4, modo: 'normal' })
+    escolherCarta(normalBarco, 0)
+    soltar(ate(normalBarco, 'tempestade') && normalBarco)
+    guardaRaio = 0
+    while (guardaRaio++ < 200 && !(normalBarco.perigoAtual && normalBarco.perigoAtual.raio)) passo(normalBarco)
+    normalBarco.jogador.x = normalBarco.perigoAtual.raio.x
+    normalBarco.jogador.y = normalBarco.perigoAtual.raio.y
+    while (normalBarco.perigoAtual && normalBarco.perigoAtual.raio && normalBarco.perigoAtual.raio.fase === 'pisca') passo(normalBarco)
+    expect(normalBarco.jogador.hp).toBe(100)
   })
 })

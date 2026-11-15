@@ -39,33 +39,42 @@ const pagina = (titulo) => `<!DOCTYPE html>
     border: 2px solid #193337; box-shadow: 3px 3px 0 #193337;
     display: inline-flex; align-items: center; justify-content: center; font-weight: 900; padding: 0 8px;
   }
-  #medXp, #medChefe { flex: 1; height: 28px; background: #fff; border: 2px solid #193337; box-shadow: 3px 3px 0 #193337; }
-  #medXp { height: 48px; padding: 8px; box-sizing: border-box; }
-  #barraXp, #barraChefe { display: block; height: 100%; width: 0; background: #CEB7EF; }
-  #barraChefe { background: #E2544A; }
+  #medXp, #medChefe { flex: 1; min-width: 0; background: #F5F2E8; border: 2px solid #193337; box-shadow: 3px 3px 0 #193337; }
+  #medXp { height: 48px; padding: 0 10px; box-sizing: border-box; display: flex; align-items: center; position: relative; overflow: hidden; }
+  #faseNome { position: relative; z-index: 1; font-weight: 900; font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #iconePerigo { width: 32px; height: 32px; flex: none; margin-right: 8px; position: relative; z-index: 1; background-repeat: no-repeat; background-size: 200% 100%; image-rendering: pixelated; }
+  #barraXp { position: absolute; left: 0; bottom: 0; height: 8px; width: 0; background: #CEB7EF; }
+  #medChefe { height: 22px; }
+  #barraChefe { display: block; height: 100%; width: 0; background: #E2544A; }
   #vidas, #golpes, #itens { display: flex; gap: 4px; }
   #vidas img, #golpes img, #itens img { width: 28px; height: 28px; image-rendering: pixelated; background: #F5F2E8; border: 2px solid #193337; }
   #minimapa { width: 72px; height: 72px; border: 2px solid #193337; background: #193337; image-rendering: pixelated; }
+  .folha { background-repeat: no-repeat; background-position: 0 0; background-size: 200% 100%; image-rendering: pixelated; }
   #joystick { position: absolute; z-index: 5; width: 120px; height: 120px; touch-action: none; }
-  #joystick img.base { width: 120px; height: 120px; image-rendering: pixelated; }
+  #joystick .base { width: 120px; height: 120px; }
   #knob { position: absolute; width: 48px; height: 48px; left: 36px; top: 36px; }
-  #knob img { width: 48px; height: 48px; image-rendering: pixelated; }
-  #btnAcao { position: absolute; z-index: 5; right: 16px; bottom: 16px; width: 64px; height: 64px; padding: 0; background: #FF9D52; }
-  #btnAcao img { width: 40px; height: 40px; }
+  #btnAcao { position: absolute; z-index: 5; right: 16px; bottom: 16px; width: 64px; height: 64px; padding: 0; background-color: #FF9D52; }
+  #btnPausa, #btnTela { background-color: #F5F2E8; }
   #mapa, #levelup, #vitoria, #derrota, #fim, #pausa, #creditos {
     position: absolute; inset: 0; z-index: 6; background: #F5F2E8; display: flex; flex-direction: column;
   }
-  #mapa { background: #B9ED80; }
+  #mapa { background: #8FCB6B; }
+  #mapa.agua { background: #1B5A6E; }
+  #faixas { position: absolute; inset: 0; }
+  #mapa:not(.agua) #faixas { background: linear-gradient(90deg, #8FCB6B 0 28%, #E7A15A 28% 52%, #C9C9C4 52% 76%, #F0D56A 76% 88%, #3AA0B8 88% 100%); }
+  #mapa.agua #faixas { background: linear-gradient(90deg, #3FA8A6 0 34%, #2B7F78 34% 67%, #1B5A6E 67% 100%); }
+  #mapa.agua #faixas::before, #mapa.agua #faixas::after { content: ""; position: absolute; left: 0; right: 0; height: 14%; background: linear-gradient(90deg, #8FCB6B 0 72%, #E6C85A 72% 100%); }
+  #mapa.agua #faixas::before { top: 0; }
+  #mapa.agua #faixas::after { bottom: 0; }
   #levelup { background: rgba(25, 51, 55, .45); align-items: center; justify-content: center; }
   #cartas { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; padding: 16px; max-width: 100%; }
   .carta { width: min(220px, 30vw); min-height: 120px; flex-direction: column; background: #F5F2E8; }
   .carta img { width: 48px; height: 48px; }
-  #palco { position: absolute; inset: 64px 8px 8px 8px; }
-  #nos { position: absolute; inset: 0; }
-  #nos button { position: absolute; width: 48px; height: 48px; padding: 0; }
-  #marca { z-index: 2; }
-  #nos button img { width: 44px; height: 44px; }
-  #marca { position: absolute; width: 32px; height: 48px; image-rendering: pixelated; pointer-events: none; }
+  #palco { position: relative; flex: 1; min-height: 0; }
+  #cenario { position: absolute; object-fit: fill; image-rendering: pixelated; pointer-events: none; }
+  #nos { position: absolute; }
+  #nos button { position: absolute; padding: 0; background-color: transparent; border: 0; box-shadow: none; min-width: 48px; min-height: 48px; }
+  #marca { position: absolute; width: 32px; height: 48px; image-rendering: pixelated; pointer-events: none; z-index: 2; }
   .faixa { display: flex; gap: 8px; padding: 8px; align-items: center; }
   .faixa h1 { margin: 0; font-size: 22px; }
   .miolo { margin: auto; display: flex; flex-direction: column; gap: 12px; align-items: center; text-align: center; padding: 16px; }
@@ -81,12 +90,12 @@ const pagina = (titulo) => `<!DOCTYPE html>
     <div class="linha">
       <img id="retrato" alt="" width="40" height="40">
       <div id="nivel">1</div>
-      <div id="medXp"><b id="barraXp"></b></div>
+      <div id="medXp"><div id="iconePerigo" hidden></div><span id="faseNome"></span><b id="barraXp"></b></div>
       <div id="relogio">00:00</div>
       <div id="album" hidden>0</div>
       <a id="btnJogos" class="btn" href="/jogos/" target="_top" data-alvo>←</a>
-      <button type="button" id="btnPausa" data-alvo aria-label="Pausa"><img alt="" src="arte/controles/botao-pausa.png"></button>
-      <button type="button" id="btnTela" data-alvo aria-label="Tela cheia"><img alt="" src="arte/controles/botao-tela-cheia.png"></button>
+      <button type="button" id="btnPausa" class="folha" data-alvo aria-label="Pausa" style="background-image:url(arte/controles/botao-pausa.png)"></button>
+      <button type="button" id="btnTela" class="folha" data-alvo aria-label="Tela cheia" style="background-image:url(arte/controles/botao-tela-cheia.png)"></button>
     </div>
     <div class="linha">
       <div id="vidas"></div>
@@ -95,8 +104,8 @@ const pagina = (titulo) => `<!DOCTYPE html>
     </div>
     <div id="medChefe" hidden><b id="barraChefe"></b></div>
   </div>
-  <div id="joystick" data-alvo aria-label="Joystick"><img class="base" alt="" src="arte/controles/joystick-base.png"><div id="knob"><img alt="" src="arte/controles/joystick-bola.png"></div></div>
-  <button type="button" id="btnAcao" data-alvo aria-label="Ação"><img alt="" src="arte/controles/botao-acao.png"></button>
+  <div id="joystick" data-alvo aria-label="Joystick"><div class="base folha" style="background-image:url(arte/controles/joystick-base.png)"></div><div id="knob" class="folha" style="background-image:url(arte/controles/joystick-bola.png)"></div></div>
+  <button type="button" id="btnAcao" class="folha" data-alvo aria-label="Ação" style="background-image:url(arte/controles/botao-acao.png)"></button>
   <div id="mapa">
     <div class="faixa">
       <h1>${titulo}</h1>
@@ -104,7 +113,7 @@ const pagina = (titulo) => `<!DOCTYPE html>
       <button type="button" id="btnNormal" data-alvo aria-pressed="false">Normal</button>
       <button type="button" id="btnCreditos" data-alvo>Créditos</button>
     </div>
-    <div id="palco"><img id="marca" alt=""><div id="nos"></div></div>
+    <div id="palco"><div id="faixas"></div><img id="cenario" alt="" src="arte/mapa/mapa_mock.png"><img id="marca" alt=""><div id="nos"></div></div>
   </div>
   <div id="levelup" hidden><div id="cartas"></div></div>
   <div id="vitoria" hidden>

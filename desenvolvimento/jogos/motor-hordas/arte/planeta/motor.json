@@ -764,5 +764,185 @@
    "bodyH": 59,
    "footY": 29
   }
+ },
+ "mamute": {
+  "anims": {
+   "Walk": {
+    "src": "arte/sprites/mamute/Walk.png",
+    "frameW": 64,
+    "frameH": 56,
+    "duracoes": [
+     8,
+     10,
+     8,
+     10
+    ],
+    "quadros": 4,
+    "linhas": 8
+   },
+   "Idle": {
+    "src": "arte/sprites/mamute/Idle.png",
+    "frameW": 64,
+    "frameH": 56,
+    "duracoes": [
+     40,
+     6,
+     6
+    ],
+    "quadros": 3,
+    "linhas": 8
+   },
+   "Hurt": {
+    "src": "arte/sprites/mamute/Hurt.png",
+    "frameW": 64,
+    "frameH": 56,
+    "duracoes": [
+     2,
+     8
+    ],
+    "quadros": 2,
+    "linhas": 8
+   },
+   "Sumico": {
+    "src": "arte/sprites/mamute/Sumico.png",
+    "frameW": 64,
+    "frameH": 56,
+    "duracoes": [
+     6,
+     5,
+     5,
+     6,
+     8
+    ],
+    "quadros": 5,
+    "linhas": 1
+   }
+  },
+  "portrait": "arte/sprites/mamute/portrait.png",
+  "body": {
+   "bodyW": 34,
+   "bodyH": 42,
+   "footY": 24
+  }
+ },
+ "caranguejo-gigante": {
+  "anims": {
+   "Walk": {
+    "src": "arte/sprites/caranguejo-gigante/Walk.png",
+    "frameW": 64,
+    "frameH": 48,
+    "duracoes": [
+     8,
+     10,
+     8,
+     10
+    ],
+    "quadros": 4,
+    "linhas": 8
+   },
+   "Idle": {
+    "src": "arte/sprites/caranguejo-gigante/Idle.png",
+    "frameW": 64,
+    "frameH": 48,
+    "duracoes": [
+     40,
+     6,
+     6
+    ],
+    "quadros": 3,
+    "linhas": 8
+   },
+   "Hurt": {
+    "src": "arte/sprites/caranguejo-gigante/Hurt.png",
+    "frameW": 64,
+    "frameH": 48,
+    "duracoes": [
+     2,
+     8
+    ],
+    "quadros": 2,
+    "linhas": 8
+   },
+   "Sumico": {
+    "src": "arte/sprites/caranguejo-gigante/Sumico.png",
+    "frameW": 64,
+    "frameH": 48,
+    "duracoes": [
+     6,
+     5,
+     5,
+     6,
+     8
+    ],
+    "quadros": 5,
+    "linhas": 1
+   }
+  },
+  "portrait": "arte/sprites/caranguejo-gigante/portrait.png",
+  "body": {
+   "bodyW": 40,
+   "bodyH": 25,
+   "footY": 12
+  }
+ },
+ "robo-enferrujado": {
+  "anims": {
+   "Walk": {
+    "src": "arte/sprites/robo-enferrujado/Walk.png",
+    "frameW": 40,
+    "frameH": 64,
+    "duracoes": [
+     8,
+     10,
+     8,
+     10
+    ],
+    "quadros": 4,
+    "linhas": 8
+   },
+   "Idle": {
+    "src": "arte/sprites/robo-enferrujado/Idle.png",
+    "frameW": 40,
+    "frameH": 64,
+    "duracoes": [
+     40,
+     6,
+     6
+    ],
+    "quadros": 3,
+    "linhas": 8
+   },
+   "Hurt": {
+    "src": "arte/sprites/robo-enferrujado/Hurt.png",
+    "frameW": 40,
+    "frameH": 64,
+    "duracoes": [
+     2,
+     8
+    ],
+    "quadros": 2,
+    "linhas": 8
+   },
+   "Sumico": {
+    "src": "arte/sprites/robo-enferrujado/Sumico.png",
+    "frameW": 40,
+    "frameH": 64,
+    "duracoes": [
+     6,
+     5,
+     5,
+     6,
+     8
+    ],
+    "quadros": 5,
+    "linhas": 1
+   }
+  },
+  "portrait": "arte/sprites/robo-enferrujado/portrait.png",
+  "body": {
+   "bodyW": 30,
+   "bodyH": 47,
+   "footY": 23
+  }
  }
 }

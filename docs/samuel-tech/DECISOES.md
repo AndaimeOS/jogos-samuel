@@ -126,3 +126,17 @@ Não apagar decisões antigas: acrescentar uma nova com alternativa, motivo e ef
 - **Efeito:** o código mora em `desenvolvimento/jogos/motor-hordas/` e o site
   recebe só o pacote de cada slug. Respostas ao Gerador em
   `desenvolvimento/jogos/motor-hordas/RESPOSTAS-GERADOR.md`. Sem deploy nesta sessão.
+
+## DEC-015 — Perigos do cenário e sprites do lote 5 (2026-11-15)
+
+- **Decisão:** nevoeiro, onda-gigante e tempestade não são inimigos. São efeitos
+  de tela com aviso antes, no mesmo espírito da chuva de meteoros, da enchente
+  e dos raios do Planeta. No Fácil nenhum desses perigos tira vida. O raio do
+  Pescador não tira vida em modo nenhum, e o alvo pisca a pelo menos 64 px do
+  barco. A tempestade usa os três degraus de escurecimento, porque o mais escuro
+  cobre 19% do tile e o barco continua visível. Mamute, caranguejo-gigante e
+  robô enferrujado usam a folha de 8 direções do lote 5, em escala 1.
+- **Alternativa descartada:** desenhar esses três do Pescador como bicho com
+  sprite, e manter os três do Planeta como placeholder de 24 px.
+- **Efeito:** os ids saem da horda e do `motor.json`. A arte fica em
+  `arte/perigos/`. Pedra e árvore do `cenario/` não bloqueiam o passo.

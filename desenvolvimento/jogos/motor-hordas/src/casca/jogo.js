@@ -1,5 +1,5 @@
 import { criarPartida, escolherCarta, ganharXp, tick, trazerChefe } from '../motor/partida.js'
-import { encaixarVista, formatarTempo, joystick } from '../motor/numeros.js'
+import { encaixarVista, formatarTempo, hash2, joystick } from '../motor/numeros.js'
 import { biomaEm } from '../motor/mundo.js'
 
 const TILE = 16
@@ -26,6 +26,30 @@ export async function iniciar(conteudo) {
       carga(`${id}:portrait`, sp.portrait),
     ]),
   ])
+  let chao = null
+  try {
+    const resp = await fetch('arte/chao.json')
+    if (resp.ok) {
+      chao = await resp.json()
+      const nomes = new Set()
+      for (const b of Object.values(chao.biomas || {})) {
+        for (const n of [...(b.rock || []), ...(b.tree || [])]) nomes.add(n)
+      }
+      await Promise.all([...nomes].map((nome) => carga(nome, `arte/cenario/${nome}.png`)))
+    }
+  } catch { /* chão opcional */ }
+  let catalogoPerigos = null
+  try {
+    const resp = conteudo.pesca ? await fetch('arte/perigos/perigos.json') : null
+    if (resp && resp.ok) {
+      catalogoPerigos = await resp.json()
+      const srcs = []
+      for (const perigo of Object.values(catalogoPerigos.perigos || {})) {
+        for (const peca of Object.values(perigo.pecas || {})) srcs.push(peca.src)
+      }
+      await Promise.all(srcs.map((src) => carga(src, src)))
+    }
+  } catch { /* perigos opcionais */ }
 
   let partida = null
   let save = lerSave(conteudo)
@@ -83,13 +107,54 @@ export async function iniciar(conteudo) {
     if (partida.pausa === 'fim') pintarFim()
   }
 
+  function nomeDa(fase) {
+    if (!fase) return ''
+    if (fase.tipo === 'fim') return conteudo.pesca ? 'O porto' : 'O farol'
+    const chefes = {
+      'urso-da-caverna': 'Urso da caverna',
+      'sentinela-de-bronze': 'Sentinela de bronze',
+      'colosso-de-ferro': 'Colosso de ferro',
+      'bagre-gigante': 'Bagre gigante',
+      'jacare-rei': 'Jacaré rei',
+      'lula-gigante': 'Lula gigante',
+      'peixe-lendario-dourado': 'Peixe lendário',
+    }
+    if (fase.chefe && chefes[fase.chefe]) return chefes[fase.chefe]
+    const agua = { pedra: 'Pedra', bronze: 'Bronze', ferro: 'Ferro', rio: 'Rio', lago: 'Lago', mar: 'Mar' }
+    const quais = conteudo.fases.filter((f) => f.regiao === fase.regiao && f.tipo === 'fase' && f.ordem <= fase.ordem)
+    return `${agua[fase.regiao] || fase.regiao} ${quais.length || 1}`
+  }
+
+  function retanguloDoMapa() {
+    const palco = document.getElementById('palco')
+    const bw = palco.clientWidth || vista.w * vista.cssScale
+    const bh = palco.clientHeight || vista.h * vista.cssScale
+    const aspecto = conteudo.mapa.w / conteudo.mapa.h
+    let w
+    let h
+    if (bw / bh > aspecto) {
+      h = bh
+      w = h * aspecto
+    } else {
+      w = bw
+      h = w / aspecto
+    }
+    return { x: (bw - w) / 2, y: (bh - h) / 2, w, h, escala: w / conteudo.mapa.w }
+  }
+
   function pintarNos() {
     const caixa = document.getElementById('nos')
-    const palco = document.getElementById('palco')
+    const cenario = document.getElementById('cenario')
     caixa.replaceChildren()
-    const largura = palco.clientWidth || vista.w * vista.cssScale
-    const altura = palco.clientHeight || vista.h * vista.cssScale
-    const escala = Math.min(largura / conteudo.mapa.w, altura / conteudo.mapa.h)
+    const ret = retanguloDoMapa()
+    const escala = ret.escala
+    for (const el of [cenario, caixa]) {
+      el.style.left = `${ret.x}px`
+      el.style.top = `${ret.y}px`
+      el.style.width = `${ret.w}px`
+      el.style.height = `${ret.h}px`
+    }
+    const lado = Math.max(48, escala * 42)
     for (const fase of conteudo.fases) {
       const aberta = fase.ordem <= save.aberta
       const feita = save.vencidas.includes(fase.ordem)
@@ -100,22 +165,17 @@ export async function iniciar(conteudo) {
       botao.id = `no-${fase.ordem}`
       botao.dataset.alvo = '1'
       botao.disabled = !aberta
-      botao.style.left = `${fase.x * escala - 24}px`
-      botao.style.top = `${fase.y * escala - 24}px`
-      botao.setAttribute('aria-label', `Fase ${fase.ordem}`)
-      const img = document.createElement('img')
-      img.alt = ''
-      const spec = especial && sprites[especial[estado]]
-      if (spec) img.src = spec.src
-      botao.append(img)
+      botao.style.left = `${fase.x * escala - lado / 2}px`
+      botao.style.top = `${fase.y * escala - lado / 2}px`
+      botao.style.width = `${lado}px`
+      botao.style.height = `${lado}px`
+      botao.setAttribute('aria-label', nomeDa(fase))
+      botao.style.background = 'transparent'
       botao.addEventListener('click', () => { if (aberta) entrar(fase.ordem - 1) })
       caixa.append(botao)
     }
     const marca = document.getElementById('marca')
-    const atual = conteudo.fases.find((f) => f.ordem === save.aberta) || conteudo.fases[0]
-    marca.style.left = `${atual.x * escala - 16}px`
-    marca.style.top = `${atual.y * escala - 52}px`
-    marca.src = sprites[conteudo.marcador].src
+    marca.hidden = true
   }
 
   function pintarCartas() {
@@ -170,6 +230,20 @@ export async function iniciar(conteudo) {
   function sincronizarHud() {
     if (!partida) return
     document.getElementById('nivel').textContent = String(partida.jogador.nivel)
+    document.getElementById('faseNome').textContent = nomeDa(partida.fase)
+    const icone = document.getElementById('iconePerigo')
+    const evHud = partida.perigoAtual
+    const pecaIcone = catalogoPerigos && evHud && catalogoPerigos.perigos[evHud.id] && catalogoPerigos.perigos[evHud.id].pecas.icone
+    if (icone) {
+      if (!pecaIcone || !imagens[pecaIcone.src]) icone.hidden = true
+      else {
+        icone.hidden = false
+        icone.style.backgroundImage = `url(${pecaIcone.src})`
+        const quadro = evHud.fase === 'aviso' && Math.floor(evHud.t * 60 / 20) % 2 === 1 ? 0 : 1
+        icone.style.backgroundPosition = quadro === 0 ? '0 0' : '100% 0'
+        icone.setAttribute('aria-label', evHud.id)
+      }
+    }
     document.getElementById('relogio').textContent = formatarTempo(partida.tempo)
     document.getElementById('barraXp').style.width = `${Math.max(0, Math.min(100, (partida.jogador.xp / partida.jogador.xpProx) * 100))}%`
     const vidas = document.getElementById('vidas')
@@ -240,7 +314,8 @@ export async function iniciar(conteudo) {
     const pe = sp.body.footY
     ctx.fillStyle = 'rgba(25,51,55,0.28)'
     ctx.beginPath()
-    ctx.ellipse(Math.round(x), Math.round(y), Math.max(4, sp.body.bodyW * 0.45), 3, 0, 0, Math.PI * 2)
+    const sombra = Math.min(sp.body.bodyW, sp.body.bodyH, 28)
+    ctx.ellipse(Math.round(x), Math.round(y), Math.max(4, sombra * 0.45), 3, 0, 0, Math.PI * 2)
     ctx.fill()
     ctx.save()
     ctx.globalAlpha = 1
@@ -303,24 +378,43 @@ export async function iniciar(conteudo) {
     const y0 = Math.floor(camY / TILE) - 1
     const x1 = Math.ceil((camX + vista.w) / TILE) + 1
     const y1 = Math.ceil((camY + vista.h) / TILE) + 1
+    const enfeites = []
     for (let ty = y0; ty <= y1; ty++) {
       for (let tx = x0; tx <= x1; tx++) {
         const bioma = biomaEm(partida.seed, tx * TILE, ty * TILE, partida.fase.biomas)
-        const id = (partida.fase.chao && partida.fase.chao[bioma]) || null
+        const estilo = chao && chao.biomas && chao.biomas[bioma]
         const px = Math.round(tx * TILE - camX)
         const py = Math.round(ty * TILE - camY)
-        if (id && imagens[id]) {
-          const sp = sprites[id]
-          const variacao = ((tx * 13 + ty * 7) & 3) === 0 && sprites[`${id}-var`] ? `${id}-var` : id
-          const qual = imagens[variacao] ? variacao : id
-          const spv = sprites[qual]
-          ctx.drawImage(imagens[qual], 0, 0, spv.frameW, spv.frameH, px, py, TILE, TILE)
-          void sp
-        } else {
-          ctx.fillStyle = conteudo.cores[bioma] || '#8FCB6B'
+        if (estilo) {
+          const n96 = hash2(tx, ty, 96)
+          const n220 = hash2(tx, ty, 220)
+          const n20 = hash2(tx, ty, 20)
+          const faixa = n96 > 0.55 ? estilo.alt : Math.abs(n220 - 0.5) < 0.08 ? estilo.path : estilo.base
+          const paleta = n20 > 0.76 && estilo.spots ? estilo.spots : faixa
+          const u = hash2(tx, ty, 3)
+          const tom = paleta[u < 0.7 ? 0 : u < 0.9 ? 1 : 2] || paleta[0]
+          ctx.fillStyle = tom
           ctx.fillRect(px, py, TILE, TILE)
+          if (hash2(tx, ty, 77) > 0.965) {
+            const lista = hash2(tx, ty, 78) > 0.45 ? (estilo.tree || []) : (estilo.rock || [])
+            const nome = lista[Math.floor(hash2(tx, ty, 79) * lista.length)]
+            if (nome && imagens[nome]) enfeites.push({ nome, x: px + TILE / 2, y: py + TILE })
+          }
+        } else {
+          const id = (partida.fase.chao && partida.fase.chao[bioma]) || null
+          if (id && imagens[id]) {
+            const spv = sprites[id]
+            ctx.drawImage(imagens[id], 0, 0, spv.frameW, spv.frameH, px, py, TILE, TILE)
+          } else {
+            ctx.fillStyle = conteudo.cores[bioma] || '#8FCB6B'
+            ctx.fillRect(px, py, TILE, TILE)
+          }
         }
       }
+    }
+    for (const e of enfeites) {
+      const img = imagens[e.nome]
+      ctx.drawImage(img, Math.round(e.x - img.naturalWidth / 2), Math.round(e.y - img.naturalHeight), img.naturalWidth, img.naturalHeight)
     }
     const mundo = (wx, wy) => [wx - camX, wy - camY]
     for (const g of partida.gemas) {
@@ -349,6 +443,7 @@ export async function iniciar(conteudo) {
         ctx.fillRect(sx2 - 3, sy2 - 3, 6, 6)
       }
     }
+    desenharPerigo('chao', mundo)
     const lista = [...partida.inimigos].sort((a, b) => a.y - b.y)
     for (const b of lista) {
       const [x, y] = mundo(b.x, b.y)
@@ -397,7 +492,161 @@ export async function iniciar(conteudo) {
       const dy = (b.y - j.y) / 18 + 36
       if (dx > 0 && dy > 0 && dx < 72 && dy < 72) mx.fillRect(dx, dy, 2, 2)
     }
+    desenharPerigo('frente', mundo)
     sincronizarHud()
+  }
+
+  function quadroDaPeca(peca, tempo, umaVez) {
+    const durs = peca.duracoes && peca.duracoes.length ? peca.duracoes : [8]
+    const total = durs.reduce((a, b) => a + b, 0) || 1
+    const t = Math.floor(Math.max(0, tempo) * 60)
+    if (umaVez && t >= total) return -1
+    let acc = 0
+    const local = t % total
+    for (let i = 0; i < durs.length; i++) {
+      acc += durs[i]
+      if (local < acc) return i
+    }
+    return 0
+  }
+
+  function blitPeca(peca, x, y, col, dw, dh) {
+    const img = imagens[peca.src]
+    if (!img || col < 0) return
+    ctx.drawImage(
+      img, col * peca.frameW, 0, peca.frameW, peca.frameH,
+      Math.round(x), Math.round(y), dw || peca.frameW, dh || peca.frameH,
+    )
+  }
+
+  function ladrilho(peca, col, x0, y0, w, h) {
+    if (col < 0 || !imagens[peca.src]) return
+    const fw = peca.frameW
+    const fh = peca.frameH
+    const ox = ((x0 % fw) + fw) % fw
+    const oy = ((y0 % fh) + fh) % fh
+    for (let y = -oy; y < h; y += fh) {
+      for (let x = -ox; x < w; x += fw) blitPeca(peca, x, y, col, fw, fh)
+    }
+  }
+
+  function faixa(peca, col, y) {
+    if (col < 0) return
+    for (let x = 0; x < vista.w; x += peca.frameW) blitPeca(peca, x, y, col)
+  }
+
+  function degrauEscuro(ev) {
+    const t = ev.fase === 'aviso' ? ev.t : ev.aviso + ev.t
+    return Math.min(2, Math.floor(t))
+  }
+
+  function desenharPerigo(camada, mundo) {
+    const ev = partida.perigoAtual
+    if (!ev) return
+    const arte = catalogoPerigos && catalogoPerigos.perigos[ev.id]
+    if (arte) desenharPerigoArte(ev, arte, camada, mundo)
+    else if (camada === 'frente') desenharPerigoPlaneta(ev, mundo)
+  }
+
+  function desenharPerigoArte(ev, arte, camada, mundo) {
+    const pecas = arte.pecas
+    if (ev.id === 'nevoeiro' && camada === 'frente') {
+      if (ev.fase === 'aviso') {
+        const peca = pecas.aviso
+        const col = quadroDaPeca(peca, ev.t, false)
+        const n = 5
+        for (let i = 0; i < n; i++) {
+          const avanco = ev.t * 10
+          const borda = i % 4
+          let x = (vista.w / n) * i
+          let y = (vista.h / n) * i
+          if (borda === 0) y = -8 + avanco
+          else if (borda === 1) x = vista.w - peca.frameW - avanco
+          else if (borda === 2) y = vista.h - peca.frameH - avanco
+          else x = -8 + avanco
+          blitPeca(peca, x, y, col)
+        }
+      } else {
+        ladrilho(pecas.camada, 0, -partida.camera.x + ev.t * 6, -partida.camera.y, vista.w, vista.h)
+        blitPeca(pecas.borda, 0, 0, 0, vista.w, vista.h)
+      }
+    }
+    if (ev.id === 'onda-gigante') {
+      const deCima = ev.dir.y > 0
+      if (camada === 'chao' && ev.fase === 'aviso') {
+        const peca = pecas.aviso
+        const y = deCima ? -peca.frameH + ev.t * 36 : vista.h - ev.t * 36
+        faixa(peca, quadroDaPeca(peca, ev.t, false), y)
+      }
+      if (camada === 'frente' && ev.fase === 'ativo') {
+        if (ev.t < 1.5) {
+          const peca = pecas.frente
+          const y = deCima
+            ? -peca.frameH + (ev.t / 1.5) * (vista.h + peca.frameH)
+            : vista.h - (ev.t / 1.5) * (vista.h + peca.frameH)
+          faixa(peca, quadroDaPeca(peca, ev.t, false), y)
+        } else {
+          const peca = pecas.espuma
+          const col = quadroDaPeca(peca, ev.t - 1.5, true)
+          const y = deCima ? vista.h - peca.frameH - 8 : 8
+          faixa(peca, col, y)
+        }
+      }
+    }
+    if (ev.id === 'tempestade') {
+      const nuvem = pecas.aviso
+      const yNuvem = ev.fase === 'aviso' ? -nuvem.frameH + Math.min(1, ev.t / ev.aviso) * (nuvem.frameH + 4) : 4
+      if (camada === 'chao') {
+        blitPeca(pecas.sombra, vista.w / 2 - pecas.sombra.frameW / 2, yNuvem + nuvem.frameH - 8, 0)
+        if (ev.raio && ev.raio.fase === 'pisca') {
+          const [x, y] = mundo(ev.raio.x, ev.raio.y)
+          const col = quadroDaPeca(pecas.alvo, ev.raio.t, false)
+          blitPeca(pecas.alvo, x - pecas.alvo.frameW / 2, y - pecas.alvo.frameH / 2, col)
+        }
+      }
+      if (camada === 'frente') {
+        if (ev.raio && ev.raio.fase === 'cai') {
+          const [x, y] = mundo(ev.raio.x, ev.raio.y)
+          const col = quadroDaPeca(pecas.raio, ev.raio.t, true)
+          blitPeca(pecas.raio, x - pecas.raio.frameW / 2, y - pecas.raio.frameH, col < 0 ? 2 : col)
+          if (ev.raio.t < 2 / 60) ladrilho(pecas.clarao, 0, 0, 0, vista.w, vista.h)
+        }
+        if (ev.fase === 'ativo') ladrilho(pecas.chuva, quadroDaPeca(pecas.chuva, ev.t, false), 0, 0, vista.w, vista.h)
+        ladrilho(pecas.escurecer, degrauEscuro(ev), 0, 0, vista.w, vista.h)
+        blitPeca(nuvem, vista.w / 2 - nuvem.frameW / 2, yNuvem, quadroDaPeca(nuvem, ev.t, false))
+      }
+    }
+  }
+
+  function desenharPerigoPlaneta(ev, mundo) {
+    if (ev.id === 'enchente' && ev.fase === 'ativo') {
+      ctx.fillStyle = 'rgba(56,140,168,0.32)'
+      ctx.fillRect(0, 0, vista.w, vista.h)
+    }
+    for (const m of ev.marcas) {
+      const [x, y] = mundo(m.x, m.y)
+      if (ev.fase === 'aviso') {
+        ctx.strokeStyle = Math.floor(ev.t * 8) % 2 === 0 ? '#FF9D52' : '#F6E27A'
+        ctx.lineWidth = 2
+        ctx.beginPath()
+        ctx.arc(x, y, m.r, 0, Math.PI * 2)
+        ctx.stroke()
+      } else if (ev.id === 'meteoros') {
+        desenharSprite('meteoro-impacto', x, y, 0, ev.t, 28, false)
+      } else if (ev.id === 'raios' && imagens.raio) {
+        desenharSprite('raio', x, y - 8, 0, ev.t, 40, false)
+      }
+    }
+    if (ev.fase === 'aviso') {
+      const texto = ev.id === 'meteoros' ? 'Cuidado: meteoros' : ev.id === 'enchente' ? 'Cuidado: enchente' : 'Cuidado: raios'
+      ctx.font = '700 12px Courier New, monospace'
+      ctx.textAlign = 'left'
+      const largura = ctx.measureText(texto).width + 12
+      ctx.fillStyle = '#193337'
+      ctx.fillRect(8, 8, largura, 20)
+      ctx.fillStyle = '#F6E27A'
+      ctx.fillText(texto, 14, 22)
+    }
   }
 
   function ajustar() {
@@ -506,8 +755,9 @@ export async function iniciar(conteudo) {
   document.addEventListener('webkitfullscreenchange', atualizarTela)
   function atualizarTela() {
     const cheia = !!(document.fullscreenElement || document.webkitFullscreenElement || root.classList.contains('cheia-fallback'))
-    const img = document.querySelector('#btnTela img')
-    if (img) img.src = sprites[cheia ? conteudo.controles.sair : conteudo.controles.tela].src
+    const btn = document.getElementById('btnTela')
+    const id = cheia ? conteudo.controles.sair : conteudo.controles.tela
+    if (btn && sprites[id]) btn.style.backgroundImage = `url(${sprites[id].src})`
   }
 
   document.addEventListener('visibilitychange', () => {
@@ -564,6 +814,7 @@ export async function iniciar(conteudo) {
   marcarModo()
   mostrar(mapa, true)
     if (!conteudo.pesca) document.getElementById('album').hidden = true
+    if (conteudo.pesca) document.getElementById('mapa').classList.add('agua')
     const retrato = document.getElementById('retrato')
     if (retrato && motor[conteudo.heroi] && motor[conteudo.heroi].portrait) retrato.src = motor[conteudo.heroi].portrait
   ajustar()

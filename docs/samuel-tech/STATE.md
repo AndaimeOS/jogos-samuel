@@ -3,6 +3,15 @@
 Atualizado ao fim de cada sessão (ST-090). Um bloco por sessão, o mais novo em cima.
 Vale o que está aqui e no Notion, não a memória do chat.
 
+## 2026-11-15 — Planeta e Pescador: lote 5, chão e perigos
+
+- **Pedido:** na mesma branch do PR #12, sem merge e sem deploy. O lote 5 substitui o 4. Mamute, caranguejo-gigante e robô enferrujado entram com sprite de 8 direções. Nevoeiro, onda-gigante e tempestade são perigos do cenário, com aviso, e no Fácil não tiram vida (os do Planeta também não). O raio do Pescador não tira vida nem no Normal, e o alvo pisca a pelo menos 64 px do barco.
+- **Feito:** `motor_v2.json` virou o `motor.json` do Planeta (16 ids, com Sumico nos três novos). Chão em `arte/chao.json` e decoração em `arte/cenario/` (não bloqueia). Perigos do Pescador em `arte/perigos/`, fora da horda e do `motor.json`. A tempestade usa os três degraus de escurecimento: o mais escuro cobre 19% do tile e o barco continua visível. O colete segue como barco padrão.
+- **Arquivos do índice:** todos os PNGs de `perigos.json` existem e batem com o quadro vezes o número de quadros. Nada faltando.
+- **Testes:** motor 6/6. iPad WebKit 6/6 (toque, 1024×768 e 768×1024, página e iframe, 60 s na paisagem). `verificar_jogo.py --todos` ok. Pebolim 35/35, Reino 18/18, Minigolfe 53/53, Corrida do Jack 19/19.
+- **Não feito:** publicar no samuel.tech.
+- **NEXT:** o Boaz olha o rascunho no iPad. Sem deploy daqui.
+
 ## 2026-11-15 — Planeta 0.3 e Pescador no motor da horda
 
 - **Pedido do Boaz (15/11 16:49 BRT):** refazer o Planeta com o motor do Pokémon Survivors e usar o mesmo no Pescador. Branch nova, PR em rascunho. Sem merge, sem push na `main`, sem deploy.

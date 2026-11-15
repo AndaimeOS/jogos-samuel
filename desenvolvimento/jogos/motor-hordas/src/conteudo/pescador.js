@@ -38,12 +38,9 @@ const inimigos = {
   'enguia-eletrica': bicho('enguia-eletrica', 24, 48, 11, 3, 0.8, 8, { altura: 18 }),
   'tartaruga-mordedora': bicho('tartaruga-mordedora', 46, 24, 10, 4, 2.2, 11, { altura: 20 }),
   'enxame-mosquitos': bicho('enxame-mosquitos', 8, 66, 5, 1, 0.4, 6, { altura: 14 }),
-  nevoeiro: bicho('nevoeiro', 30, 28, 8, 3, 0.6, 12, { altura: 22 }),
   tubarao: bicho('tubarao', 40, 50, 13, 4, 1.6, 12, { altura: 22 }),
   'agua-viva': bicho('agua-viva', 22, 30, 10, 3, 0.7, 10, { altura: 20 }),
   polvo: bicho('polvo', 48, 34, 12, 4, 1.8, 12, { altura: 22 }),
-  'onda-gigante': bicho('onda-gigante', 36, 42, 11, 3, 1.2, 13, { altura: 24 }),
-  tempestade: bicho('tempestade', 28, 38, 12, 3, 0.8, 12, { altura: 22 }),
   'bagre-gigante': bicho('bagre-gigante', 1000, 34, 16, 20, 8, 18, { chefe: true, altura: 56 }),
   'jacare-rei': bicho('jacare-rei', 1450, 38, 18, 24, 10, 13, { chefe: true, altura: 56 }),
   'lula-gigante': bicho('lula-gigante', 2000, 36, 20, 28, 12, 13, { chefe: true, altura: 72 }),
@@ -57,10 +54,16 @@ const peixes = [
   ...['sardinha', 'robalo', 'tainha', 'garoupa', 'badejo', 'corvina', 'pargo', 'dourado-do-mar', 'anchova', 'linguado'].map((id, i) => peixe(id, ['Sardinha', 'Robalo', 'Tainha', 'Garoupa', 'Badejo', 'Corvina', 'Pargo', 'Dourado do mar', 'Anchova', 'Linguado'][i], 'mar')),
 ]
 
+const PERIGOS = [
+  { id: 'nevoeiro', em: 8, aviso: 2.5, dura: 4, dano: 0 },
+  { id: 'onda-gigante', em: 16, aviso: 2, dura: 2.6, dano: 0 },
+  { id: 'tempestade', em: 26, aviso: 3, dura: 4.2, dano: 0 },
+]
+
 const aguaDe = {
-  rio: { biomas: ['rio', 'margem'], horda: ['piranha', 'sapo-pulador', 'caranguejo'], bando: 'piranha', chao: { rio: 'rio-agua', margem: 'rio-margem' } },
-  lago: { biomas: ['lago', 'taboa'], horda: ['enguia-eletrica', 'tartaruga-mordedora', 'enxame-mosquitos'], bando: 'enxame-mosquitos', chao: { lago: 'lago-agua', taboa: 'lago-taboa' } },
-  mar: { biomas: ['mar', 'areia'], horda: ['tubarao', 'agua-viva', 'polvo'], bando: 'agua-viva', chao: { mar: 'mar-agua', areia: 'mar-areia' } },
+  rio: { biomas: ['rio'], horda: ['piranha', 'sapo-pulador', 'caranguejo'], bando: 'piranha', chao: { rio: 'rio-agua' } },
+  lago: { biomas: ['lago'], horda: ['enguia-eletrica', 'tartaruga-mordedora', 'enxame-mosquitos'], bando: 'enxame-mosquitos', chao: { lago: 'lago-agua' } },
+  mar: { biomas: ['mar'], horda: ['tubarao', 'agua-viva', 'polvo'], bando: 'agua-viva', chao: { mar: 'mar-agua' } },
 }
 
 function fase(ordem, regiao, tipo, x, y, extra) {
@@ -74,6 +77,7 @@ function fase(ordem, regiao, tipo, x, y, extra) {
     duracao: extra.duracao ?? 36,
     chefeEm: extra.chefeEm ?? 18,
     chao: base.chao,
+    perigos: tipo === 'fim' ? [] : PERIGOS,
   })
 }
 
@@ -115,10 +119,10 @@ export const conteudoPescador = {
     fase(2, 'rio', 'fase', 62, 84, { horda: ['sapo-pulador', 'piranha', 'caranguejo'] }),
     fase(3, 'rio', 'chefe', 98, 150, { chefe: 'bagre-gigante', duracao: 90 }),
     fase(4, 'lago', 'fase', 134, 96, {}),
-    fase(5, 'lago', 'fase', 162, 186, { horda: ['tartaruga-mordedora', 'enguia-eletrica', 'nevoeiro'] }),
+    fase(5, 'lago', 'fase', 162, 186, { horda: ['tartaruga-mordedora', 'enguia-eletrica', 'enxame-mosquitos'] }),
     fase(6, 'lago', 'chefe', 196, 96, { chefe: 'jacare-rei', duracao: 90 }),
     fase(7, 'mar', 'fase', 232, 166, {}),
-    fase(8, 'mar', 'fase', 258, 86, { horda: ['polvo', 'onda-gigante', 'tempestade', 'tubarao'] }),
+    fase(8, 'mar', 'fase', 258, 86, { horda: ['polvo', 'tubarao', 'agua-viva'] }),
     fase(9, 'mar', 'chefe', 290, 146, { chefe: 'lula-gigante', duracao: 90 }),
     fase(10, 'mar', 'lendario', 322, 70, { chefe: 'peixe-lendario-dourado', horda: ['tubarao', 'agua-viva'], duracao: 90 }),
     fase(11, 'fim', 'fim', 318, 226, { duracao: 0 }),

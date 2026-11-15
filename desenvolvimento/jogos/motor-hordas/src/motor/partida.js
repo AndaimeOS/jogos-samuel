@@ -692,19 +692,20 @@ function pescar(p, forcar) {
 function passoMundo(p, dt, entrada) {
   const j = p.jogador
   const dif = DIFICULDADE[p.modo]
+  const emp = empurrarPerigo(p)
   const andando = Math.hypot(entrada.x, entrada.y) > 0.05
   if (andando) {
     const len = Math.hypot(entrada.x, entrada.y) || 1
-    const vx = (entrada.x / len) * j.stats.speed
-    const vy = (entrada.y / len) * j.stats.speed
-    j.x += (vx + j.kx) * dt
-    j.y += (vy + j.ky) * dt
+    const vx = (entrada.x / len) * j.stats.speed * emp.freio
+    const vy = (entrada.y / len) * j.stats.speed * emp.freio
+    j.x += (vx + j.kx + emp.x) * dt
+    j.y += (vy + j.ky + emp.y) * dt
     j.dir = dir8(entrada.x, entrada.y)
     j.andando = true
     j.andou += Math.hypot(vx, vy) * dt
   } else {
-    j.x += j.kx * dt
-    j.y += j.ky * dt
+    j.x += (j.kx + emp.x) * dt
+    j.y += (j.ky + emp.y) * dt
     j.andando = false
   }
   j.kx *= Math.exp(-9 * dt)
@@ -761,6 +762,106 @@ function passoMundo(p, dt, entrada) {
   void amortece
 }
 
+function empurrarPerigo(p) {
+  const ev = p.perigoAtual
+  if (!ev || ev.fase !== 'ativo') return { x: 0, y: 0, freio: 1 }
+  if (ev.id === 'onda-gigante' && ev.t < 1.5) return { x: ev.dir.x * 92, y: ev.dir.y * 92, freio: 1 }
+  if (ev.id === 'enchente') return { x: 0, y: 0, freio: 0.45 }
+  return { x: 0, y: 0, freio: 1 }
+}
+
+function abrirPerigo(p, modelo) {
+  const j = p.jogador
+  const ang0 = p.rng() * Math.PI * 2
+  const marcas = []
+  const comMarca = modelo.id === 'meteoros' || modelo.id === 'raios'
+  const n = comMarca ? 4 : 0
+  for (let i = 0; i < n; i++) {
+    const ang = ang0 + (i / n) * Math.PI * 2
+    const dist = 80
+    marcas.push({ x: j.x + Math.cos(ang) * dist, y: j.y + Math.sin(ang) * dist, r: 22, bateu: false })
+  }
+  const paraBaixo = p.rng() < 0.5
+  const dir = modelo.id === 'onda-gigante'
+    ? { x: 0, y: paraBaixo ? 1 : -1 }
+    : { x: Math.cos(ang0), y: Math.sin(ang0) }
+  p.perigoAtual = {
+    id: modelo.id,
+    aviso: modelo.aviso,
+    dura: modelo.dura,
+    dano: modelo.id === 'tempestade' ? 0 : (modelo.dano || 0),
+    fase: 'aviso',
+    t: 0,
+    marcas,
+    dir,
+    raio: null,
+    espera: 0,
+  }
+  p.visao = null
+}
+
+function passoPerigos(p, dt) {
+  const lista = p.fase.perigos || []
+  if (!p.perigoAtual) {
+    const prox = lista.find((ev) => !p.perigosFeitos[ev.id] && p.tempo >= ev.em)
+    if (prox) abrirPerigo(p, prox)
+  }
+  const ev = p.perigoAtual
+  if (!ev) {
+    p.visao = null
+    return
+  }
+  ev.t += dt
+  if (ev.fase === 'aviso' && ev.t >= ev.aviso) {
+    ev.fase = 'ativo'
+    ev.t = 0
+    p.perigosFeitos[ev.id] = true
+  }
+  if (ev.fase === 'ativo') {
+    if (ev.id === 'nevoeiro') p.visao = 70
+    else p.visao = null
+    if (ev.id === 'tempestade') passoRaio(p, ev, dt)
+    if (ev.id !== 'tempestade' && p.modo === 'normal' && ev.dano > 0) {
+      for (const m of ev.marcas) {
+        if (m.bateu) continue
+        if (Math.hypot(p.jogador.x - m.x, p.jogador.y - m.y) <= m.r + p.jogador.raio) {
+          m.bateu = true
+          machucarJogador(p, ev.dano)
+        }
+      }
+    }
+    if (ev.t >= ev.dura) {
+      p.perigoAtual = null
+      p.visao = null
+    }
+  }
+}
+
+function passoRaio(p, ev, dt) {
+  if (!ev.raio) {
+    ev.espera += dt
+    if (ev.espera < 0.35) return
+    const ang = p.rng() * Math.PI * 2
+    const dist = 80 + p.rng() * 40
+    ev.raio = {
+      x: p.jogador.x + Math.cos(ang) * dist,
+      y: p.jogador.y + Math.sin(ang) * dist,
+      dist,
+      t: 0,
+      fase: 'pisca',
+    }
+    return
+  }
+  ev.raio.t += dt
+  if (ev.raio.fase === 'pisca' && ev.raio.t >= 1) {
+    ev.raio.fase = 'cai'
+    ev.raio.t = 0
+  } else if (ev.raio.fase === 'cai' && ev.raio.t >= 15 / 60) {
+    ev.raio = null
+    ev.espera = 0
+  }
+}
+
 function checarFim(p) {
   if (p.pausa !== 'jogo') return
   if (p.fase.tipo === 'fase' && p.tempo >= p.fase.duracao) p.pausa = 'vitoria'
@@ -792,6 +893,9 @@ export function criarPartida(conteudo, opcoes = {}) {
     textos: [],
     ofertas: [],
     chefe: null,
+    perigoAtual: null,
+    perigosFeitos: {},
+    visao: null,
     derrotados: 0,
     album: opcoes.album ? [...opcoes.album] : [],
     barcoDourado: !!opcoes.barcoDourado,
@@ -821,6 +925,7 @@ export function tick(p, dt, entrada = { x: 0, y: 0, acao: false, acaoSegurada: f
   if (!p || p.pausa === 'cartas' || p.pausa === 'pausa' || p.pausa === 'derrota' || p.pausa === 'vitoria' || p.pausa === 'fim') return
   const passo = Math.min(dt, 0.05)
   p.tempo += passo
+  passoPerigos(p, passo)
   passoMundo(p, passo, entrada)
   if (p.pausa !== 'jogo') return
   passoSpawner(p, passo)

@@ -1,0 +1,111 @@
+{
+ "formato": "base, alt, path e spots, 3 tons cada [principal, claro, escuro]. No chão o tile de 16 px usa o 1º tom ~70%, o 2º ~20% e o 3º ~10%; alt onde ruido(96)>0.55, path onde |ruido(220)-0.5|<0.08, spots onde ruido(20)>0.76.",
+ "tile": 16,
+ "cor_unica": "cor de um bioma só (para o conteudo.cores do motor-hordas), igual ao 1º tom de base",
+ "biomas": {
+  "rio": {
+   "base": [
+    "#3FA8A6",
+    "#4AB2AE",
+    "#38999A"
+   ],
+   "alt": [
+    "#33969A",
+    "#3A9EA1",
+    "#2D8A90"
+   ],
+   "path": [
+    "#6CCBBE",
+    "#7AD3C6",
+    "#5FBDB1"
+   ],
+   "spots": [
+    "#52B6B1",
+    "#5CBEB8",
+    "#4AACA8"
+   ],
+   "cor_unica": "#3FA8A6",
+   "descricao": "água do rio; alt = trecho fundo; path = correnteza clara; spots = reflexo",
+   "rock": [
+    "rio-rock-0",
+    "rio-rock-1",
+    "rio-rock-2"
+   ],
+   "tree": [
+    "rio-tree-0",
+    "rio-tree-1",
+    "rio-tree-2"
+   ]
+  },
+  "lago": {
+   "base": [
+    "#2B7F78",
+    "#33877F",
+    "#26736D"
+   ],
+   "alt": [
+    "#22656A",
+    "#286D70",
+    "#1E5C60"
+   ],
+   "path": [
+    "#3F948A",
+    "#4A9C92",
+    "#378A80"
+   ],
+   "spots": [
+    "#4F9A64",
+    "#58A36C",
+    "#46905C"
+   ],
+   "cor_unica": "#2B7F78",
+   "descricao": "água parada do lago; alt = fundo escuro; path = trecho raso; spots = lentilha-d’água",
+   "rock": [
+    "lago-rock-0",
+    "lago-rock-1",
+    "lago-rock-2"
+   ],
+   "tree": [
+    "lago-tree-0",
+    "lago-tree-1",
+    "lago-tree-2"
+   ]
+  },
+  "mar": {
+   "base": [
+    "#1B5A6E",
+    "#216478",
+    "#185266"
+   ],
+   "alt": [
+    "#143F55",
+    "#18475C",
+    "#12394E"
+   ],
+   "path": [
+    "#2E7A8A",
+    "#358493",
+    "#2A7080"
+   ],
+   "spots": [
+    "#23687C",
+    "#2A7084",
+    "#206074"
+   ],
+   "cor_unica": "#1B5A6E",
+   "descricao": "mar aberto; alt = fundo azul; path = faixa de onda; spots = reflexo",
+   "rock": [
+    "mar-rock-0",
+    "mar-rock-1",
+    "mar-rock-2"
+   ],
+   "tree": [
+    "mar-tree-0",
+    "mar-tree-1",
+    "mar-tree-2"
+   ]
+  }
+ },
+ "licenca": "original, feito por nós, livre para uso no repo",
+ "png": "arte/cenario/<bioma>-rock-0..2.png e arte/cenario/<bioma>-tree-0..2.png (recortados na arte; o pé é a última linha opaca)"
+}

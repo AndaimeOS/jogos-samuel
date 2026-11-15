@@ -1,50 +1,4 @@
 {
- "samuel-barco-cinza": {
-  "anims": {
-   "Walk": {
-    "src": "arte/sprites/samuel-barco-cinza/Walk.png",
-    "frameW": 48,
-    "frameH": 48,
-    "duracoes": [
-     8,
-     10,
-     8,
-     10
-    ],
-    "quadros": 4,
-    "linhas": 8
-   },
-   "Idle": {
-    "src": "arte/sprites/samuel-barco-cinza/Idle.png",
-    "frameW": 48,
-    "frameH": 48,
-    "duracoes": [
-     40,
-     6,
-     6
-    ],
-    "quadros": 3,
-    "linhas": 8
-   },
-   "Hurt": {
-    "src": "arte/sprites/samuel-barco-cinza/Hurt.png",
-    "frameW": 48,
-    "frameH": 48,
-    "duracoes": [
-     2,
-     8
-    ],
-    "quadros": 2,
-    "linhas": 8
-   }
-  },
-  "portrait": "arte/sprites/samuel-barco-cinza/portrait.png",
-  "body": {
-   "bodyW": 20,
-   "bodyH": 39,
-   "footY": 21
-  }
- },
  "samuel-barco-colete": {
   "anims": {
    "Walk": {
@@ -85,6 +39,52 @@
    }
   },
   "portrait": "arte/sprites/samuel-barco-colete/portrait.png",
+  "body": {
+   "bodyW": 20,
+   "bodyH": 39,
+   "footY": 21
+  }
+ },
+ "samuel-barco-cinza": {
+  "anims": {
+   "Walk": {
+    "src": "arte/sprites/samuel-barco-cinza/Walk.png",
+    "frameW": 48,
+    "frameH": 48,
+    "duracoes": [
+     8,
+     10,
+     8,
+     10
+    ],
+    "quadros": 4,
+    "linhas": 8
+   },
+   "Idle": {
+    "src": "arte/sprites/samuel-barco-cinza/Idle.png",
+    "frameW": 48,
+    "frameH": 48,
+    "duracoes": [
+     40,
+     6,
+     6
+    ],
+    "quadros": 3,
+    "linhas": 8
+   },
+   "Hurt": {
+    "src": "arte/sprites/samuel-barco-cinza/Hurt.png",
+    "frameW": 48,
+    "frameH": 48,
+    "duracoes": [
+     2,
+     8
+    ],
+    "quadros": 2,
+    "linhas": 8
+   }
+  },
+  "portrait": "arte/sprites/samuel-barco-cinza/portrait.png",
   "body": {
    "bodyW": 20,
    "bodyH": 39,

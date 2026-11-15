@@ -158,10 +158,27 @@ function suite(slug, api, titulo) {
     await dentro.evaluate(() => { localStorage.clear() })
     await dentro.locator('#no-1').tap()
     await dentro.waitForFunction((nome) => window[nome].estado && window[nome].estado.pausa === 'cartas', api)
-    if (url.includes('/jogar/')) await page.locator('iframe#jogo').screenshot({ path: path.join(arte, `${nome}-levelup.png`) })
-    else await page.screenshot({ path: path.join(arte, `${nome}-levelup.png`) })
+    const shot = async (arquivo) => {
+      if (url.includes('/jogar/')) await page.locator('iframe#jogo').screenshot({ path: arquivo })
+      else await page.screenshot({ path: arquivo })
+    }
+    if (!url.includes('/jogar/')) await shot(path.join(arte, `${nome}-levelup.png`))
     await dentro.locator('#carta-0').tap()
     await dentro.waitForFunction((nome) => window[nome].estado.pausa === 'jogo', api)
+    const inicio = await dentro.evaluate((nome) => {
+      const e = window[nome].estado
+      return {
+        tempo: e.tempo,
+        chefe: Boolean(e.chefe),
+        perto: e.inimigos.filter((b) => Math.hypot(b.x - e.jogador.x, b.y - e.jogador.y) < 80).length,
+        fase: document.getElementById('faseNome').textContent,
+      }
+    }, api)
+    expect(inicio.chefe).toBe(false)
+    expect(inicio.perto).toBe(0)
+    expect(inicio.tempo).toBeLessThan(2)
+    expect(inicio.fase.length).toBeGreaterThan(0)
+    if (!url.includes('/jogar/')) await shot(path.join(arte, `${nome}-inicio.png`))
     await tocarStick(dentro, 80)
     const antes = await dentro.evaluate((nome) => window[nome].estado.jogador.x, api)
     await dentro.evaluate((nome) => window[nome].simular(0.6), api)
@@ -182,23 +199,38 @@ function suite(slug, api, titulo) {
     })
     await dentro.locator('#btnTela').tap()
     expect(await dentro.evaluate(() => window.__telaPedido)).toBe('jogo')
+    if (!url.includes('/jogar/')) {
+      const vistos = new Set()
+      for (let n = 0; n < 40; n++) {
+        const info = await dentro.evaluate((nome) => {
+          const ev = window[nome].estado.perigoAtual
+          return { tempo: window[nome].estado.tempo, id: ev ? ev.id : '', fase: ev ? ev.fase : '' }
+        }, api)
+        if (info.id && !vistos.has(info.id)) {
+          vistos.add(info.id)
+          await shot(path.join(arte, `${nome}-perigo-${info.id}-${info.fase}.png`))
+        }
+        if (info.tempo >= 30 && await dentro.locator('#levelup').isHidden()) break
+        if (!(await dentro.locator('#levelup').isHidden())) await dentro.locator('#carta-0').tap()
+        else await dentro.evaluate((nome) => window[nome].simular(2), api)
+      }
+      const esperados = api === '__planeta' ? ['meteoros', 'enchente', 'raios'] : ['nevoeiro', 'onda-gigante', 'tempestade']
+      for (const id of esperados) expect(vistos.has(id), `${nome} ${id}`).toBe(true)
+      await shot(path.join(arte, `${nome}-30s.png`))
+    }
     await dentro.evaluate((nome) => {
       const jogo = window[nome]
       jogo.trazerChefe()
       const chefe = jogo.estado.chefe
+      const j = jogo.estado.jogador
       if (chefe) {
-        chefe.x = jogo.estado.jogador.x + 36
-        chefe.y = jogo.estado.jogador.y + 8
+        chefe.x = j.x + 96
+        chefe.y = j.y
       }
       jogo.desenhar()
     }, api)
     await dentro.waitForFunction((nome) => window[nome].estado.chefe, api)
-    const shot = async (arquivo) => {
-      if (url.includes('/jogar/')) await page.locator('iframe#jogo').screenshot({ path: arquivo })
-      else await page.screenshot({ path: arquivo })
-    }
-    await shot(path.join(arte, `${nome}-chefe.png`))
-    await shot(path.join(arte, `${nome}-jogo.png`))
+    if (!url.includes('/jogar/')) await shot(path.join(arte, `${nome}-chefe.png`))
     if (longo) {
       const jogado = await fluido(dentro, api, 60)
       expect(jogado).toBeGreaterThanOrEqual(60)
@@ -228,6 +260,7 @@ function suite(slug, api, titulo) {
       const context = await contexto(1024, 768)
       const page = await context.newPage()
       const { erros, dentro } = await abrir(page, jogoUrl)
+      await dentro.waitForFunction(() => document.getElementById('cenario').naturalWidth > 0)
       await page.screenshot({ path: path.join(arte, `${slug}-mapa-paisagem.png`) })
       await context.close()
       expect(erros).toEqual([])
@@ -238,6 +271,7 @@ function suite(slug, api, titulo) {
       const context = await contexto(768, 1024)
       const page = await context.newPage()
       const { dentro } = await abrir(page, jogoUrl)
+      await dentro.waitForFunction(() => document.getElementById('cenario').naturalWidth > 0)
       await page.screenshot({ path: path.join(arte, `${slug}-mapa-retrato.png`) })
       await context.close()
       void dentro
