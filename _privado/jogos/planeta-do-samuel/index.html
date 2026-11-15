@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Planeta do Samuel</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #3A8FB5; color: #193337; font-family: "Courier New", Courier, monospace; }
+  #jogo { position: relative; width: 100%; height: 100%; overflow: hidden; touch-action: none; }
+  #tela { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  button, a.btn {
+    min-width: 48px; min-height: 48px; box-sizing: border-box;
+    border: 2px solid #193337; border-radius: 0; background: #B9ED80; color: #193337;
+    box-shadow: 3px 3px 0 #193337; font: 900 16px/1.1 "Courier New", Courier, monospace;
+    padding: 8px 12px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;
+  }
+  button:focus-visible, a.btn:focus-visible { outline: 3px solid #9956E0; outline-offset: 2px; }
+  #hud {
+    position: absolute; top: 8px; left: 8px; right: 8px; z-index: 2;
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center; pointer-events: none;
+  }
+  #hud button { pointer-events: auto; }
+  #hud strong, #relogio, .selo {
+    background: #F5F2E8; border: 2px solid #193337; min-height: 48px; box-sizing: border-box;
+    display: inline-flex; align-items: center; padding: 0 10px; font-weight: 900;
+  }
+  .selo { background: #FF9D52; }
+  .medidor { display: flex; align-items: center; gap: 6px; background: #F5F2E8; border: 2px solid #193337; min-height: 48px; padding: 0 8px; box-sizing: border-box; }
+  .medidor i { display: block; width: 72px; height: 14px; border: 2px solid #193337; background: #fff; }
+  .medidor b { display: block; height: 100%; width: 0; background: #FF9D52; }
+  #medCalor b { background: #F2D15A; }
+  .empurra { flex: 1; }
+  #dica {
+    position: absolute; z-index: 2; left: 156px; right: 168px; bottom: 76px; margin: 0;
+    background: #F5F2E8; border: 2px solid #193337; box-shadow: 3px 3px 0 #193337;
+    padding: 8px 10px; font-weight: 700; pointer-events: none;
+  }
+  #joystick {
+    position: absolute; z-index: 3; left: 16px; bottom: 16px; width: 128px; height: 128px;
+    border: 2px solid #193337; border-radius: 0; background: rgba(245, 242, 232, .86);
+    box-shadow: 3px 3px 0 #193337; touch-action: none;
+  }
+  #knob {
+    position: absolute; left: 40px; top: 40px; width: 48px; height: 48px;
+    background: #FF9D52; border: 2px solid #193337; box-sizing: border-box;
+  }
+  #acoes { position: absolute; z-index: 3; right: 16px; bottom: 16px; display: flex; flex-direction: column; gap: 8px; }
+  #acoes button { min-width: 112px; }
+  #barra {
+    position: absolute; z-index: 3; left: 156px; right: 148px; bottom: 12px;
+    display: flex; justify-content: center; gap: 8px;
+  }
+  #barra button { min-width: 48px; background: #F5F2E8; padding: 6px 8px; }
+  #titulo, #pausa {
+    position: absolute; inset: 0; z-index: 5; display: flex; align-items: center; justify-content: center;
+    background: rgba(25, 51, 55, .35);
+  }
+  #pausa[hidden], #titulo[hidden] { display: none; }
+  .painel {
+    background: #F5F2E8; border: 2px solid #193337; box-shadow: 6px 6px 0 #193337;
+    padding: 22px; max-width: 440px; margin: 16px; display: flex; flex-direction: column; gap: 12px;
+  }
+  h1 { margin: 0; font-size: 28px; line-height: 1.1; }
+  p { margin: 0; }
+  .botoes { display: flex; flex-wrap: wrap; gap: 8px; }
+  #aviso { position: absolute; z-index: 4; top: 72px; left: 16px; margin: 0; font-weight: 700; background: #F5F2E8; border: 2px solid #193337; padding: 6px 8px; }
+  #aviso:empty { display: none; }
+</style>
+</head>
+<body>
+<div id="jogo">
+  <canvas id="tela"></canvas>
+  <header id="hud">
+    <strong id="era">Idade da Pedra</strong>
+    <span id="relogio">Dia</span>
+    <span class="selo">PROPOSTA</span>
+    <div class="medidor" id="medFome"><span>Fome</span><i><b id="barraFome"></b></i></div>
+    <div class="medidor" id="medCalor"><span>Calor</span><i><b id="barraCalor"></b></i></div>
+    <span class="empurra"></span>
+    <button id="btnPausa" type="button" data-alvo>Pausa</button>
+    <button id="btnTela" type="button" data-alvo aria-label="Tela cheia">Tela</button>
+  </header>
+  <p id="aviso" role="status"></p>
+  <p id="dica"></p>
+  <div id="joystick" data-alvo aria-label="Joystick"><div id="knob"></div></div>
+  <div id="acoes">
+    <button id="btnInteragir" type="button" data-alvo>Interagir</button>
+    <button id="btnComer" type="button" data-alvo>Comer</button>
+  </div>
+  <div id="barra">
+    <button type="button" data-alvo data-item="madeira" id="chip-madeira">Madeira 0</button>
+    <button type="button" data-alvo data-item="pedra" id="chip-pedra">Pedra 0</button>
+    <button type="button" data-alvo data-item="minerio" id="chip-minerio">Minério 0</button>
+    <button type="button" data-alvo data-item="fruta" id="chip-fruta">Fruta 0</button>
+    <button type="button" data-alvo data-item="barra" id="chip-barra">Barra 0</button>
+  </div>
+  <div id="titulo">
+    <div class="painel">
+      <p class="selo">PROPOSTA</p>
+      <h1>Planeta do Samuel</h1>
+      <p>Ande pelo planetinha, junte madeira, pedra, minério e fruta, e acenda o farol. Os números desta versão são provisórios.</p>
+      <p>No Fácil ninguém perde: se a fome ou o calor zeram, o passo só fica mais lento.</p>
+      <div class="botoes">
+        <button id="btnContinuar" type="button" data-alvo hidden>Continuar</button>
+        <button id="btnComecar" type="button" data-alvo>Começar</button>
+        <a class="btn" id="btnSairTitulo" href="/jogos/" target="_top" data-alvo>← Voltar aos jogos</a>
+      </div>
+    </div>
+  </div>
+  <div id="pausa" hidden>
+    <div class="painel">
+      <h1>Pausa</h1>
+      <p>PROPOSTA. O jogo guarda sozinho neste aparelho.</p>
+      <div class="botoes">
+        <button id="btnSeguir" type="button" data-alvo>Continuar</button>
+        <button id="btnDeNovo" type="button" data-alvo>Começar de novo</button>
+        <a class="btn" id="btnVoltar" href="/jogos/" target="_top" data-alvo>← Voltar aos jogos</a>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="module">
+import {
+  CONFIG, ERAS, ESTACOES, PROPOSTA, TEXTOS,
+  colher, comer, contador, criarPartida, entregar, escuridao, estacaoPorId, estacaoPronta,
+  fatorVelocidade, faltando, fundir, interagir, juntar, proximoPasso, restaurar, serializar, tick,
+} from './regras.js';
+
+const ESCALA = 3;
+const tela = document.getElementById('tela');
+const ctx = tela.getContext('2d');
+const knob = document.getElementById('knob');
+const zona = document.getElementById('joystick');
+let estado = criarPartida();
+let pausado = true;
+let ultimo = 0;
+let relogio = 0;
+let eixoJoy = { x: 0, y: 0 };
+let joyAtivo = false;
+const teclas = {};
+let avisoAte = 0;
+let avisoTexto = '';
+
+const MOTIVOS = {
+  'sem-item': 'Falta material para o próximo passo. PROPOSTA.',
+  'precisa-machado': 'Isso pede o machado de pedra. PROPOSTA.',
+  'era-cedo': 'Ainda não é a idade dessa estação. PROPOSTA.',
+  'precisa-passo': 'Falta um passo antes deste. PROPOSTA.',
+  'sem-fruta': 'Você não tem fruta. PROPOSTA.',
+  'sem-minerio': 'A fornalha precisa de minério. PROPOSTA.',
+  vazio: 'Aqui não tem mais nada agora. PROPOSTA.',
+  longe: 'Chegue mais perto. PROPOSTA.',
+  pronto: 'Isso já está pronto. PROPOSTA.',
+};
+
+const EFEITOS = {
+  machado: 'Machado de pedra pronto. PROPOSTA.',
+  fogueira: 'A fogueira acendeu. Ela aquece e ilumina. PROPOSTA.',
+  'era:bronze': 'Idade do Bronze. PROPOSTA.',
+  bancada: 'A bancada está pronta. PROPOSTA.',
+  fornalha: 'A fornalha está pronta. PROPOSTA.',
+  canteiro: 'O canteiro está pronto. PROPOSTA.',
+  'era:ferro': 'Idade do Ferro. PROPOSTA.',
+  ferro: 'Ferramentas de ferro prontas. PROPOSTA.',
+  casa: 'A casinha está de pé. PROPOSTA.',
+  farol: TEXTOS.fim,
+};
+
+function salvar() {
+  estado.desdeSave = 0;
+  try { localStorage.setItem(CONFIG.chaveSave, JSON.stringify(serializar(estado))); } catch { /* o aparelho pode recusar */ }
+}
+
+function dizer(texto) {
+  avisoTexto = texto || '';
+  avisoAte = relogio + 3.2;
+  document.getElementById('aviso').textContent = avisoTexto;
+}
+
+function resultado(r) {
+  if (!r) return;
+  if (r.ok && r.efeito && EFEITOS[r.efeito]) dizer(EFEITOS[r.efeito]);
+  else if (r.ok && r.item) dizer(`${TEXTOS.buscar[r.item] ? r.item : r.item}: +${r.ganho || 1}. PROPOSTA.`);
+  else if (!r.ok && MOTIVOS[r.motivo]) dizer(MOTIVOS[r.motivo]);
+  if (r.ok) salvar();
+}
+
+function eixoAtual() {
+  if (joyAtivo) return eixoJoy;
+  const x = (teclas.ArrowRight || teclas.KeyD ? 1 : 0) - (teclas.ArrowLeft || teclas.KeyA ? 1 : 0);
+  const y = (teclas.ArrowDown || teclas.KeyS ? 1 : 0) - (teclas.ArrowUp || teclas.KeyW ? 1 : 0);
+  return { x, y };
+}
+
+function ajustarTela() {
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  const w = tela.clientWidth || 1;
+  const h = tela.clientHeight || 1;
+  tela.width = Math.round(w * dpr);
+  tela.height = Math.round(h * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.imageSmoothingEnabled = false;
+}
+
+function camera() {
+  const w = tela.clientWidth || 1;
+  const h = tela.clientHeight || 1;
+  const mundoW = estado.colunas * CONFIG.bloco * ESCALA;
+  const mundoH = estado.linhas * CONFIG.bloco * ESCALA;
+  return {
+    x: Math.max(0, Math.min(mundoW - w, estado.x * ESCALA - w / 2)),
+    y: Math.max(0, Math.min(mundoH - h, estado.y * ESCALA - h / 2)),
+    w, h,
+  };
+}
+
+function hash(x, y) {
+  return ((x * 73856093) ^ (y * 19349663)) >>> 0;
+}
+
+function agua(x, y) {
+  return y < 0 || x < 0 || y >= estado.linhas || x >= estado.colunas || estado.tiles[y][x] === '~';
+}
+
+function desenharMundo(cam) {
+  ctx.save();
+  ctx.translate(-cam.x, -cam.y);
+  ctx.scale(ESCALA, ESCALA);
+  const b = CONFIG.bloco;
+  const x0 = Math.max(0, Math.floor(cam.x / ESCALA / b) - 1);
+  const y0 = Math.max(0, Math.floor(cam.y / ESCALA / b) - 1);
+  const x1 = Math.min(estado.colunas, Math.ceil((cam.x + cam.w) / ESCALA / b) + 1);
+  const y1 = Math.min(estado.linhas, Math.ceil((cam.y + cam.h) / ESCALA / b) + 1);
+  for (let y = y0; y < y1; y++) {
+    for (let x = x0; x < x1; x++) {
+      if (agua(x, y)) {
+        ctx.fillStyle = (x + y) % 2 ? '#2E7EA3' : '#3A8FB5';
+        ctx.fillRect(x * b, y * b, b, b);
+        continue;
+      }
+      const praia = agua(x - 1, y) || agua(x + 1, y) || agua(x, y - 1) || agua(x, y + 1);
+      ctx.fillStyle = praia ? '#E6D3A1' : ((hash(x, y) % 5 === 0) ? '#8BC67A' : '#6AAA5C');
+      ctx.fillRect(x * b, y * b, b, b);
+      if (!praia && hash(x, y) % 7 === 0) {
+        ctx.fillStyle = hash(x, y) % 2 ? '#F2D15A' : '#CEB7EF';
+        ctx.fillRect(x * b + 6, y * b + 7, 2, 2);
+      }
+    }
+  }
+  for (const no of estado.nos) desenharNo(no);
+  for (const est of ESTACOES) desenharEstacao(est);
+  desenharCao(270, 184);
+  const andando = Math.hypot(eixoAtual().x, eixoAtual().y) > 0.1 && !pausado;
+  desenharSamuel(estado.x, estado.y, andando);
+  if (estado.efeitos.farol) desenharFeixe();
+  ctx.restore();
+}
+
+function desenharNo(no) {
+  const x = no.x;
+  const y = no.y;
+  if (no.tipo === 'arvore') {
+    if (no.restante <= 0) {
+      ctx.fillStyle = '#8A5A32';
+      ctx.fillRect(x - 2, y - 2, 4, 3);
+      return;
+    }
+    ctx.fillStyle = '#8A5A32';
+    ctx.fillRect(x - 2, y - 2, 4, 8);
+    ctx.fillStyle = '#2F7D45';
+    ctx.fillRect(x - 7, y - 14, 14, 10);
+    ctx.fillStyle = '#3E9A56';
+    ctx.fillRect(x - 5, y - 16, 10, 4);
+  } else if (no.tipo === 'rocha' || no.tipo === 'seixo') {
+    if (no.restante <= 0) return;
+    const m = no.tipo === 'seixo' ? 3 : 6;
+    ctx.fillStyle = '#8D98A0';
+    ctx.fillRect(x - m, y - m + 2, m * 2, m);
+    ctx.fillStyle = '#C5CED4';
+    ctx.fillRect(x - m + 1, y - m + 3, 3, 2);
+  } else if (no.tipo === 'veio') {
+    if (no.restante <= 0) return;
+    ctx.fillStyle = '#6E7C88';
+    ctx.fillRect(x - 6, y - 4, 12, 8);
+    ctx.fillStyle = '#FF9D52';
+    ctx.fillRect(x - 3, y - 1, 2, 2);
+    ctx.fillRect(x + 2, y + 1, 2, 2);
+  } else if (no.tipo === 'graveto') {
+    if (no.restante <= 0) return;
+    ctx.fillStyle = '#8A5A32';
+    ctx.fillRect(x - 5, y, 10, 2);
+    ctx.fillRect(x - 1, y - 4, 2, 6);
+  } else if (no.tipo === 'fruta') {
+    ctx.fillStyle = no.restante > 0 ? '#3E9A56' : '#6A7A55';
+    ctx.fillRect(x - 5, y - 4, 10, 7);
+    if (no.restante > 0) {
+      ctx.fillStyle = '#E2544A';
+      ctx.fillRect(x - 2, y - 2, 2, 2);
+      ctx.fillStyle = '#F2D15A';
+      ctx.fillRect(x + 1, y, 2, 2);
+    }
+  }
+}
+
+function desenharEstacao(est) {
+  const p = estado.postos[est.id];
+  const pronto = estacaoPronta(estado, est.id);
+  const aberto = pronto || (ERAS[estado.era].ordem >= ERAS[est.precisaEra].ordem);
+  ctx.save();
+  ctx.globalAlpha = aberto ? 1 : 0.4;
+  if (est.id === 'fogueira') desenharFogueira(p.x, p.y, pronto);
+  else if (est.id === 'farol') desenharFarol(p.x, p.y, pronto && estado.efeitos.farol);
+  else if (est.id === 'casinha') desenharCasa(p.x, p.y, pronto);
+  else if (est.id === 'fornalha') desenharFornalha(p.x, p.y, pronto);
+  else if (est.id === 'canteiro') desenharCanteiro(p.x, p.y, pronto);
+  else desenharMesa(p.x, p.y, est.id);
+  ctx.restore();
+}
+
+function rotulo(x, y, texto) {
+  ctx.font = '900 8px Courier New, monospace';
+  const w = ctx.measureText(texto).width + 6;
+  ctx.fillStyle = '#F5F2E8';
+  ctx.strokeStyle = '#193337';
+  ctx.lineWidth = 1;
+  ctx.fillRect(x - w / 2, y - 10, w, 11);
+  ctx.strokeRect(x - w / 2, y - 10, w, 11);
+  ctx.fillStyle = '#193337';
+  ctx.fillText(texto, x - w / 2 + 3, y - 2);
+}
+
+function desenharMesa(x, y, id) {
+  ctx.fillStyle = id === 'toca' ? '#8D98A0' : '#C9854A';
+  ctx.fillRect(x - 7, y - 4, 14, 8);
+  ctx.fillStyle = '#193337';
+  ctx.fillRect(x - 6, y - 3, 2, 2);
+  ctx.fillRect(x + 3, y, 2, 2);
+}
+
+function desenharFogueira(x, y, pronto) {
+  ctx.fillStyle = '#8D98A0';
+  ctx.fillRect(x - 7, y + 1, 4, 3);
+  ctx.fillRect(x + 3, y + 1, 4, 3);
+  ctx.fillStyle = '#8A5A32';
+  ctx.fillRect(x - 4, y - 1, 8, 3);
+  if (pronto) {
+    const f = 4 + Math.sin(relogio * 9) * 2;
+    ctx.fillStyle = '#FF9D52';
+    ctx.fillRect(x - 2, y - f, 4, f);
+    ctx.fillStyle = '#F2D15A';
+    ctx.fillRect(x - 1, y - f - 2, 2, 3);
+  }
+}
+
+function desenharFornalha(x, y, pronto) {
+  ctx.fillStyle = '#6E7C88';
+  ctx.fillRect(x - 7, y - 6, 14, 12);
+  ctx.fillStyle = pronto ? '#FF9D52' : '#193337';
+  ctx.fillRect(x - 3, y - 1, 6, 5);
+}
+
+function desenharCanteiro(x, y, pronto) {
+  ctx.fillStyle = '#8A5A32';
+  ctx.fillRect(x - 8, y - 4, 16, 8);
+  if (pronto) {
+    ctx.fillStyle = '#3E9A56';
+    for (let i = -5; i <= 5; i += 4) ctx.fillRect(x + i, y - 7, 2, 4);
+  }
+}
+
+function desenharCasa(x, y, pronto) {
+  ctx.fillStyle = '#F5F2E8';
+  ctx.fillRect(x - 8, y - 4, 16, 10);
+  ctx.fillStyle = '#FF9D52';
+  ctx.fillRect(x - 9, y - 8, 18, 5);
+  ctx.fillStyle = pronto ? '#F2D15A' : '#8D98A0';
+  ctx.fillRect(x - 2, y - 2, 4, 4);
+}
+
+function desenharFarol(x, y, aceso) {
+  ctx.fillStyle = '#F5F2E8';
+  ctx.fillRect(x - 4, y - 20, 8, 22);
+  ctx.fillStyle = '#1F6F78';
+  ctx.fillRect(x - 4, y - 12, 8, 3);
+  ctx.fillStyle = aceso ? '#F2D15A' : '#8D98A0';
+  ctx.fillRect(x - 3, y - 24, 6, 5);
+  ctx.fillStyle = '#193337';
+  ctx.fillRect(x - 5, y - 26, 10, 2);
+}
+
+function desenharFeixe() {
+  const p = estado.postos.farol;
+  ctx.save();
+  ctx.translate(p.x, p.y - 22);
+  ctx.rotate(Math.sin(relogio * 0.4) * 0.4);
+  ctx.fillStyle = 'rgba(242, 209, 90, .35)';
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(70, -16);
+  ctx.lineTo(70, 16);
+  ctx.fill();
+  ctx.restore();
+}
+
+function desenharSamuel(x, y, andando) {
+  const bob = andando ? Math.sin(relogio * 10) : 0;
+  const px = Math.round(x - 6);
+  const py = Math.round(y - 16 + bob);
+  ctx.fillStyle = 'rgba(25,51,55,.28)';
+  ctx.fillRect(px + 1, y - 2, 10, 3);
+  ctx.fillStyle = '#1F6F78';
+  ctx.fillRect(px + 2, py + 10, 3, 5);
+  ctx.fillRect(px + 7, py + 10, 3, 5);
+  ctx.fillStyle = '#193337';
+  ctx.fillRect(px + 2, py + 14, 3, 2);
+  ctx.fillRect(px + 7, py + 14, 3, 2);
+  ctx.fillStyle = '#FF9D52';
+  ctx.fillRect(px + 1, py + 5, 10, 6);
+  ctx.fillStyle = '#F2D15A';
+  ctx.fillRect(px + 4, py + 6, 4, 4);
+  ctx.fillStyle = '#F3C7A0';
+  ctx.fillRect(px + 3, py, 6, 6);
+  ctx.fillStyle = '#4A3428';
+  ctx.fillRect(px + 3, py, 6, 2);
+  ctx.fillStyle = '#193337';
+  ctx.fillRect(px + 4, py + 3, 1, 1);
+  ctx.fillRect(px + 7, py + 3, 1, 1);
+}
+
+function desenharCao(x, y) {
+  ctx.fillStyle = '#F5F2E8';
+  ctx.fillRect(x, y, 10, 5);
+  ctx.fillStyle = '#8A5A32';
+  ctx.fillRect(x + 7, y - 3, 4, 4);
+  ctx.fillRect(x + 2, y + 1, 3, 3);
+  ctx.fillStyle = '#193337';
+  ctx.fillRect(x + 9, y - 1, 1, 1);
+}
+
+let noiteCanvas;
+
+function desenharNoite(cam) {
+  const esc = escuridao(estado.hora);
+  if (esc <= 0) return;
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  const bw = Math.max(1, Math.round(cam.w * dpr));
+  const bh = Math.max(1, Math.round(cam.h * dpr));
+  if (!noiteCanvas) noiteCanvas = document.createElement('canvas');
+  if (noiteCanvas.width !== bw || noiteCanvas.height !== bh) {
+    noiteCanvas.width = bw;
+    noiteCanvas.height = bh;
+  }
+  const nctx = noiteCanvas.getContext('2d');
+  nctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  nctx.clearRect(0, 0, cam.w, cam.h);
+  nctx.globalCompositeOperation = 'source-over';
+  nctx.fillStyle = `rgba(10, 18, 40, ${esc})`;
+  nctx.fillRect(0, 0, cam.w, cam.h);
+  const luzes = [];
+  if (estado.efeitos.fogueira) luzes.push([estado.postos.fogueira.x, estado.postos.fogueira.y, CONFIG.raioFogueira]);
+  if (estado.efeitos.casa) luzes.push([estado.postos.casinha.x, estado.postos.casinha.y, CONFIG.raioCasa]);
+  if (estado.efeitos.farol) luzes.push([estado.postos.farol.x, estado.postos.farol.y - 18, CONFIG.raioFarol]);
+  nctx.globalCompositeOperation = 'destination-out';
+  for (const [wx, wy, raio] of luzes) {
+    const sx = wx * ESCALA - cam.x;
+    const sy = wy * ESCALA - cam.y;
+    const r = raio * ESCALA;
+    const g = nctx.createRadialGradient(sx, sy, r * 0.08, sx, sy, r);
+    g.addColorStop(0, 'rgba(0,0,0,1)');
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    nctx.fillStyle = g;
+    nctx.beginPath();
+    nctx.arc(sx, sy, r, 0, Math.PI * 2);
+    nctx.fill();
+  }
+  nctx.globalCompositeOperation = 'source-over';
+  for (const [wx, wy, raio] of luzes) {
+    const sx = wx * ESCALA - cam.x;
+    const sy = wy * ESCALA - cam.y;
+    const r = raio * ESCALA * 0.45;
+    const g = nctx.createRadialGradient(sx, sy, 0, sx, sy, r);
+    g.addColorStop(0, 'rgba(255, 176, 90, 0.35)');
+    g.addColorStop(1, 'rgba(255, 176, 90, 0)');
+    nctx.fillStyle = g;
+    nctx.beginPath();
+    nctx.arc(sx, sy, r, 0, Math.PI * 2);
+    nctx.fill();
+  }
+  ctx.drawImage(noiteCanvas, 0, 0, cam.w, cam.h);
+}
+
+function desenharSeta(cam) {
+  const passo = proximoPasso(estado);
+  const sx = estado.x * ESCALA - cam.x;
+  const sy = estado.y * ESCALA - cam.y;
+  const tx = passo.x * ESCALA - cam.x;
+  const ty = passo.y * ESCALA - cam.y;
+  const ang = Math.atan2(ty - sy, tx - sx);
+  ctx.save();
+  ctx.translate(sx + Math.cos(ang) * 36, sy + Math.sin(ang) * 28);
+  ctx.rotate(ang);
+  ctx.fillStyle = '#FF9D52';
+  ctx.strokeStyle = '#193337';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(12, 0);
+  ctx.lineTo(-8, -7);
+  ctx.lineTo(-8, 7);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+}
+
+function desenhar() {
+  ajustarTela();
+  const cam = camera();
+  ctx.fillStyle = '#3A8FB5';
+  ctx.fillRect(0, 0, cam.w, cam.h);
+  desenharMundo(cam);
+  desenharNoite(cam);
+  desenharRotulos(cam);
+  desenharSeta(cam);
+}
+
+function desenharRotulos(cam) {
+  ctx.save();
+  ctx.translate(-cam.x, -cam.y);
+  ctx.scale(ESCALA, ESCALA);
+  for (const est of ESTACOES) {
+    const p = estado.postos[est.id];
+    rotulo(p.x, p.y - 16, contador(estado, est.id).texto);
+  }
+  ctx.restore();
+}
+
+function atualizarHud() {
+  document.getElementById('era').textContent = ERAS[estado.era].nome;
+  const esc = escuridao(estado.hora);
+  document.getElementById('relogio').textContent = esc > 0.2 ? 'Noite' : (estado.hora < CONFIG.noiteInicio ? 'Dia' : 'Entardecer');
+  document.getElementById('barraFome').style.width = `${estado.fome}%`;
+  document.getElementById('barraCalor').style.width = `${estado.calor}%`;
+  for (const item of ['madeira', 'pedra', 'minerio', 'fruta', 'barra']) {
+    const el = document.getElementById('chip-' + item);
+    const nome = { madeira: 'Madeira', pedra: 'Pedra', minerio: 'Minério', fruta: 'Fruta', barra: 'Barra' }[item];
+    el.textContent = `${nome} ${estado.inventario[item]}`;
+  }
+  const passo = proximoPasso(estado);
+  let extra = '';
+  if (estado.fome <= 0) extra = 'A fome zerou: você só anda mais devagar. PROPOSTA. ';
+  else if (estado.calor <= 0) extra = 'O calor zerou: você só anda mais devagar. PROPOSTA. ';
+  document.getElementById('dica').textContent = extra + passo.texto;
+  if (relogio > avisoAte) document.getElementById('aviso').textContent = '';
+}
+
+function frame(t) {
+  const dt = ultimo ? Math.min(0.05, (t - ultimo) / 1000) : 0;
+  ultimo = t;
+  relogio += dt;
+  if (!pausado) {
+    tick(estado, dt, eixoAtual());
+    if (estado.desdeSave >= CONFIG.autosaveSegundos) salvar();
+  }
+  desenhar();
+  atualizarHud();
+  requestAnimationFrame(frame);
+}
+
+function porPonto(clientX, clientY) {
+  const r = zona.getBoundingClientRect();
+  const dx = clientX - (r.left + r.width / 2);
+  const dy = clientY - (r.top + r.height / 2);
+  const max = r.width * 0.32;
+  const dist = Math.hypot(dx, dy) || 1;
+  const k = Math.min(dist, max) / dist;
+  eixoJoy = { x: (dx * k) / max, y: (dy * k) / max };
+  joyAtivo = true;
+  knob.style.left = `${40 + eixoJoy.x * max}px`;
+  knob.style.top = `${40 + eixoJoy.y * max}px`;
+}
+
+function soltarJoy() {
+  joyAtivo = false;
+  eixoJoy = { x: 0, y: 0 };
+  knob.style.left = '40px';
+  knob.style.top = '40px';
+}
+
+zona.addEventListener('pointerdown', (e) => {
+  zona.setPointerCapture(e.pointerId);
+  porPonto(e.clientX, e.clientY);
+});
+zona.addEventListener('pointermove', (e) => {
+  if (!joyAtivo) return;
+  porPonto(e.clientX, e.clientY);
+});
+zona.addEventListener('pointerup', soltarJoy);
+zona.addEventListener('pointercancel', soltarJoy);
+zona.addEventListener('touchstart', (e) => { e.preventDefault(); porPonto(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
+zona.addEventListener('touchmove', (e) => { e.preventDefault(); porPonto(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
+zona.addEventListener('touchend', soltarJoy);
+zona.addEventListener('touchcancel', soltarJoy);
+
+document.getElementById('btnInteragir').addEventListener('click', () => resultado(interagir(estado)));
+document.getElementById('btnComer').addEventListener('click', () => resultado(comer(estado)));
+document.getElementById('chip-fruta').addEventListener('click', () => resultado(comer(estado)));
+for (const item of ['madeira', 'pedra', 'minerio', 'barra']) {
+  document.getElementById('chip-' + item).addEventListener('click', () => {
+    const nome = { madeira: 'Madeira', pedra: 'Pedra', minerio: 'Minério', barra: 'Barra' }[item];
+    dizer(`${nome}: ${estado.inventario[item]}. PROPOSTA.`);
+  });
+}
+
+function abrirPausa(ligar) {
+  pausado = ligar;
+  document.getElementById('pausa').hidden = !ligar;
+  if (ligar) salvar();
+}
+document.getElementById('btnPausa').addEventListener('click', () => abrirPausa(!pausado));
+document.getElementById('btnSeguir').addEventListener('click', () => abrirPausa(false));
+document.getElementById('btnDeNovo').addEventListener('click', () => {
+  document.getElementById('pausa').hidden = true;
+  comecar(true);
+});
+document.getElementById('btnTela').addEventListener('click', () => {
+  const raiz = document.getElementById('jogo');
+  if (document.fullscreenElement) document.exitFullscreen();
+  else raiz.requestFullscreen?.();
+});
+
+addEventListener('keydown', (e) => {
+  teclas[e.code] = true;
+  if (e.code === 'KeyE') resultado(interagir(estado));
+  if (e.code === 'KeyF') resultado(comer(estado));
+  if (e.code === 'KeyP' || e.code === 'Escape') abrirPausa(e.code === 'Escape' ? true : !pausado);
+});
+addEventListener('keyup', (e) => { teclas[e.code] = false; });
+document.addEventListener('visibilitychange', () => { if (document.hidden) abrirPausa(true); });
+
+function temSave() {
+  try { return !!localStorage.getItem(CONFIG.chaveSave); } catch { return false; }
+}
+
+function comecar(novo) {
+  if (novo || !temSave()) {
+    estado = criarPartida();
+    if (novo) try { localStorage.removeItem(CONFIG.chaveSave); } catch { /* segue sem apagar */ }
+  } else {
+    let salvo = null;
+    try { salvo = localStorage.getItem(CONFIG.chaveSave); } catch { salvo = null; }
+    estado = (salvo && restaurar(salvo)) || criarPartida();
+  }
+  document.getElementById('titulo').hidden = true;
+  document.getElementById('pausa').hidden = true;
+  pausado = false;
+  ultimo = 0;
+  soltarJoy();
+}
+
+document.getElementById('btnComecar').addEventListener('click', () => comecar(true));
+document.getElementById('btnContinuar').addEventListener('click', () => comecar(false));
+document.getElementById('btnContinuar').hidden = !temSave();
+
+window.__planeta = {
+  CONFIG, PROPOSTA, TEXTOS, ERAS, ESTACOES,
+  get estado() { return estado; },
+  tick, interagir, comer, juntar, entregar, fundir, colher, contador, proximoPasso,
+  serializar, restaurar, escuridao, fatorVelocidade, faltando, estacaoPronta, estacaoPorId,
+  salvar, comecar,
+  definirEixo(x, y) {
+    eixoJoy = { x, y };
+    joyAtivo = x !== 0 || y !== 0;
+  },
+  simular(seg) {
+    const n = Math.max(1, Math.round(seg / 0.05));
+    for (let i = 0; i < n; i++) tick(estado, seg / n, eixoAtual());
+    relogio += seg;
+    desenhar();
+    atualizarHud();
+  },
+  desenhar() { desenhar(); atualizarHud(); },
+};
+
+addEventListener('resize', () => desenhar());
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

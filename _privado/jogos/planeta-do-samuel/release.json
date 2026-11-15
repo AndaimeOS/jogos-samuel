@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "release_id": "planeta-do-samuel@0.1.0+b6f366e.proposta",
+  "game_slug": "planeta-do-samuel",
+  "version": "0.1.0",
+  "source_commit": "b6f366e2e8e51e59e68e82f180225455bae235fc",
+  "environment": "proposta",
+  "built_at": "2026-11-15T01:01:31+00:00",
+  "public_url": "https://samuel.tech/jogar/?jogo=planeta-do-samuel",
+  "files_base_url": "https://samuel.tech/jogo/planeta-do-samuel/",
+  "files": {
+    "CREDITOS.txt": "bf869f67a3e0ebb181accc802ba6590e96266abc82ba19f32fd01241fa57847f",
+    "LICENSE.txt": "0a9b49c547c20b1c42ba1488d59ed8c9a61005624f27ca0047c31f6d15ce8ba1",
+    "index.html": "556650673c0c72428300d644d3194b5c3b3ec1955c147f426b98da60d0e3a902",
+    "regras.js": "ed13ca1c5163cd683b5320d2021bd6c73b4d29d6cba5e82e59de14bf7c28a17c"
+  }
+}
