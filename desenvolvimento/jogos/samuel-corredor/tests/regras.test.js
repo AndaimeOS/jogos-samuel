@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   ANIMS, COLUNAS, CONFIG, GID_QUEDA, GIDS_ENFEITE, GIDS_PLATAFORMA, GIDS_SOLIDO,
   ORDEM, aoZerarVidas, botaoEmPtZoomInteiro, botaoEmPxCss, classificarContato,
-  cortarPulo, decidirBuraco, decidirContato, gid, layoutMapa, medida, proximaFase,
+  cortarPulo, decidirBuraco, decidirContato, gid, layoutMapa, layoutNos, medida, proximaFase,
 } from '../../../../_privado/jogos/samuel-corredor/regras.js';
 
 const raiz = new URL('../../../../_privado/jogos/samuel-corredor/', import.meta.url);
@@ -42,8 +42,10 @@ describe('regras', () => {
 
   it('o mapa deita em colunas e em pé empilha', () => {
     expect(layoutMapa(320).map((f) => f.id)).toEqual(ORDEM);
-    expect(layoutMapa(320)[1].x).toBeGreaterThan(layoutMapa(320)[0].x);
-    expect(layoutMapa(180)[1].y).toBeGreaterThan(layoutMapa(180)[0].y);
+    expect(layoutNos(320).map((f) => f.id)).toEqual(ORDEM);
+    expect(layoutNos(320)[1].x).toBeGreaterThan(layoutNos(320)[0].x);
+    expect(layoutNos(180)[1].y).toBeGreaterThan(layoutNos(180)[0].y);
+    expect(layoutNos(180)[0].w).toBeGreaterThanOrEqual(48);
     expect(proximaFase('campo')).toBe('floresta');
     expect(proximaFase('caverna')).toBeNull();
   });
@@ -52,13 +54,14 @@ describe('regras', () => {
 describe('arte combinada', () => {
   const atlas = JSON.parse(readFileSync(new URL('arte/atlas.json', raiz), 'utf8'));
 
-  it('o atlas único tem os 44 quadros sem corte e com 2 px de vão', () => {
+  it('o atlas único tem os 54 quadros sem corte', () => {
     expect(atlas.meta.image).toBe('atlas.png');
     expect(atlas.meta.size).toEqual({ w: 256, h: 256 });
     const nomes = [];
     for (const def of Object.values(ANIMS)) nomes.push(...def.frames);
-    nomes.push('lesma/pof_0', 'besouro/pof_0', 'morcego/pof_0');
-    expect(new Set(nomes).size).toBe(44);
+    nomes.push('lesma/pof_0', 'besouro/pof_0', 'morcego/pof_0', 'estrela/apagada_0');
+    expect(new Set(nomes).size).toBe(54);
+    expect(Object.keys(atlas.frames).sort()).toEqual([...new Set(nomes)].sort());
     for (const nome of nomes) {
       const quadro = atlas.frames[nome];
       expect(quadro, nome).toBeTruthy();
@@ -67,9 +70,9 @@ describe('arte combinada', () => {
       expect(quadro.spriteSourceSize).toEqual({ x: 0, y: 0, w: quadro.frame.w, h: quadro.frame.h });
     }
     expect(atlas.frames['samuel/parado_0'].frame).toMatchObject({ w: 32, h: 48 });
-    const samuel = ['samuel/parado_0', 'samuel/correr_0', 'samuel/correr_1', 'samuel/correr_2'];
-    const xs = samuel.map((n) => atlas.frames[n].frame.x);
-    expect(xs[1] - xs[0]).toBe(34);
+    expect(atlas.frames['samuel/comemorar_0'].frame).toMatchObject({ w: 32, h: 48 });
+    expect(atlas.frames['marco/apagado_0'].frame).toMatchObject({ w: 16, h: 24 });
+    expect(atlas.frames['castelinho/parado_0'].frame).toMatchObject({ w: 64, h: 64 });
   });
 
   it('as fases Tiled usam as camadas e o tileset de 16', () => {
@@ -82,6 +85,8 @@ describe('arte combinada', () => {
       expect(tipos).toContain('spawn');
       expect(tipos).toContain('checkpoint');
       expect(tipos).toContain('meta');
+      const estrelas = mapa.layers[2].objects.filter((o) => o.type === 'estrela');
+      expect(estrelas, id).toHaveLength(3);
       const marco = mapa.layers[2].objects.find((o) => o.type === 'checkpoint');
       const meio = (marco.x + marco.width / 2) / (mapa.width * 16);
       expect(meio).toBeGreaterThanOrEqual(0.4);

@@ -1,0 +1,221 @@
+{
+ "_nota": "chaves e quadros do ARTE.md; \"extras\" são peças novas pedidas nesta entrega. repeat -1 = sempre, 0 = uma vez, 2 = 3 vezes no total.",
+ "arte_md": {
+  "samuel/parado": {
+   "frames": [
+    "samuel/parado_0"
+   ],
+   "frameRate": 1,
+   "repeat": -1
+  },
+  "samuel/correr": {
+   "frames": [
+    "samuel/correr_0",
+    "samuel/correr_1",
+    "samuel/correr_2",
+    "samuel/correr_1"
+   ],
+   "frameRate": 10,
+   "repeat": -1
+  },
+  "samuel/pular": {
+   "frames": [
+    "samuel/pular_0"
+   ],
+   "frameRate": 1,
+   "repeat": 0
+  },
+  "samuel/cair": {
+   "frames": [
+    "samuel/cair_0"
+   ],
+   "frameRate": 1,
+   "repeat": 0
+  },
+  "samuel/dano": {
+   "frames": [
+    "samuel/dano_0"
+   ],
+   "frameRate": 1,
+   "repeat": 0
+  },
+  "samuel/comemorar": {
+   "frames": [
+    "samuel/comemorar_0",
+    "samuel/parado_0"
+   ],
+   "frameRate": 4,
+   "repeat": 2
+  },
+  "doguinho/parado": {
+   "frames": [
+    "doguinho/parado_0"
+   ],
+   "frameRate": 1,
+   "repeat": -1
+  },
+  "doguinho/correr": {
+   "frames": [
+    "doguinho/correr_0",
+    "doguinho/correr_1"
+   ],
+   "frameRate": 8,
+   "repeat": -1
+  },
+  "doguinho/feliz": {
+   "frames": [
+    "doguinho/feliz_0"
+   ],
+   "frameRate": 1,
+   "repeat": -1
+  },
+  "lesma/andar": {
+   "frames": [
+    "lesma/andar_0",
+    "lesma/andar_1"
+   ],
+   "frameRate": 6,
+   "repeat": -1
+  },
+  "besouro/andar": {
+   "frames": [
+    "besouro/andar_0",
+    "besouro/andar_1"
+   ],
+   "frameRate": 8,
+   "repeat": -1
+  },
+  "morcego/voar": {
+   "frames": [
+    "morcego/voar_0",
+    "morcego/voar_1"
+   ],
+   "frameRate": 8,
+   "repeat": -1
+  },
+  "moeda/girar": {
+   "frames": [
+    "moeda/girar_0",
+    "moeda/girar_1",
+    "moeda/girar_2",
+    "moeda/girar_3"
+   ],
+   "frameRate": 8,
+   "repeat": -1
+  },
+  "estrela/brilhar": {
+   "frames": [
+    "estrela/brilhar_0",
+    "estrela/brilhar_1"
+   ],
+   "frameRate": 6,
+   "repeat": -1
+  },
+  "bandeira/tremular": {
+   "frames": [
+    "bandeira/tremular_0",
+    "bandeira/tremular_1",
+    "bandeira/tremular_2"
+   ],
+   "frameRate": 6,
+   "repeat": -1
+  },
+  "cogumelo/mola": {
+   "frames": [
+    "cogumelo/mola_0",
+    "cogumelo/mola_1",
+    "cogumelo/mola_2"
+   ],
+   "frameRate": 14,
+   "repeat": 0
+  },
+  "plataforma/helice": {
+   "frames": [
+    "plataforma/helice_0",
+    "plataforma/helice_1"
+   ],
+   "frameRate": 6,
+   "repeat": -1
+  },
+  "poeira/sumir": {
+   "frames": [
+    "poeira/sumir_0",
+    "poeira/sumir_1",
+    "poeira/sumir_2"
+   ],
+   "frameRate": 14,
+   "repeat": 0
+  },
+  "pof/estourar": {
+   "frames": [
+    "pof/estourar_0",
+    "pof/estourar_1",
+    "pof/estourar_2"
+   ],
+   "frameRate": 16,
+   "repeat": 0
+  },
+  "brilho/piscar": {
+   "frames": [
+    "brilho/piscar_0",
+    "brilho/piscar_1",
+    "brilho/piscar_2"
+   ],
+   "frameRate": 14,
+   "repeat": 0
+  }
+ },
+ "extras": {
+  "doguinho/pular": {
+   "frames": [
+    "doguinho/pular_0"
+   ],
+   "frameRate": 1,
+   "repeat": 0
+  },
+  "doguinho/comemorar": {
+   "frames": [
+    "doguinho/comemorar_0",
+    "doguinho/comemorar_1"
+   ],
+   "frameRate": 4,
+   "repeat": -1
+  },
+  "marco/apagado": {
+   "frames": [
+    "marco/apagado_0"
+   ],
+   "frameRate": 1,
+   "repeat": -1
+  },
+  "marco/aceso": {
+   "frames": [
+    "marco/aceso_0",
+    "marco/aceso_1"
+   ],
+   "frameRate": 4,
+   "repeat": -1
+  },
+  "castelinho/parado": {
+   "frames": [
+    "castelinho/parado_0"
+   ],
+   "frameRate": 1,
+   "repeat": -1
+  },
+  "castelinho/brilhar": {
+   "frames": [
+    "castelinho/brilhar_0",
+    "castelinho/brilhar_1"
+   ],
+   "frameRate": 4,
+   "repeat": -1
+  }
+ },
+ "estaticos": [
+  "lesma/pof_0",
+  "besouro/pof_0",
+  "morcego/pof_0",
+  "estrela/apagada_0"
+ ]
+}

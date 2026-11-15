@@ -42,7 +42,11 @@
       <div class="barra-janela"><span>fase_vencida.exe</span><span>✦</span></div>
       <div class="corpo">
         <h2 id="tituloVitoria">Fase vencida</h2>
-        <p id="vitoriaMoedas">0</p>
+        <div class="placar">
+          <canvas id="vitoriaMoedaIcon" width="16" height="16"></canvas>
+          <span id="vitoriaMoedas">0</span>
+          <span id="vitoriaCristais"></span>
+        </div>
         <div class="acoes">
           <button id="btnRepetir" class="ctrl" type="button" data-alvo aria-label="De novo"></button>
           <button id="btnProxima" class="ctrl" type="button" data-alvo aria-label="Próxima fase"></button>

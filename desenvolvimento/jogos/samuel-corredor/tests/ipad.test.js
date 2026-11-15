@@ -104,7 +104,7 @@ async function esperarPronto(alvo, erros) {
   }
 }
 
-async function jogar(alvo, page, ms, prefixo) {
+async function jogar(alvo, page, ms, prefixo, fotos = true) {
   const t0 = Date.now();
   const fez = {};
   while (Date.now() - t0 < ms) {
@@ -117,7 +117,14 @@ async function jogar(alvo, page, ms, prefixo) {
     } else if (o.tela === 'vitoria') {
       await soltar(alvo);
       if (!fez.vitoria) {
-        await page.screenshot({ path: path.join(arte, `samuel-corredor-vitoria-${prefixo}.png`) });
+        expect(await alvo.locator('#vitoriaCristais .cristal').count()).toBe(3);
+        expect(await alvo.locator('#vitoriaMoedaIcon').evaluate((c) => c.width)).toBe(16);
+        const moedas = Number(await alvo.locator('#vitoriaMoedas').textContent());
+        expect(moedas).toBeGreaterThan(0);
+        fez.moedas = moedas;
+        const cheios = await alvo.locator('#vitoriaCristais .cristal.cheio').count();
+        expect(cheios).toBeLessThanOrEqual(3);
+        if (fotos) await page.screenshot({ path: path.join(arte, `samuel-corredor-vitoria-${prefixo}.png`) });
         fez.vitoria = true;
       }
       await alvo.locator('#btnProxima').tap();
@@ -126,27 +133,36 @@ async function jogar(alvo, page, ms, prefixo) {
     } else if (o.tela === 'fase') {
       if (!fez.fase) {
         await alvo.waitForTimeout(300);
-        await page.screenshot({ path: path.join(arte, `samuel-corredor-fase-${prefixo}.png`) });
+        if (fotos) await page.screenshot({ path: path.join(arte, `samuel-corredor-fase-${prefixo}.png`) });
         fez.fase = true;
       }
       if (!fez.pulo && o.vy < -40) {
-        await page.screenshot({ path: path.join(arte, `samuel-corredor-pulo-${prefixo}.png`) });
+        if (fotos) await page.screenshot({ path: path.join(arte, `samuel-corredor-pulo-${prefixo}.png`) });
         fez.pulo = true;
       }
-      if (!fez.inimigo && o.derrotados > 0) {
-        await page.screenshot({ path: path.join(arte, `samuel-corredor-inimigo-${prefixo}.png`) });
+      if (!fez.inimigo && ((o.derrotados || 0) > 0 || (o.derrotadosTotal || 0) > (fez.derrotadosAntes || 0))) {
+        if (fotos) await page.screenshot({ path: path.join(arte, `samuel-corredor-inimigo-${prefixo}.png`) });
         fez.inimigo = true;
       }
+      if (!fez.derrotadosAntes && o.tela === 'fase') fez.derrotadosAntes = o.derrotadosTotal || 0;
       if (o.pular === 'alto') {
+        await segurar(alvo, 'btnEsq', false);
         await segurar(alvo, 'btnDir', true);
         await segurar(alvo, 'btnPulo', true);
-      } else if (o.pular === 'curto') {
+      } else if (o.pular === 'volta') {
         await segurar(alvo, 'btnDir', false);
-        await alvo.waitForTimeout(100);
+        await segurar(alvo, 'btnEsq', true);
         await segurar(alvo, 'btnPulo', true);
-        await alvo.waitForTimeout(40);
+        await alvo.waitForTimeout(20);
+        await segurar(alvo, 'btnPulo', false);
+      } else if (o.pular === 'curto') {
+        await segurar(alvo, 'btnEsq', false);
+        await segurar(alvo, 'btnDir', true);
+        await segurar(alvo, 'btnPulo', true);
+        await alvo.waitForTimeout(20);
         await segurar(alvo, 'btnPulo', false);
       } else {
+        await segurar(alvo, 'btnEsq', false);
         await segurar(alvo, 'btnPulo', false);
         await segurar(alvo, 'btnDir', true);
       }
@@ -207,6 +223,7 @@ describe('iPad WebKit (geração 7)', () => {
       return r.width >= 44 && r.height >= 44 && window.__corredor.olhar().tela === 'mapa';
     });
     await page.waitForTimeout(250);
+    expect(await page.locator('#btnFacil').getAttribute('aria-pressed')).toBe('true');
     await page.screenshot({ path: path.join(arte, 'samuel-corredor-mapa-paisagem.png') });
     await exigirTamanho(page, ['btnCampo', 'btnFloresta', 'btnCaverna', 'btnNormal', 'btnFacil', 'btnSair', 'btnTela']);
     await semRolagem(page);
@@ -221,15 +238,19 @@ describe('iPad WebKit (geração 7)', () => {
     await page.waitForFunction(() => window.__corredor.olhar().tela === 'pausa');
     expect((await medir(page, ['btnSeguir']))[0].h).toBeGreaterThanOrEqual(44);
     await page.locator('#btnSeguir').tap();
-    await page.waitForFunction(() => window.__corredor.olhar().tela === 'fase');
+    await page.waitForFunction(() => {
+      const o = window.__corredor.olhar();
+      return o.tela === 'fase' && o.noChao && o.pe > 180;
+    });
+    const pe = await page.evaluate(() => window.__corredor.olhar().pe);
+    expect(Math.abs(pe - 192), `pés em ${pe}`).toBeLessThan(2);
 
     const fez = await jogar(page, page, 60000, 'paisagem');
     expect(fez.fase, 'não mostrou a fase').toBe(true);
     expect(fez.pulo, 'não pulou').toBe(true);
     expect(fez.inimigo, 'não derrotou inimigo').toBe(true);
     expect(fez.vitoria, 'não venceu a fase').toBe(true);
-    const fim = await page.evaluate(() => window.__corredor.olhar());
-    expect(fim.moedas).toBeGreaterThan(0);
+    expect(fez.moedas || 0).toBeGreaterThan(0);
 
     await page.evaluate(() => {
       const jogo = document.getElementById('jogo');
@@ -271,7 +292,7 @@ describe('iPad WebKit (geração 7)', () => {
     await page.waitForFunction(() => window.__corredor.olhar().tela === 'fase');
     await exigirTamanho(page, ['btnEsq', 'btnDir', 'btnPulo', 'btnPausa', 'btnTela']);
     await semRolagem(page);
-    const fez = await jogar(page, page, 45000, 'retrato');
+    const fez = await jogar(page, page, 60000, 'retrato');
     expect(fez.pulo).toBe(true);
     expect(fez.inimigo).toBe(true);
     expect(fez.vitoria).toBe(true);
@@ -310,8 +331,8 @@ describe('iPad WebKit (geração 7)', () => {
     await context.close();
   });
 
-  it('iframe de /jogar/?jogo=samuel-corredor', async () => {
-    const context = await contexto(1024, 768);
+  async function sessentaNoIframe(largura, altura, prefixo) {
+    const context = await contexto(largura, altura);
     const page = await context.newPage();
     const erros = [];
     ouvir(page, erros);
@@ -328,10 +349,10 @@ describe('iPad WebKit (geração 7)', () => {
     await frame.waitForFunction(() => window.__corredor.olhar().tela === 'fase');
     await exigirTamanho(frame, ['btnEsq', 'btnDir', 'btnPulo', 'btnPausa', 'btnTela']);
     await semRolagem(frame);
-    await segurar(frame, 'btnDir', true);
-    await frame.waitForTimeout(900);
-    const andou = await frame.evaluate(() => window.__corredor.olhar().x);
-    expect(andou).toBeGreaterThan(80);
+    const fez = await jogar(frame, page, 60000, `iframe-${prefixo}`, false);
+    expect(fez.pulo).toBe(true);
+    expect(fez.vitoria).toBe(true);
+    await page.screenshot({ path: path.join(arte, `samuel-corredor-iframe-${prefixo}.png`) });
     await frame.evaluate(() => {
       const jogo = document.getElementById('jogo');
       window.__telaPedido = '';
@@ -343,8 +364,73 @@ describe('iPad WebKit (geração 7)', () => {
     });
     await frame.locator('#btnTela').tap();
     expect(await frame.evaluate(() => window.__telaPedido)).toBe('jogo');
-    await page.screenshot({ path: path.join(arte, 'samuel-corredor-iframe-paisagem.png') });
     expect(erros, erros.join('\n')).toEqual([]);
     await context.close();
+  }
+
+  it('iframe 1024×768: 60 s de toque', async () => {
+    await sessentaNoIframe(1024, 768, 'paisagem');
+  });
+
+  it('iframe 768×1024: 60 s de toque', async () => {
+    await sessentaNoIframe(768, 1024, 'retrato');
+  });
+
+  it('prova a floresta, a caverna e o mapa com fase vencida', async () => {
+    for (const [largura, altura, prefixo] of [[1024, 768, 'paisagem'], [768, 1024, 'retrato']]) {
+      const context = await contexto(largura, altura);
+      const page = await context.newPage();
+      const erros = [];
+      ouvir(page, erros);
+      await page.addInitScript(() => localStorage.clear());
+      await page.goto(jogoUrl, { waitUntil: 'domcontentloaded' });
+      await esperarPronto(page, erros);
+      await page.waitForFunction(() => {
+        const r = document.getElementById('btnCampo').getBoundingClientRect();
+        return r.width >= 44 && window.__corredor.olhar().tela === 'mapa';
+      });
+      await page.evaluate(() => window.__corredor.provar('mola'));
+      await page.waitForFunction(() => {
+        const o = window.__corredor.olhar();
+        if (o.prova === 'mola' && o.mola === true && o.y < 155 && o.vy < 0) {
+          window.__corredor.congelar();
+          return true;
+        }
+        return false;
+      });
+      await page.screenshot({ path: path.join(arte, `samuel-corredor-floresta-mola-${prefixo}.png`) });
+      await page.evaluate(() => window.__corredor.provar('plataforma'));
+      await page.waitForFunction(() => Math.abs(window.__corredor.olhar().plataformaDelta) > 6);
+      await page.screenshot({ path: path.join(arte, `samuel-corredor-floresta-plataforma-${prefixo}.png`) });
+      await page.evaluate(() => window.__corredor.provar('bloco'));
+      await page.waitForFunction(() => {
+        const o = window.__corredor.olhar();
+        if (o.prova === 'bloco' && o.blocoCaindo === true && o.blocoQueda > 36) {
+          window.__corredor.congelar();
+          return true;
+        }
+        return false;
+      }, null, { timeout: 8000 });
+      await page.screenshot({ path: path.join(arte, `samuel-corredor-caverna-bloco-${prefixo}.png`) });
+      await page.evaluate(() => window.__corredor.provar('inimigos'));
+      await page.waitForFunction(() => {
+        const o = window.__corredor.olhar();
+        const tipos = o.tipos || [];
+        const perto = o.prova === 'inimigos' && o.x > 180 && o.x < 260 && tipos.includes('lesma') && tipos.includes('besouro');
+        if (perto) window.__corredor.congelar();
+        return perto;
+      });
+      await page.screenshot({ path: path.join(arte, `samuel-corredor-caverna-inimigos-${prefixo}.png`) });
+      const salvo = JSON.stringify({
+        modo: 'facil', vencidas: ['campo'], estrelasPorFase: { campo: 2 }, schemaVersion: 1,
+      });
+      await page.addInitScript((raw) => localStorage.setItem('samuel-corredor:v1', raw), salvo);
+      await page.reload({ waitUntil: 'domcontentloaded' });
+      await esperarPronto(page, erros);
+      await page.waitForTimeout(300);
+      await page.screenshot({ path: path.join(arte, `samuel-corredor-mapa-progresso-${prefixo}.png`) });
+      expect(erros, erros.join('\n')).toEqual([]);
+      await context.close();
+    }
   });
 });

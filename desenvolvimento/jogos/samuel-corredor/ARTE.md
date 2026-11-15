@@ -77,7 +77,7 @@ O retângulo do objeto é a caixa do sprite. Quem tem o pé na base (`setOrigin(
 | `type` | O que é |
 |---|---|
 | `spawn` | Samuel. Nome `samuel` |
-| `checkpoint` | marco do meio. Nome `marco`. Ainda sem sprite: um poste desenhado no código |
+| `checkpoint` | marco do meio. Nome `marco`. Sprite `marco/apagado` e, ao passar, `marco/aceso` |
 | `meta` | bandeira. Nome `bandeira`. Nas três fases, inclusive a caverna (o troféu não veio na amostra) |
 | `moeda` | moeda |
 | `estrela` | estrela, opcional, 3 por fase |
@@ -86,6 +86,20 @@ O retângulo do objeto é a caixa do sprite. Quem tem o pé na base (`setOrigin(
 | `plataforma` | plataforma que anda. Propriedades `eixo` (`x` ou `y`), `curso` (px), `periodo` (s). Sprite `plataforma/helice` |
 
 O marco fica entre 40% e 66% da largura de cada fase (campo 0,50, floresta 0,61, caverna 0,45).
+
+Na caverna a meta é o `castelinho` (64×64, pé na base), com o troféu no alto. Ao vencer, toca `castelinho/brilhar`. O objeto no Tiled continua `meta`, no mesmo lugar da bandeira.
+
+## Entrega final (15/11/2026)
+
+O `arte/` do jogo é a entrega do Gerador: atlas 256×256 com 54 quadros, `tiles.png` 192×48 e as três fases. Os gids batem com `regras.js` (`gid = linha * 12 + coluna + 1`, caverna/especial = 35). As fases que vieram são iguais, byte a byte, às que o `gerar-fases.mjs` grava.
+
+Peças novas em uso: `samuel/comemorar_0` (os dois braços em V), `doguinho/pular_0` e `doguinho/comemorar_0..1`, `marco/apagado_0` e `marco/aceso_0..1` (16×24, acende ao passar), `castelinho/parado_0` e `castelinho/brilhar_0..1` (64×64, fim da caverna, no lugar da bandeira), `estrela/apagada_0` no slot vazio da vitória. O fps sugerido (4 para comemorar do cão, marco aceso e castelinho) ficou: é um piscar lento e legível.
+
+Hitbox do Samuel continua 14×40 com offset (9, 8) e `setOrigin(0.5, 1)`. O pé está na última linha do quadro, então o corpo encosta no chão sem afundar. O cabelo fica fora da caixa, como a entrega descreve.
+
+## Pendente para o Gerador
+
+Nos buracos do campo e da floresta, abaixo de y = 216, o fundo de perto acaba e aparece o pé do céu. A camada de perto só desce 24 px abaixo do chão (o chão começa em y = 192). Isso apareceu nos prints: o buraco fica uma faixa verde chapada até o fim da tela, sem o morro nem o céu continuando. O jogo não tapa esse buraco com cor. O próximo passo é um fundo `_v2` mais fundo.
 
 ## Fundos
 

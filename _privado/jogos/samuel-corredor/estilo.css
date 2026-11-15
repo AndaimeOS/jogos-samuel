@@ -34,10 +34,11 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: var(--ink); 
 #btnProxima { position: relative; background-image: url("arte/controles/botao-proxima.png"); }
 
 #vitoria, #pausa {
-  position: fixed; inset: 0; z-index: 12; display: grid; place-items: center;
-  background: rgba(25, 51, 55, .35);
+  position: fixed; inset: 0; z-index: 12; display: grid; place-items: start center;
+  padding-top: 54px;
+  background: rgba(25, 51, 55, .28);
 }
-.cartao { width: min(300px, calc(100% - 24px)); background: var(--paper); border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); }
+.cartao { width: min(280px, calc(100% - 24px)); background: var(--paper); border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); }
 .barra-janela {
   display: flex; justify-content: space-between; padding: 6px 10px;
   border-bottom: 2px solid var(--ink); background: #e8e7db;
@@ -45,7 +46,11 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: var(--ink); 
 }
 .corpo { padding: 14px 16px 16px; text-align: center; }
 h2 { margin: 0 0 8px; font: 900 28px/1 "Courier New", Courier, monospace; letter-spacing: -1px; }
-#vitoriaMoedas { margin: 0 0 12px; font: 900 22px "Courier New", Courier, monospace; }
+.placar { display: flex; gap: 8px; align-items: center; justify-content: center; margin: 0 0 12px; }
+#vitoriaMoedaIcon, #vitoriaCristais .cristal { width: 28px; height: 28px; image-rendering: pixelated; image-rendering: crisp-edges; }
+#vitoriaMoedas { font: 900 28px "Courier New", Courier, monospace; }
+#vitoriaCristais { display: flex; gap: 6px; margin-left: 8px; }
+#vitoriaCristais .cristal { border: 2px solid var(--ink); background: #fffdf7; box-sizing: border-box; }
 .acoes { display: flex; gap: 12px; justify-content: center; align-items: flex-end; }
 #btnSeguir { min-width: 140px; background: var(--green); font-size: 18px; }
 button:focus-visible, a:focus-visible { outline: 3px solid #9956e0; outline-offset: 3px; }

@@ -6,8 +6,6 @@ Copyright (c) 2024 Richard Davey, Phaser Studio Inc.
 Licença MIT. O texto integral está em LICENSE.txt.
 https://github.com/phaserjs/phaser
 
-Arte: folha de estilo e amostra técnica feitas para este jogo (pixel art própria,
-quadros de 32×48 para o Samuel e tiles de 16×16). O formato está em
-desenvolvimento/jogos/samuel-corredor/ARTE.md. O troféu e o marco ainda não
-vieram na amostra: a meta das três fases é a bandeira, e o marco do meio é
-desenhado no código até o Gerador entregar o sprite.
+Arte: pixel art própria desta casa (entrega final de 15/11/2026). Atlas 256×256,
+Samuel 32×48, tiles 16×16, castelinho com troféu e marco do checkpoint.
+O formato está em desenvolvimento/jogos/samuel-corredor/ARTE.md.

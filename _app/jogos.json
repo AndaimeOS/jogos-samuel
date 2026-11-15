@@ -258,14 +258,14 @@
       "slug": "samuel-corredor",
       "title": "Samuel Corredor",
       "category": "Plataforma",
-      "description": "Corra, pule nas lesmas e chegue na bandeira. O Doguinho vai junto pelo campo, pela floresta e pela caverna.",
+      "description": "Corra, pule nas lesmas e chegue no fim da fase. O Doguinho vai junto pelo campo, pela floresta e pela caverna.",
       "cover": "samuel-corredor.webp",
       "entry": "index.html",
       "instructions": [
         "No tablet, esquerda e direita ficam no canto esquerdo. Pular fica no canto direito: segure para ir mais alto.",
         "Pule em cima da lesma, do besouro e do morcego. Encostar de lado tira um coração e deixa o Samuel piscando por um instante.",
         "No Fácil, o buraco devolve o Samuel para a última plataforma e o inimigo só empurra.",
-        "A bandeira termina a fase. No meio do caminho tem um marco. Depois vem a próxima fase."
+        "A bandeira termina o campo e a floresta. A caverna termina no castelinho, com o troféu. No meio do caminho o marco acende. Depois vem a próxima fase."
       ],
       "input": ["touch", "keyboard"],
       "status": "pronto",

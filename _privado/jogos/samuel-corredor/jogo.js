@@ -1,7 +1,7 @@
 import {
   ANIMS, CONFIG, FUNDOS, GID_QUEDA, GIDS_PLATAFORMA, GIDS_SOLIDO, ORDEM,
   aoZerarVidas, classificarContato, cortarPulo, decidirBuraco, decidirContato,
-  layoutMapa, medida, proximaFase,
+  layoutNos, medida, proximaFase,
 } from './regras.js';
 
 const PLAT = new Set(GIDS_PLATAFORMA);
@@ -44,6 +44,7 @@ const api = {
   moedas: 0,
   estrelas: 0,
   derrotados: 0,
+  derrotadosTotal: 0,
   pausado: false,
   pronto: false,
   cortarPulo,
@@ -115,17 +116,27 @@ function prender(btn, campo) {
 
 function salvar() {
   try {
-    localStorage.setItem(CHAVE, JSON.stringify({ modo: api.modo, vencidas: api.vencidas, schemaVersion: 1 }));
+    localStorage.setItem(CHAVE, JSON.stringify({
+      modo: api.modo, vencidas: api.vencidas, estrelasPorFase: api.estrelasPorFase || {}, schemaVersion: 1,
+    }));
   } catch { /* modo privado */ }
 }
 
 function carregar() {
+  api.estrelasPorFase = {};
   try {
-    const d = JSON.parse(localStorage.getItem(CHAVE) || '{}');
-    api.modo = d.modo === 'facil' ? 'facil' : 'normal';
+    const bruto = localStorage.getItem(CHAVE);
+    if (!bruto) {
+      api.modo = 'facil';
+      api.vencidas = [];
+      return;
+    }
+    const d = JSON.parse(bruto);
+    api.modo = d.modo === 'normal' ? 'normal' : 'facil';
     api.vencidas = Array.isArray(d.vencidas) ? d.vencidas.filter((id) => ORDEM.includes(id)) : [];
+    api.estrelasPorFase = d.estrelasPorFase && typeof d.estrelasPorFase === 'object' ? d.estrelasPorFase : {};
   } catch {
-    api.modo = 'normal';
+    api.modo = 'facil';
     api.vencidas = [];
   }
 }
@@ -169,15 +180,14 @@ function layout() {
   por(btnPulo, gw - 46, 194, 40, 40);
   por(btnPausa, gw - 30, 6, 24, 24);
   por(btnTela, gw - 58, 6, 24, 24);
-  const topo = 56;
-  for (const f of layoutMapa(gw)) {
+  for (const f of layoutNos(gw)) {
     const el = f.id === 'campo' ? btnCampo : f.id === 'floresta' ? btnFloresta : btnCaverna;
-    const y0 = Math.max(f.y * z, topo);
-    const y1 = (f.y + f.h) * z;
-    el.style.left = `${r.left + f.x * z}px`;
-    el.style.top = `${r.top + y0}px`;
-    el.style.width = `${f.w * z}px`;
-    el.style.height = `${Math.max(48, y1 - y0)}px`;
+    const w = Math.max(48, f.w * z);
+    const h = Math.max(48, f.h * z);
+    el.style.left = `${r.left + f.x * z - w / 2}px`;
+    el.style.top = `${r.top + f.y * z - h / 2}px`;
+    el.style.width = `${w}px`;
+    el.style.height = `${h}px`;
   }
   const lado = Math.max(48, 24 * z);
   const prox = Math.max(48, 40 * z);
@@ -215,8 +225,33 @@ function limparVitoria() {
   mostrar(painelVitoria, false);
 }
 
-function mostrarVitoria(moedas, temProxima) {
+function quadro(nome) {
+  const tex = api.jogo.textures.get('atlas');
+  const frame = tex.get(nome);
+  return { img: tex.getSourceImage(), x: frame.cutX, y: frame.cutY, w: frame.width, h: frame.height };
+}
+
+function pintarIcone(canvas, nome) {
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const q = quadro(nome);
+  ctx.drawImage(q.img, q.x, q.y, q.w, q.h, 0, 0, canvas.width, canvas.height);
+}
+
+function mostrarVitoria(moedas, estrelas, temProxima) {
   $('vitoriaMoedas').textContent = String(moedas);
+  pintarIcone($('vitoriaMoedaIcon'), 'moeda/girar_0');
+  const caixa = $('vitoriaCristais');
+  caixa.replaceChildren();
+  for (let i = 0; i < 3; i++) {
+    const c = document.createElement('canvas');
+    c.width = 16;
+    c.height = 16;
+    c.className = i < estrelas ? 'cristal cheio' : 'cristal';
+    pintarIcone(c, i < estrelas ? 'estrela/brilhar_0' : 'estrela/apagada_0');
+    caixa.appendChild(c);
+  }
   btnProxima.setAttribute('aria-label', temProxima ? 'Próxima fase' : 'Ver o mapa');
   mostrar(painelVitoria, true);
   controlesDeFase(false);
@@ -330,7 +365,7 @@ function ajustarCorpo(sprite, bw, bh) {
 }
 
 function animar(sprite, key) {
-  if (!sprite.anims || sprite.anims.currentAnim?.key === key) return;
+  if (!sprite?.active || !sprite.anims || sprite.anims.currentAnim?.key === key) return;
   sprite.play(key);
 }
 
@@ -385,7 +420,8 @@ class Mapa extends Phaser.Scene {
   constructor() { super('mapa'); }
   create() {
     api.tela = 'mapa';
-    this.g = this.add.graphics();
+    this.g = this.add.graphics().setDepth(0);
+    this.frente = this.add.graphics().setDepth(5);
     this.bonecos = [];
     this.desenhar();
     this.scale.on('resize', () => this.desenhar());
@@ -397,36 +433,68 @@ class Mapa extends Phaser.Scene {
   }
   desenhar() {
     this.g.clear();
+    this.frente.clear();
     for (const s of this.bonecos) s.destroy();
     this.bonecos = [];
-    const cores = { campo: 0xb6e38a, floresta: 0x3f8f55, caverna: 0x2b4652 };
-    const faixasMapa = layoutMapa(this.scale.width);
-    for (const f of faixasMapa) {
-      this.g.fillStyle(cores[f.id], 1);
-      this.g.fillRect(f.x, f.y, f.w + 1, f.h + 1);
-      if (!liberada(f.id)) {
-        this.g.fillStyle(0x193337, 0.35);
-        this.g.fillRect(f.x, f.y, f.w, f.h);
+    this.cameras.main.setBackgroundColor('#cfefff');
+    const nos = layoutNos(this.scale.width);
+    const atual = ORDEM.find((id) => liberada(id) && !api.vencidas.includes(id)) || 'campo';
+    this.g.lineStyle(4, 0x193337, 1);
+    this.g.beginPath();
+    this.g.moveTo(nos[0].x, nos[0].y);
+    for (const n of nos.slice(1)) this.g.lineTo(n.x, n.y);
+    this.g.strokePath();
+    this.g.fillStyle(0xf5f2e8, 1);
+    for (let i = 0; i < nos.length - 1; i++) {
+      const a = nos[i];
+      const b = nos[i + 1];
+      for (let t = 0.2; t < 1; t += 0.2) this.g.fillCircle(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, 2);
+    }
+    const icones = { campo: 'samuel/parado_0', floresta: 'bandeira/tremular_0', caverna: 'morcego/voar_0' };
+    nos.forEach((n, i) => {
+      const aberto = liberada(n.id);
+      const vencido = api.vencidas.includes(n.id);
+      const corrente = n.id === atual;
+      const raio = n.w / 2;
+      this.g.fillStyle(vencido ? 0xb9ed80 : aberto ? 0xfffdf7 : 0xd5d0c4, 1);
+      this.g.fillCircle(n.x, n.y, raio);
+      this.g.lineStyle(corrente ? 5 : 3, corrente ? 0xff9d52 : 0x193337, 1);
+      this.g.strokeCircle(n.x, n.y, raio);
+      if (corrente) {
+        this.frente.fillStyle(0xff9d52, 1);
+        this.frente.fillTriangle(n.x, n.y - raio - 16, n.x - 7, n.y - raio - 6, n.x + 7, n.y - raio - 6);
       }
-    }
-    const campo = faixasMapa[0];
-    const cx = campo.x + campo.w / 2;
-    const cy = campo.y + campo.h * 0.62;
-    this.bonecos.push(this.add.sprite(cx, cy, 'atlas', 'samuel/parado_0').setOrigin(0.5, 1).play('samuel/parado'));
-    this.bonecos.push(this.add.sprite(cx - 28, cy, 'atlas', 'doguinho/parado_0').setOrigin(0.5, 1));
-    this.g.fillStyle(0xff9d52, 1);
-    this.g.fillTriangle(cx, cy - 62, cx - 6, cy - 52, cx + 6, cy - 52);
-    const floresta = faixasMapa[1];
-    this.bonecos.push(this.add.image(floresta.x + floresta.w / 2, floresta.y + floresta.h * 0.55, 'atlas', 'bandeira/tremular_0').setOrigin(0.5, 1));
-    const caverna = faixasMapa[2];
-    const mx = caverna.x + caverna.w / 2;
-    const my = caverna.y + caverna.h * 0.55;
-    this.bonecos.push(this.add.image(mx, my, 'atlas', 'morcego/voar_0').setOrigin(0.5, 0.5));
-    if (faixasMapa[0].w > faixasMapa[0].h / 2) {
-      this.g.fillStyle(0xf5f2e8, 1);
-      const y = campo.h * 0.72;
-      for (let x = campo.w * 0.62; x < floresta.x + floresta.w * 0.35; x += 10) this.g.fillCircle(x, y, 1.5);
-    }
+      const escala = n.id === 'campo' ? 0.42 : n.id === 'floresta' ? 0.32 : 0.7;
+      const icone = this.add.image(n.x, n.y + 6, 'atlas', icones[n.id]).setScale(escala).setDepth(2);
+      this.bonecos.push(icone);
+      const numero = this.add.image(n.x, n.y - 12, 'digitos', i + 1).setScale(1.4).setDepth(3);
+      this.bonecos.push(numero);
+      if (!aberto) this.cadeado(n.x, n.y + 2);
+      else if (vencido) {
+        this.visto(n.x + raio - 10, n.y - raio + 10);
+        const ganhos = Math.max(0, Math.min(3, api.estrelasPorFase[n.id] || 0));
+        for (let s = 0; s < 3; s++) {
+          const estrela = this.add.image(n.x - 11 + s * 11, n.y + raio - 8, 'atlas', s < ganhos ? 'estrela/brilhar_0' : 'estrela/apagada_0').setScale(0.5).setDepth(4);
+          this.bonecos.push(estrela);
+        }
+      }
+    });
+  }
+
+  cadeado(x, y) {
+    this.frente.fillStyle(0x193337, 1);
+    this.frente.fillRect(x - 6, y - 2, 12, 9);
+    this.frente.lineStyle(2, 0x193337, 1);
+    this.frente.strokeCircle(x, y - 5, 3);
+  }
+
+  visto(x, y) {
+    this.frente.lineStyle(3, 0x326344, 1);
+    this.frente.beginPath();
+    this.frente.moveTo(x - 6, y);
+    this.frente.lineTo(x - 2, y + 4);
+    this.frente.lineTo(x + 6, y - 5);
+    this.frente.strokePath();
   }
 }
 
@@ -455,6 +523,9 @@ class Fase extends Phaser.Scene {
     api.estrelas = 0;
     api.derrotados = 0;
     api.pausado = false;
+    this.marcoSprite = null;
+    this.castelo = null;
+    this.congelada = false;
     this.physics.world.gravity.y = CONFIG.gravidade;
     this.physics.resume();
 
@@ -494,7 +565,7 @@ class Fase extends Phaser.Scene {
       bloco.setImmovable(true);
       bloco.body.setAllowGravity(false);
       bloco.body.setSize(16, 16, true);
-      bloco.setData({ ox: bloco.x, peso: 0, caindo: false });
+      bloco.setData({ ox: bloco.x, oy: bloco.y, peso: 0, caindo: false });
       bloco.setDepth(12);
       this.blocos.push(bloco);
       this.solido.removeTileAt(tile.x, tile.y);
@@ -563,15 +634,24 @@ class Fase extends Phaser.Scene {
     this.add.image(6, 23, 'atlas', 'moeda/girar_0').setOrigin(0, 0).setScrollFactor(0).setDepth(40);
     this.digitoA = this.add.image(24, 25, 'digitos', 0).setOrigin(0, 0).setScrollFactor(0).setDepth(40);
     this.digitoB = this.add.image(32, 25, 'digitos', 0).setOrigin(0, 0).setScrollFactor(0).setDepth(40);
-    this.marca = this.add.sprite(0, 0, 'atlas', 'bandeira/tremular_0').setScrollFactor(0).setDepth(40).setScale(0.5).setOrigin(0.5, 0.5);
-    this.marca.play('bandeira/tremular');
+    const marcaCaverna = this.id === 'caverna';
+    this.marca = this.add.sprite(0, 0, 'atlas', marcaCaverna ? 'castelinho/parado_0' : 'bandeira/tremular_0').setScrollFactor(0).setDepth(40).setScale(marcaCaverna ? 0.34 : 0.5).setOrigin(0.5, 0.5);
+    if (!marcaCaverna) this.marca.play('bandeira/tremular');
     this.desenharMarco();
     this.atualizarHud();
     this.scale.on('resize', (tamanho) => {
       this.cameras.main.setSize(tamanho.width, tamanho.height);
       for (const f of this.fundos) f.img.setSize(tamanho.width, f.h);
     });
-    this.events.once('shutdown', () => { this.player = null; });
+    this.prova = data.prova || null;
+    this.molaDisparou = false;
+    if (this.prova) this.time.delayedCall(80, () => this.montarProva(this.prova));
+    this.events.once('shutdown', () => {
+      this.player = null;
+      this.dog = null;
+      this.marcoSprite = null;
+      this.castelo = null;
+    });
   }
 
   passaPlataforma(ator, tile) {
@@ -585,12 +665,20 @@ class Fase extends Phaser.Scene {
   }
 
   criarMeta(x, pe) {
-    const poste = this.add.sprite(x, pe, 'atlas', 'bandeira/tremular_0').setOrigin(0.5, 1).setDepth(11);
-    poste.play('bandeira/tremular');
     this.metaX = x;
-    this.zonaMeta = this.add.zone(x, pe - 28, 28, 56);
+    if (this.id === 'caverna') this.desenharCastelo(x, pe);
+    else {
+      const poste = this.add.sprite(x, pe, 'atlas', 'bandeira/tremular_0').setOrigin(0.5, 1).setDepth(11);
+      poste.play('bandeira/tremular');
+    }
+    this.zonaMeta = this.add.zone(x, pe - 28, 36, 64);
     this.zonaMeta.setOrigin(0.5, 0.5);
     this.physics.add.existing(this.zonaMeta, true);
+  }
+
+  desenharCastelo(x, pe) {
+    this.castelo = this.add.sprite(x, pe, 'atlas', 'castelinho/parado_0').setOrigin(0.5, 1).setDepth(11);
+    this.castelo.play('castelinho/parado');
   }
 
   criarMoeda(x, y) {
@@ -657,16 +745,10 @@ class Fase extends Phaser.Scene {
   }
 
   desenharMarco() {
-    if (this.marco) this.marco.destroy();
-    const g = this.add.graphics().setDepth(11);
-    const x = this.checkpoint.x;
-    const y = this.checkpoint.y;
-    const aceso = this.marcoAtivo;
-    g.fillStyle(0x193337, 1);
-    g.fillRect(x - 1, y - 26, 3, 26);
-    g.fillStyle(aceso ? 0xb9ed80 : 0xceb7ef, 1);
-    g.fillRect(x + 2, y - 24, 8, 6);
-    this.marco = g;
+    if (!this.marcoSprite?.active) {
+      this.marcoSprite = this.add.sprite(this.checkpoint.x, this.checkpoint.y, 'atlas', 'marco/apagado_0').setOrigin(0.5, 1).setDepth(11);
+    }
+    animar(this.marcoSprite, this.marcoAtivo ? 'marco/aceso' : 'marco/apagado');
   }
 
   atualizarHud() {
@@ -691,22 +773,28 @@ class Fase extends Phaser.Scene {
     const chao = this.temChao(frente, pe + 6);
     let inimigoDx = null;
     for (const ini of this.inimigos.getChildren()) {
-      if (!ini.getData('vivo')) continue;
+      if (!ini.getData('vivo') || ini.getData('tipo') === 'morcego') continue;
       const dx = ini.x - p.x;
-      if (dx > -4 && dx < 32 && Math.abs(ini.y - p.y) < 34) {
-        if (inimigoDx === null || dx < inimigoDx) inimigoDx = dx;
+      if (dx > -36 && dx < 32 && Math.abs(ini.y - p.y) < 34) {
+        if (inimigoDx === null || Math.abs(dx) < Math.abs(inimigoDx)) inimigoDx = dx;
       }
     }
     const noChao = p.body.blocked.down || p.body.touching.down;
     let pulo = false;
-    if (inimigoDx !== null && inimigoDx < 18 && noChao) pulo = 'curto';
+    if (inimigoDx !== null && Math.abs(inimigoDx) <= 30 && Math.abs(inimigoDx) >= 8 && noChao) pulo = inimigoDx < 0 ? 'volta' : 'curto';
     else if ((parede || !chao) && (noChao || this.coyote > 0)) pulo = 'alto';
     return {
-      tela: api.tela, fase: this.id, pular: pulo, x: p.x, y: p.y,
+      tela: api.tela, fase: this.id, pular: pulo, prova: this.prova || null,
+      x: p.x, y: p.y, pe: p.body.bottom,
       vx: p.body.velocity.x, vy: p.body.velocity.y, noChao,
       vidas: api.vidas, moedas: api.moedas, estrelas: api.estrelas,
-      derrotados: api.derrotados, modo: api.modo,
+      derrotados: api.derrotados, derrotadosTotal: api.derrotadosTotal || 0, modo: api.modo,
       largura: this.scale.width, altura: this.scale.height,
+      mola: !!this.molaDisparou,
+      plataformaDelta: this.plataformas[0] ? this.plataformas[0].x - this.plataformas[0].getData('ox') : 0,
+      blocoCaindo: this.blocos.some((b) => b.active && b.getData('caindo')),
+      blocoQueda: this.blocos[0] && this.blocos[0].active ? this.blocos[0].y - (this.blocos[0].getData('oy') || this.blocos[0].y) : 0,
+      tipos: this.inimigos.getChildren().filter((i) => i.active && i.getData('vivo')).map((i) => i.getData('tipo')),
     };
   }
 
@@ -742,6 +830,7 @@ class Fase extends Phaser.Scene {
     if (this.time.now < mola.getData('prox')) return;
     if (this.player.body.velocity.y < -20 && this.player.body.bottom < mola.body.top) return;
     mola.setData('prox', this.time.now + 420);
+    this.molaDisparou = true;
     mola.play('cogumelo/mola');
     mola.once('animationcomplete', () => mola.setFrame('cogumelo/mola_0'));
     this.player.body.setVelocityY(CONFIG.puloAlto);
@@ -771,6 +860,8 @@ class Fase extends Phaser.Scene {
     this.player.body.setVelocityY(-210);
     this.segurou = false;
     api.derrotados += 1;
+    api.derrotadosTotal = (api.derrotadosTotal || 0) + 1;
+    if (ini.anims) ini.anims.stop();
     tocar('pof');
     const efeito = this.add.sprite(ini.x, ini.y - 8, 'atlas').setDepth(30);
     efeito.play('pof/estourar');
@@ -818,14 +909,60 @@ class Fase extends Phaser.Scene {
     if (this.venceu || api.pausado) return;
     this.venceu = true;
     if (!api.vencidas.includes(this.id)) api.vencidas.push(this.id);
+    api.estrelasPorFase[this.id] = api.estrelas;
     salvar();
     atualizarTravas();
     this.physics.pause();
-    animar(this.player, 'samuel/comemorar');
-    animar(this.dog, 'doguinho/feliz');
+    this.player.setScale(1, 1);
+    this.player.setFlipX(false);
+    this.player.anims.stop();
+    this.player.setOrigin(0.5, 1);
+    this.player.setTexture('atlas', 'samuel/comemorar_0');
+    animar(this.castelo, 'castelinho/brilhar');
+    animar(this.dog, 'doguinho/comemorar');
+    this.cameras.main.stopFollow();
+    const limite = Math.max(0, this.map.widthInPixels - this.scale.width);
+    this.cameras.main.scrollX = Phaser.Math.Clamp(this.player.x - this.scale.width * 0.68, 0, limite);
     tocar('vitoria');
-    estouro(this, this.player.x, this.player.y - 30, 'brilho/piscar', 6);
-    mostrarVitoria(api.moedas, !!proximaFase(this.id));
+    estouro(this, this.player.x, this.player.y - 36, 'brilho/piscar', 6);
+    mostrarVitoria(api.moedas, api.estrelas, !!proximaFase(this.id));
+  }
+
+  montarProva(qual) {
+    this.prova = qual;
+    const cam = this.cameras.main;
+    cam.stopFollow();
+    if (qual === 'mola' && this.molas[0]) {
+      const m = this.molas[0];
+      this.player.setPosition(m.x, m.y - 28);
+      this.player.body.setVelocity(0, 120);
+      cam.centerOn(m.x, m.y - 48);
+    } else if (qual === 'plataforma' && this.plataformas[0]) {
+      const plat = this.plataformas[0];
+      this.player.setPosition(plat.x, plat.body.top);
+      this.player.body.setVelocity(0, 0);
+      cam.centerOn(plat.x, plat.y - 20);
+    } else if (qual === 'bloco' && this.blocos[0]) {
+      const b = this.blocos[0];
+      this.player.setPosition(b.x, b.y - 20);
+      this.player.body.setVelocity(0, 0);
+      cam.centerOn(b.x, b.y - 40);
+    } else if (qual === 'inimigos') {
+      const chao = 191;
+      const base = 220;
+      const porTipo = (tipo, x) => {
+        const ini = this.inimigos.getChildren().find((i) => i.getData('tipo') === tipo && i.getData('vivo'));
+        if (!ini) return;
+        ini.setPosition(x, chao);
+        ini.body.reset(x, chao);
+      };
+      porTipo('lesma', base - 56);
+      porTipo('besouro', base + 58);
+      this.player.setPosition(base, chao - 1);
+      this.player.body.setVelocity(0, 0);
+      this.dog.setPosition(base - 90, chao);
+      cam.centerOn(base, 168);
+    }
   }
 
   pulso(sx, sy) { this.alvoSX = sx; this.alvoSY = sy; this.squash = 0.1; }
@@ -838,12 +975,27 @@ class Fase extends Phaser.Scene {
 
   update(time, delta) {
     const p = this.player;
-    if (!p || !p.body || this.venceu) {
+    if (this.congelada || !p || !p.body || this.venceu) {
       this.rolarFundos();
       return;
     }
     const dt = Math.min(delta, 40) / 1000;
     if (api.pausado) return;
+    if (this.prova === 'plataforma' && this.plataformas[0]) {
+      const plat = this.plataformas[0];
+      p.x = plat.x;
+      p.y = plat.body.top + 1;
+      p.body.setVelocity(0, 0);
+      this.cameras.main.centerOn(plat.x, plat.y - 24);
+    } else if (this.prova === 'bloco' && this.blocos[0]) {
+      const b = this.blocos[0];
+      if (!b.getData('caindo')) {
+        p.x = b.x;
+        if (p.y > b.y - 16) p.y = b.y - 18;
+        p.body.setVelocity(0, 40);
+      }
+      this.cameras.main.centerOn(b.x, Math.max(150, Math.min(b.y - 8, 210)));
+    }
     if (this.invencivel > 0) this.invencivel -= dt;
 
     for (const plat of this.plataformas) {
@@ -920,7 +1072,7 @@ class Fase extends Phaser.Scene {
     this.dog.x += (alvoDog - this.dog.x) * 0.12;
     this.dog.y += (p.y - this.dog.y) * 0.2;
     this.dog.setFlipX(this.dog.x > p.x);
-    animar(this.dog, Math.abs(alvoDog - this.dog.x) > 6 ? 'doguinho/correr' : 'doguinho/parado');
+    animar(this.dog, !noChao ? 'doguinho/pular' : Math.abs(alvoDog - this.dog.x) > 6 ? 'doguinho/correr' : 'doguinho/parado');
 
     if (p.y > this.map.heightInPixels + 6) this.cairNoBuraco();
     this.rolarFundos();
@@ -1010,6 +1162,27 @@ api.olhar = () => {
     return { tela: api.tela, fase: api.fase, pular: false, x: 0, y: 0, vx: 0, vy: 0, noChao: false, vidas: api.vidas, moedas: api.moedas, derrotados: api.derrotados, modo: api.modo, estrelas: api.estrelas };
   }
   return cena.olhar();
+};
+api.provar = (qual) => {
+  const fase = qual === 'mola' || qual === 'plataforma' ? 'floresta' : 'caverna';
+  limparVitoria();
+  mostrar(painelPausa, false);
+  api.pausado = false;
+  api.fase = fase;
+  faixas(false);
+  mostrar(barra, false);
+  controlesDeFase(true);
+  const jogo = api.jogo;
+  if (jogo.scene.isActive('fase')) jogo.scene.stop('fase');
+  if (jogo.scene.isActive('mapa')) jogo.scene.stop('mapa');
+  jogo.scene.start('fase', { id: fase, prova: qual });
+  api.tela = 'fase';
+};
+api.congelar = () => {
+  const cena = faseAtiva();
+  if (!cena || cena.congelada) return;
+  cena.congelada = true;
+  cena.physics.pause();
 };
 api.soltarNoBuraco = () => faseAtiva()?.soltarNoBuraco();
 api.porNoInimigo = () => faseAtiva()?.porNoInimigo() ?? false;

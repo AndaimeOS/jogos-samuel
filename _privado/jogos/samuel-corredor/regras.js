@@ -69,10 +69,16 @@ export const ANIMS = {
   'samuel/pular': { frames: ['samuel/pular_0'], frameRate: 1, repeat: 0 },
   'samuel/cair': { frames: ['samuel/cair_0'], frameRate: 1, repeat: 0 },
   'samuel/dano': { frames: ['samuel/dano_0'], frameRate: 1, repeat: 0 },
-  'samuel/comemorar': { frames: ['samuel/comemorar_0', 'samuel/parado_0'], frameRate: 4, repeat: 3 },
+  'samuel/comemorar': { frames: ['samuel/comemorar_0', 'samuel/parado_0'], frameRate: 4, repeat: 2 },
   'doguinho/parado': { frames: ['doguinho/parado_0'], frameRate: 1, repeat: -1 },
   'doguinho/correr': { frames: ['doguinho/correr_0', 'doguinho/correr_1'], frameRate: 8, repeat: -1 },
   'doguinho/feliz': { frames: ['doguinho/feliz_0'], frameRate: 1, repeat: -1 },
+  'doguinho/pular': { frames: ['doguinho/pular_0'], frameRate: 1, repeat: 0 },
+  'doguinho/comemorar': { frames: ['doguinho/comemorar_0', 'doguinho/comemorar_1'], frameRate: 4, repeat: -1 },
+  'marco/apagado': { frames: ['marco/apagado_0'], frameRate: 1, repeat: -1 },
+  'marco/aceso': { frames: ['marco/aceso_0', 'marco/aceso_1'], frameRate: 4, repeat: -1 },
+  'castelinho/parado': { frames: ['castelinho/parado_0'], frameRate: 1, repeat: -1 },
+  'castelinho/brilhar': { frames: ['castelinho/brilhar_0', 'castelinho/brilhar_1'], frameRate: 4, repeat: -1 },
   'lesma/andar': { frames: ['lesma/andar_0', 'lesma/andar_1'], frameRate: 6, repeat: -1 },
   'besouro/andar': { frames: ['besouro/andar_0', 'besouro/andar_1'], frameRate: 8, repeat: -1 },
   'morcego/voar': { frames: ['morcego/voar_0', 'morcego/voar_1'], frameRate: 8, repeat: -1 },
@@ -145,6 +151,16 @@ export function layoutMapa(largura) {
     { id: 'floresta', x: 0, y: h, w: largura, h },
     { id: 'caverna', x: 0, y: 2 * h, w: largura, h },
   ];
+}
+
+/** Três nós com área de toque. x,y é o centro, em px do jogo. */
+export function layoutNos(largura) {
+  const lado = largura < 240 ? 56 : 64;
+  if (largura < 240) {
+    return ORDEM.map((id, i) => ({ id, x: largura / 2, y: 62 + i * 72, w: lado, h: lado }));
+  }
+  const span = largura - 96;
+  return ORDEM.map((id, i) => ({ id, x: 48 + (span / 2) * i, y: 132, w: lado, h: lado }));
 }
 
 export function decidirContato(modo) {
