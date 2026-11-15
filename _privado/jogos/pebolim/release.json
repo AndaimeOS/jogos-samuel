@@ -1,16 +1,16 @@
 {
   "schema_version": 1,
-  "release_id": "pebolim@0.1.1+7f51381.producao",
+  "release_id": "pebolim@0.1.2+cceefb7.producao",
   "game_slug": "pebolim",
-  "version": "0.1.1",
-  "source_commit": "7f51381d0f3208292efb4aca74ffc587717361dd",
+  "version": "0.1.2",
+  "source_commit": "cceefb7a9e067c4cb35301a10dba99c7882f0d57",
   "environment": "producao",
-  "built_at": "2026-11-15T13:21:51+00:00",
+  "built_at": "2026-11-15T13:58:31+00:00",
   "public_url": "https://samuel.tech/jogar/?jogo=pebolim",
   "files_base_url": "https://samuel.tech/jogo/pebolim/",
   "files": {
     "LICENSE.txt": "2e0b8831ae6e3edfd366def362b6135f4bbbe40ba746911ed5c1ebf94e7932b8",
-    "css/pebolim.css": "648589ad127f7c4d2fb89bba0a3fbfe809e9e865707cb3ea5098762eaccb0096",
+    "css/pebolim.css": "292ffb11f84c4261df3788fd908145d98869d95d3a6cffbaa809ee6d2a3bef8b",
     "css/ui-blocos.css": "982b1f616c303a96c94fe0108ae9d26ee8ef98556807e0c4790f61c12a6ad5cb",
     "index.html": "8e9a728b097e011a29f1ba368047b5e4937c70a93e51b052a797da6183a9b203",
     "js/SAT.js": "86603b38357c2c84e47bf9bad0e1f38b0a143042b306d281d593e8e8e0fbf5a8",
@@ -18,7 +18,7 @@
     "js/controles.js": "c1213402292dc2b6e0fb4c85e939c734684f8e75b7fa4356a7c59f04be21a7d6",
     "js/fisica.js": "08ac9d2c1c5c543ef332c7aee04adc4cb3f50a9316cc500d7dce3df0b2d61eef",
     "js/ia.js": "2cd6f92a31c59c23369ed3183528d6ac89bba3cb1880b4c06a5398e36dfe02c6",
-    "js/jogo.js": "2be0adbf14c51239a7072c771dfd82b3010ee82cdaa5bacec501cfa540e91f36",
+    "js/jogo.js": "b4d52c7627c4c2e9d46d6be2f1e6016787ebc9c17d7234e7c8c0159e89f8e82b",
     "js/partida.js": "972a12c49a6cc5ddf3a235358505228592845fc77837f09e6a2cda5dd9d783a4"
   }
 }

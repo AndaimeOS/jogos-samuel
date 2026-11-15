@@ -3,6 +3,15 @@
 Atualizado ao fim de cada sessão (ST-090). Um bloco por sessão, o mais novo em cima.
 Vale o que está aqui e no Notion, não a memória do chat.
 
+## 2026-11-15 — Pebolim 0.1.2 (faixa no iPad, sem rótulo nas hastes)
+
+- **Pedido:** no iPad em pé a faixa "A bola voltou para o meio!" fica mais larga que a mesa e é cortada. Tirar VERMELHO/AZUL de baixo das hastes. Branch `fix/pebolim-faixa-ipad`, PR rascunho. Sem merge e sem publicar.
+- **Feito:** a faixa usa a largura da mesa, quebra a linha e a fonte fica no máximo em 46 px, nos dois sentidos. Saíram da mesa as palavras VERMELHO, AZUL, você e computador (as duas últimas também passavam por baixo da haste). O aviso de deitar o tablet desce para baixo do placar e cabe na tela. Catálogo e manifesto em `0.1.2`. Código em `cceefb7`.
+- **Testes:** `npm test` do Pebolim 35/35 (inclui WebKit, iPad gen 7, só toque, 1024×768 e 768×1024, direto e no iframe). `verificar_jogo.py --todos` ok.
+- **Não feito:** merge e publicação. Espera o Boaz.
+- **Notion:** esta sessão não veio de um card da fila; o hub não foi atualizado.
+- **NEXT:** o Boaz aprova o PR. Sem isso, não publicar.
+
 ## 2026-11-15 — Pebolim no iPad (WebKit)
 
 - **Pedido do Boaz (15/11 09:56 BRT):** o Pebolim não funciona no iPad; investigar e corrigir. O Samuel joga no Safari/WebKit. Deploy desta sessão não é daqui: só o merge na `main`.
