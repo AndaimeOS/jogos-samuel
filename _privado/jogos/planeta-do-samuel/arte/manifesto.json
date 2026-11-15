@@ -1,0 +1,1639 @@
+{
+  "versao": 1,
+  "jogo": "0.2.0",
+  "imagem": "atlas.webp",
+  "grade": 16,
+  "perspectiva": "3/4",
+  "ticksPorSegundo": 60,
+  "direcoes": [
+    "baixo",
+    "baixo-direita",
+    "direita",
+    "cima-direita",
+    "cima",
+    "cima-esquerda",
+    "esquerda",
+    "baixo-esquerda"
+  ],
+  "sprites": {
+    "samuel-andar": {
+      "arquivo": "samuel/walk.png",
+      "origem": "atlas",
+      "frameW": 32,
+      "frameH": 48,
+      "colunas": 4,
+      "linhas": 8,
+      "duracoes": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        16,
+        47
+      ],
+      "espelhoDaDireita": true,
+      "x": 0,
+      "y": 0
+    },
+    "samuel-parado": {
+      "arquivo": "samuel/idle.png",
+      "origem": "atlas",
+      "frameW": 32,
+      "frameH": 48,
+      "colunas": 2,
+      "linhas": 8,
+      "duracoes": [
+        40,
+        8
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        16,
+        47
+      ],
+      "espelhoDaDireita": true,
+      "x": 128,
+      "y": 0
+    },
+    "cao-parado": {
+      "arquivo": "cao/idle.png",
+      "origem": "codigo",
+      "frameW": 32,
+      "frameH": 24,
+      "colunas": 2,
+      "linhas": 1,
+      "duracoes": [
+        24,
+        12
+      ],
+      "loop": true,
+      "pe": "base"
+    },
+    "chao-pedra-grama": {
+      "arquivo": "chao/pedra/grama.png",
+      "origem": "atlas",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base",
+      "pivo": [
+        8,
+        15
+      ],
+      "x": 192,
+      "y": 0
+    },
+    "chao-pedra-grama-var": {
+      "arquivo": "chao/pedra/grama-var.png",
+      "origem": "atlas",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base",
+      "pivo": [
+        8,
+        15
+      ],
+      "x": 208,
+      "y": 0
+    },
+    "chao-pedra-areia": {
+      "arquivo": "chao/pedra/areia.png",
+      "origem": "atlas",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base",
+      "pivo": [
+        8,
+        15
+      ],
+      "x": 224,
+      "y": 0
+    },
+    "chao-pedra-agua": {
+      "arquivo": "chao/pedra/agua.png",
+      "origem": "atlas",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 2,
+      "linhas": 1,
+      "duracoes": [
+        30,
+        30
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        8,
+        15
+      ],
+      "x": 240,
+      "y": 0
+    },
+    "chao-bronze-grama": {
+      "arquivo": "chao/bronze/grama.png",
+      "origem": "atlas",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base",
+      "pivo": [
+        8,
+        15
+      ],
+      "x": 272,
+      "y": 0
+    },
+    "chao-bronze-grama-var": {
+      "arquivo": "chao/bronze/grama-var.png",
+      "origem": "atlas",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base",
+      "pivo": [
+        8,
+        15
+      ],
+      "x": 288,
+      "y": 0
+    },
+    "chao-bronze-areia": {
+      "arquivo": "chao/bronze/areia.png",
+      "origem": "atlas",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base",
+      "pivo": [
+        8,
+        15
+      ],
+      "x": 304,
+      "y": 0
+    },
+    "chao-bronze-agua": {
+      "arquivo": "chao/bronze/agua.png",
+      "origem": "atlas",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 2,
+      "linhas": 1,
+      "duracoes": [
+        30,
+        30
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        8,
+        15
+      ],
+      "x": 320,
+      "y": 0
+    },
+    "chao-ferro-grama": {
+      "arquivo": "chao/ferro/grama.png",
+      "origem": "atlas",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base",
+      "pivo": [
+        8,
+        15
+      ],
+      "x": 352,
+      "y": 0
+    },
+    "chao-ferro-grama-var": {
+      "arquivo": "chao/ferro/grama-var.png",
+      "origem": "atlas",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base",
+      "pivo": [
+        8,
+        15
+      ],
+      "x": 368,
+      "y": 0
+    },
+    "chao-ferro-areia": {
+      "arquivo": "chao/ferro/areia.png",
+      "origem": "atlas",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base",
+      "pivo": [
+        8,
+        15
+      ],
+      "x": 384,
+      "y": 0
+    },
+    "chao-ferro-agua": {
+      "arquivo": "chao/ferro/agua.png",
+      "origem": "atlas",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 2,
+      "linhas": 1,
+      "duracoes": [
+        30,
+        30
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        8,
+        15
+      ],
+      "x": 400,
+      "y": 0
+    },
+    "graveto": {
+      "arquivo": "recursos/graveto.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "seixo": {
+      "arquivo": "recursos/seixo.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "arbusto": {
+      "arquivo": "recursos/arbusto.png",
+      "origem": "codigo",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "arbusto-vazio": {
+      "arquivo": "recursos/arbusto-vazio.png",
+      "origem": "codigo",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "arvore": {
+      "arquivo": "recursos/arvore.png",
+      "origem": "codigo",
+      "frameW": 48,
+      "frameH": 64,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "toco": {
+      "arquivo": "recursos/toco.png",
+      "origem": "codigo",
+      "frameW": 32,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "rocha": {
+      "arquivo": "recursos/rocha.png",
+      "origem": "codigo",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "veio": {
+      "arquivo": "recursos/veio.png",
+      "origem": "codigo",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "veio-vazio": {
+      "arquivo": "recursos/veio-vazio.png",
+      "origem": "codigo",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "toca": {
+      "arquivo": "estacoes/toca.png",
+      "origem": "codigo",
+      "frameW": 48,
+      "frameH": 40,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "fogueira-apagada": {
+      "arquivo": "estacoes/fogueira-apagada.png",
+      "origem": "codigo",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "fogueira-acesa": {
+      "arquivo": "estacoes/fogueira-acesa.png",
+      "origem": "codigo",
+      "frameW": 32,
+      "frameH": 48,
+      "colunas": 4,
+      "linhas": 1,
+      "duracoes": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "base"
+    },
+    "pesquisa-bronze": {
+      "arquivo": "estacoes/pesquisa-bronze.png",
+      "origem": "codigo",
+      "frameW": 48,
+      "frameH": 40,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "bancada": {
+      "arquivo": "estacoes/bancada.png",
+      "origem": "codigo",
+      "frameW": 48,
+      "frameH": 40,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "fornalha-fria": {
+      "arquivo": "estacoes/fornalha-fria.png",
+      "origem": "codigo",
+      "frameW": 48,
+      "frameH": 48,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "fornalha-acesa": {
+      "arquivo": "estacoes/fornalha-acesa.png",
+      "origem": "codigo",
+      "frameW": 48,
+      "frameH": 48,
+      "colunas": 2,
+      "linhas": 1,
+      "duracoes": [
+        12,
+        12
+      ],
+      "loop": true,
+      "pe": "base"
+    },
+    "canteiro": {
+      "arquivo": "estacoes/canteiro.png",
+      "origem": "codigo",
+      "frameW": 48,
+      "frameH": 32,
+      "colunas": 5,
+      "linhas": 1,
+      "duracoes": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "pesquisa-ferro": {
+      "arquivo": "estacoes/pesquisa-ferro.png",
+      "origem": "codigo",
+      "frameW": 48,
+      "frameH": 40,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "ferramentas": {
+      "arquivo": "estacoes/ferramentas.png",
+      "origem": "codigo",
+      "frameW": 48,
+      "frameH": 40,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "casinha-obra": {
+      "arquivo": "estacoes/casinha-obra.png",
+      "origem": "codigo",
+      "frameW": 64,
+      "frameH": 64,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "casinha-pronta": {
+      "arquivo": "estacoes/casinha-pronta.png",
+      "origem": "codigo",
+      "frameW": 64,
+      "frameH": 64,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "farol-0": {
+      "arquivo": "estacoes/farol-0.png",
+      "origem": "atlas",
+      "frameW": 48,
+      "frameH": 96,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base",
+      "pivo": [
+        24,
+        95
+      ],
+      "x": 432,
+      "y": 0
+    },
+    "farol-1": {
+      "arquivo": "estacoes/farol-1.png",
+      "origem": "atlas",
+      "frameW": 48,
+      "frameH": 96,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base",
+      "pivo": [
+        24,
+        95
+      ],
+      "x": 0,
+      "y": 384
+    },
+    "farol-2": {
+      "arquivo": "estacoes/farol-2.png",
+      "origem": "atlas",
+      "frameW": 48,
+      "frameH": 96,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base",
+      "pivo": [
+        24,
+        95
+      ],
+      "x": 48,
+      "y": 384
+    },
+    "farol-aceso": {
+      "arquivo": "estacoes/farol-aceso.png",
+      "origem": "atlas",
+      "frameW": 48,
+      "frameH": 96,
+      "colunas": 2,
+      "linhas": 1,
+      "duracoes": [
+        20,
+        20
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        24,
+        95
+      ],
+      "x": 96,
+      "y": 384
+    },
+    "icone-madeira": {
+      "arquivo": "ui/madeira.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "icone-pedra": {
+      "arquivo": "ui/pedra.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "icone-minerio": {
+      "arquivo": "ui/minerio.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "icone-fruta": {
+      "arquivo": "ui/fruta.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "icone-barra": {
+      "arquivo": "ui/barra.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "icone-fome": {
+      "arquivo": "ui/fome.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "icone-calor": {
+      "arquivo": "ui/calor.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "icone-dia": {
+      "arquivo": "ui/dia.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "icone-noite": {
+      "arquivo": "ui/noite.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "icone-seta": {
+      "arquivo": "ui/seta.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "seixo-vivo": {
+      "arquivo": "inimigos/seixo-vivo.png",
+      "origem": "atlas",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 4,
+      "linhas": 1,
+      "duracoes": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        16,
+        31
+      ],
+      "x": 192,
+      "y": 384
+    },
+    "lobo-da-pedra": {
+      "arquivo": "inimigos/lobo-da-pedra.png",
+      "origem": "atlas",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 4,
+      "linhas": 8,
+      "duracoes": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        16,
+        31
+      ],
+      "espelhoDaDireita": true,
+      "x": 320,
+      "y": 384
+    },
+    "enxame": {
+      "arquivo": "inimigos/enxame.png",
+      "origem": "atlas",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 2,
+      "linhas": 1,
+      "duracoes": [
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "centro",
+      "pivo": [
+        8,
+        8
+      ],
+      "x": 448,
+      "y": 384
+    },
+    "urso-da-caverna": {
+      "arquivo": "chefes/urso-da-caverna.png",
+      "origem": "atlas",
+      "frameW": 64,
+      "frameH": 64,
+      "colunas": 4,
+      "linhas": 8,
+      "duracoes": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        32,
+        63
+      ],
+      "espelhoDaDireita": true,
+      "x": 0,
+      "y": 640
+    },
+    "guerreiro-de-bronze": {
+      "arquivo": "inimigos/guerreiro-de-bronze.png",
+      "origem": "atlas",
+      "frameW": 32,
+      "frameH": 48,
+      "colunas": 4,
+      "linhas": 8,
+      "duracoes": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        16,
+        47
+      ],
+      "espelhoDaDireita": true,
+      "x": 256,
+      "y": 640
+    },
+    "escorpiao": {
+      "arquivo": "inimigos/escorpiao.png",
+      "origem": "atlas",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 4,
+      "linhas": 8,
+      "duracoes": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        16,
+        31
+      ],
+      "espelhoDaDireita": true,
+      "x": 384,
+      "y": 640
+    },
+    "golem-de-barro": {
+      "arquivo": "inimigos/golem-de-barro.png",
+      "origem": "atlas",
+      "frameW": 48,
+      "frameH": 48,
+      "colunas": 4,
+      "linhas": 4,
+      "duracoes": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        24,
+        47
+      ],
+      "espelhoDaDireita": true,
+      "x": 0,
+      "y": 1152
+    },
+    "sentinela-de-bronze": {
+      "arquivo": "chefes/sentinela-de-bronze_v2.png",
+      "origem": "atlas",
+      "frameW": 48,
+      "frameH": 64,
+      "colunas": 4,
+      "linhas": 8,
+      "duracoes": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        24,
+        63
+      ],
+      "espelhoDaDireita": true,
+      "x": 192,
+      "y": 1152
+    },
+    "soldado-de-ferro": {
+      "arquivo": "inimigos/soldado-de-ferro.png",
+      "origem": "atlas",
+      "frameW": 32,
+      "frameH": 48,
+      "colunas": 4,
+      "linhas": 8,
+      "duracoes": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        16,
+        47
+      ],
+      "espelhoDaDireita": true,
+      "x": 384,
+      "y": 1152
+    },
+    "catapulta": {
+      "arquivo": "inimigos/catapulta.png",
+      "origem": "atlas",
+      "frameW": 48,
+      "frameH": 32,
+      "colunas": 2,
+      "linhas": 4,
+      "duracoes": [
+        15,
+        15
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        24,
+        31
+      ],
+      "espelhoDaDireita": true,
+      "x": 0,
+      "y": 1664
+    },
+    "lobo-de-ferro": {
+      "arquivo": "inimigos/lobo-de-ferro.png",
+      "origem": "atlas",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 4,
+      "linhas": 8,
+      "duracoes": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        16,
+        31
+      ],
+      "espelhoDaDireita": true,
+      "x": 96,
+      "y": 1664
+    },
+    "colosso-de-ferro": {
+      "arquivo": "chefes/colosso-de-ferro_v2.png",
+      "origem": "atlas",
+      "frameW": 64,
+      "frameH": 80,
+      "colunas": 4,
+      "linhas": 4,
+      "duracoes": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        32,
+        79
+      ],
+      "espelhoDaDireita": true,
+      "x": 224,
+      "y": 1664
+    },
+    "lasca": {
+      "arquivo": "ataques/lasca.png",
+      "origem": "atlas",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 2,
+      "linhas": 1,
+      "duracoes": [
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "centro",
+      "pivo": [
+        8,
+        8
+      ],
+      "x": 480,
+      "y": 1664
+    },
+    "lanca": {
+      "arquivo": "ataques/lanca.png",
+      "origem": "atlas",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "centro",
+      "pivo": [
+        8,
+        8
+      ],
+      "apontada": "direita",
+      "x": 0,
+      "y": 1984
+    },
+    "faisca": {
+      "arquivo": "ataques/faisca.png",
+      "origem": "atlas",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 4,
+      "linhas": 1,
+      "duracoes": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "loop": true,
+      "pe": "centro",
+      "pivo": [
+        8,
+        8
+      ],
+      "x": 16,
+      "y": 1984
+    },
+    "pedregulho": {
+      "arquivo": "ataques/pedregulho.png",
+      "origem": "atlas",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "centro",
+      "pivo": [
+        8,
+        8
+      ],
+      "x": 80,
+      "y": 1984
+    },
+    "telegraph": {
+      "arquivo": "ataques/telegraph.png",
+      "origem": "atlas",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 2,
+      "linhas": 1,
+      "duracoes": [
+        15,
+        15
+      ],
+      "loop": true,
+      "pe": "centro",
+      "pivo": [
+        16,
+        16
+      ],
+      "x": 96,
+      "y": 1984
+    },
+    "acerto": {
+      "arquivo": "efeitos/acerto.png",
+      "origem": "atlas",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 2,
+      "linhas": 1,
+      "duracoes": [
+        4,
+        4
+      ],
+      "loop": true,
+      "pe": "centro",
+      "pivo": [
+        16,
+        16
+      ],
+      "x": 160,
+      "y": 1984
+    },
+    "morte": {
+      "arquivo": "efeitos/morte.png",
+      "origem": "atlas",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 4,
+      "linhas": 1,
+      "duracoes": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "loop": true,
+      "pe": "centro",
+      "pivo": [
+        16,
+        16
+      ],
+      "x": 224,
+      "y": 1984
+    },
+    "xp-brilho": {
+      "arquivo": "efeitos/xp-brilho.png",
+      "origem": "atlas",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 2,
+      "linhas": 1,
+      "duracoes": [
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "centro",
+      "pivo": [
+        8,
+        8
+      ],
+      "x": 352,
+      "y": 1984
+    },
+    "levelup": {
+      "arquivo": "efeitos/levelup.png",
+      "origem": "atlas",
+      "frameW": 48,
+      "frameH": 48,
+      "colunas": 4,
+      "linhas": 1,
+      "duracoes": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        24,
+        47
+      ],
+      "x": 0,
+      "y": 2016
+    },
+    "xp-1": {
+      "arquivo": "coleta/xp-1.png",
+      "origem": "atlas",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 2,
+      "linhas": 1,
+      "duracoes": [
+        15,
+        15
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        8,
+        15
+      ],
+      "x": 192,
+      "y": 2016
+    },
+    "xp-2": {
+      "arquivo": "coleta/xp-2.png",
+      "origem": "atlas",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 2,
+      "linhas": 1,
+      "duracoes": [
+        15,
+        15
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        8,
+        15
+      ],
+      "x": 224,
+      "y": 2016
+    },
+    "xp-3": {
+      "arquivo": "coleta/xp-3.png",
+      "origem": "atlas",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 2,
+      "linhas": 1,
+      "duracoes": [
+        15,
+        15
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        8,
+        15
+      ],
+      "x": 256,
+      "y": 2016
+    },
+    "icone-lasca": {
+      "arquivo": "ui/lasca.png",
+      "origem": "atlas",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "centro",
+      "pivo": [
+        16,
+        16
+      ],
+      "x": 288,
+      "y": 2016
+    },
+    "icone-lanca": {
+      "arquivo": "ui/lanca.png",
+      "origem": "atlas",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "centro",
+      "pivo": [
+        16,
+        16
+      ],
+      "x": 320,
+      "y": 2016
+    },
+    "icone-faisca": {
+      "arquivo": "ui/faisca.png",
+      "origem": "atlas",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "centro",
+      "pivo": [
+        16,
+        16
+      ],
+      "x": 352,
+      "y": 2016
+    },
+    "icone-fogueira-carta": {
+      "arquivo": "ui/fogueira-carta.png",
+      "origem": "atlas",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "centro",
+      "pivo": [
+        16,
+        16
+      ],
+      "x": 384,
+      "y": 2016
+    },
+    "icone-vida": {
+      "arquivo": "ui/vida.png",
+      "origem": "atlas",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "centro",
+      "pivo": [
+        8,
+        8
+      ],
+      "x": 416,
+      "y": 2016
+    },
+    "carta-upgrade": {
+      "arquivo": "ui/carta-upgrade.png",
+      "origem": "atlas",
+      "frameW": 64,
+      "frameH": 80,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "centro",
+      "pivo": [
+        32,
+        40
+      ],
+      "x": 432,
+      "y": 2016
+    },
+    "mamute": {
+      "arquivo": "alternativas/inimigos/mamute.png",
+      "origem": "atlas",
+      "frameW": 48,
+      "frameH": 48,
+      "colunas": 4,
+      "linhas": 1,
+      "duracoes": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        24,
+        47
+      ],
+      "x": 0,
+      "y": 2096
+    },
+    "caranguejo-gigante": {
+      "arquivo": "alternativas/inimigos/caranguejo-gigante.png",
+      "origem": "atlas",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 4,
+      "linhas": 1,
+      "duracoes": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        16,
+        31
+      ],
+      "x": 192,
+      "y": 2096
+    },
+    "robo-enferrujado": {
+      "arquivo": "alternativas/inimigos/robo-enferrujado.png",
+      "origem": "atlas",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 4,
+      "linhas": 1,
+      "duracoes": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        16,
+        31
+      ],
+      "x": 320,
+      "y": 2096
+    },
+    "meteoro": {
+      "arquivo": "alternativas/eventos/meteoro.png",
+      "origem": "atlas",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 4,
+      "linhas": 1,
+      "duracoes": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "loop": true,
+      "pe": "centro",
+      "pivo": [
+        16,
+        16
+      ],
+      "x": 0,
+      "y": 2144
+    },
+    "enchente": {
+      "arquivo": "alternativas/eventos/enchente.png",
+      "origem": "atlas",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 4,
+      "linhas": 1,
+      "duracoes": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        16,
+        31
+      ],
+      "x": 128,
+      "y": 2144
+    },
+    "icone-vida-vazia": {
+      "arquivo": "ui/vida-vazia.png",
+      "origem": "atlas",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "centro",
+      "pivo": [
+        8,
+        8
+      ],
+      "x": 256,
+      "y": 2144
+    },
+    "meteoro-impacto": {
+      "arquivo": "alternativas/eventos/meteoro-impacto.png",
+      "origem": "atlas",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 4,
+      "linhas": 1,
+      "duracoes": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "loop": true,
+      "pe": "centro",
+      "pivo": [
+        16,
+        16
+      ],
+      "x": 272,
+      "y": 2144
+    },
+    "enchente-telegraph": {
+      "arquivo": "alternativas/eventos/enchente-telegraph.png",
+      "origem": "atlas",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 2,
+      "linhas": 1,
+      "duracoes": [
+        15,
+        15
+      ],
+      "loop": true,
+      "pe": "centro",
+      "pivo": [
+        16,
+        16
+      ],
+      "x": 400,
+      "y": 2144
+    },
+    "raio": {
+      "arquivo": "alternativas/eventos/raio.png",
+      "origem": "atlas",
+      "frameW": 32,
+      "frameH": 64,
+      "colunas": 4,
+      "linhas": 1,
+      "duracoes": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "loop": true,
+      "pe": "base",
+      "pivo": [
+        16,
+        63
+      ],
+      "x": 0,
+      "y": 2176
+    },
+    "raio-telegraph": {
+      "arquivo": "alternativas/eventos/raio-telegraph.png",
+      "origem": "atlas",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 2,
+      "linhas": 1,
+      "duracoes": [
+        15,
+        15
+      ],
+      "loop": true,
+      "pe": "centro",
+      "pivo": [
+        16,
+        16
+      ],
+      "x": 128,
+      "y": 2176
+    }
+  }
+}

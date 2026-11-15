@@ -1,17 +1,28 @@
 {
   "schema_version": 1,
-  "release_id": "planeta-do-samuel@0.1.0+b6f366e.proposta",
+  "release_id": "planeta-do-samuel@0.2.0+b22f42a.producao",
   "game_slug": "planeta-do-samuel",
-  "version": "0.1.0",
-  "source_commit": "b6f366e2e8e51e59e68e82f180225455bae235fc",
-  "environment": "proposta",
-  "built_at": "2026-11-15T01:01:31+00:00",
+  "version": "0.2.0",
+  "source_commit": "b22f42ac9bd2da19a4eca92147413f5c8fdb48e3",
+  "environment": "producao",
+  "built_at": "2026-11-15T13:12:09+00:00",
   "public_url": "https://samuel.tech/jogar/?jogo=planeta-do-samuel",
   "files_base_url": "https://samuel.tech/jogo/planeta-do-samuel/",
   "files": {
-    "CREDITOS.txt": "bf869f67a3e0ebb181accc802ba6590e96266abc82ba19f32fd01241fa57847f",
-    "LICENSE.txt": "0a9b49c547c20b1c42ba1488d59ed8c9a61005624f27ca0047c31f6d15ce8ba1",
-    "index.html": "556650673c0c72428300d644d3194b5c3b3ec1955c147f426b98da60d0e3a902",
-    "regras.js": "ed13ca1c5163cd683b5320d2021bd6c73b4d29d6cba5e82e59de14bf7c28a17c"
+    "CREDITOS.txt": "6996bf66935128734dbb407a9d4734a2c1da77b425ee8c2aa6d2c3c7ebef3ce3",
+    "LICENSE.txt": "1678ca0c79209a5c3ce3538fc80360dfbd084a075198fe5ad771d3f408d73cd4",
+    "apresentacao.js": "47a3f6dac6a26037a9e4f73c25a7d0f5f676fe03b180c273ce75aee4de45d6fa",
+    "arte/atlas.webp": "13034481f0941d309ad86a3457a231c2cf69ddfd25db78398712d15c5f59e3a2",
+    "arte/manifesto.json": "930219eeefa45eb707e5a3c181ac11cda2646c49dc8763f7e69e04cedebcf9b9",
+    "index.html": "31fcff51ff9071e5b465010e54107b110c70e847109bbd63bc2171403ff6303f",
+    "motor/chao.js": "9bc164aa7e287c96e9b34dcb869b0cb1b324d7791c25b11abe011d76f5d100c7",
+    "motor/joystick.js": "c482c744b7ca06852f1cebf7ad1cd34c730af093b2b1ef419cb8560ef46dc525",
+    "motor/math.js": "2522841e7cd9582624d7d934abb9c41b82b2b3d325749ee227af1dec7aaa9b13",
+    "motor/noite.js": "be170e43dc451332614d8223a1345ce072eddb49242c2da50700187a0041637c",
+    "motor/pixelart.js": "99702a9c7038f02828e111e880bf97bd8cea75a94c2ade4ee580287860455c51",
+    "motor/placeholders.js": "6354498de63bc3b33e27fc41da134b5db6efef96b4d5de694c008a94f92a2ac3",
+    "motor/sprites.js": "39bea465cdefe6e7ed33a97d7fc586beb4fc32da225df21a03294c069b422317",
+    "motor/viewport.js": "6bb31dfa03692dfe06dfb877e0368f7a92798f87815e4c3ec8432865cbde3482",
+    "regras.js": "61bbf90393fea5d53a09e0df30c93c5ef978f979795f18f4f01b382e14a75a4c"
   }
 }
