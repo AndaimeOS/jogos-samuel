@@ -683,6 +683,454 @@
       ],
       "loop": false,
       "pe": "base"
+    },
+    "seixo-vivo": {
+      "arquivo": "inimigos/seixo-vivo.png",
+      "origem": "codigo",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 4,
+      "linhas": 1,
+      "duracoes": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "base"
+    },
+    "lobo-da-pedra": {
+      "arquivo": "inimigos/lobo-da-pedra.png",
+      "origem": "codigo",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 4,
+      "linhas": 8,
+      "duracoes": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "loop": true,
+      "pe": "base",
+      "espelhoDaDireita": true
+    },
+    "enxame": {
+      "arquivo": "inimigos/enxame.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 2,
+      "linhas": 1,
+      "duracoes": [
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "base"
+    },
+    "urso-da-caverna": {
+      "arquivo": "chefes/urso-da-caverna.png",
+      "origem": "codigo",
+      "frameW": 64,
+      "frameH": 64,
+      "colunas": 4,
+      "linhas": 8,
+      "duracoes": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "base",
+      "espelhoDaDireita": true
+    },
+    "guerreiro-de-bronze": {
+      "arquivo": "inimigos/guerreiro-de-bronze.png",
+      "origem": "codigo",
+      "frameW": 32,
+      "frameH": 48,
+      "colunas": 4,
+      "linhas": 8,
+      "duracoes": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "loop": true,
+      "pe": "base",
+      "espelhoDaDireita": true
+    },
+    "escorpiao": {
+      "arquivo": "inimigos/escorpiao.png",
+      "origem": "codigo",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 4,
+      "linhas": 8,
+      "duracoes": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "base",
+      "espelhoDaDireita": true
+    },
+    "golem-de-barro": {
+      "arquivo": "inimigos/golem-de-barro.png",
+      "origem": "codigo",
+      "frameW": 48,
+      "frameH": 48,
+      "colunas": 4,
+      "linhas": 4,
+      "duracoes": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "base",
+      "espelhoDaDireita": true
+    },
+    "sentinela-de-bronze": {
+      "arquivo": "chefes/sentinela-de-bronze.png",
+      "origem": "codigo",
+      "frameW": 48,
+      "frameH": 64,
+      "colunas": 4,
+      "linhas": 8,
+      "duracoes": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "base",
+      "espelhoDaDireita": true
+    },
+    "soldado-de-ferro": {
+      "arquivo": "inimigos/soldado-de-ferro.png",
+      "origem": "codigo",
+      "frameW": 32,
+      "frameH": 48,
+      "colunas": 4,
+      "linhas": 8,
+      "duracoes": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "loop": true,
+      "pe": "base",
+      "espelhoDaDireita": true
+    },
+    "catapulta": {
+      "arquivo": "inimigos/catapulta.png",
+      "origem": "codigo",
+      "frameW": 48,
+      "frameH": 32,
+      "colunas": 2,
+      "linhas": 4,
+      "duracoes": [
+        15,
+        15
+      ],
+      "loop": true,
+      "pe": "base",
+      "espelhoDaDireita": true
+    },
+    "lobo-de-ferro": {
+      "arquivo": "inimigos/lobo-de-ferro.png",
+      "origem": "codigo",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 4,
+      "linhas": 8,
+      "duracoes": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "loop": true,
+      "pe": "base",
+      "espelhoDaDireita": true
+    },
+    "colosso-de-ferro": {
+      "arquivo": "chefes/colosso-de-ferro.png",
+      "origem": "codigo",
+      "frameW": 64,
+      "frameH": 80,
+      "colunas": 4,
+      "linhas": 4,
+      "duracoes": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "base",
+      "espelhoDaDireita": true
+    },
+    "lasca": {
+      "arquivo": "ataques/lasca.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 2,
+      "linhas": 1,
+      "duracoes": [
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "base"
+    },
+    "lanca": {
+      "arquivo": "ataques/lanca.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "faisca": {
+      "arquivo": "ataques/faisca.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 4,
+      "linhas": 1,
+      "duracoes": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "loop": true,
+      "pe": "base"
+    },
+    "pedregulho": {
+      "arquivo": "ataques/pedregulho.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "telegraph": {
+      "arquivo": "ataques/telegraph.png",
+      "origem": "codigo",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 2,
+      "linhas": 1,
+      "duracoes": [
+        15,
+        15
+      ],
+      "loop": true,
+      "pe": "base"
+    },
+    "acerto": {
+      "arquivo": "efeitos/acerto.png",
+      "origem": "codigo",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 2,
+      "linhas": 1,
+      "duracoes": [
+        4,
+        4
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "morte": {
+      "arquivo": "efeitos/morte.png",
+      "origem": "codigo",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 4,
+      "linhas": 1,
+      "duracoes": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "xp-brilho": {
+      "arquivo": "efeitos/xp-brilho.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 2,
+      "linhas": 1,
+      "duracoes": [
+        8,
+        8
+      ],
+      "loop": true,
+      "pe": "base"
+    },
+    "levelup": {
+      "arquivo": "efeitos/levelup.png",
+      "origem": "codigo",
+      "frameW": 48,
+      "frameH": 48,
+      "colunas": 4,
+      "linhas": 1,
+      "duracoes": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "xp-1": {
+      "arquivo": "coleta/xp-1.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 2,
+      "linhas": 1,
+      "duracoes": [
+        15,
+        15
+      ],
+      "loop": true,
+      "pe": "base"
+    },
+    "xp-2": {
+      "arquivo": "coleta/xp-2.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 2,
+      "linhas": 1,
+      "duracoes": [
+        15,
+        15
+      ],
+      "loop": true,
+      "pe": "base"
+    },
+    "xp-3": {
+      "arquivo": "coleta/xp-3.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 2,
+      "linhas": 1,
+      "duracoes": [
+        15,
+        15
+      ],
+      "loop": true,
+      "pe": "base"
+    },
+    "icone-lasca": {
+      "arquivo": "ui/lasca.png",
+      "origem": "codigo",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "icone-lanca": {
+      "arquivo": "ui/lanca.png",
+      "origem": "codigo",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "icone-faisca": {
+      "arquivo": "ui/faisca.png",
+      "origem": "codigo",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "icone-fogueira-carta": {
+      "arquivo": "ui/fogueira-carta.png",
+      "origem": "codigo",
+      "frameW": 32,
+      "frameH": 32,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "icone-vida": {
+      "arquivo": "ui/vida.png",
+      "origem": "codigo",
+      "frameW": 16,
+      "frameH": 16,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
+    },
+    "carta-upgrade": {
+      "arquivo": "ui/carta-upgrade.png",
+      "origem": "codigo",
+      "frameW": 64,
+      "frameH": 80,
+      "colunas": 1,
+      "linhas": 1,
+      "duracoes": [
+        1
+      ],
+      "loop": false,
+      "pe": "base"
     }
   }
 }

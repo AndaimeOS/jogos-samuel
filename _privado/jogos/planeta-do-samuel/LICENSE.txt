@@ -1,12 +1,12 @@
 Planeta do Samuel — código original em JavaScript para o samuel.tech.
 Não é uma cópia do repositório isle-of-embers: nenhum arquivo de lá foi vendorizado.
 
-A apresentação da v0.2 reescreve, em JavaScript, trechos do motor do Pokémon Survivors
-(Copyright (c) 2026 Pedro Barretto, licença MIT), que está neste repositório em
-desenvolvimento/jogos/pokemon-survivors/. Entram só câmera, joystick, direção,
-pixel, sombra, ordenação, chão em cache e noite em pixel. Não entra arquivo de
-public/assets/, nem nome, sprite, grito ou criatura de Pokémon. O aviso MIT
-desse código está mais abaixo.
+A v0.2 reescreve, em JavaScript, trechos do Pokémon Survivors (Copyright (c) 2026
+Pedro Barretto, licença MIT), que está neste repositório em
+desenvolvimento/jogos/pokemon-survivors/. Entram a câmera, o joystick, a direção,
+o pixel, a sombra, o chão, a noite e o laço de batalha (ondas, XP, cartas e chefes).
+Não entra arquivo de public/assets/, nem nome, sprite, grito ou criatura de Pokémon.
+O aviso MIT desse código está mais abaixo.
 
 Referência de mecânicas (não de código, arte ou texto):
 Isle of Embers, Copyright (c) 2026 Jaineil Rana

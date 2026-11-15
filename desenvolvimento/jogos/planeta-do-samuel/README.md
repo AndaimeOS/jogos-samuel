@@ -1,13 +1,13 @@
 # Planeta do Samuel
 
-Proposta 0.1.0. O arquivo que roda é `_privado/jogos/planeta-do-samuel/index.html`.
-Os números ajustáveis ficam em `regras.js`, todos marcados como **PROPOSTA**.
+Proposta 0.2. O arquivo que roda é `_privado/jogos/planeta-do-samuel/index.html`.
+Os números ajustáveis ficam em `CONFIG`, dentro de `regras.js`, todos marcados como **PROPOSTA**.
 
-Vista de cima, em pixel, pensada para o tablet deitado. Três idades (Pedra, Bronze
-e Ferro) até acender o farol. Juntar, entregar nas estações (contador x/N) e
-pesquisar a idade seguinte. A noite só escurece. A fogueira aquece e ilumina.
-Fome e calor descem devagar. No Fácil não há derrota: no zero, o passo só fica lento.
-Setas apontam o próximo passo.
+Vista 3/4, em pixel, pensada para o tablet deitado. O ataque é automático.
+Três idades (Pedra, Bronze e Ferro), cada uma com horda e um chefe, até acender o farol.
+A gema de XP sobe o nível e abre 3 cartas. A noite em pixel duro é a era do Ferro.
+A fogueira, se escolhida, ilumina. No Fácil não há derrota: no zero da vida, o Samuel
+volta ao centro e não perde progresso.
 
 ## Testes
 

@@ -11,6 +11,17 @@ import { quadroCodigo } from './placeholders.js';
 export { manifesto };
 
 const ESPELHO = { 5: 3, 6: 2, 7: 1 };
+const MAPA4 = [0, 1, 1, 2, 2, 1, 1, 0];
+const ESPELHA4 = [false, false, false, false, false, true, true, true];
+
+function celulaDir(s, direcao) {
+  if (s.linhas <= 1) return { src: 0, espelhar: false };
+  const dir = ((direcao % 8) + 8) % 8;
+  if (s.origem === 'atlas') return { src: dir % s.linhas, espelhar: false };
+  if (s.linhas === 8 && s.espelhoDaDireita && ESPELHO[dir] !== undefined) return { src: ESPELHO[dir], espelhar: true };
+  if (s.linhas === 4 && s.espelhoDaDireita) return { src: MAPA4[dir], espelhar: ESPELHA4[dir] };
+  return { src: dir % s.linhas, espelhar: false };
+}
 const cache = new Map();
 let atlas = null;
 let atlasOk = false;
@@ -44,15 +55,7 @@ export const quandoAtlas = (fn) => aoPronto.push(fn);
 
 const usarAtlas = (s) => s.origem === 'atlas' && atlasOk && atlas;
 
-const canvasCodigo = (id, coluna, linha) => {
-  const s = manifesto.sprites[id];
-  let src = linha;
-  let espelhar = false;
-  if (s.espelhoDaDireita && ESPELHO[linha] !== undefined) {
-    src = ESPELHO[linha];
-    espelhar = true;
-  }
-  if (s.linhas <= 1) src = 0;
+const canvasCodigo = (id, coluna, src, espelhar) => {
   const chave = `${id}|${coluna}|${src}|${espelhar ? 1 : 0}`;
   let c = cache.get(chave);
   if (c) return c;
@@ -82,16 +85,15 @@ export const desenharSprite = (ctx, id, segundos, x, y, opts = {}) => {
   const coluna = opts.coluna != null
     ? ((opts.coluna % s.colunas) + s.colunas) % s.colunas
     : indiceQuadro(s.duracoes, segundos, !!s.loop);
-  let linha = s.linhas > 1 ? (opts.direcao ?? 0) : 0;
-  linha = ((linha % s.linhas) + s.linhas) % s.linhas;
+  const { src, espelhar } = celulaDir(s, opts.direcao ?? 0);
   const dx = Math.round(x - s.frameW / 2);
   const dy = Math.round(y - s.frameH);
   const alfa = opts.alfa ?? 1;
   if (alfa !== 1) ctx.globalAlpha = alfa;
   if (usarAtlas(s)) {
-    ctx.drawImage(atlas, s.x + coluna * s.frameW, s.y + linha * s.frameH, s.frameW, s.frameH, dx, dy, s.frameW, s.frameH);
+    ctx.drawImage(atlas, s.x + coluna * s.frameW, s.y + src * s.frameH, s.frameW, s.frameH, dx, dy, s.frameW, s.frameH);
   } else {
-    ctx.drawImage(canvasCodigo(id, coluna, linha), dx, dy);
+    ctx.drawImage(canvasCodigo(id, coluna, src, espelhar), dx, dy);
   }
   if (alfa !== 1) ctx.globalAlpha = 1;
 };

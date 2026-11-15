@@ -18,6 +18,12 @@ const ESPERADOS = [
   'casinha-obra', 'casinha-pronta', 'farol-0', 'farol-1', 'farol-2', 'farol-aceso',
   'icone-madeira', 'icone-pedra', 'icone-minerio', 'icone-fruta', 'icone-barra',
   'icone-fome', 'icone-calor', 'icone-dia', 'icone-noite', 'icone-seta',
+  'seixo-vivo', 'lobo-da-pedra', 'enxame', 'urso-da-caverna',
+  'guerreiro-de-bronze', 'escorpiao', 'golem-de-barro', 'sentinela-de-bronze',
+  'soldado-de-ferro', 'catapulta', 'lobo-de-ferro', 'colosso-de-ferro',
+  'lasca', 'lanca', 'faisca', 'pedregulho', 'telegraph',
+  'acerto', 'morte', 'xp-brilho', 'levelup', 'xp-1', 'xp-2', 'xp-3',
+  'icone-lasca', 'icone-lanca', 'icone-faisca', 'icone-fogueira-carta', 'icone-vida', 'carta-upgrade',
 ];
 
 describe('manifesto', () => {

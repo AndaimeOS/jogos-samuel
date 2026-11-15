@@ -51,8 +51,20 @@
     position: absolute; z-index: 3; left: 156px; right: 148px; bottom: 12px;
     display: flex; justify-content: center; gap: 8px;
   }
-  #barra button { min-width: 48px; background: #F5F2E8; padding: 6px 8px; gap: 4px; }
-  .icone { width: 16px; height: 16px; image-rendering: pixelated; flex: none; }
+  #armas { display: flex; gap: 6px; align-items: center; }
+  #armas canvas { width: 24px; height: 24px; image-rendering: pixelated; background: #F5F2E8; border: 2px solid #193337; }
+  #medChefe[hidden] { display: none !important; }
+  #levelup {
+    position: absolute; inset: 0; z-index: 6; display: flex; align-items: center; justify-content: center;
+    background: rgba(25, 51, 55, .45);
+  }
+  #levelup .painel { max-width: 860px; }
+  #cartas { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+  #cartas button {
+    min-width: 180px; min-height: 96px; max-width: 240px;
+    flex-direction: column; gap: 6px; background: #F5F2E8; text-align: center;
+  }
+  #cartas button span { font-weight: 700; font-size: 14px; }
   #titulo, #pausa {
     position: absolute; inset: 0; z-index: 5; display: flex; align-items: center; justify-content: center;
     background: rgba(25, 51, 55, .35);
@@ -74,10 +86,13 @@
   <canvas id="tela"></canvas>
   <header id="hud">
     <strong id="era">Idade da Pedra</strong>
-    <span id="relogio">Dia</span>
+    <span id="relogio">0:00</span>
     <span class="selo">PROPOSTA</span>
-    <div class="medidor" id="medFome"><span>Fome</span><i><b id="barraFome"></b></i></div>
-    <div class="medidor" id="medCalor"><span>Calor</span><i><b id="barraCalor"></b></i></div>
+    <strong id="nivel">Nível 1</strong>
+    <div class="medidor" id="medVida"><span>Vida</span><i><b id="barraVida"></b></i></div>
+    <div class="medidor" id="medXp"><span>XP</span><i><b id="barraXp"></b></i></div>
+    <div class="medidor" id="medChefe" hidden><span id="nomeChefe">Chefe</span><i><b id="barraChefe"></b></i></div>
+    <span id="armas"></span>
     <span class="empurra"></span>
     <button id="btnPausa" type="button" data-alvo>Pausa</button>
     <button id="btnTela" type="button" data-alvo aria-label="Tela cheia">Tela</button>
@@ -85,23 +100,12 @@
   <p id="aviso" role="status"></p>
   <p id="dica"></p>
   <div id="joystick" data-alvo aria-label="Joystick"><div id="knob"></div></div>
-  <div id="acoes">
-    <button id="btnInteragir" type="button" data-alvo>Interagir</button>
-    <button id="btnComer" type="button" data-alvo>Comer</button>
-  </div>
-  <div id="barra">
-    <button type="button" data-alvo data-item="madeira" id="chip-madeira"><canvas class="icone" width="16" height="16" data-icone="icone-madeira"></canvas><span>Madeira 0</span></button>
-    <button type="button" data-alvo data-item="pedra" id="chip-pedra"><canvas class="icone" width="16" height="16" data-icone="icone-pedra"></canvas><span>Pedra 0</span></button>
-    <button type="button" data-alvo data-item="minerio" id="chip-minerio"><canvas class="icone" width="16" height="16" data-icone="icone-minerio"></canvas><span>Minério 0</span></button>
-    <button type="button" data-alvo data-item="fruta" id="chip-fruta"><canvas class="icone" width="16" height="16" data-icone="icone-fruta"></canvas><span>Fruta 0</span></button>
-    <button type="button" data-alvo data-item="barra" id="chip-barra"><canvas class="icone" width="16" height="16" data-icone="icone-barra"></canvas><span>Barra 0</span></button>
-  </div>
   <div id="titulo">
     <div class="painel">
       <p class="selo">PROPOSTA</p>
       <h1>Planeta do Samuel</h1>
-      <p>Ande pelo planetinha, junte madeira, pedra, minério e fruta, e acenda o farol. Os números desta versão são provisórios.</p>
-      <p>No Fácil ninguém perde: se a fome ou o calor zeram, o passo só fica mais lento.</p>
+      <p>Ande, deixe as armas baterem sozinhas e escolha um upgrade quando o nível subir. Três idades, três chefes, e o farol no fim.</p>
+      <p>No Fácil ninguém perde: se a vida zera, você volta ao centro e não perde o progresso. Os números são provisórios.</p>
       <div class="botoes">
         <button id="btnContinuar" type="button" data-alvo hidden>Continuar</button>
         <button id="btnComecar" type="button" data-alvo>Começar</button>
@@ -118,6 +122,13 @@
         <button id="btnDeNovo" type="button" data-alvo>Começar de novo</button>
         <a class="btn" id="btnVoltar" href="/jogos/" target="_top" data-alvo>← Voltar aos jogos</a>
       </div>
+    </div>
+  </div>
+  <div id="levelup" hidden>
+    <div class="painel">
+      <p class="selo">PROPOSTA</p>
+      <h1>Subiu de nível</h1>
+      <div class="botoes" id="cartas"></div>
     </div>
   </div>
 </div>

@@ -410,6 +410,81 @@ function icone(id, spec) {
   return contornar(p);
 }
 
+const COMBATE = {
+  'seixo-vivo': ['#8D98A0', '#C5CED4', 'bola'],
+  'lobo-da-pedra': ['#8A5A32', '#C9854A', 'bicho'],
+  enxame: ['#3A4248', '#C5CED4', 'ponto'],
+  'urso-da-caverna': ['#6A4A32', '#C9854A', 'bicho'],
+  'guerreiro-de-bronze': ['#C4A060', '#E6D3A1', 'pessoa'],
+  escorpiao: ['#8A5A32', '#FF9D52', 'bicho'],
+  'golem-de-barro': ['#8A7048', '#C4A060', 'bloco'],
+  'sentinela-de-bronze': ['#C4A060', '#F5F2E8', 'pessoa'],
+  'soldado-de-ferro': ['#6E7C88', '#C5CED4', 'pessoa'],
+  catapulta: ['#8A5A32', '#8D98A0', 'bloco'],
+  'lobo-de-ferro': ['#6E7C88', '#C5CED4', 'bicho'],
+  'colosso-de-ferro': ['#5A646C', '#C5CED4', 'bloco'],
+  lasca: ['#8D98A0', '#F5F2E8', 'bola'],
+  lanca: ['#C4A060', '#F5F2E8', 'traco'],
+  faisca: ['#FF9D52', '#F2D15A', 'ponto'],
+  pedregulho: ['#6E7C88', '#C5CED4', 'bola'],
+  telegraph: ['#FF9D52', '#F2D15A', 'anel'],
+  acerto: ['#F5F2E8', '#FF9D52', 'ponto'],
+  morte: ['#8D98A0', '#F5F2E8', 'ponto'],
+  'xp-brilho': ['#F2D15A', '#F5F2E8', 'ponto'],
+  levelup: ['#F2D15A', '#FF9D52', 'anel'],
+  'xp-1': ['#B9ED80', '#F5F2E8', 'bola'],
+  'xp-2': ['#F2D15A', '#F5F2E8', 'bola'],
+  'xp-3': ['#FF9D52', '#F5F2E8', 'bola'],
+  'icone-lasca': ['#8D98A0', '#F5F2E8', 'bola'],
+  'icone-lanca': ['#C4A060', '#F5F2E8', 'traco'],
+  'icone-faisca': ['#FF9D52', '#F2D15A', 'ponto'],
+  'icone-fogueira-carta': ['#FF9D52', '#F2D15A', 'ponto'],
+  'icone-vida': ['#E2544A', '#F5F2E8', 'bola'],
+  'carta-upgrade': ['#F5F2E8', '#FF9D52', 'carta'],
+};
+
+function combate(spec, coluna, linha, pal) {
+  const [cor, claro, forma] = pal;
+  const p = folha(spec.frameW, spec.frameH);
+  const cx = (spec.frameW >> 1) + ((linha % 3) - 1);
+  const pe = spec.frameH - 2;
+  const bob = (coluna % 2) ? -1 : 0;
+  if (forma === 'bola') {
+    p.elipse(cx, pe - 8 + bob, Math.max(3, (spec.frameW >> 1) - 4), Math.max(3, (spec.frameH >> 1) - 4), cor);
+    p.ret(cx - 3, pe - 12 + bob, 3, 2, claro);
+  } else if (forma === 'bicho') {
+    p.elipse(cx, pe - 8 + bob, Math.max(5, spec.frameW / 3), 6, cor);
+    p.elipse(cx + 6, pe - 14 + bob, 4, 4, cor);
+    p.ret(cx + 7, pe - 13 + bob, 2, 2, '#193337');
+    p.ret(cx - 4, pe - 3, 3, 3, claro);
+  } else if (forma === 'pessoa') {
+    p.ret(cx - 4, pe - 16 + bob, 4, 10, '#1F6F78');
+    p.ret(cx + 1, pe - 16 + bob, 4, 10, '#1F6F78');
+    p.ret(cx - 6, pe - 28 + bob, 12, 12, cor);
+    p.ret(cx - 4, pe - 36 + bob, 8, 8, '#F3C7A0');
+    p.ret(cx - 4, pe - 38 + bob, 8, 3, '#4A3428');
+  } else if (forma === 'bloco') {
+    p.ret(4, pe - spec.frameH + 10 + bob, spec.frameW - 8, spec.frameH - 14, cor);
+    p.ret(6, pe - spec.frameH + 12 + bob, 6, 4, claro);
+  } else if (forma === 'traco') {
+    p.ret(2, (spec.frameH >> 1) - 1, spec.frameW - 4, 3, cor);
+    p.ret(spec.frameW - 6, (spec.frameH >> 1) - 3, 4, 7, claro);
+  } else if (forma === 'anel') {
+    p.elipse(cx, spec.frameH >> 1, (spec.frameW >> 1) - 2, (spec.frameH >> 1) - 2, cor);
+    p.elipse(cx, spec.frameH >> 1, (spec.frameW >> 1) - 6, (spec.frameH >> 1) - 6, '#000000');
+    const data = p.data;
+    for (let i = 0; i < data.length; i += 4) if (data[i] === 0 && data[i + 1] === 0 && data[i + 2] === 0) data[i + 3] = 0;
+  } else if (forma === 'carta') {
+    p.ret(6, 6, spec.frameW - 12, spec.frameH - 12, cor);
+    p.ret(6, 6, spec.frameW - 12, 8, claro);
+  } else {
+    p.ret(cx - 2, pe - 8 + bob, 4, 4, cor);
+    p.put(cx, pe - 12 + bob, claro);
+  }
+  if (forma === 'anel') return { w: p.w, h: p.h, data: p.data };
+  return contornar(p);
+}
+
 function pintar(id, spec, coluna, linha) {
   if (id === 'samuel-andar') return samuel(spec, coluna, linha, false);
   if (id === 'samuel-parado') return samuel(spec, coluna, linha, true);
@@ -443,6 +518,7 @@ function pintar(id, spec, coluna, linha) {
   if (id === 'farol-1') return farol(spec, 1, coluna);
   if (id === 'farol-2') return farol(spec, 2, coluna);
   if (id === 'farol-aceso') return farol(spec, 3, coluna);
+  if (COMBATE[id]) return combate(spec, coluna, linha, COMBATE[id]);
   if (id.startsWith('icone-')) return icone(id, spec);
   throw new Error('sem placeholder: ' + id);
 }

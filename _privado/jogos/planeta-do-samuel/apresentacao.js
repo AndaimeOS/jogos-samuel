@@ -1,24 +1,26 @@
-/* Apresentação da v0.2. As regras ficam em regras.js.
-   Câmera, stick, direção, pixel, sombra, ordenação, chão e noite vêm dos
-   módulos em motor/, reescritos do Pokémon Survivors (MIT, Pedro Barretto). */
+/* Apresentação da v0.2: horda, XP, cartas e chefes.
+   Câmera, stick, direção, pixel, sombra, chão e noite já reescritos do MIT. */
 
 import {
-  CONFIG, ERAS, ESTACOES, PROPOSTA, TEXTOS,
-  colher, comer, contador, criarPartida, entregar, escuridao, estacaoPorId, estacaoPronta,
-  fatorVelocidade, faltando, fundir, interagir, juntar, proximoPasso, restaurar, serializar, tick,
+  CONFIG, ERAS, PROPOSTA, TEXTOS,
+  escolherCarta, escuridao, ganharXp, orbesLasca, receberDano, restaurar, serializar, tick, criarPartida,
 } from './regras.js';
-import { dir8 } from './motor/math.js';
-import { agarreDesceu, agarreMoveu, agarreSoltou, joystickFixo } from './motor/joystick.js';
+import { agarreDesceu, agarreMoveu, agarreSoltou } from './motor/joystick.js';
 import { sombra } from './motor/pixelart.js';
 import { escolherVista, vistaQueCabe } from './motor/viewport.js';
 import { desenharNoite } from './motor/noite.js';
 import { desenharChao, limparChao } from './motor/chao.js';
 import {
-  alturaSprite, desenharSprite, larguraSprite, ligarAtlas, manifesto, quandoAtlas,
+  desenharSprite, ligarAtlas, manifesto, quandoAtlas,
 } from './motor/sprites.js';
 import { quadroCodigo } from './motor/placeholders.js';
 
 const MAR = { pedra: '#1E6E94', bronze: '#2A6858', ferro: '#163848' };
+const NOMES_CHEFE = {
+  'urso-da-caverna': 'Urso da caverna',
+  'sentinela-de-bronze': 'Sentinela de bronze',
+  'colosso-de-ferro': 'Colosso de ferro',
+};
 const tela = document.getElementById('tela');
 const ctx = tela.getContext('2d');
 ctx.imageSmoothingEnabled = false;
@@ -32,54 +34,13 @@ let relogio = 0;
 let eixoJoy = { x: 0, y: 0 };
 let joyAtivo = false;
 let agarre = null;
-let direcao = 0;
 let vista = { w: 320, h: 240, cssScale: 3 };
+let cartasChave = '';
 const teclas = {};
-let avisoAte = 0;
-
-const MOTIVOS = {
-  'sem-item': 'Falta material para o próximo passo. PROPOSTA.',
-  'precisa-machado': 'Isso pede o machado de pedra. PROPOSTA.',
-  'era-cedo': 'Ainda não é a idade dessa estação. PROPOSTA.',
-  'precisa-passo': 'Falta um passo antes deste. PROPOSTA.',
-  'sem-fruta': 'Você não tem fruta. PROPOSTA.',
-  'sem-minerio': 'A fornalha precisa de minério. PROPOSTA.',
-  vazio: 'Aqui não tem mais nada agora. PROPOSTA.',
-  longe: 'Chegue mais perto. PROPOSTA.',
-  pronto: 'Isso já está pronto. PROPOSTA.',
-};
-
-const EFEITOS = {
-  machado: 'Machado de pedra pronto. PROPOSTA.',
-  fogueira: 'A fogueira acendeu. Ela aquece e ilumina. PROPOSTA.',
-  'era:bronze': 'Idade do Bronze. PROPOSTA.',
-  bancada: 'A bancada está pronta. PROPOSTA.',
-  fornalha: 'A fornalha está pronta. PROPOSTA.',
-  canteiro: 'O canteiro está pronto. PROPOSTA.',
-  'era:ferro': 'Idade do Ferro. PROPOSTA.',
-  ferro: 'Ferramentas de ferro prontas. PROPOSTA.',
-  casa: 'A casinha está de pé. PROPOSTA.',
-  farol: TEXTOS.fim,
-};
-
-const NOMES = { madeira: 'Madeira', pedra: 'Pedra', minerio: 'Minério', fruta: 'Fruta', barra: 'Barra' };
 
 function salvar() {
   estado.desdeSave = 0;
   try { localStorage.setItem(CONFIG.chaveSave, JSON.stringify(serializar(estado))); } catch { /* o aparelho pode recusar */ }
-}
-
-function dizer(texto) {
-  avisoAte = relogio + 3.2;
-  document.getElementById('aviso').textContent = texto || '';
-}
-
-function resultado(r) {
-  if (!r) return;
-  if (r.ok && r.efeito && EFEITOS[r.efeito]) dizer(EFEITOS[r.efeito]);
-  else if (r.ok && r.item) dizer(`${r.item}: +${r.ganho || 1}. PROPOSTA.`);
-  else if (!r.ok && MOTIVOS[r.motivo]) dizer(MOTIVOS[r.motivo]);
-  if (r.ok) salvar();
 }
 
 function eixoAtual() {
@@ -121,165 +82,142 @@ function camera() {
   return { x: Math.round(x), y: Math.round(y), w: vista.w, h: vista.h };
 }
 
-function idNo(no) {
-  if (no.tipo === 'arvore') return no.restante > 0 ? 'arvore' : 'toco';
-  if (no.tipo === 'veio') return no.restante > 0 ? 'veio' : 'veio-vazio';
-  if (no.tipo === 'fruta') return no.restante > 0 ? 'arbusto' : 'arbusto-vazio';
-  if (no.restante <= 0) return null;
-  if (no.tipo === 'graveto') return 'graveto';
-  if (no.tipo === 'seixo') return 'seixo';
-  if (no.tipo === 'rocha') return 'rocha';
-  return null;
-}
-
-function idEstacao(est) {
-  const pronto = estacaoPronta(estado, est.id);
-  if (est.id === 'fogueira') return pronto ? 'fogueira-acesa' : 'fogueira-apagada';
-  if (est.id === 'fornalha') return pronto ? 'fornalha-acesa' : 'fornalha-fria';
-  if (est.id === 'casinha') return pronto ? 'casinha-pronta' : 'casinha-obra';
-  if (est.id === 'farol') {
-    if (estado.efeitos.farol) return 'farol-aceso';
-    const n = estado.progresso.farol || 0;
-    if (n >= 2) return 'farol-2';
-    if (n >= 1) return 'farol-1';
-    return 'farol-0';
-  }
-  if (est.id === 'pesquisaBronze') return 'pesquisa-bronze';
-  if (est.id === 'pesquisaFerro') return 'pesquisa-ferro';
-  return est.id;
-}
-
-function colunaEstacao(est) {
-  if (est.id === 'canteiro') {
-    return estacaoPronta(estado, 'canteiro') ? Math.min(4, Math.floor(estado.canteiroFruta)) : 0;
-  }
-  return undefined;
-}
-
 function corpo(id, x, y, opts) {
-  sombra(ctx, x, y, larguraSprite(id));
+  sombra(ctx, x, y, manifesto.sprites[id]?.frameW || 16);
   desenharSprite(ctx, id, relogio, x, y, opts);
 }
 
 function desenharFeixe() {
-  if (!estado.efeitos.farol) return;
-  const p = estado.postos.farol;
+  if (!estado.farol) return;
+  const p = estado.farolPos;
   const ang = Math.sin(relogio * 0.4) * 0.5;
-  const ox = p.x;
-  const oy = p.y - 70;
   const co = Math.cos(ang);
   const si = Math.sin(ang);
   ctx.fillStyle = 'rgba(242, 209, 90, 0.55)';
   for (let t = 0; t < 72; t += 2) {
     const largura = 1 + Math.floor(t / 16);
     for (let w = -largura; w <= largura; w++) {
-      ctx.fillRect(Math.round(ox + co * t - si * w), Math.round(oy + si * t + co * w), 1, 1);
+      ctx.fillRect(Math.round(p.x + co * t - si * w), Math.round(p.y - 70 + si * t + co * w), 1, 1);
     }
   }
-}
-
-function rotulo(x, y, texto) {
-  ctx.font = '900 8px Courier New, monospace';
-  const w = Math.ceil(ctx.measureText(texto).width) + 6;
-  const left = Math.round(x - w / 2);
-  const top = Math.round(y);
-  ctx.fillStyle = TINTA_CAIXA;
-  ctx.fillRect(left - 1, top - 1, w + 2, 12);
-  ctx.fillStyle = '#F5F2E8';
-  ctx.fillRect(left, top, w, 10);
-  ctx.fillStyle = '#193337';
-  ctx.fillText(texto, left + 3, top + 8);
-}
-const TINTA_CAIXA = '#193337';
-
-function desenharSeta(cam) {
-  const passo = proximoPasso(estado);
-  const dx = passo.x - estado.x;
-  const dy = passo.y - estado.y;
-  const len = Math.hypot(dx, dy);
-  if (len < 18) return;
-  const ux = dx / len;
-  const uy = dy / len;
-  const ox = estado.x - cam.x + ux * 22;
-  const oy = estado.y - cam.y + uy * 18;
-  ctx.fillStyle = '#FF9D52';
-  for (let t = -6; t <= 8; t++) {
-    const largura = t > 2 ? Math.max(0, 5 - (t - 2)) : 1;
-    for (let w = -largura; w <= largura; w++) {
-      ctx.fillRect(Math.round(ox + ux * t - uy * w), Math.round(oy + uy * t + ux * w), 1, 1);
-    }
-  }
-  ctx.fillStyle = '#193337';
-  ctx.fillRect(Math.round(ox + ux * 8), Math.round(oy + uy * 8), 1, 1);
 }
 
 function desenhar() {
   ajustarTela();
   const cam = camera();
   const eixo = eixoAtual();
-  if (Math.hypot(eixo.x, eixo.y) > 0.1) direcao = dir8(eixo.x, eixo.y);
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.fillStyle = MAR[estado.era] || MAR.pedra;
   ctx.fillRect(0, 0, cam.w, cam.h);
   desenharChao(ctx, estado, cam, relogio);
-
   ctx.save();
   ctx.translate(-cam.x, -cam.y);
+  for (const z of estado.zonas) {
+    desenharSprite(ctx, 'telegraph', relogio, z.x, z.y, { alfa: 0.85 });
+  }
   const fila = [];
   const por = (y, desenha) => fila.push({ y, i: fila.length, desenha });
-  for (const no of estado.nos) {
-    const id = idNo(no);
-    if (!id) continue;
-    por(no.y, () => corpo(id, no.x, no.y));
-  }
-  for (const est of ESTACOES) {
-    const p = estado.postos[est.id];
-    const id = idEstacao(est);
-    const pronto = estacaoPronta(estado, est.id);
-    const aberto = pronto || ERAS[estado.era].ordem >= ERAS[est.precisaEra].ordem;
-    const coluna = colunaEstacao(est);
-    por(p.y, () => corpo(id, p.x, p.y, { alfa: aberto ? 1 : 0.4, coluna }));
-  }
+  por(estado.farolPos.y, () => corpo(estado.farol ? 'farol-aceso' : 'farol-0', estado.farolPos.x, estado.farolPos.y));
   por(184, () => corpo('cao-parado', 270, 184));
-  const andando = Math.hypot(eixo.x, eixo.y) > 0.1 && !pausado;
-  por(estado.y, () => corpo(andando ? 'samuel-andar' : 'samuel-parado', estado.x, estado.y, { direcao }));
+  for (const g of estado.gemas) por(g.y, () => desenharSprite(ctx, g.sprite, relogio, g.x, g.y));
+  for (const inimigo of estado.inimigos) {
+    por(inimigo.y, () => corpo(inimigo.sprite, inimigo.x, inimigo.y, { direcao: inimigo.direcao }));
+  }
+  if (estado.chefe) {
+    const chefe = estado.chefe;
+    por(chefe.y, () => corpo(chefe.sprite, chefe.x, chefe.y, { direcao: chefe.direcao }));
+  }
+  const andando = Math.hypot(eixo.x, eixo.y) > 0.1 && !pausado && !estado.pausa;
+  por(estado.y, () => corpo(andando ? 'samuel-andar' : 'samuel-parado', estado.x, estado.y, {
+    direcao: estado.direcao || 0,
+    alfa: estado.invulneravel > 0 && Math.floor(relogio * 8) % 2 ? 0.45 : 1,
+  }));
   fila.sort((a, b) => a.y - b.y || a.i - b.i);
   for (const item of fila) item.desenha();
+  for (const orbe of orbesLasca(estado)) desenharSprite(ctx, 'lasca', relogio, orbe.x, orbe.y);
+  if (estado.armas.faisca || estado.fogueira) {
+    desenharSprite(ctx, 'faisca', relogio, estado.x, estado.y + 6, { alfa: 0.8 });
+  }
+  for (const p of estado.projeteis) desenharSprite(ctx, p.sprite, relogio, p.x, p.y, { direcao: p.direcao });
+  for (const fx of estado.efeitos) desenharSprite(ctx, fx.tipo === 'acerto' ? 'acerto' : fx.tipo === 'morte' ? 'morte' : 'levelup', fx.idade, fx.x, fx.y);
   desenharFeixe();
   ctx.restore();
-
   const luzes = [];
-  if (estado.efeitos.fogueira) luzes.push({ x: estado.postos.fogueira.x, y: estado.postos.fogueira.y, raio: CONFIG.raioFogueira });
-  if (estado.efeitos.casa) luzes.push({ x: estado.postos.casinha.x, y: estado.postos.casinha.y, raio: CONFIG.raioCasa });
-  if (estado.efeitos.farol) luzes.push({ x: estado.postos.farol.x, y: estado.postos.farol.y - 40, raio: CONFIG.raioFarol });
-  desenharNoite(ctx, cam, escuridao(estado.hora), luzes);
+  if (estado.fogueira) luzes.push({ x: estado.x, y: estado.y, raio: CONFIG.raioFogueira });
+  if (estado.farol) luzes.push({ x: estado.farolPos.x, y: estado.farolPos.y - 40, raio: CONFIG.raioFarol });
+  desenharNoite(ctx, cam, escuridao(estado), luzes);
+}
 
-  ctx.save();
-  ctx.translate(-cam.x, -cam.y);
-  for (const est of ESTACOES) {
-    const p = estado.postos[est.id];
-    rotulo(p.x, p.y - alturaSprite(idEstacao(est)) - 4, contador(estado, est.id).texto);
-  }
-  ctx.restore();
-  desenharSeta(cam);
+function relogioTexto(seg) {
+  const s = Math.max(0, Math.floor(seg));
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 }
 
 function atualizarHud() {
   document.getElementById('era').textContent = ERAS[estado.era].nome;
-  const esc = escuridao(estado.hora);
-  document.getElementById('relogio').textContent = esc > 0.2 ? 'Noite' : (estado.hora < CONFIG.noiteInicio ? 'Dia' : 'Entardecer');
-  document.getElementById('barraFome').style.width = `${estado.fome}%`;
-  document.getElementById('barraCalor').style.width = `${estado.calor}%`;
-  for (const item of Object.keys(NOMES)) {
-    const el = document.getElementById('chip-' + item);
-    el.querySelector('span').textContent = `${NOMES[item]} ${estado.inventario[item]}`;
+  document.getElementById('relogio').textContent = relogioTexto(estado.tempo);
+  document.getElementById('nivel').textContent = `Nível ${estado.nivel}`;
+  document.getElementById('barraVida').style.width = `${Math.max(0, Math.round(100 * estado.vida / estado.vidaMax))}%`;
+  document.getElementById('barraXp').style.width = `${Math.max(0, Math.min(100, Math.round(100 * estado.xp / estado.xpProx)))}%`;
+  const chefe = document.getElementById('medChefe');
+  if (estado.chefe) {
+    chefe.hidden = false;
+    document.getElementById('nomeChefe').textContent = NOMES_CHEFE[estado.chefe.tipo] || 'Chefe';
+    document.getElementById('barraChefe').style.width = `${Math.max(0, Math.round(100 * estado.chefe.hp / estado.chefe.hpMax))}%`;
+  } else chefe.hidden = true;
+  document.getElementById('dica').textContent = estado.vitoria ? TEXTOS.dica.farol : TEXTOS.dica[estado.era];
+  const armas = document.getElementById('armas');
+  const ids = ['lasca', 'lanca', 'faisca'].filter((id) => estado.armas[id]);
+  if (estado.fogueira) ids.push('fogueira');
+  if (armas.dataset.ids !== ids.join()) {
+    armas.dataset.ids = ids.join();
+    armas.replaceChildren();
+    for (const id of ids) {
+      const icon = id === 'fogueira' ? 'icone-fogueira-carta' : `icone-${id}`;
+      const buf = quadroCodigo(icon, 0, 0);
+      const c = document.createElement('canvas');
+      c.width = buf.w;
+      c.height = buf.h;
+      const g = c.getContext('2d');
+      g.imageSmoothingEnabled = false;
+      const img = g.createImageData(buf.w, buf.h);
+      img.data.set(buf.data);
+      g.putImageData(img, 0, 0);
+      armas.appendChild(c);
+    }
   }
-  const passo = proximoPasso(estado);
-  let extra = '';
-  if (estado.fome <= 0) extra = 'A fome zerou: você só anda mais devagar. PROPOSTA. ';
-  else if (estado.calor <= 0) extra = 'O calor zerou: você só anda mais devagar. PROPOSTA. ';
-  document.getElementById('dica').textContent = extra + passo.texto;
-  if (relogio > avisoAte) document.getElementById('aviso').textContent = '';
+  mostrarCartas();
+}
+
+function mostrarCartas() {
+  const caixa = document.getElementById('levelup');
+  const lista = document.getElementById('cartas');
+  if (!estado.pausa) {
+    caixa.hidden = true;
+    cartasChave = '';
+    return;
+  }
+  caixa.hidden = false;
+  const chave = `${estado.nivel}:${estado.niveisPendentes}:${estado.cartas.map((c) => c.id).join('|')}`;
+  if (cartasChave === chave) return;
+  cartasChave = chave;
+  const aberto = performance.now();
+  lista.replaceChildren();
+  estado.cartas.forEach((c, i) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.id = `carta-${i}`;
+    b.dataset.alvo = 'carta';
+    b.innerHTML = `<strong>${c.nome}</strong><span>${c.texto}</span>`;
+    b.addEventListener('click', () => {
+      if (performance.now() - aberto < CONFIG.guardaToqueMs) return;
+      escolherCarta(estado, i);
+      cartasChave = '';
+      salvar();
+      mostrarCartas();
+    });
+    lista.appendChild(b);
+  });
 }
 
 function frame(t) {
@@ -345,15 +283,6 @@ zona.addEventListener('touchmove', (e) => {
 zona.addEventListener('touchend', soltarJoy);
 zona.addEventListener('touchcancel', soltarJoy);
 
-document.getElementById('btnInteragir').addEventListener('click', () => resultado(interagir(estado)));
-document.getElementById('btnComer').addEventListener('click', () => resultado(comer(estado)));
-document.getElementById('chip-fruta').addEventListener('click', () => resultado(comer(estado)));
-for (const item of ['madeira', 'pedra', 'minerio', 'barra']) {
-  document.getElementById('chip-' + item).addEventListener('click', () => {
-    dizer(`${NOMES[item]}: ${estado.inventario[item]}. PROPOSTA.`);
-  });
-}
-
 function emJogo() {
   return document.getElementById('titulo').hidden;
 }
@@ -378,9 +307,10 @@ document.getElementById('btnTela').addEventListener('click', () => {
 
 addEventListener('keydown', (e) => {
   teclas[e.code] = true;
-  if (e.code === 'KeyE') resultado(interagir(estado));
-  if (e.code === 'KeyF') resultado(comer(estado));
   if (e.code === 'KeyP' || e.code === 'Escape') abrirPausa(e.code === 'Escape' ? true : !pausado);
+  if (e.code === 'Digit1') escolherCarta(estado, 0);
+  if (e.code === 'Digit2') escolherCarta(estado, 1);
+  if (e.code === 'Digit3') escolherCarta(estado, 2);
 });
 addEventListener('keyup', (e) => { teclas[e.code] = false; });
 document.addEventListener('visibilitychange', () => { if (document.hidden) abrirPausa(true); });
@@ -409,6 +339,8 @@ function comecar(novo) {
   }
   document.getElementById('titulo').hidden = true;
   document.getElementById('pausa').hidden = true;
+  document.getElementById('levelup').hidden = true;
+  cartasChave = '';
   pausado = false;
   ultimo = 0;
   soltarJoy();
@@ -418,26 +350,13 @@ function comecar(novo) {
 document.getElementById('btnComecar').addEventListener('click', () => comecar(true));
 document.getElementById('btnContinuar').addEventListener('click', () => comecar(false));
 atualizarContinuar();
-
-for (const el of document.querySelectorAll('canvas.icone')) {
-  const buf = quadroCodigo(el.dataset.icone, 0, 0);
-  el.width = buf.w;
-  el.height = buf.h;
-  const g = el.getContext('2d');
-  g.imageSmoothingEnabled = false;
-  const img = g.createImageData(buf.w, buf.h);
-  img.data.set(buf.data);
-  g.putImageData(img, 0, 0);
-}
-
 quandoAtlas(limparChao);
 ligarAtlas();
 
 window.__planeta = {
-  CONFIG, PROPOSTA, TEXTOS, ERAS, ESTACOES, manifesto,
+  CONFIG, PROPOSTA, TEXTOS, ERAS, manifesto,
   get estado() { return estado; },
-  tick, interagir, comer, juntar, entregar, fundir, colher, contador, proximoPasso,
-  serializar, restaurar, escuridao, fatorVelocidade, faltando, estacaoPronta, estacaoPorId,
+  tick, ganharXp, escolherCarta, receberDano, serializar, restaurar, escuridao,
   salvar, comecar, quadroCodigo,
   saveUtil,
   idsSprites() { return Object.keys(manifesto.sprites); },
