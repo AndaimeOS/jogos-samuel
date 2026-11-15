@@ -3,6 +3,13 @@
 Atualizado ao fim de cada sessão (ST-090). Um bloco por sessão, o mais novo em cima.
 Vale o que está aqui e no Notion, não a memória do chat.
 
+## 2026-11-15 — Cache dos assets do portal (v=8)
+
+- **Pedido:** a correção do Pebolim no iPad (PR #9, `db39790`) mudou `assets/js/site.js` e `assets/css/samuel.css`, mas as páginas ainda pediam `?v=7`. O `/assets` fica 7 dias em cache, então um iPad que já abriu o site pode continuar com a versão velha.
+- **Feito:** `?v=7` passou a `?v=8` no layout compartilhado (`_app/layout.php`), que é o cabeçalho e o rodapé da home, `/jogos/`, `/jogar/` e do resto do PHP. Não há constante central de versão; os dois links são o único lugar. Desde o `v=7` (`9d1d7de`) os únicos assets compartilhados alterados foram esses dois. As capas novas em `assets/img/` foram arquivos novos, sem `?v=`. `verificar_jogo.py`, `empacotar.sh` e `conferir_producao.py` não conferem essa versão.
+- **Não feito:** publicar no samuel.tech.
+- **NEXT:** o Boaz publica. Sem o `?v=8` no ar, o iPad antigo segue com o Pebolim quebrado.
+
 ## 2026-11-15 — Pebolim no iPad (WebKit)
 
 - **Pedido do Boaz (15/11 09:56 BRT):** o Pebolim não funciona no iPad; investigar e corrigir. O Samuel joga no Safari/WebKit. Deploy desta sessão não é daqui: só o merge na `main`.
