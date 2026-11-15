@@ -7,10 +7,10 @@ Vale o que está aqui e no Notion, não a memória do chat.
 
 - **Pedido:** no iPad em pé a faixa "A bola voltou para o meio!" fica mais larga que a mesa e é cortada. Tirar VERMELHO/AZUL de baixo das hastes. Branch `fix/pebolim-faixa-ipad`, PR rascunho. Sem merge e sem publicar.
 - **Feito:** a faixa usa a largura da mesa, quebra a linha e a fonte fica no máximo em 46 px, nos dois sentidos. Saíram da mesa as palavras VERMELHO, AZUL, você e computador (as duas últimas também passavam por baixo da haste). O aviso de deitar o tablet desce para baixo do placar e cabe na tela. Catálogo e manifesto em `0.1.2`. Código em `cceefb7`.
-- **Testes:** `npm test` do Pebolim 35/35 (inclui WebKit, iPad gen 7, só toque, 1024×768 e 768×1024, direto e no iframe). `verificar_jogo.py --todos` ok.
-- **Aprovação:** Boaz, 15/11 11:22 BRT: "Sim, publica os ajustes do Pebolim". Isso autoriza o merge. A branch foi atualizada com a main `78c592d` (`?v=8`). O deploy continua fora daqui.
+- **Testes de novo, já com a main `78c592d`:** Pebolim `npm test` 35/35 (WebKit/iPad incluso). Planeta 24/24, Minigolfe 53/53, Reino 18/18, Corrida do Jack 19/19, Ilha cliente 12/12, Ilha servidor `cargo test` 6/6, Pokémon Survivors 1941 passaram (59 pulados). `verificar_jogo.py --todos` ok.
+- **Aprovação:** Boaz, 15/11 11:22 BRT: "Sim, publica os ajustes do Pebolim". Isso autoriza o merge. O deploy continua fora daqui.
 - **Notion:** esta sessão não veio de um card da fila; o hub não foi atualizado.
-- **NEXT:** merge na main depois dos testes nesta base. Publicar fica com o Boaz.
+- **NEXT:** o Boaz publica. Este agente não faz o deploy.
 
 ## 2026-11-15 — Cache dos assets do portal (v=8)
 
