@@ -277,4 +277,51 @@ describe('contas do motor', () => {
     while (normalBarco.perigoAtual && normalBarco.perigoAtual.raio && normalBarco.perigoAtual.raio.fase === 'pisca') passo(normalBarco)
     expect(normalBarco.jogador.hp).toBe(100)
   })
+
+  it('mira o mais perto, o chefe tem prioridade e o golpe vai nele', () => {
+    for (const g of [...conteudoPlaneta.golpes, ...conteudoPescador.golpes]) {
+      expect(g.tipo).not.toBe('orbita')
+      expect(g.tipo).not.toBe('aura')
+    }
+    expect(conteudoPlaneta.inicial).toBe('funda')
+    expect(conteudoPescador.inicial).toBe('arpao')
+    const parado = { x: 0, y: 0, acao: false, acaoSegurada: false }
+    const p = criarPartida(conteudoPlaneta, { fase: 0, seed: 2, modo: 'facil' })
+    escolherCarta(p, 0)
+    let guarda = 0
+    while (guarda++ < 500 && !p.inimigos.some((b) => b.morrendo < 0)) tick(p, 1 / 60, parado)
+    const vivos = p.inimigos.filter((b) => b.morrendo < 0)
+    expect(vivos.length).toBeGreaterThan(0)
+    vivos[0].x = 50
+    vivos[0].y = 0
+    vivos[0].chefe = false
+    const longe = vivos[1] || vivos[0]
+    if (longe === vivos[0]) {
+      p.inimigos.push({ ...vivos[0], id: 999, x: 200, y: 0, chefe: true, hp: 50, morrendo: -1 })
+    } else {
+      longe.x = 200
+      longe.y = 0
+      longe.chefe = true
+      longe.hp = 80
+      longe.morrendo = -1
+    }
+    const chefe = p.inimigos.find((b) => b.chefe && b.morrendo < 0)
+    p.chefe = chefe
+    const xAntes = p.jogador.x
+    tick(p, 1 / 60, parado)
+    expect(p.alvo).toBe(chefe)
+    expect(p.jogador.x).toBeCloseTo(xAntes, 1)
+    chefe.morrendo = 0
+    tick(p, 1 / 60, parado)
+    const comum = p.inimigos.find((b) => b.morrendo < 0 && !b.chefe)
+    expect(p.alvo).toBe(comum)
+    let tiro = null
+    for (let i = 0; i < 90 && !tiro; i++) {
+      tick(p, 1 / 60, parado)
+      tiro = p.ataques.find((a) => a.tipo === 'tiro' && a.vx)
+    }
+    expect(tiro).toBeTruthy()
+    expect(tiro.vx).toBeGreaterThan(0)
+    expect(p.ataques.some((a) => a.tipo === 'orbita')).toBe(false)
+  })
 })

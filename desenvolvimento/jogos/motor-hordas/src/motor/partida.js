@@ -542,13 +542,48 @@ function acertarRaio(p, x, y, r, dano, golpe, deX, deY) {
   }
 }
 
+const MIRA = 420
+
+function escolherAlvo(p) {
+  const j = p.jogador
+  const chefe = p.chefe && p.chefe.morrendo < 0 ? p.chefe : null
+  if (chefe && Math.hypot(chefe.x - j.x, chefe.y - j.y) <= MIRA) {
+    p.alvo = chefe
+  } else {
+    let melhor = null
+    let perto = MIRA
+    for (const b of p.inimigos) {
+      if (b.morrendo >= 0) continue
+      const d = Math.hypot(b.x - j.x, b.y - j.y)
+      if (d < perto) {
+        perto = d
+        melhor = b
+      }
+    }
+    p.alvo = melhor
+  }
+  if (p.alvo) j.dir = dir8(p.alvo.x - j.x, p.alvo.y - j.y)
+}
+
 function passoGolpes(p, dt) {
   const j = p.jogador
+  escolherAlvo(p)
+  const alvo = p.alvo && p.alvo.morrendo < 0 ? p.alvo : null
   for (const g of j.golpes) {
     const def = defGolpe(p.conteudo, g.id)
     if (!def) continue
     g.cd -= dt
     if (g.cd > 0) continue
+    if (!alvo) {
+      g.cd = 0.12
+      continue
+    }
+    const dist = Math.hypot(alvo.x - j.x, alvo.y - j.y)
+    const alcance = (def.alcance || 240) * j.stats.area
+    if (dist > alcance + alvo.raio) {
+      g.cd = 0.12
+      continue
+    }
     const mod = modsAtivos(def, g)
     const dano = (def.dano + (mod.dano || 0)) * (1 + 0.18 * (g.nivel - 1))
     const extra = j.stats.amount + (mod.n || 0)
@@ -558,49 +593,50 @@ function passoGolpes(p, dt) {
       queima: !!(def.queima || mod.queima),
       puxa: (def.puxa || 0) + (mod.puxa || 0),
     }
-    const n = def.n + extra
-    if (def.tipo === 'orbita') {
-      for (let i = 0; i < n; i++) {
-        p.ataques.push({
-          tipo: 'orbita', ang: (i / n) * TAU, raio: (def.raio + (mod.raio || 0)) * j.stats.area,
-          vel: def.vel + (mod.vel || 0), dano, r: def.hit || 8, ttl: def.duracao * j.stats.duration,
-          cd: 0, golpe, sprite: def.sprite,
-        })
-      }
+    const n = Math.max(1, def.n + extra)
+    const ang = Math.atan2(alvo.y - j.y, alvo.x - j.x)
+    if (def.tipo === 'estocada') {
+      ferirBicho(p, alvo, dano, j.x, j.y, golpe)
+      p.ataques.push({
+        tipo: 'estocada', x: j.x, y: j.y - 6, ax: alvo.x, ay: alvo.y,
+        dano: 0, ttl: def.duracao, golpe, sprite: def.sprite,
+      })
     } else if (def.tipo === 'tiro' || def.tipo === 'volta') {
-      const base = Math.atan2(j.dir === 0 ? 1 : 0, 1)
-      const frente = dirDe(j.dir)
       for (let i = 0; i < n; i++) {
-        const espalha = (i - (n - 1) / 2) * 0.18
-        const ang = Math.atan2(frente.y, frente.x) + espalha
+        const espalha = (i - (n - 1) / 2) * 0.12
+        const rumo = ang + espalha
         const vel = def.vel * j.stats.projectileSpeed
         p.ataques.push({
           tipo: def.tipo, x: j.x, y: j.y - 8,
-          vx: Math.cos(ang) * vel, vy: Math.sin(ang) * vel,
+          vx: Math.cos(rumo) * vel, vy: Math.sin(rumo) * vel,
           dano, r: (def.hit || 6) * j.stats.area, ttl: def.duracao * j.stats.duration,
           atravessa: def.atravessa || 0, acertou: new Set(), golpe, sprite: def.sprite,
-          fase: 'ida', vel, ang,
+          fase: 'ida', vel, ang: rumo,
         })
       }
-      void base
-    } else if (def.tipo === 'aura' || def.tipo === 'vortex') {
+    } else if (def.tipo === 'noalvo') {
       p.ataques.push({
-        tipo: def.tipo, raio: (def.raio + (mod.raio || 0)) * j.stats.area,
-        dano, r: 10, ttl: def.duracao * j.stats.duration, cd: 0, golpe, sprite: def.sprite,
+        tipo: 'noalvo', x: alvo.x, y: alvo.y, alvoId: alvo.id,
+        raio: (def.raio + (mod.raio || 0)) * j.stats.area,
+        dano, ttl: def.duracao * j.stats.duration, cd: 0, golpe, sprite: def.sprite,
       })
     }
   }
 
   for (const a of p.ataques) {
     a.ttl -= dt
-    if (a.tipo === 'orbita') {
-      a.ang += a.vel * dt
-      a.x = j.x + Math.cos(a.ang) * a.raio
-      a.y = j.y + Math.sin(a.ang) * a.raio
+    if (a.tipo === 'estocada') {
+      continue
+    } else if (a.tipo === 'noalvo') {
+      const dono = p.inimigos.find((b) => b.id === a.alvoId && b.morrendo < 0) || (p.chefe && p.chefe.id === a.alvoId ? p.chefe : null)
+      if (dono) {
+        a.x = dono.x
+        a.y = dono.y
+      }
       a.cd -= dt
       if (a.cd <= 0) {
-        a.cd = 0.32
-        acertarRaio(p, a.x, a.y, a.r, a.dano, a.golpe, j.x, j.y)
+        a.cd = 0.35
+        acertarRaio(p, a.x, a.y, a.raio, a.dano, a.golpe, j.x, j.y)
       }
     } else if (a.tipo === 'tiro') {
       a.x += a.vx * dt
@@ -633,30 +669,9 @@ function passoGolpes(p, dt) {
           ferirBicho(p, b, a.dano, a.x, a.y, a.golpe)
         }
       }
-    } else if (a.tipo === 'aura' || a.tipo === 'vortex') {
-      a.cd -= dt
-      if (a.cd <= 0) {
-        a.cd = a.tipo === 'vortex' ? 0.2 : 0.45
-        for (const b of p.inimigos) {
-          if (b.morrendo >= 0) continue
-          if (Math.hypot(b.x - j.x, b.y - j.y) <= a.raio + b.raio) {
-            ferirBicho(p, b, a.dano, j.x, j.y, a.golpe)
-          }
-        }
-      }
     }
   }
   reter(p.ataques, (a) => a.ttl > 0)
-}
-
-function dirDe(d) {
-  const tabela = [
-    { x: 0, y: 1 }, { x: 1, y: 1 }, { x: 1, y: 0 }, { x: 1, y: -1 },
-    { x: 0, y: -1 }, { x: -1, y: -1 }, { x: -1, y: 0 }, { x: -1, y: 1 },
-  ]
-  const v = tabela[d] || tabela[2]
-  const len = Math.hypot(v.x, v.y)
-  return { x: v.x / len, y: v.y / len }
 }
 
 function passoEspeciais(p, dt, entrada) {
@@ -664,9 +679,20 @@ function passoEspeciais(p, dt, entrada) {
   j.especial = Math.max(0, j.especial - dt)
   if (entrada.acao && j.especial <= 0 && p.pausa === 'jogo') {
     j.especial = 8
-    tremer(p, 4)
-    estouro(p, j.x, j.y, ['#CEB7EF', '#B9ED80', '#FF9D52'], 22, 140)
-    acertarRaio(p, j.x, j.y, 78 * j.stats.area, 26 * j.stats.might, { empurrao: 90, queima: false, puxa: 0 }, j.x, j.y)
+    const alvo = p.alvo && p.alvo.morrendo < 0 ? p.alvo : null
+    if (alvo && Math.hypot(alvo.x - j.x, alvo.y - j.y) <= MIRA) {
+      const ang = Math.atan2(alvo.y - j.y, alvo.x - j.x)
+      tremer(p, 4)
+      estouro(p, alvo.x, alvo.y, ['#E02020', '#FF9D52', '#F6E27A'], 16, 90)
+      acertarRaio(p, alvo.x, alvo.y, 34 * j.stats.area, 28 * j.stats.might, { empurrao: 110, queima: false, puxa: 0 }, j.x, j.y)
+      p.ataques.push({
+        tipo: 'tiro', x: j.x, y: j.y - 8,
+        vx: Math.cos(ang) * 280, vy: Math.sin(ang) * 280,
+        dano: 0, r: 8, ttl: 0.45, atravessa: 0, acertou: new Set(),
+        golpe: { empurrao: 0, queima: false, puxa: 0 },
+        sprite: p.conteudo.pesca ? 'bolha' : 'pedregulho', fase: 'ida', vel: 280, ang,
+      })
+    }
     if (p.conteudo.pesca) pescar(p, true)
   }
   if (p.conteudo.pesca && entrada.acaoSegurada) pescar(p, false)
@@ -886,6 +912,7 @@ export function criarPartida(conteudo, opcoes = {}) {
     eventos: { bando: false, anel: false, elite: false, chefe: false },
     inimigos: [],
     ataques: [],
+    alvo: null,
     gemas: [],
     cardumes: [],
     zonas: [],

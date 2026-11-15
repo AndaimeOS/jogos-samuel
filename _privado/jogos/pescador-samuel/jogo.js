@@ -707,13 +707,46 @@ function acertarRaio(p, x, y, r, dano, golpe2, deX, deY) {
     if (Math.hypot(b.x - x, b.y - y) <= r + b.raio) ferirBicho(p, b, dano, deX, deY, golpe2);
   }
 }
+var MIRA = 420;
+function escolherAlvo(p) {
+  const j = p.jogador;
+  const chefe = p.chefe && p.chefe.morrendo < 0 ? p.chefe : null;
+  if (chefe && Math.hypot(chefe.x - j.x, chefe.y - j.y) <= MIRA) {
+    p.alvo = chefe;
+  } else {
+    let melhor = null;
+    let perto = MIRA;
+    for (const b of p.inimigos) {
+      if (b.morrendo >= 0) continue;
+      const d = Math.hypot(b.x - j.x, b.y - j.y);
+      if (d < perto) {
+        perto = d;
+        melhor = b;
+      }
+    }
+    p.alvo = melhor;
+  }
+  if (p.alvo) j.dir = dir8(p.alvo.x - j.x, p.alvo.y - j.y);
+}
 function passoGolpes(p, dt) {
   const j = p.jogador;
+  escolherAlvo(p);
+  const alvo = p.alvo && p.alvo.morrendo < 0 ? p.alvo : null;
   for (const g of j.golpes) {
     const def = defGolpe(p.conteudo, g.id);
     if (!def) continue;
     g.cd -= dt;
     if (g.cd > 0) continue;
+    if (!alvo) {
+      g.cd = 0.12;
+      continue;
+    }
+    const dist = Math.hypot(alvo.x - j.x, alvo.y - j.y);
+    const alcance = (def.alcance || 240) * j.stats.area;
+    if (dist > alcance + alvo.raio) {
+      g.cd = 0.12;
+      continue;
+    }
     const mod = modsAtivos(def, g);
     const dano = (def.dano + (mod.dano || 0)) * (1 + 0.18 * (g.nivel - 1));
     const extra = j.stats.amount + (mod.n || 0);
@@ -723,35 +756,32 @@ function passoGolpes(p, dt) {
       queima: !!(def.queima || mod.queima),
       puxa: (def.puxa || 0) + (mod.puxa || 0)
     };
-    const n = def.n + extra;
-    if (def.tipo === "orbita") {
-      for (let i = 0; i < n; i++) {
-        p.ataques.push({
-          tipo: "orbita",
-          ang: i / n * TAU,
-          raio: (def.raio + (mod.raio || 0)) * j.stats.area,
-          vel: def.vel + (mod.vel || 0),
-          dano,
-          r: def.hit || 8,
-          ttl: def.duracao * j.stats.duration,
-          cd: 0,
-          golpe: golpe2,
-          sprite: def.sprite
-        });
-      }
+    const n = Math.max(1, def.n + extra);
+    const ang = Math.atan2(alvo.y - j.y, alvo.x - j.x);
+    if (def.tipo === "estocada") {
+      ferirBicho(p, alvo, dano, j.x, j.y, golpe2);
+      p.ataques.push({
+        tipo: "estocada",
+        x: j.x,
+        y: j.y - 6,
+        ax: alvo.x,
+        ay: alvo.y,
+        dano: 0,
+        ttl: def.duracao,
+        golpe: golpe2,
+        sprite: def.sprite
+      });
     } else if (def.tipo === "tiro" || def.tipo === "volta") {
-      const base = Math.atan2(j.dir === 0 ? 1 : 0, 1);
-      const frente = dirDe(j.dir);
       for (let i = 0; i < n; i++) {
-        const espalha = (i - (n - 1) / 2) * 0.18;
-        const ang = Math.atan2(frente.y, frente.x) + espalha;
+        const espalha = (i - (n - 1) / 2) * 0.12;
+        const rumo = ang + espalha;
         const vel = def.vel * j.stats.projectileSpeed;
         p.ataques.push({
           tipo: def.tipo,
           x: j.x,
           y: j.y - 8,
-          vx: Math.cos(ang) * vel,
-          vy: Math.sin(ang) * vel,
+          vx: Math.cos(rumo) * vel,
+          vy: Math.sin(rumo) * vel,
           dano,
           r: (def.hit || 6) * j.stats.area,
           ttl: def.duracao * j.stats.duration,
@@ -761,16 +791,17 @@ function passoGolpes(p, dt) {
           sprite: def.sprite,
           fase: "ida",
           vel,
-          ang
+          ang: rumo
         });
       }
-      void base;
-    } else if (def.tipo === "aura" || def.tipo === "vortex") {
+    } else if (def.tipo === "noalvo") {
       p.ataques.push({
-        tipo: def.tipo,
+        tipo: "noalvo",
+        x: alvo.x,
+        y: alvo.y,
+        alvoId: alvo.id,
         raio: (def.raio + (mod.raio || 0)) * j.stats.area,
         dano,
-        r: 10,
         ttl: def.duracao * j.stats.duration,
         cd: 0,
         golpe: golpe2,
@@ -780,14 +811,18 @@ function passoGolpes(p, dt) {
   }
   for (const a of p.ataques) {
     a.ttl -= dt;
-    if (a.tipo === "orbita") {
-      a.ang += a.vel * dt;
-      a.x = j.x + Math.cos(a.ang) * a.raio;
-      a.y = j.y + Math.sin(a.ang) * a.raio;
+    if (a.tipo === "estocada") {
+      continue;
+    } else if (a.tipo === "noalvo") {
+      const dono = p.inimigos.find((b) => b.id === a.alvoId && b.morrendo < 0) || (p.chefe && p.chefe.id === a.alvoId ? p.chefe : null);
+      if (dono) {
+        a.x = dono.x;
+        a.y = dono.y;
+      }
       a.cd -= dt;
       if (a.cd <= 0) {
-        a.cd = 0.32;
-        acertarRaio(p, a.x, a.y, a.r, a.dano, a.golpe, j.x, j.y);
+        a.cd = 0.35;
+        acertarRaio(p, a.x, a.y, a.raio, a.dano, a.golpe, j.x, j.y);
       }
     } else if (a.tipo === "tiro") {
       a.x += a.vx * dt;
@@ -820,44 +855,39 @@ function passoGolpes(p, dt) {
           ferirBicho(p, b, a.dano, a.x, a.y, a.golpe);
         }
       }
-    } else if (a.tipo === "aura" || a.tipo === "vortex") {
-      a.cd -= dt;
-      if (a.cd <= 0) {
-        a.cd = a.tipo === "vortex" ? 0.2 : 0.45;
-        for (const b of p.inimigos) {
-          if (b.morrendo >= 0) continue;
-          if (Math.hypot(b.x - j.x, b.y - j.y) <= a.raio + b.raio) {
-            ferirBicho(p, b, a.dano, j.x, j.y, a.golpe);
-          }
-        }
-      }
     }
   }
   reter(p.ataques, (a) => a.ttl > 0);
-}
-function dirDe(d) {
-  const tabela = [
-    { x: 0, y: 1 },
-    { x: 1, y: 1 },
-    { x: 1, y: 0 },
-    { x: 1, y: -1 },
-    { x: 0, y: -1 },
-    { x: -1, y: -1 },
-    { x: -1, y: 0 },
-    { x: -1, y: 1 }
-  ];
-  const v = tabela[d] || tabela[2];
-  const len = Math.hypot(v.x, v.y);
-  return { x: v.x / len, y: v.y / len };
 }
 function passoEspeciais(p, dt, entrada) {
   const j = p.jogador;
   j.especial = Math.max(0, j.especial - dt);
   if (entrada.acao && j.especial <= 0 && p.pausa === "jogo") {
     j.especial = 8;
-    tremer(p, 4);
-    estouro(p, j.x, j.y, ["#CEB7EF", "#B9ED80", "#FF9D52"], 22, 140);
-    acertarRaio(p, j.x, j.y, 78 * j.stats.area, 26 * j.stats.might, { empurrao: 90, queima: false, puxa: 0 }, j.x, j.y);
+    const alvo = p.alvo && p.alvo.morrendo < 0 ? p.alvo : null;
+    if (alvo && Math.hypot(alvo.x - j.x, alvo.y - j.y) <= MIRA) {
+      const ang = Math.atan2(alvo.y - j.y, alvo.x - j.x);
+      tremer(p, 4);
+      estouro(p, alvo.x, alvo.y, ["#E02020", "#FF9D52", "#F6E27A"], 16, 90);
+      acertarRaio(p, alvo.x, alvo.y, 34 * j.stats.area, 28 * j.stats.might, { empurrao: 110, queima: false, puxa: 0 }, j.x, j.y);
+      p.ataques.push({
+        tipo: "tiro",
+        x: j.x,
+        y: j.y - 8,
+        vx: Math.cos(ang) * 280,
+        vy: Math.sin(ang) * 280,
+        dano: 0,
+        r: 8,
+        ttl: 0.45,
+        atravessa: 0,
+        acertou: /* @__PURE__ */ new Set(),
+        golpe: { empurrao: 0, queima: false, puxa: 0 },
+        sprite: p.conteudo.pesca ? "bolha" : "pedregulho",
+        fase: "ida",
+        vel: 280,
+        ang
+      });
+    }
     if (p.conteudo.pesca) pescar(p, true);
   }
   if (p.conteudo.pesca && entrada.acaoSegurada) pescar(p, false);
@@ -1067,6 +1097,7 @@ function criarPartida(conteudo, opcoes = {}) {
     eventos: { bando: false, anel: false, elite: false, chefe: false },
     inimigos: [],
     ataques: [],
+    alvo: null,
     gemas: [],
     cardumes: [],
     zonas: [],
@@ -1234,6 +1265,7 @@ async function iniciar(conteudo) {
     mostrar(pausa, false);
     if (partida.pausa === "cartas") pintarCartas();
     if (partida.pausa === "fim") pintarFim();
+    sincronizarHud();
   }
   function nomeDa(fase2) {
     if (!fase2) return "";
@@ -1256,6 +1288,10 @@ async function iniciar(conteudo) {
     const palco = document.getElementById("palco");
     const bw = palco.clientWidth || vista.w * vista.cssScale;
     const bh = palco.clientHeight || vista.h * vista.cssScale;
+    const retrato2 = bh > bw;
+    if (retrato2) {
+      return { x: 0, y: 0, w: bw, h: bh, retrato: retrato2, sx: bw / conteudo.mapa.w, sy: bh / conteudo.mapa.h };
+    }
     const aspecto = conteudo.mapa.w / conteudo.mapa.h;
     let w;
     let h;
@@ -1266,21 +1302,24 @@ async function iniciar(conteudo) {
       w = bw;
       h = w / aspecto;
     }
-    return { x: (bw - w) / 2, y: (bh - h) / 2, w, h, escala: w / conteudo.mapa.w };
+    const escala = w / conteudo.mapa.w;
+    return { x: (bw - w) / 2, y: (bh - h) / 2, w, h, retrato: retrato2, sx: escala, sy: escala };
   }
   function pintarNos() {
     const caixa = document.getElementById("nos");
     const cenario = document.getElementById("cenario");
     caixa.replaceChildren();
     const ret = retanguloDoMapa();
-    const escala = ret.escala;
-    for (const el of [cenario, caixa]) {
-      el.style.left = `${ret.x}px`;
-      el.style.top = `${ret.y}px`;
-      el.style.width = `${ret.w}px`;
-      el.style.height = `${ret.h}px`;
-    }
-    const lado = Math.max(48, escala * 42);
+    caixa.style.left = `${ret.x}px`;
+    caixa.style.top = `${ret.y}px`;
+    caixa.style.width = `${ret.w}px`;
+    caixa.style.height = `${ret.h}px`;
+    cenario.style.left = `${ret.x}px`;
+    cenario.style.top = `${ret.y}px`;
+    cenario.style.width = `${ret.w}px`;
+    cenario.style.height = `${ret.h}px`;
+    cenario.style.transform = "none";
+    const lado = Math.max(48, Math.min(ret.sx, ret.sy) * 42);
     for (const fase2 of conteudo.fases) {
       const aberta = fase2.ordem <= save.aberta;
       const feita = save.vencidas.includes(fase2.ordem);
@@ -1291,8 +1330,10 @@ async function iniciar(conteudo) {
       botao2.id = `no-${fase2.ordem}`;
       botao2.dataset.alvo = "1";
       botao2.disabled = !aberta;
-      botao2.style.left = `${fase2.x * escala - lado / 2}px`;
-      botao2.style.top = `${fase2.y * escala - lado / 2}px`;
+      const px = fase2.x * ret.sx;
+      const py = fase2.y * ret.sy;
+      botao2.style.left = `${px - lado / 2}px`;
+      botao2.style.top = `${py - lado / 2}px`;
       botao2.style.width = `${lado}px`;
       botao2.style.height = `${lado}px`;
       botao2.setAttribute("aria-label", nomeDa(fase2));
@@ -1484,7 +1525,7 @@ async function iniciar(conteudo) {
     partida.vista.h = vista.h;
     const cssW = Math.round(vista.w * vista.cssScale);
     const cssH = Math.round(vista.h * vista.cssScale);
-    if (tela.width !== vista.w) {
+    if (tela.width !== vista.w || tela.height !== vista.h) {
       tela.width = vista.w;
       tela.height = vista.h;
       tela.style.width = `${cssW}px`;
@@ -1494,6 +1535,8 @@ async function iniciar(conteudo) {
     ctx.imageSmoothingEnabled = false;
     const sx = partida.tremor ? Math.sin(partida.tempo * 40) * partida.tremor : 0;
     const sy = partida.tremor ? Math.cos(partida.tempo * 35) * partida.tremor : 0;
+    partida.camera.x = partida.jogador.x - vista.w / 2;
+    partida.camera.y = partida.jogador.y - vista.h / 2;
     const camX = partida.camera.x + sx;
     const camY = partida.camera.y + sy;
     ctx.fillStyle = conteudo.cores[partida.bioma] || "#8FCB6B";
@@ -1557,16 +1600,6 @@ async function iniciar(conteudo) {
       ctx.arc(x, y, z.r, 0, Math.PI * 2);
       ctx.stroke();
     }
-    for (const a of partida.ataques) {
-      const x = a.x != null ? a.x : partida.jogador.x;
-      const y = a.y != null ? a.y : partida.jogador.y;
-      const [sx2, sy2] = mundo(x, y);
-      if (a.sprite) desenharSprite(a.sprite, sx2, sy2 + 6, 2, partida.tempo, 12, false);
-      else {
-        ctx.fillStyle = "#FF9D52";
-        ctx.fillRect(sx2 - 3, sy2 - 3, 6, 6);
-      }
-    }
     desenharPerigo("chao", mundo);
     const lista = [...partida.inimigos].sort((a, b) => a.y - b.y);
     for (const b of lista) {
@@ -1588,6 +1621,52 @@ async function iniciar(conteudo) {
     if (!desenharMotor(conteudo.heroi, jx, jy, j.dir, j.anim, animHeroi)) {
       const idHeroi = j.andando ? conteudo.heroiAnda : conteudo.heroiParado;
       desenharSprite(idHeroi, jx, jy, j.dir, j.anim, conteudo.heroiAltura, !!partida.barcoDourado);
+    }
+    if (partida.alvo && partida.alvo.morrendo < 0) desenharMoldura(mundo, partida.alvo);
+    for (const a of partida.ataques) {
+      if (a.tipo === "estocada") {
+        const [x12, y12] = mundo(a.x, a.y);
+        const [x2, y2] = mundo(a.ax, a.ay);
+        ctx.lineCap = "round";
+        ctx.strokeStyle = "#193337";
+        ctx.lineWidth = 7;
+        ctx.beginPath();
+        ctx.moveTo(x12, y12);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+        ctx.strokeStyle = "#FF9D52";
+        ctx.lineWidth = 4;
+        ctx.stroke();
+        ctx.lineCap = "butt";
+      }
+      const x = a.x != null ? a.x : partida.jogador.x;
+      const y = a.y != null ? a.y : partida.jogador.y;
+      const [sx2, sy2] = mundo(x, y);
+      if (a.tipo === "noalvo") {
+        ctx.strokeStyle = "#193337";
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(sx2, sy2, a.raio, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.strokeStyle = "#FF9D52";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+      if (a.tipo !== "estocada" && a.tipo !== "noalvo") {
+        ctx.fillStyle = "#193337";
+        ctx.beginPath();
+        ctx.arc(sx2, sy2, 11, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#F6E27A";
+        ctx.beginPath();
+        ctx.arc(sx2, sy2, 7, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      if (a.sprite && a.tipo !== "estocada") desenharSprite(a.sprite, sx2, sy2 + 8, 2, partida.tempo, 16, false);
+      else if (!a.sprite && a.tipo !== "estocada" && a.tipo !== "noalvo") {
+        ctx.fillStyle = "#FF9D52";
+        ctx.fillRect(sx2 - 4, sy2 - 4, 8, 8);
+      }
     }
     for (const part of partida.particulas) {
       const [x, y] = mundo(part.x, part.y);
@@ -1618,6 +1697,28 @@ async function iniciar(conteudo) {
     }
     desenharPerigo("frente", mundo);
     sincronizarHud();
+  }
+  function desenharMoldura(mundo, b) {
+    const [x, y] = mundo(b.x, b.y);
+    const sp = motor[b.sprite];
+    const folha = sp && sp.anims.Walk;
+    const largura = folha ? folha.frameW : b.altura || b.raio * 2;
+    const altura = folha ? folha.frameH : b.altura || b.raio * 2;
+    const pe = sp ? sp.body.footY : altura / 2;
+    const topo = y - (altura / 2 + pe);
+    const margem = 6;
+    const rx = Math.round(x - largura / 2 - margem);
+    const ry = Math.round(topo - margem);
+    const rw = largura + margem * 2;
+    const rh = altura + margem * 2;
+    ctx.save();
+    ctx.strokeStyle = "#193337";
+    ctx.lineWidth = 7;
+    ctx.strokeRect(rx, ry, rw, rh);
+    ctx.strokeStyle = "#E02020";
+    ctx.lineWidth = 4;
+    ctx.strokeRect(rx, ry, rw, rh);
+    ctx.restore();
   }
   function quadroDaPeca(peca, tempo, umaVez) {
     const durs = peca.duracoes && peca.duracoes.length ? peca.duracoes : [8];
@@ -2047,18 +2148,18 @@ var golpe = (id, nome, texto, icone, sprite, tipo, resto) => ({
   ...resto
 });
 var golpes = [
-  golpe("anzol", "Anzol", "O anzol gira em volta do barco.", "icone-anzol", "anzol-giratorio", "orbita", { dano: 7, n: 2, raio: 42, vel: 2.6, cadencia: 8, duracao: 6 }),
-  golpe("rede", "Rede", "Uma rede que atravessa.", "icone-rede", "rede", "tiro", { dano: 11, vel: 180, atravessa: 5, cadencia: 1.2, duracao: 0.9 }),
-  golpe("arpao", "Arp\xE3o de bolhas", "Bolhas r\xE1pidas para a frente.", "icone-bolhas", "bolha", "tiro", { dano: 8, vel: 230, n: 2, cadencia: 0.75, duracao: 0.7 }),
-  golpe("boia", "Boia", "Uma boia que vai e volta.", "icone-bolhas", "bolha", "volta", { dano: 10, vel: 150, cadencia: 1.35, duracao: 2.5 }),
-  golpe("espuma", "Espuma", "Um anel de espuma em volta.", "icone-rede", "rede", "aura", { dano: 6, raio: 40, cadencia: 5.5, duracao: 4 }),
-  golpe("linha", "Linha", "Puxa os monstros para o barco.", "icone-anzol", "anzol-giratorio", "vortex", { dano: 5, raio: 54, puxa: 100, cadencia: 6, duracao: 3.2 }),
-  golpe("remo", "Remo", "Uma pancada na \xE1gua.", "icone-rede", "rede", "tiro", { dano: 16, vel: 160, empurrao: 100, cadencia: 1.3, duracao: 0.6, hit: 11 }),
-  golpe("cardume-tiro", "Isca", "Tr\xEAs iscas de uma vez.", "icone-anzol", "anzol-giratorio", "tiro", { dano: 7, vel: 200, n: 3, cadencia: 1.1, duracao: 0.85 }),
-  golpe("neblina", "Neblina", "Um c\xEDrculo que esconde e fere.", "icone-bolhas", "bolha", "aura", { dano: 7, raio: 36, cadencia: 6.5, duracao: 4.5 }),
-  golpe("onda", "Onda", "Uma onda larga e lenta.", "icone-bolhas", "bolha", "orbita", { dano: 13, n: 1, raio: 50, vel: 1.3, cadencia: 3, duracao: 2 }),
-  golpe("lanterna", "Lanterna", "Luz quente no conv\xE9s.", "icone-album", "figurinha", "aura", { dano: 6, raio: 38, queima: true, cadencia: 7, duracao: 4.2 }),
-  golpe("arpao-duplo", "Arp\xE3o fundo", "Desce reto e pesado.", "icone-bolhas", "bolha", "tiro", { dano: 20, vel: 210, empurrao: 70, cadencia: 1.45, duracao: 0.8 })
+  golpe("anzol", "Anzol", "A linha vai no alvo.", "icone-anzol", "anzol-giratorio", "tiro", { dano: 9, vel: 210, cadencia: 0.9, duracao: 1, hit: 6, alcance: 210 }),
+  golpe("rede", "Rede", "A rede cai no alvo.", "icone-rede", "rede", "noalvo", { dano: 11, raio: 42, cadencia: 1.3, duracao: 0.7, alcance: 200 }),
+  golpe("arpao", "Arp\xE3o", "Um arp\xE3o voa no alvo.", "icone-bolhas", "bolha", "tiro", { dano: 12, vel: 240, cadencia: 0.8, duracao: 0.9, hit: 7, alcance: 280 }),
+  golpe("boia", "Boia", "Vai no alvo e volta.", "icone-bolhas", "bolha", "volta", { dano: 10, vel: 150, cadencia: 1.35, duracao: 2.5, alcance: 220 }),
+  golpe("espuma", "Espuma", "Espuma em volta do alvo.", "icone-rede", "rede", "noalvo", { dano: 6, raio: 40, cadencia: 4.5, duracao: 2, alcance: 200 }),
+  golpe("linha", "Linha", "Puxa quem est\xE1 no alvo.", "icone-anzol", "anzol-giratorio", "noalvo", { dano: 5, raio: 46, puxa: 100, cadencia: 5, duracao: 2, alcance: 200 }),
+  golpe("remo", "Remo", "Uma pancada no alvo perto.", "icone-rede", "rede", "estocada", { dano: 16, empurrao: 100, cadencia: 1.1, duracao: 0.2, alcance: 68, hit: 12 }),
+  golpe("cardume-tiro", "Isca", "Tr\xEAs iscas no alvo.", "icone-anzol", "anzol-giratorio", "tiro", { dano: 7, vel: 200, n: 3, cadencia: 1.1, duracao: 0.85, alcance: 230 }),
+  golpe("neblina", "Neblina", "N\xE9voa em volta do alvo.", "icone-bolhas", "bolha", "noalvo", { dano: 7, raio: 36, cadencia: 5.5, duracao: 2.2, alcance: 180 }),
+  golpe("onda", "Onda", "Uma onda vai no alvo.", "icone-bolhas", "bolha", "tiro", { dano: 13, vel: 150, cadencia: 1.4, duracao: 1.1, alcance: 220, hit: 10 }),
+  golpe("lanterna", "Lanterna", "Luz quente no alvo.", "icone-album", "figurinha", "noalvo", { dano: 6, raio: 34, queima: true, cadencia: 6, duracao: 2.2, alcance: 180 }),
+  golpe("arpao-duplo", "Arp\xE3o fundo", "Um arp\xE3o pesado no alvo.", "icone-bolhas", "bolha", "tiro", { dano: 20, vel: 210, empurrao: 70, cadencia: 1.45, duracao: 0.8, alcance: 260 })
 ];
 var bicho = (sprite, hp, vel, dano, xp, massa, raio, extra) => ({
   sprite,
@@ -2126,7 +2227,7 @@ var conteudoPescador = {
   api: "__pescador",
   titulo: "Pescador Samuel",
   pesca: true,
-  inicial: "anzol",
+  inicial: "arpao",
   heroi: "samuel-barco-colete",
   heroiAlternativo: "samuel-barco-cinza",
   heroiParado: "samuel-no-barco",

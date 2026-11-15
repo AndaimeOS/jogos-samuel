@@ -13,18 +13,18 @@ const golpe = (id, nome, texto, icone, sprite, tipo, resto) => ({
 })
 
 const golpes = [
-  golpe('anzol', 'Anzol', 'O anzol gira em volta do barco.', 'icone-anzol', 'anzol-giratorio', 'orbita', { dano: 7, n: 2, raio: 42, vel: 2.6, cadencia: 8, duracao: 6 }),
-  golpe('rede', 'Rede', 'Uma rede que atravessa.', 'icone-rede', 'rede', 'tiro', { dano: 11, vel: 180, atravessa: 5, cadencia: 1.2, duracao: 0.9 }),
-  golpe('arpao', 'Arpão de bolhas', 'Bolhas rápidas para a frente.', 'icone-bolhas', 'bolha', 'tiro', { dano: 8, vel: 230, n: 2, cadencia: 0.75, duracao: 0.7 }),
-  golpe('boia', 'Boia', 'Uma boia que vai e volta.', 'icone-bolhas', 'bolha', 'volta', { dano: 10, vel: 150, cadencia: 1.35, duracao: 2.5 }),
-  golpe('espuma', 'Espuma', 'Um anel de espuma em volta.', 'icone-rede', 'rede', 'aura', { dano: 6, raio: 40, cadencia: 5.5, duracao: 4 }),
-  golpe('linha', 'Linha', 'Puxa os monstros para o barco.', 'icone-anzol', 'anzol-giratorio', 'vortex', { dano: 5, raio: 54, puxa: 100, cadencia: 6, duracao: 3.2 }),
-  golpe('remo', 'Remo', 'Uma pancada na água.', 'icone-rede', 'rede', 'tiro', { dano: 16, vel: 160, empurrao: 100, cadencia: 1.3, duracao: 0.6, hit: 11 }),
-  golpe('cardume-tiro', 'Isca', 'Três iscas de uma vez.', 'icone-anzol', 'anzol-giratorio', 'tiro', { dano: 7, vel: 200, n: 3, cadencia: 1.1, duracao: 0.85 }),
-  golpe('neblina', 'Neblina', 'Um círculo que esconde e fere.', 'icone-bolhas', 'bolha', 'aura', { dano: 7, raio: 36, cadencia: 6.5, duracao: 4.5 }),
-  golpe('onda', 'Onda', 'Uma onda larga e lenta.', 'icone-bolhas', 'bolha', 'orbita', { dano: 13, n: 1, raio: 50, vel: 1.3, cadencia: 3, duracao: 2 }),
-  golpe('lanterna', 'Lanterna', 'Luz quente no convés.', 'icone-album', 'figurinha', 'aura', { dano: 6, raio: 38, queima: true, cadencia: 7, duracao: 4.2 }),
-  golpe('arpao-duplo', 'Arpão fundo', 'Desce reto e pesado.', 'icone-bolhas', 'bolha', 'tiro', { dano: 20, vel: 210, empurrao: 70, cadencia: 1.45, duracao: 0.8 }),
+  golpe('anzol', 'Anzol', 'A linha vai no alvo.', 'icone-anzol', 'anzol-giratorio', 'tiro', { dano: 9, vel: 210, cadencia: 0.9, duracao: 1, hit: 6, alcance: 210 }),
+  golpe('rede', 'Rede', 'A rede cai no alvo.', 'icone-rede', 'rede', 'noalvo', { dano: 11, raio: 42, cadencia: 1.3, duracao: 0.7, alcance: 200 }),
+  golpe('arpao', 'Arpão', 'Um arpão voa no alvo.', 'icone-bolhas', 'bolha', 'tiro', { dano: 12, vel: 240, cadencia: 0.8, duracao: 0.9, hit: 7, alcance: 280 }),
+  golpe('boia', 'Boia', 'Vai no alvo e volta.', 'icone-bolhas', 'bolha', 'volta', { dano: 10, vel: 150, cadencia: 1.35, duracao: 2.5, alcance: 220 }),
+  golpe('espuma', 'Espuma', 'Espuma em volta do alvo.', 'icone-rede', 'rede', 'noalvo', { dano: 6, raio: 40, cadencia: 4.5, duracao: 2, alcance: 200 }),
+  golpe('linha', 'Linha', 'Puxa quem está no alvo.', 'icone-anzol', 'anzol-giratorio', 'noalvo', { dano: 5, raio: 46, puxa: 100, cadencia: 5, duracao: 2, alcance: 200 }),
+  golpe('remo', 'Remo', 'Uma pancada no alvo perto.', 'icone-rede', 'rede', 'estocada', { dano: 16, empurrao: 100, cadencia: 1.1, duracao: 0.2, alcance: 68, hit: 12 }),
+  golpe('cardume-tiro', 'Isca', 'Três iscas no alvo.', 'icone-anzol', 'anzol-giratorio', 'tiro', { dano: 7, vel: 200, n: 3, cadencia: 1.1, duracao: 0.85, alcance: 230 }),
+  golpe('neblina', 'Neblina', 'Névoa em volta do alvo.', 'icone-bolhas', 'bolha', 'noalvo', { dano: 7, raio: 36, cadencia: 5.5, duracao: 2.2, alcance: 180 }),
+  golpe('onda', 'Onda', 'Uma onda vai no alvo.', 'icone-bolhas', 'bolha', 'tiro', { dano: 13, vel: 150, cadencia: 1.4, duracao: 1.1, alcance: 220, hit: 10 }),
+  golpe('lanterna', 'Lanterna', 'Luz quente no alvo.', 'icone-album', 'figurinha', 'noalvo', { dano: 6, raio: 34, queima: true, cadencia: 6, duracao: 2.2, alcance: 180 }),
+  golpe('arpao-duplo', 'Arpão fundo', 'Um arpão pesado no alvo.', 'icone-bolhas', 'bolha', 'tiro', { dano: 20, vel: 210, empurrao: 70, cadencia: 1.45, duracao: 0.8, alcance: 260 }),
 ]
 
 const bicho = (sprite, hp, vel, dano, xp, massa, raio, extra) => ({
@@ -91,7 +91,7 @@ export const conteudoPescador = {
   api: '__pescador',
   titulo: 'Pescador Samuel',
   pesca: true,
-  inicial: 'anzol',
+  inicial: 'arpao',
   heroi: 'samuel-barco-colete',
   heroiAlternativo: 'samuel-barco-cinza',
   heroiParado: 'samuel-no-barco',

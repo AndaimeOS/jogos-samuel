@@ -3,6 +3,15 @@
 Atualizado ao fim de cada sessão (ST-090). Um bloco por sessão, o mais novo em cima.
 Vale o que está aqui e no Notion, não a memória do chat.
 
+## 2026-11-15 — Planeta e Pescador: combate no alvo e quatro correções de tela
+
+- **Pedido do Boaz (15/11 18:20 BRT):** "Sim, troca o combate nos dois jogos por esse estilo." Vale para o Planeta e para o Pescador, na branch do PR #12, sem merge e sem deploy. Junto, fechar as quatro falhas visuais do QA.
+- **Combate:** a mira marca sozinha o bicho vivo mais perto. Se o chefe está no alcance, a moldura vai nele. A moldura é vermelha, com borda de tinta. A funda e a lança (e o resto das ferramentas) saem na direção desse alvo; no Pescador, o arpão, o anzol e a rede fazem o mesmo. A bolinha que orbitava o Samuel saiu dos dois jogos, também das cartas. O botão de Ação é um golpe especial no alvo, com recarga. O Samuel não anda sozinho.
+- **As quatro falhas:** o joystick, a pausa, a tela cheia e a Ação desenhavam a folha inteira (dois quadros) — agora o CSS mostra só o quadro da esquerda. O monstro gigante colado no Samuel no segundo 0 era o chefe do teste estacionado em cima dele; o jogo nasce sem bicho por perto, e mamute, caranguejo e robô ficam no tamanho comum. O mapa usa o `mapa_mock.png` (caminho e cenário já na arte; no Pescador, rio, lago e mar). Em pé, a arte estica no palco inteiro e os personagens continuam em pé. A barra branca de cima mostra o nome da fase (Pedra 1, Rio 1) desde o primeiro quadro.
+- **Testes:** motor 7/7. iPad WebKit 6/6 (toque, 1024×768 e 768×1024, página e iframe, 60 s na paisagem). `verificar_jogo.py --todos` ok. Pebolim 35/35, Reino 18/18, Minigolfe 53/53, Corrida do Jack 19/19.
+- **Não feito:** publicar no samuel.tech.
+- **NEXT:** o Boaz olha o rascunho no iPad. Sem deploy daqui.
+
 ## 2026-11-15 — Planeta e Pescador: lote 5, chão e perigos
 
 - **Pedido:** na mesma branch do PR #12, sem merge e sem deploy. O lote 5 substitui o 4. Mamute, caranguejo-gigante e robô enferrujado entram com sprite de 8 direções. Nevoeiro, onda-gigante e tempestade são perigos do cenário, com aviso, e no Fácil não tiram vida (os do Planeta também não). O raio do Pescador não tira vida nem no Normal, e o alvo pisca a pelo menos 64 px do barco.

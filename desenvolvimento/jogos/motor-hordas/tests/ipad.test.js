@@ -80,6 +80,88 @@ async function soltarStick(alvo) {
   })
 }
 
+async function fotoCombate(alvo, api, chefe = false) {
+  for (let i = 0; i < 4; i++) {
+    if (await alvo.locator('#levelup').isHidden()) break
+    await alvo.locator('#carta-0').tap()
+    await alvo.waitForFunction((nome) => window[nome].estado.pausa !== 'cartas', api)
+  }
+  return alvo.evaluate(({ nome, forcarChefe }) => {
+    const jogo = window[nome]
+    const e = jogo.estado
+    const j = e.jogador
+    if (forcarChefe) {
+      if (!e.chefe || e.chefe.morrendo >= 0) jogo.trazerChefe()
+      const c = e.chefe
+      if (c) {
+        c.morrendo = -1
+        c.hp = c.hpMax
+        c.kx = 0
+        c.ky = 0
+        c.x = j.x + 100
+        c.y = j.y
+      }
+      for (const g of j.golpes) g.cd = 0
+      if (e.pausa !== 'jogo') e.pausa = 'jogo'
+      jogo.simular(0.08)
+      if (c) {
+        c.x = j.x + 100
+        c.y = j.y
+        c.kx = 0
+        c.ky = 0
+      }
+    }
+    let foco = forcarChefe && e.chefe && e.chefe.morrendo < 0 ? e.chefe : (e.alvo && e.alvo.morrendo < 0 ? e.alvo : null)
+    if (foco && !forcarChefe) {
+      const dx0 = foco.x - j.x
+      const dy0 = foco.y - j.y
+      const dist0 = Math.hypot(dx0, dy0)
+      const rumo = dist0 > 4 ? dist0 : 1
+      if (dist0 < 90) {
+        foco.x = j.x + (dx0 / rumo) * 110
+        foco.y = j.y + (dy0 / rumo) * 110
+      }
+    }
+    if (foco) e.alvo = foco
+    const dx = foco ? foco.x - j.x : 1
+    const dy = foco ? foco.y - j.y : 0
+    const dist = Math.hypot(dx, dy) || 1
+    const tiros = (e.ataques || []).filter((a) => a.tipo === 'tiro')
+    tiros.forEach((tiro, i) => {
+      const along = Math.min(36 + i * 16, Math.max(28, dist - 34))
+      tiro.x = j.x + (dx / dist) * along
+      tiro.y = j.y + (dy / dist) * along
+      tiro.ttl = 3
+    })
+    e.pausa = 'foto'
+    jogo.desenhar()
+    return {
+      chefe: !!(forcarChefe && e.chefe && e.alvo === e.chefe),
+      tiros: tiros.length,
+      dist,
+    }
+  }, { nome: api, forcarChefe: chefe })
+}
+
+async function soltarFoto(alvo, api) {
+  await alvo.evaluate((nome) => {
+    if (window[nome].estado.pausa === 'foto') window[nome].estado.pausa = 'jogo'
+  }, api)
+}
+
+async function esperarCombate(alvo, api) {
+  for (let i = 0; i < 50; i++) {
+    const ok = await alvo.evaluate((nome) => {
+      const e = window[nome].estado
+      const tiro = (e.ataques || []).some((a) => a.tipo === 'tiro' || a.tipo === 'estocada')
+      return !!(e.alvo && e.alvo.morrendo < 0 && tiro)
+    }, api)
+    if (ok) return
+    if (!(await alvo.locator('#levelup').isHidden())) await alvo.locator('#carta-0').tap()
+    else await alvo.evaluate((nome) => window[nome].simular(0.15), api)
+  }
+}
+
 async function escolherSePrecisar(alvo, api) {
   const aberto = await alvo.locator('#levelup').isHidden()
   if (aberto) return
@@ -178,7 +260,10 @@ function suite(slug, api, titulo) {
     expect(inicio.perto).toBe(0)
     expect(inicio.tempo).toBeLessThan(2)
     expect(inicio.fase.length).toBeGreaterThan(0)
-    if (!url.includes('/jogar/')) await shot(path.join(arte, `${nome}-inicio.png`))
+    if (!url.includes('/jogar/')) {
+      await dentro.evaluate((nome) => window[nome].desenhar(), api)
+      await shot(path.join(arte, `${nome}-inicio.png`))
+    }
     await tocarStick(dentro, 80)
     const antes = await dentro.evaluate((nome) => window[nome].estado.jogador.x, api)
     await dentro.evaluate((nome) => window[nome].simular(0.6), api)
@@ -197,6 +282,7 @@ function suite(slug, api, titulo) {
         value() { window.__telaPedido = this.id; return Promise.resolve() },
       })
     })
+    if (!(await dentro.locator('#levelup').isHidden())) await dentro.locator('#carta-0').tap()
     await dentro.locator('#btnTela').tap()
     expect(await dentro.evaluate(() => window.__telaPedido)).toBe('jogo')
     if (!url.includes('/jogar/')) {
@@ -216,7 +302,19 @@ function suite(slug, api, titulo) {
       }
       const esperados = api === '__planeta' ? ['meteoros', 'enchente', 'raios'] : ['nevoeiro', 'onda-gigante', 'tempestade']
       for (const id of esperados) expect(vistos.has(id), `${nome} ${id}`).toBe(true)
+      await esperarCombate(dentro, api)
+      const aos30 = await dentro.evaluate((nome) => {
+        const e = window[nome].estado
+        return {
+          alvo: !!(e.alvo && e.alvo.morrendo < 0),
+          tiro: (e.ataques || []).some((a) => a.tipo === 'tiro' || a.tipo === 'estocada'),
+        }
+      }, api)
+      expect(aos30.alvo, `${nome} moldura aos 30s`).toBe(true)
+      expect(aos30.tiro, `${nome} projetil aos 30s`).toBe(true)
+      await fotoCombate(dentro, api)
       await shot(path.join(arte, `${nome}-30s.png`))
+      await soltarFoto(dentro, api)
     }
     await dentro.evaluate((nome) => {
       const jogo = window[nome]
@@ -230,7 +328,21 @@ function suite(slug, api, titulo) {
       jogo.desenhar()
     }, api)
     await dentro.waitForFunction((nome) => window[nome].estado.chefe, api)
-    if (!url.includes('/jogar/')) await shot(path.join(arte, `${nome}-chefe.png`))
+    if (!url.includes('/jogar/')) {
+      await esperarCombate(dentro, api)
+      const combate = await dentro.evaluate((nome) => {
+        const e = window[nome].estado
+        const tiro = (e.ataques || []).some((a) => a.tipo === 'tiro' || a.tipo === 'estocada')
+        return { alvo: !!(e.alvo && e.alvo.morrendo < 0), tiro }
+      }, api)
+      expect(combate.alvo, `${nome} moldura`).toBe(true)
+      expect(combate.tiro, `${nome} projetil`).toBe(true)
+      const foto = await fotoCombate(dentro, api, true)
+      expect(foto.chefe, `${nome} a moldura é a do chefe`).toBe(true)
+      expect(foto.tiros, `${nome} projetil do chefe`).toBeGreaterThan(0)
+      await shot(path.join(arte, `${nome}-chefe.png`))
+      await soltarFoto(dentro, api)
+    }
     if (longo) {
       const jogado = await fluido(dentro, api, 60)
       expect(jogado).toBeGreaterThanOrEqual(60)

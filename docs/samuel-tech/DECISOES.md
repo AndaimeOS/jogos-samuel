@@ -140,3 +140,18 @@ Não apagar decisões antigas: acrescentar uma nova com alternativa, motivo e ef
   sprite, e manter os três do Planeta como placeholder de 24 px.
 - **Efeito:** os ids saem da horda e do `motor.json`. A arte fica em
   `arte/perigos/`. Pedra e árvore do `cenario/` não bloqueiam o passo.
+
+## DEC-016 — Combate no alvo, no estilo Tibia (2026-11-15)
+
+- **Decisão (Boaz, 15/11 18:20 BRT):** o Planeta e o Pescador atacam sozinhos o
+  bicho marcado. A mira escolhe o mais perto; o chefe no alcance tem prioridade
+  e ganha uma moldura vermelha. Lança, funda, anzol, arpão, rede e as outras
+  ferramentas vão nesse alvo. A arma que orbitava o Samuel sai dos dois jogos,
+  inclusive das cartas. O botão de Ação dispara um especial no alvo, com recarga.
+  O joystick continua com a criança: o personagem não persegue sozinho. XP,
+  cartas, mapa, Fácil sem perder e tela cheia ficam. Os números de dano e
+  alcance continuam proposta.
+- **Alternativa descartada:** deixar a órbita como melhoria escondida, e copiar
+  o idle inteiro (andar sozinho, poção, mercado, grupo).
+- **Efeito:** o código mora em `desenvolvimento/jogos/motor-hordas/`. Sem deploy
+  nesta sessão.

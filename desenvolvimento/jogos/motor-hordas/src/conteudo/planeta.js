@@ -13,18 +13,18 @@ const golpe = (id, nome, texto, icone, sprite, tipo, resto) => ({
 })
 
 const golpes = [
-  golpe('lasca', 'Lasca', 'Pedras giram em volta.', 'icone-lasca', 'lasca', 'orbita', { dano: 7, n: 3, raio: 40, vel: 2.4, cadencia: 8, duracao: 6 }),
-  golpe('funda', 'Funda', 'Uma pedra voa para a frente.', 'icone-lasca', 'pedregulho', 'tiro', { dano: 12, vel: 190, cadencia: 0.85, duracao: 1.2, hit: 6 }),
-  golpe('lanca', 'Lança', 'Atravessa quem está na fila.', 'icone-lanca', 'lanca', 'tiro', { dano: 11, vel: 220, atravessa: 4, cadencia: 1.1, duracao: 0.8 }),
-  golpe('machado', 'Machado', 'Um arco largo e devagar.', 'icone-lanca', 'lanca', 'orbita', { dano: 14, n: 1, raio: 48, vel: 1.4, cadencia: 3.2, duracao: 2.2 }),
-  golpe('tocha', 'Tocha', 'Queima em volta do Samuel.', 'icone-fogueira-carta', 'faisca', 'aura', { dano: 6, raio: 42, cadencia: 5, duracao: 4, queima: true }),
-  golpe('faisca', 'Faísca', 'Um risco rápido.', 'icone-faisca', 'faisca', 'tiro', { dano: 9, vel: 260, n: 2, cadencia: 0.7, duracao: 0.6, hit: 5 }),
-  golpe('pedregulho', 'Pedregulho', 'Devagar e pesado.', 'pedregulho', 'pedregulho', 'tiro', { dano: 22, vel: 120, empurrao: 80, cadencia: 1.6, duracao: 1.4, hit: 10 }),
-  golpe('bumerangue', 'Bumerangue', 'Vai e volta.', 'icone-lasca', 'lasca', 'volta', { dano: 10, vel: 160, cadencia: 1.3, duracao: 2.4 }),
-  golpe('redemoinho', 'Redemoinho', 'Puxa os bichos para perto.', 'icone-faisca', 'faisca', 'vortex', { dano: 5, raio: 50, puxa: 90, cadencia: 6, duracao: 3.5 }),
-  golpe('estilingue', 'Estilingue', 'Três pedrinhas de uma vez.', 'icone-lasca', 'pedregulho', 'tiro', { dano: 7, vel: 200, n: 3, cadencia: 1.15, duracao: 0.9 }),
-  golpe('fogueira', 'Fogueira', 'Um círculo de calor.', 'icone-fogueira-carta', 'faisca', 'aura', { dano: 8, raio: 34, queima: true, cadencia: 7, duracao: 5 }),
-  golpe('marreta', 'Marreta', 'Uma pancada que empurra.', 'icone-lanca', 'pedregulho', 'tiro', { dano: 18, vel: 150, empurrao: 120, cadencia: 1.4, duracao: 0.7, hit: 12 }),
+  golpe('lasca', 'Lasca', 'Uma pedra vai no alvo.', 'icone-lasca', 'pedregulho', 'tiro', { dano: 8, vel: 200, cadencia: 0.95, duracao: 1.1, hit: 6, alcance: 240 }),
+  golpe('funda', 'Funda', 'Uma pedra voa no alvo.', 'icone-lasca', 'pedregulho', 'tiro', { dano: 12, vel: 190, cadencia: 0.85, duracao: 1.2, hit: 6, alcance: 260 }),
+  golpe('lanca', 'Lança', 'Uma estocada no alvo perto.', 'icone-lanca', 'lanca', 'estocada', { dano: 14, cadencia: 0.7, duracao: 0.22, alcance: 72, hit: 10 }),
+  golpe('machado', 'Machado', 'Um golpe curto no alvo.', 'icone-lanca', 'lanca', 'estocada', { dano: 16, cadencia: 0.9, duracao: 0.24, alcance: 64, hit: 12 }),
+  golpe('tocha', 'Tocha', 'Queima o alvo marcado.', 'icone-fogueira-carta', 'faisca', 'noalvo', { dano: 6, raio: 36, cadencia: 4.5, duracao: 2.4, queima: true, alcance: 200 }),
+  golpe('faisca', 'Faísca', 'Um risco no alvo.', 'icone-faisca', 'faisca', 'tiro', { dano: 9, vel: 260, n: 2, cadencia: 0.7, duracao: 0.6, hit: 5, alcance: 240 }),
+  golpe('pedregulho', 'Pedregulho', 'Uma pedra pesada no alvo.', 'pedregulho', 'pedregulho', 'tiro', { dano: 22, vel: 140, empurrao: 80, cadencia: 1.5, duracao: 1.3, hit: 10, alcance: 220 }),
+  golpe('bumerangue', 'Bumerangue', 'Vai no alvo e volta.', 'icone-lasca', 'lasca', 'volta', { dano: 10, vel: 160, cadencia: 1.3, duracao: 2.4, alcance: 220 }),
+  golpe('redemoinho', 'Redemoinho', 'Puxa quem está no alvo.', 'icone-faisca', 'faisca', 'noalvo', { dano: 5, raio: 48, puxa: 90, cadencia: 5, duracao: 2.2, alcance: 200 }),
+  golpe('estilingue', 'Estilingue', 'Três pedrinhas no alvo.', 'icone-lasca', 'pedregulho', 'tiro', { dano: 7, vel: 200, n: 3, cadencia: 1.15, duracao: 0.9, alcance: 240 }),
+  golpe('fogueira', 'Fogueira', 'Calor em volta do alvo.', 'icone-fogueira-carta', 'faisca', 'noalvo', { dano: 8, raio: 34, queima: true, cadencia: 6, duracao: 2.6, alcance: 180 }),
+  golpe('marreta', 'Marreta', 'Uma pancada no alvo.', 'icone-lanca', 'pedregulho', 'estocada', { dano: 18, empurrao: 120, cadencia: 1.2, duracao: 0.2, alcance: 68, hit: 14 }),
 ]
 
 const bicho = (sprite, hp, vel, dano, xp, massa, raio, comportamento, extra) => ({
@@ -76,7 +76,7 @@ export const conteudoPlaneta = {
   api: '__planeta',
   titulo: 'Planeta do Samuel',
   pesca: false,
-  inicial: 'lasca',
+  inicial: 'funda',
   heroi: 'samuel',
   heroiParado: 'samuel-parado',
   heroiAnda: 'samuel-andar',

@@ -105,6 +105,7 @@ export async function iniciar(conteudo) {
     mostrar(pausa, false)
     if (partida.pausa === 'cartas') pintarCartas()
     if (partida.pausa === 'fim') pintarFim()
+    sincronizarHud()
   }
 
   function nomeDa(fase) {
@@ -129,6 +130,10 @@ export async function iniciar(conteudo) {
     const palco = document.getElementById('palco')
     const bw = palco.clientWidth || vista.w * vista.cssScale
     const bh = palco.clientHeight || vista.h * vista.cssScale
+    const retrato = bh > bw
+    if (retrato) {
+      return { x: 0, y: 0, w: bw, h: bh, retrato, sx: bw / conteudo.mapa.w, sy: bh / conteudo.mapa.h }
+    }
     const aspecto = conteudo.mapa.w / conteudo.mapa.h
     let w
     let h
@@ -139,7 +144,8 @@ export async function iniciar(conteudo) {
       w = bw
       h = w / aspecto
     }
-    return { x: (bw - w) / 2, y: (bh - h) / 2, w, h, escala: w / conteudo.mapa.w }
+    const escala = w / conteudo.mapa.w
+    return { x: (bw - w) / 2, y: (bh - h) / 2, w, h, retrato, sx: escala, sy: escala }
   }
 
   function pintarNos() {
@@ -147,14 +153,16 @@ export async function iniciar(conteudo) {
     const cenario = document.getElementById('cenario')
     caixa.replaceChildren()
     const ret = retanguloDoMapa()
-    const escala = ret.escala
-    for (const el of [cenario, caixa]) {
-      el.style.left = `${ret.x}px`
-      el.style.top = `${ret.y}px`
-      el.style.width = `${ret.w}px`
-      el.style.height = `${ret.h}px`
-    }
-    const lado = Math.max(48, escala * 42)
+    caixa.style.left = `${ret.x}px`
+    caixa.style.top = `${ret.y}px`
+    caixa.style.width = `${ret.w}px`
+    caixa.style.height = `${ret.h}px`
+    cenario.style.left = `${ret.x}px`
+    cenario.style.top = `${ret.y}px`
+    cenario.style.width = `${ret.w}px`
+    cenario.style.height = `${ret.h}px`
+    cenario.style.transform = 'none'
+    const lado = Math.max(48, Math.min(ret.sx, ret.sy) * 42)
     for (const fase of conteudo.fases) {
       const aberta = fase.ordem <= save.aberta
       const feita = save.vencidas.includes(fase.ordem)
@@ -165,8 +173,10 @@ export async function iniciar(conteudo) {
       botao.id = `no-${fase.ordem}`
       botao.dataset.alvo = '1'
       botao.disabled = !aberta
-      botao.style.left = `${fase.x * escala - lado / 2}px`
-      botao.style.top = `${fase.y * escala - lado / 2}px`
+      const px = fase.x * ret.sx
+      const py = fase.y * ret.sy
+      botao.style.left = `${px - lado / 2}px`
+      botao.style.top = `${py - lado / 2}px`
       botao.style.width = `${lado}px`
       botao.style.height = `${lado}px`
       botao.setAttribute('aria-label', nomeDa(fase))
@@ -360,7 +370,7 @@ export async function iniciar(conteudo) {
     partida.vista.h = vista.h
     const cssW = Math.round(vista.w * vista.cssScale)
     const cssH = Math.round(vista.h * vista.cssScale)
-    if (tela.width !== vista.w) {
+    if (tela.width !== vista.w || tela.height !== vista.h) {
       tela.width = vista.w
       tela.height = vista.h
       tela.style.width = `${cssW}px`
@@ -370,6 +380,8 @@ export async function iniciar(conteudo) {
     ctx.imageSmoothingEnabled = false
     const sx = partida.tremor ? Math.sin(partida.tempo * 40) * partida.tremor : 0
     const sy = partida.tremor ? Math.cos(partida.tempo * 35) * partida.tremor : 0
+    partida.camera.x = partida.jogador.x - vista.w / 2
+    partida.camera.y = partida.jogador.y - vista.h / 2
     const camX = partida.camera.x + sx
     const camY = partida.camera.y + sy
     ctx.fillStyle = conteudo.cores[partida.bioma] || '#8FCB6B'
@@ -433,16 +445,6 @@ export async function iniciar(conteudo) {
       ctx.arc(x, y, z.r, 0, Math.PI * 2)
       ctx.stroke()
     }
-    for (const a of partida.ataques) {
-      const x = a.x != null ? a.x : partida.jogador.x
-      const y = a.y != null ? a.y : partida.jogador.y
-      const [sx2, sy2] = mundo(x, y)
-      if (a.sprite) desenharSprite(a.sprite, sx2, sy2 + 6, 2, partida.tempo, 12, false)
-      else {
-        ctx.fillStyle = '#FF9D52'
-        ctx.fillRect(sx2 - 3, sy2 - 3, 6, 6)
-      }
-    }
     desenharPerigo('chao', mundo)
     const lista = [...partida.inimigos].sort((a, b) => a.y - b.y)
     for (const b of lista) {
@@ -464,6 +466,52 @@ export async function iniciar(conteudo) {
     if (!desenharMotor(conteudo.heroi, jx, jy, j.dir, j.anim, animHeroi)) {
       const idHeroi = j.andando ? conteudo.heroiAnda : conteudo.heroiParado
       desenharSprite(idHeroi, jx, jy, j.dir, j.anim, conteudo.heroiAltura, !!partida.barcoDourado)
+    }
+    if (partida.alvo && partida.alvo.morrendo < 0) desenharMoldura(mundo, partida.alvo)
+    for (const a of partida.ataques) {
+      if (a.tipo === 'estocada') {
+        const [x1, y1] = mundo(a.x, a.y)
+        const [x2, y2] = mundo(a.ax, a.ay)
+        ctx.lineCap = 'round'
+        ctx.strokeStyle = '#193337'
+        ctx.lineWidth = 7
+        ctx.beginPath()
+        ctx.moveTo(x1, y1)
+        ctx.lineTo(x2, y2)
+        ctx.stroke()
+        ctx.strokeStyle = '#FF9D52'
+        ctx.lineWidth = 4
+        ctx.stroke()
+        ctx.lineCap = 'butt'
+      }
+      const x = a.x != null ? a.x : partida.jogador.x
+      const y = a.y != null ? a.y : partida.jogador.y
+      const [sx2, sy2] = mundo(x, y)
+      if (a.tipo === 'noalvo') {
+        ctx.strokeStyle = '#193337'
+        ctx.lineWidth = 4
+        ctx.beginPath()
+        ctx.arc(sx2, sy2, a.raio, 0, Math.PI * 2)
+        ctx.stroke()
+        ctx.strokeStyle = '#FF9D52'
+        ctx.lineWidth = 2
+        ctx.stroke()
+      }
+      if (a.tipo !== 'estocada' && a.tipo !== 'noalvo') {
+        ctx.fillStyle = '#193337'
+        ctx.beginPath()
+        ctx.arc(sx2, sy2, 11, 0, Math.PI * 2)
+        ctx.fill()
+        ctx.fillStyle = '#F6E27A'
+        ctx.beginPath()
+        ctx.arc(sx2, sy2, 7, 0, Math.PI * 2)
+        ctx.fill()
+      }
+      if (a.sprite && a.tipo !== 'estocada') desenharSprite(a.sprite, sx2, sy2 + 8, 2, partida.tempo, 16, false)
+      else if (!a.sprite && a.tipo !== 'estocada' && a.tipo !== 'noalvo') {
+        ctx.fillStyle = '#FF9D52'
+        ctx.fillRect(sx2 - 4, sy2 - 4, 8, 8)
+      }
     }
     for (const part of partida.particulas) {
       const [x, y] = mundo(part.x, part.y)
@@ -494,6 +542,29 @@ export async function iniciar(conteudo) {
     }
     desenharPerigo('frente', mundo)
     sincronizarHud()
+  }
+
+  function desenharMoldura(mundo, b) {
+    const [x, y] = mundo(b.x, b.y)
+    const sp = motor[b.sprite]
+    const folha = sp && sp.anims.Walk
+    const largura = folha ? folha.frameW : (b.altura || b.raio * 2)
+    const altura = folha ? folha.frameH : (b.altura || b.raio * 2)
+    const pe = sp ? sp.body.footY : altura / 2
+    const topo = y - (altura / 2 + pe)
+    const margem = 6
+    const rx = Math.round(x - largura / 2 - margem)
+    const ry = Math.round(topo - margem)
+    const rw = largura + margem * 2
+    const rh = altura + margem * 2
+    ctx.save()
+    ctx.strokeStyle = '#193337'
+    ctx.lineWidth = 7
+    ctx.strokeRect(rx, ry, rw, rh)
+    ctx.strokeStyle = '#E02020'
+    ctx.lineWidth = 4
+    ctx.strokeRect(rx, ry, rw, rh)
+    ctx.restore()
   }
 
   function quadroDaPeca(peca, tempo, umaVez) {
