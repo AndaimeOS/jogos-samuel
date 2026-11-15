@@ -1,6 +1,11 @@
 /* Pebolim — mesa deitada, em cima do kit ui-blocos.css. Arte provisória. */
 
 body { background: #193337; }
+/* O kit trava o toque com touch-action: none no body. No menu isso impede o
+   iPad de rolar a página do player quando o botão fica abaixo da dobra.
+   Na partida, a mesa continua sem rolagem para o arraste mover as hastes. */
+html, body { touch-action: manipulation; }
+body.jogando, #palco, #mesa { touch-action: none; }
 #palco { position: fixed; inset: 0; z-index: 1; }
 body.jogando #palco { top: 76px; }
 #mesa { width: 100%; height: 100%; object-fit: contain; display: block; background: transparent; }

@@ -81,6 +81,64 @@
     desenhar();
   }
 
+  // ---------- Tela cheia (player) ----------
+  // No iPad o Safari muitas vezes não tem requestFullscreen (ou só a variante
+  // webkit, que pode não devolver uma Promise). Sem a API, a moldura cresce
+  // na própria página — o clique nunca pode estourar.
+  function pedirTelaCheia(el) {
+    const fn = el.requestFullscreen || el.webkitRequestFullscreen || el.webkitRequestFullScreen;
+    return typeof fn === 'function' ? fn : null;
+  }
+  function sairTelaCheiaNativa() {
+    const fn = document.exitFullscreen || document.webkitExitFullscreen || document.webkitCancelFullScreen;
+    return typeof fn === 'function' ? fn : null;
+  }
+  function emTelaCheiaNativa() {
+    return !!(document.fullscreenElement || document.webkitFullscreenElement || document.webkitCurrentFullScreenElement);
+  }
+  function sincronizarTelaCheia(moldura, tela) {
+    const ligada = emTelaCheiaNativa() || moldura.classList.contains('player-cheia');
+    tela.setAttribute('aria-pressed', ligada ? 'true' : 'false');
+  }
+  function usarTelaCheiaCss(moldura, tela) {
+    moldura.classList.add('player-cheia');
+    document.body.classList.add('player-tela-cheia');
+    tela.setAttribute('aria-pressed', 'true');
+  }
+  function alternarTelaCheia(moldura, tela) {
+    if (emTelaCheiaNativa() || moldura.classList.contains('player-cheia')) {
+      const sair = sairTelaCheiaNativa();
+      if (emTelaCheiaNativa() && sair) {
+        try {
+          const resultado = sair.call(document);
+          if (resultado && typeof resultado.catch === 'function') resultado.catch(() => avisar('Tela cheia não disponível aqui.'));
+        } catch {
+          avisar('Tela cheia não disponível aqui.');
+        }
+      }
+      moldura.classList.remove('player-cheia');
+      document.body.classList.remove('player-tela-cheia');
+      tela.setAttribute('aria-pressed', 'false');
+      return;
+    }
+    const pedir = pedirTelaCheia(moldura);
+    const api = document.fullscreenEnabled || document.webkitFullscreenEnabled;
+    if (pedir && api) {
+      try {
+        const resultado = pedir.call(moldura);
+        if (resultado && typeof resultado.then === 'function') {
+          resultado.then(() => tela.setAttribute('aria-pressed', 'true')).catch(() => usarTelaCheiaCss(moldura, tela));
+          return;
+        }
+        tela.setAttribute('aria-pressed', 'true');
+        return;
+      } catch {
+        /* o Safari recusou; segue o fallback visual */
+      }
+    }
+    usarTelaCheiaCss(moldura, tela);
+  }
+
   // ---------- Player ----------
   const jogo = $('#jogo');
   if (jogo) {
@@ -105,14 +163,29 @@
       if (d && d.readyState === 'complete' && jogo.contentWindow.location.href !== 'about:blank') { clearTimeout(espera); carregando.hidden = true; }
     } catch {}
     const moldura = $('#moldura');
-    // celular/tablet: rola até o jogo para ele ocupar a tela
-    if (matchMedia('(max-width:760px), (max-height:560px)').matches) setTimeout(() => window.scrollTo(0, moldura.getBoundingClientRect().top + window.scrollY), 150);
+    // Celular e iPad deitado (até ~900px de altura, só toque): rola até o jogo.
+    // No iPad em paisagem a moldura começa abaixo da dobra e o botão de jogar some.
+    const consultaTela = '(max-width:760px), (max-height:560px), ((max-height:900px) and (pointer: coarse))';
+    function encaixarJogo() {
+      if (!moldura || !matchMedia(consultaTela).matches) return;
+      const topo = moldura.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo(0, topo);
+    }
+    setTimeout(encaixarJogo, 150);
+    window.addEventListener('orientationchange', () => setTimeout(encaixarJogo, 250));
     const tela = $('[data-tela-cheia]');
-    if (document.fullscreenEnabled && moldura.requestFullscreen) {
+    if (tela && moldura) {
       tela.hidden = false;
-      tela.addEventListener('click', () => {
-        if (document.fullscreenElement) document.exitFullscreen();
-        else moldura.requestFullscreen().catch(() => avisar('Tela cheia não disponível aqui.'));
+      tela.setAttribute('aria-pressed', 'false');
+      tela.addEventListener('click', () => alternarTelaCheia(moldura, tela));
+      document.addEventListener('fullscreenchange', () => sincronizarTelaCheia(moldura, tela));
+      document.addEventListener('webkitfullscreenchange', () => sincronizarTelaCheia(moldura, tela));
+      window.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Escape' && moldura.classList.contains('player-cheia')) {
+          moldura.classList.remove('player-cheia');
+          document.body.classList.remove('player-tela-cheia');
+          tela.setAttribute('aria-pressed', 'false');
+        }
       });
     }
     jogo.addEventListener('load', () => { try { jogo.contentWindow.focus(); } catch {} });

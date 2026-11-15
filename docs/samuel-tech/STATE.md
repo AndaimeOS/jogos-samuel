@@ -3,6 +3,15 @@
 Atualizado ao fim de cada sessão (ST-090). Um bloco por sessão, o mais novo em cima.
 Vale o que está aqui e no Notion, não a memória do chat.
 
+## 2026-11-15 — Pebolim no iPad (WebKit)
+
+- **Pedido do Boaz (15/11 09:56 BRT):** o Pebolim não funciona no iPad; investigar e corrigir. O Samuel joga no Safari/WebKit. Deploy desta sessão não é daqui: só o merge na `main`.
+- **Causa:** em paisagem (1024×768) o `/jogar/` deixa o iframe em 78vh, o botão Jogar fica abaixo da dobra, e o `touch-action: none` do jogo come o toque — a página do player não rola.
+- **Feito:** no iPad deitado o iframe passa a ocupar a tela e a página rola até a mesa; no menu o toque pode rolar, na partida a mesa continua sem rolagem; o botão Tela cheia usa `requestFullscreen` ou `webkitRequestFullscreen` e, se o Safari não tiver a API, cresce a moldura sem estourar. `release.json` do Pebolim vai para `producao` 0.1.1. Teste WebKit/iPad (toque, saque, hastes, tela cheia) e smoke dos jogos `pronto`.
+- **Não feito:** publicar no samuel.tech.
+- **Notion:** esta sessão não veio de um card da fila; o hub não foi atualizado.
+- **NEXT:** o Boaz publica (o pacote ainda não foi gerado aqui).
+
 ## 2026-11-15 — Planeta do Samuel 0.2.0 (barra sem texto, merge autorizado)
 
 - **Pedido do Boaz:** tirar o selo PROPOSTA da tela, trocar a barra de cima por nível, XP, corações, timer e ícones (sem texto), marcar o Planeta como `0.2.0` / `pronto` e fazer o merge do PR #8. O deploy no ar fica para outra etapa.
