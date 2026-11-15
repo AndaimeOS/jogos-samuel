@@ -52,6 +52,18 @@ function escalaY() {
   return mesa.height / Math.max(1, dh);
 }
 
+let faixaPx = 0;
+function ajustarFaixa() {
+  const rect = mesa.getBoundingClientRect();
+  const aspect = mesa.width / mesa.height;
+  const box = rect.width / Math.max(1, rect.height);
+  const larguraMesa = box > aspect ? rect.height * aspect : rect.width;
+  const largura = Math.round(Math.max(160, Math.min(larguraMesa, window.innerWidth) - 28));
+  if (largura === faixaPx) return;
+  faixaPx = largura;
+  document.documentElement.style.setProperty('--faixa', `${largura}px`);
+}
+
 function tempoTexto(seg) {
   const s = Math.max(0, Math.ceil(seg));
   const m = Math.floor(s / 60);
@@ -97,6 +109,7 @@ function sincronizar() {
   ui.pV.textContent = String(partida.placar.vermelho);
   ui.pA.textContent = String(partida.placar.azul);
   ui.pT.textContent = tempoTexto(partida.tempo);
+  ajustarFaixa();
   ui.aviso.hidden = !partida.aviso;
   ui.aviso.textContent = partida.aviso || '';
   ui.deite.hidden = window.innerWidth >= window.innerHeight;
@@ -171,17 +184,6 @@ function desenharMesa() {
   ret(px(0), py(y1), CONFIG.trave.profundidade, CONFIG.trave.espessura);
   ret(px(c - CONFIG.trave.profundidade), py(y0 - CONFIG.trave.espessura), CONFIG.trave.profundidade, CONFIG.trave.espessura);
   ret(px(c - CONFIG.trave.profundidade), py(y1), CONFIG.trave.profundidade, CONFIG.trave.espessura);
-
-  ctx.fillStyle = 'rgba(245,242,232,.85)';
-  ctx.font = '700 18px Courier New, monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText('VERMELHO', px(c * 0.18), py(28));
-  ctx.fillText('AZUL', px(c * 0.82), py(28));
-  if (partida.modo === '1') {
-    ctx.font = '700 13px Courier New, monospace';
-    ctx.fillText('você', px(c * 0.18), py(48));
-    ctx.fillText('computador', px(c * 0.82), py(48));
-  }
 }
 
 function desenharBarras() {

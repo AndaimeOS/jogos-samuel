@@ -32,7 +32,21 @@ body.jogando #palco { top: 76px; }
 .festa-blocos i:nth-child(6) { background: #2f6fed; }
 .festa-blocos i:nth-child(7) { background: #fffdf7; }
 
-.deite { position: fixed; left: 50%; top: 8px; transform: translateX(-50%); z-index: 30; margin: 0;
+/* A faixa cabe na mesa (e na tela): a largura vem de --faixa, a linha quebra
+   e a fonte encolhe. Sem isso o texto nowrap de 60px vaza no iPad em pé. */
+.aviso {
+  box-sizing: border-box;
+  width: min(var(--faixa, calc(100vw - 28px)), calc(100vw - 28px));
+  max-width: calc(100vw - 28px);
+  padding: 0 6px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.05;
+  font-size: clamp(20px, 4.8vw, 46px);
+  letter-spacing: -1px;
+}
+.deite { position: fixed; left: 50%; top: 78px; transform: translateX(-50%); z-index: 30; margin: 0;
+  box-sizing: border-box; max-width: calc(100vw - 24px); white-space: normal; text-align: center; line-height: 1.25;
   background: var(--gold); border: var(--line); box-shadow: var(--shadow); padding: 8px 12px;
   font: 800 16px Courier New, monospace; }
 
