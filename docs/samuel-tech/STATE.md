@@ -3,6 +3,14 @@
 Atualizado ao fim de cada sessão (ST-090). Um bloco por sessão, o mais novo em cima.
 Vale o que está aqui e no Notion, não a memória do chat.
 
+## 2026-11-15 — Samuel Corredor 0.1.0 (rodada 2, ainda sem publicar)
+
+- **Pedido:** última rodada. Mapa com o fundo de cada fase, retrato sem o céu vazio, buraco que pareça buraco, print do bloco com o Samuel em cima, vitória com uma estrela cheia. Sem merge e sem deploy.
+- **Feito:** o mapa usa o céu e o chão de cada fase (`tiles.png`), o caminho pontilhado e o título "Escolha a fase", com o Samuel em pé no nó atual. No retrato a câmera usa zoom 2,2 (altura visível ~109 px) e o céu vazio acima do morro fica abaixo de 25%. O fundo do buraco, no campo e na floresta, escurece até quase preto. O bloco que cai continua sólido e leva o Samuel junto. A vitória da rodada mostra 1 cristal cheio e 2 vazios.
+- **Testes:** regras 7/7 e iPad WebKit 7/7 (60 s em 1024×768 e 768×1024, 60 s no iframe nos dois sentidos, sem erro no console). `verificar_jogo.py --todos` ok. O smoke dos jogos prontos passou.
+- **Não feito:** merge, deploy, fundo `_v2` do Gerador (o buraco já foi escurecido aqui).
+- **NEXT:** o Boaz olha os prints. Este agente não faz o deploy.
+
 ## 2026-11-15 — Samuel Corredor 0.1.0 (arte final, ainda sem publicar)
 
 - **Pedido:** entrar a entrega final do Gerador (`corredor-entrega`) no lugar dos placeholders e fechar a rodada dos prints (moedas e 3 cristais, mapa com nós, castelinho, floresta e caverna provadas, 60 s de toque no retrato e no iframe). Sem merge, sem push na `main` e sem deploy.
