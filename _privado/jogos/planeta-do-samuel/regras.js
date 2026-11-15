@@ -1,53 +1,91 @@
-/* Planeta do Samuel — números e regras da proposta 0.1.0.
-   Tudo que está aqui é PROPOSTA: dá para mudar sem quebrar o formato do save,
-   desde que schemaVersion continue 1. Não há armas, ataques, chefes nem inimigos.
-   A noite só escurece. No Fácil, fome ou calor em zero só deixam o passo lento. */
+/* Planeta do Samuel — laço da proposta 0.2.
+   Todos os números estão em CONFIG e são PROPOSTA.
+   Reescrito em JS, sem arte de Pokémon, a partir do código MIT de Pedro Barretto:
+   xpPara / ganhar XP (src/game/leveling.ts), faixa de gema (src/game/pickups.ts),
+   anel, bando e chefe fora da tela (src/game/spawner.ts),
+   fase do chefe na metade da vida (src/game/bossFight.ts).
+   No Fácil, vida em zero não acaba a partida e não tira progresso. */
+
+import { dir8 } from './motor/math.js';
 
 export const PROPOSTA = true;
 
 export const CONFIG = {
   proposta: true,
   rotulo: 'PROPOSTA',
-  versao: '0.1.0',
-  schemaVersion: 1,
+  versao: '0.2.0',
+  schemaVersion: 2,
   chaveSave: 'planeta-do-samuel:save',
   modo: 'facil',
-  semInimigos: true,
-  semArmas: true,
+  semMorte: true,
   bloco: 16,
-  alcance: 26,
-  raioJogador: 6,
-  velocidade: 72,
-  fatorLentidao: 0.4,
-  fomeMax: 100,
-  calorMax: 100,
-  fomeInicial: 80,
-  calorInicial: 80,
-  fomePorSegundo: 0.45,
-  calorPorSegundo: 0.28,
-  frioNoiteExtra: 0.55,
-  frutaRecupera: 32,
-  calorFogueiraPorSegundo: 7,
-  calorCasaPorSegundo: 3,
-  raioFogueira: 80,
-  raioCasa: 40,
-  raioFarol: 150,
-  duracaoDia: 90,
-  horaInicial: 0.22,
-  noiteInicio: 0.62,
-  noiteFim: 0.9,
-  escuridaoMax: 0.78,
+  raioJogador: 8,
+  velocidade: 78,
+  vidaMax: 100,
+  invulneravelSegundos: 2,
   autosaveSegundos: 8,
-  canteiroPorSegundo: 0.12,
-  canteiroMax: 4,
-  recargaFruta: 45,
-  rendimento: {
-    graveto: 1,
-    seixo: 1,
-    fruta: 1,
-    arvore: 3,
-    rocha: 2,
-    veio: 2,
+  distanciaOnda: 170,
+  raioColeta: 26,
+  ima: 140,
+  contatoEspera: 0.45,
+  chefeAfina: 0.25,
+  chefeMaxVivos: 4,
+  chefeMeia: 0.5,
+  chefeTelegraph: 0.6,
+  chefeInvestida: 150,
+  chefeInvestidaTempo: 0.45,
+  chefeCirculo: 30,
+  chefeAnel: 8,
+  melhorarDano: 0.3,
+  melhorarIntervalo: 0.82,
+  vidaCarta: 25,
+  xpChefe: 12,
+  xpFaixa: [1, 3, 8],
+  efeitoAcerto: 0.15,
+  efeitoMorte: 0.35,
+  efeitoLevel: 0.45,
+  escuridaoFerro: 0.72,
+  raioFogueira: 80,
+  raioFarol: 150,
+  guardaToqueMs: 350,
+  armas: {
+    lasca: { dano: 7, orbita: 40, raio: 8, giro: 2.4, intervalo: 0.32, orbes: 3 },
+    lanca: { dano: 12, velocidade: 200, intervalo: 0.85, raio: 6 },
+    faisca: { dano: 9, raio: 34, intervalo: 0.45 },
+    fogueira: { raioExtra: 26, raioLuz: 80, dano: 5, intervalo: 0.5 },
+    pedregulho: { dano: 12, velocidade: 90, raio: 8 },
+  },
+  inimigos: {
+    'seixo-vivo': { hp: 8, velocidade: 28, raio: 8, xp: 1, dano: 6, comportamento: 'chase', sprite: 'seixo-vivo' },
+    'lobo-da-pedra': { hp: 14, velocidade: 52, raio: 10, xp: 2, dano: 8, comportamento: 'chase', sprite: 'lobo-da-pedra' },
+    enxame: { hp: 4, velocidade: 70, raio: 6, xp: 1, dano: 5, comportamento: 'flyby', sprite: 'enxame' },
+    'guerreiro-de-bronze': { hp: 18, velocidade: 42, raio: 10, xp: 2, dano: 10, comportamento: 'chase', sprite: 'guerreiro-de-bronze' },
+    escorpiao: { hp: 12, velocidade: 36, raio: 9, xp: 2, dano: 12, comportamento: 'chase', sprite: 'escorpiao' },
+    'golem-de-barro': { hp: 36, velocidade: 18, raio: 14, xp: 3, dano: 10, comportamento: 'chase', sprite: 'golem-de-barro' },
+    'soldado-de-ferro': { hp: 22, velocidade: 40, raio: 10, xp: 2, dano: 11, comportamento: 'chase', sprite: 'soldado-de-ferro' },
+    catapulta: { hp: 20, velocidade: 0, raio: 12, xp: 3, dano: 0, comportamento: 'torre', sprite: 'catapulta', intervalo: 2.2 },
+    'lobo-de-ferro': { hp: 16, velocidade: 64, raio: 10, xp: 2, dano: 10, comportamento: 'chase', sprite: 'lobo-de-ferro' },
+    'lanca-chuva': { hp: 5, velocidade: 150, raio: 6, xp: 1, dano: 9, comportamento: 'flyby', sprite: 'lanca' },
+    'faisca-anel': { hp: 6, velocidade: 24, raio: 7, xp: 1, dano: 8, comportamento: 'chase', sprite: 'faisca' },
+    'urso-da-caverna': { hp: 110, velocidade: 34, raio: 18, xp: 12, dano: 14, comportamento: 'chefe', sprite: 'urso-da-caverna' },
+    'sentinela-de-bronze': { hp: 140, velocidade: 22, raio: 16, xp: 14, dano: 12, comportamento: 'chefe', sprite: 'sentinela-de-bronze' },
+    'colosso-de-ferro': { hp: 180, velocidade: 30, raio: 20, xp: 16, dano: 16, comportamento: 'chefe', sprite: 'colosso-de-ferro' },
+  },
+  eras: {
+    pedra: { ate: 90, taxa: 0.8, max: 12, horda: ['seixo-vivo', 'lobo-da-pedra'] },
+    bronze: { ate: 180, taxa: 1.2, max: 18, horda: ['guerreiro-de-bronze', 'escorpiao', 'golem-de-barro'] },
+    ferro: { ate: 270, taxa: 1.6, max: 24, horda: ['soldado-de-ferro', 'catapulta', 'lobo-de-ferro'] },
+  },
+  marcos: {
+    pedraBando: { em: 30, tipo: 'enxame', n: 5, kind: 'swarm' },
+    pedraAnel: { em: 45, tipo: 'seixo-vivo', n: 6, kind: 'ring' },
+    pedraChefe: { em: 90, tipo: 'urso-da-caverna' },
+    bronzeBando: { em: 120, tipo: 'lanca-chuva', n: 6, kind: 'swarm' },
+    bronzeAnel: { em: 135, tipo: 'guerreiro-de-bronze', n: 6, kind: 'ring' },
+    bronzeChefe: { em: 180, tipo: 'sentinela-de-bronze' },
+    ferroBando: { em: 210, tipo: 'lobo-de-ferro', n: 4, kind: 'swarm' },
+    ferroAnel: { em: 225, tipo: 'faisca-anel', n: 8, kind: 'ring' },
+    ferroChefe: { em: 270, tipo: 'colosso-de-ferro' },
   },
 };
 
@@ -60,62 +98,21 @@ export const ERAS = {
 export const TEXTOS = {
   proposta: 'PROPOSTA',
   fim: 'O farol está aceso. O planetinha ficou visível. PROPOSTA.',
-  buscar: {
-    madeira: 'Junte madeira. A seta mostra onde. PROPOSTA.',
-    pedra: 'Junte pedra. A seta mostra onde. PROPOSTA.',
-    minerio: 'Junte minério. A seta mostra onde. PROPOSTA.',
-    fruta: 'Colha uma fruta. A seta mostra onde. PROPOSTA.',
-    barra: 'Funda minério na fornalha para fazer uma barra. PROPOSTA.',
+  dica: {
+    pedra: 'A Pedra chegou. A lasca gira sozinha. PROPOSTA.',
+    bronze: 'O Bronze chegou. Escolha a lança quando o nível subir. PROPOSTA.',
+    ferro: 'O Ferro escurece. A faísca e a fogueira iluminam. PROPOSTA.',
+    farol: 'O farol está aceso. O planetinha ficou visível. PROPOSTA.',
   },
-  estacao: {
-    toca: 'Entregue madeira e pedra na toca para o machado. PROPOSTA.',
-    fogueira: 'Acenda a fogueira. Ela aquece e ilumina. PROPOSTA.',
-    pesquisaBronze: 'Pesquise a Idade do Bronze. PROPOSTA.',
-    bancada: 'Monte a bancada. PROPOSTA.',
-    fornalha: 'Monte a fornalha. PROPOSTA.',
-    canteiro: 'Prepare o canteiro. PROPOSTA.',
-    pesquisaFerro: 'Pesquise a Idade do Ferro. PROPOSTA.',
-    ferramentas: 'Faça as ferramentas de ferro. PROPOSTA.',
-    casinha: 'Levante a casinha. PROPOSTA.',
-    farol: 'Acenda o farol. PROPOSTA.',
+  cartas: {
+    lasca: { nome: 'Lasca de pedra', texto: 'Pedras passam a girar em volta. PROPOSTA.' },
+    lanca: { nome: 'Lança de bronze', texto: 'Um tiro vai no inimigo mais perto. PROPOSTA.' },
+    faisca: { nome: 'Faísca de ferro', texto: 'Uma aura curta queima quem chega. PROPOSTA.' },
+    fogueira: { nome: 'Fogueira', texto: 'A aura cresce e acende uma luz. PROPOSTA.' },
+    dano: { nome: 'Golpe mais forte', texto: 'As armas que você tem doem mais. PROPOSTA.' },
+    ritmo: { nome: 'Mais rápido', texto: 'As armas disparam com menos espera. PROPOSTA.' },
+    vida: { nome: 'Mais fôlego', texto: 'A vida máxima sobe e você se cura. PROPOSTA.' },
   },
-};
-
-/* Custos provisórios. A ordem dos pares é a ordem da entrega (o x/N). */
-export const ESTACOES = [
-  { id: 'toca', nome: 'Toca de lascar', precisaEra: 'pedra', efeito: 'machado', custo: [['madeira', 2], ['pedra', 2]] },
-  { id: 'fogueira', nome: 'Fogueira', precisaEra: 'pedra', precisaEfeito: 'machado', efeito: 'fogueira', custo: [['madeira', 3], ['pedra', 1]] },
-  { id: 'pesquisaBronze', nome: 'Pesquisa do bronze', precisaEra: 'pedra', precisaEfeito: 'fogueira', efeito: 'era:bronze', custo: [['madeira', 2], ['pedra', 2], ['fruta', 1]] },
-  { id: 'bancada', nome: 'Bancada', precisaEra: 'bronze', efeito: 'bancada', custo: [['madeira', 3], ['pedra', 2]] },
-  { id: 'fornalha', nome: 'Fornalha', precisaEra: 'bronze', efeito: 'fornalha', custo: [['pedra', 3], ['minerio', 2]] },
-  { id: 'canteiro', nome: 'Canteiro', precisaEra: 'bronze', efeito: 'canteiro', custo: [['madeira', 2], ['fruta', 1]] },
-  { id: 'pesquisaFerro', nome: 'Pesquisa do ferro', precisaEra: 'bronze', precisaEfeito: 'fornalha', efeito: 'era:ferro', custo: [['barra', 2], ['madeira', 1]] },
-  { id: 'ferramentas', nome: 'Ferramentas de ferro', precisaEra: 'ferro', precisaEfeito: 'bancada', efeito: 'ferro', custo: [['barra', 2], ['madeira', 1]] },
-  { id: 'casinha', nome: 'Casinha', precisaEra: 'ferro', efeito: 'casa', custo: [['madeira', 3], ['pedra', 2], ['barra', 1]] },
-  { id: 'farol', nome: 'Farol', precisaEra: 'ferro', precisaEfeitos: ['ferro', 'casa'], efeito: 'farol', custo: [['madeira', 2], ['barra', 1]] },
-];
-
-const LETRAS = {
-  S: 'inicio',
-  A: 'toca',
-  C: 'fogueira',
-  Q: 'pesquisaBronze',
-  B: 'bancada',
-  U: 'fornalha',
-  P: 'canteiro',
-  G: 'pesquisaFerro',
-  E: 'ferramentas',
-  H: 'casinha',
-  L: 'farol',
-};
-
-const RECURSOS = {
-  t: { tipo: 'graveto', item: 'madeira', ferramenta: null },
-  r: { tipo: 'seixo', item: 'pedra', ferramenta: null },
-  F: { tipo: 'fruta', item: 'fruta', ferramenta: null },
-  T: { tipo: 'arvore', item: 'madeira', ferramenta: 'machado' },
-  R: { tipo: 'rocha', item: 'pedra', ferramenta: 'machado' },
-  O: { tipo: 'veio', item: 'minerio', ferramenta: 'machado' },
 };
 
 export const MAPA = [
@@ -141,131 +138,199 @@ export const MAPA = [
   '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',
 ];
 
-export function expandirCusto(estacao) {
-  const seq = [];
-  for (const [item, n] of estacao.custo) {
-    for (let i = 0; i < n; i++) seq.push(item);
-  }
-  return seq;
+/** EXP para ir do nível `nivel` ao próximo. Fórmula de src/game/leveling.ts. */
+export function xpPara(nivel) {
+  const n = Math.max(1, nivel);
+  return Math.floor(5 + (n - 1) * 9 + Math.max(0, n - 20) * 6 + Math.max(0, n - 40) * 10);
 }
 
-export function estacaoPorId(id) {
-  return ESTACOES.find((e) => e.id === id) || null;
+/** 1, 2 ou 3, no espírito de xpTier em src/game/pickups.ts. Os cortes estão no CONFIG. */
+export function faixaXp(valor) {
+  const [miuda, media, grande] = CONFIG.xpFaixa;
+  if (valor >= grande) return 3;
+  if (valor >= media) return 2;
+  if (valor >= miuda) return 1;
+  return 1;
+}
+
+function mulberry(seed) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function aleatorio(estado) {
+  if (!estado._rng) estado._rng = mulberry(estado.semente >>> 0);
+  return estado._rng();
+}
+
+function embaralhar(lista, estado) {
+  const a = lista.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(aleatorio(estado) * (i + 1));
+    const tmp = a[i];
+    a[i] = a[j];
+    a[j] = tmp;
+  }
+  return a;
 }
 
 export function criarMundo() {
-  const tiles = MAPA.map((linha) => linha.split(''));
-  const linhas = tiles.length;
-  const colunas = tiles[0].length;
-  const postos = {};
+  const linhas = MAPA.length;
+  const colunas = MAPA[0].length;
+  const tiles = [];
   let inicio = null;
-  const nos = [];
-  const contagem = {};
+  let farol = null;
   for (let y = 0; y < linhas; y++) {
-    if (tiles[y].length !== colunas) throw new Error('mapa com largura desigual');
+    if (MAPA[y].length !== colunas) throw new Error('mapa com largura desigual');
+    let linha = '';
     for (let x = 0; x < colunas; x++) {
-      const ch = tiles[y][x];
+      const ch = MAPA[y][x];
       const px = (x + 0.5) * CONFIG.bloco;
       const py = (y + 0.5) * CONFIG.bloco;
-      if (LETRAS[ch]) {
-        if (ch === 'S') inicio = { x: px, y: py };
-        else postos[LETRAS[ch]] = { x: px, y: py };
-        tiles[y][x] = '.';
-      } else if (RECURSOS[ch]) {
-        const rec = RECURSOS[ch];
-        const n = contagem[rec.tipo] || 0;
-        contagem[rec.tipo] = n + 1;
-        nos.push({
-          id: `${rec.tipo}-${n}`,
-          tipo: rec.tipo,
-          item: rec.item,
-          ferramenta: rec.ferramenta,
-          rendimento: CONFIG.rendimento[rec.tipo],
-          restante: CONFIG.rendimento[rec.tipo],
-          recarga: 0,
-          x: px,
-          y: py,
-        });
-        tiles[y][x] = '.';
-      }
+      if (ch === 'S') inicio = { x: px, y: py };
+      else if (ch === 'L') farol = { x: px, y: py };
+      linha += ch === '~' ? '~' : '.';
     }
+    tiles.push(linha);
   }
-  if (!inicio) throw new Error('mapa sem começo');
-  for (const est of ESTACOES) {
-    if (!postos[est.id]) throw new Error('mapa sem ' + est.id);
+  if (!inicio || !farol) throw new Error('mapa sem começo ou farol');
+  return { tiles, colunas, linhas, inicio, farol };
+}
+
+function carta(id, tipo) {
+  const texto = TEXTOS.cartas[id];
+  return { id, tipo, nome: texto.nome, texto: texto.texto, proposta: true };
+}
+
+function pool(estado) {
+  const lista = [];
+  const era = ERAS[estado.era].ordem;
+  if (!estado.armas.lasca) lista.push(carta('lasca', 'arma'));
+  if (era >= 1 && !estado.armas.lanca) lista.push(carta('lanca', 'arma'));
+  if (era >= 2 && !estado.armas.faisca) lista.push(carta('faisca', 'arma'));
+  if (estado.armas.faisca && !estado.fogueira) lista.push(carta('fogueira', 'luz'));
+  lista.push(carta('dano', 'melhorar'));
+  lista.push(carta('ritmo', 'melhorar'));
+  lista.push(carta('vida', 'vida'));
+  return lista;
+}
+
+function abrirCartas(estado) {
+  const tres = embaralhar(pool(estado), estado).slice(0, 3);
+  while (tres.length < 3) tres.push(carta('vida', 'vida'));
+  estado.cartas = tres;
+  estado.pausa = true;
+}
+
+export function ganharXp(estado, quantidade) {
+  if (estado.vitoria) return estado;
+  const q = Math.max(0, Number(quantidade) || 0);
+  estado.xp += q;
+  while (estado.xp >= estado.xpProx) {
+    estado.xp -= estado.xpProx;
+    estado.nivel += 1;
+    estado.xpProx = xpPara(estado.nivel);
+    estado.niveisPendentes += 1;
   }
-  return { tiles: tiles.map((l) => l.join('')), colunas, linhas, postos, inicio, nos };
+  if (estado.niveisPendentes > 0 && !estado.pausa) abrirCartas(estado);
+  return estado;
+}
+
+function aplicarCarta(estado, c) {
+  if (!c) return;
+  if (c.tipo === 'arma') estado.armas[c.id] = { nivel: 1 };
+  else if (c.id === 'dano') estado.danoMult *= 1 + CONFIG.melhorarDano;
+  else if (c.id === 'ritmo') estado.ritmo *= CONFIG.melhorarIntervalo;
+  else if (c.id === 'fogueira') estado.fogueira = true;
+  else if (c.id === 'vida') {
+    estado.vidaMax += CONFIG.vidaCarta;
+    estado.vida = Math.min(estado.vidaMax, estado.vida + CONFIG.vidaCarta);
+  }
+}
+
+export function escolherCarta(estado, indice) {
+  if (!estado.pausa || !estado.cartas.length) return { ok: false, motivo: 'sem-carta' };
+  const i = Math.max(0, Math.min(estado.cartas.length - 1, indice | 0));
+  const escolhida = estado.cartas[i];
+  aplicarCarta(estado, escolhida);
+  estado.niveisPendentes = Math.max(0, estado.niveisPendentes - 1);
+  estado.efeitos.push({ tipo: 'levelup', x: estado.x, y: estado.y, idade: 0, duracao: CONFIG.efeitoLevel });
+  if (estado.niveisPendentes > 0) abrirCartas(estado);
+  else {
+    estado.pausa = false;
+    estado.cartas = [];
+  }
+  return { ok: true, carta: escolhida };
 }
 
 export function criarPartida() {
-  const m = criarMundo();
-  const progresso = {};
-  for (const est of ESTACOES) progresso[est.id] = 0;
+  const mundo = criarMundo();
   return {
     proposta: true,
     modo: 'facil',
-    era: 'pedra',
-    fome: CONFIG.fomeInicial,
-    calor: CONFIG.calorInicial,
-    hora: CONFIG.horaInicial,
-    x: m.inicio.x,
-    y: m.inicio.y,
-    inventario: { madeira: 0, pedra: 0, minerio: 0, fruta: 0, barra: 0 },
-    efeitos: {},
-    progresso,
-    postos: m.postos,
-    nos: m.nos.map((n) => ({ ...n })),
-    tiles: m.tiles,
-    colunas: m.colunas,
-    linhas: m.linhas,
-    canteiroFruta: 0,
-    farol: false,
+    semMorte: true,
     morte: false,
-    lentidao: false,
+    direcao: 0,
+    era: 'pedra',
+    tempo: 0,
+    x: mundo.inicio.x,
+    y: mundo.inicio.y,
+    inicio: mundo.inicio,
+    farolPos: mundo.farol,
+    tiles: mundo.tiles,
+    colunas: mundo.colunas,
+    linhas: mundo.linhas,
+    vida: CONFIG.vidaMax,
+    vidaMax: CONFIG.vidaMax,
+    nivel: 1,
+    xp: 0,
+    xpProx: xpPara(1),
+    niveisPendentes: 0,
+    pausa: false,
+    cartas: [],
+    armas: { lasca: { nivel: 1 } },
+    danoMult: 1,
+    ritmo: 1,
+    fogueira: false,
+    farol: false,
+    vitoria: false,
+    invulneravel: 0,
+    chefesMortos: { pedra: false, bronze: false, ferro: false },
+    chefe: null,
+    inimigos: [],
+    projeteis: [],
+    zonas: [],
+    gemas: [],
+    efeitos: [],
+    nascer: 0,
+    anguloLasca: 0,
+    tiroEm: 0.6,
+    eventosFeitos: {},
+    semente: 20261115,
+    seq: 1,
     desdeSave: 0,
   };
 }
 
-export function distancia(ax, ay, bx, by) {
-  return Math.hypot(ax - bx, ay - by);
-}
-
-export function escuridao(hora, cfg = CONFIG) {
-  const h = ((Number(hora) % 1) + 1) % 1;
-  if (h < cfg.noiteInicio || h >= cfg.noiteFim) return 0;
-  const meio = (cfg.noiteInicio + cfg.noiteFim) / 2;
-  const meia = (cfg.noiteFim - cfg.noiteInicio) / 2;
-  const curva = 1 - Math.abs(h - meio) / meia;
-  if (curva <= 0.0001) return 0;
-  return cfg.escuridaoMax * curva;
-}
-
-export function fatorVelocidade(estado) {
-  if (estado.fome <= 0 || estado.calor <= 0) return CONFIG.fatorLentidao;
-  return 1;
-}
-
-export function velocidadeAtual(estado) {
-  return CONFIG.velocidade * fatorVelocidade(estado);
-}
-
-function clamp(v, a, b) {
-  return Math.max(a, Math.min(b, v));
-}
-
-export function bloqueia(estado, x, y) {
+function bloqueia(estado, x, y) {
   const col = Math.floor(x / CONFIG.bloco);
   const lin = Math.floor(y / CONFIG.bloco);
   if (lin < 0 || col < 0 || lin >= estado.linhas || col >= estado.colunas) return true;
   return estado.tiles[lin][col] === '~';
 }
 
-export function livre(estado, x, y) {
+function livre(estado, x, y) {
   const r = CONFIG.raioJogador;
   return [[0, 0], [r, 0], [-r, 0], [0, r], [0, -r]].every(([dx, dy]) => !bloqueia(estado, x + dx, y + dy));
 }
 
-function mover(estado, dt, eixo) {
+function moverJogador(estado, dt, eixo) {
   let x = Number(eixo?.x) || 0;
   let y = Number(eixo?.y) || 0;
   const len = Math.hypot(x, y);
@@ -274,7 +339,8 @@ function mover(estado, dt, eixo) {
     y /= len;
   }
   if (len === 0) return;
-  const v = velocidadeAtual(estado) * dt;
+  estado.direcao = dir8(x, y);
+  const v = CONFIG.velocidade * dt;
   const nx = estado.x + x * v;
   const ny = estado.y + y * v;
   if (livre(estado, nx, ny)) {
@@ -286,261 +352,534 @@ function mover(estado, dt, eixo) {
   else if (livre(estado, estado.x, ny)) estado.y = ny;
 }
 
-function sobreviver(estado, dt) {
-  const noite = CONFIG.escuridaoMax > 0 ? escuridao(estado.hora) / CONFIG.escuridaoMax : 0;
-  let calor = -CONFIG.calorPorSegundo - noite * CONFIG.frioNoiteExtra;
-  const fogo = estado.postos.fogueira;
-  const casa = estado.postos.casinha;
-  if (estado.efeitos.fogueira && distancia(estado.x, estado.y, fogo.x, fogo.y) <= CONFIG.raioFogueira) {
-    calor = CONFIG.calorFogueiraPorSegundo;
-  } else if (estado.efeitos.casa && distancia(estado.x, estado.y, casa.x, casa.y) <= CONFIG.raioCasa) {
-    calor = CONFIG.calorCasaPorSegundo;
+export function receberDano(estado, quantidade) {
+  if (estado.vitoria || estado.invulneravel > 0 || estado.pausa) return estado;
+  const antes = {
+    xp: estado.xp,
+    nivel: estado.nivel,
+    era: estado.era,
+    armas: { ...estado.armas },
+    fogueira: estado.fogueira,
+    farol: estado.farol,
+  };
+  estado.vida -= Math.max(0, Number(quantidade) || 0);
+  if (estado.vida <= 0) {
+    estado.vida = estado.vidaMax;
+    estado.x = estado.inicio.x;
+    estado.y = estado.inicio.y;
+    estado.invulneravel = CONFIG.invulneravelSegundos;
+    estado.morte = false;
+    estado.xp = antes.xp;
+    estado.nivel = antes.nivel;
+    estado.era = antes.era;
+    estado.armas = antes.armas;
+    estado.fogueira = antes.fogueira;
+    estado.farol = antes.farol;
   }
-  estado.calor = clamp(estado.calor + calor * dt, 0, CONFIG.calorMax);
-  estado.fome = clamp(estado.fome - CONFIG.fomePorSegundo * dt, 0, CONFIG.fomeMax);
-  estado.hora = (estado.hora + dt / CONFIG.duracaoDia) % 1;
-  if (estado.efeitos.canteiro) {
-    estado.canteiroFruta = Math.min(CONFIG.canteiroMax, estado.canteiroFruta + CONFIG.canteiroPorSegundo * dt);
+  return estado;
+}
+
+function defDe(tipo) {
+  return CONFIG.inimigos[tipo];
+}
+
+function criarInimigo(estado, tipo, x, y, extra = {}) {
+  const def = defDe(tipo);
+  const id = estado.seq++;
+  return {
+    id,
+    tipo,
+    sprite: def.sprite,
+    x, y,
+    hp: def.hp * (extra.elite ? 2 : 1),
+    hpMax: def.hp * (extra.elite ? 2 : 1),
+    raio: def.raio,
+    velocidade: def.velocidade,
+    xp: def.xp,
+    dano: def.dano,
+    comportamento: def.comportamento,
+    direcao: 0,
+    andando: false,
+    contatoEm: 0,
+    lascaEm: 0,
+    auraEm: 0,
+    tiroEm: def.intervalo || 2,
+    ttl: extra.ttl || 0,
+    vx: extra.vx || 0,
+    vy: extra.vy || 0,
+    elite: !!extra.elite,
+    chefe: def.comportamento === 'chefe',
+  };
+}
+
+function soltarGema(estado, x, y, valor) {
+  const faixa = faixaXp(valor);
+  estado.gemas.push({ x, y, valor, faixa, sprite: `xp-${faixa}` });
+}
+
+function matarInimigo(estado, inimigo) {
+  estado.inimigos = estado.inimigos.filter((i) => i.id !== inimigo.id);
+  estado.efeitos.push({ tipo: 'morte', x: inimigo.x, y: inimigo.y, idade: 0, duracao: CONFIG.efeitoMorte });
+  soltarGema(estado, inimigo.x, inimigo.y, inimigo.xp);
+}
+
+function eraDaHorda(estado) {
+  if (!estado.chefesMortos.pedra) return 'pedra';
+  if (!estado.chefesMortos.bronze) return 'bronze';
+  return 'ferro';
+}
+
+function vivosNormais(estado) {
+  return estado.inimigos.length;
+}
+
+function pontoFora(estado, ang) {
+  const d = CONFIG.distanciaOnda;
+  return { x: estado.x + Math.cos(ang) * d, y: estado.y + Math.sin(ang) * d };
+}
+
+function spawnRing(estado, tipo, n) {
+  for (let i = 0; i < n; i++) {
+    const ang = (i / n) * Math.PI * 2;
+    const p = pontoFora(estado, ang);
+    estado.inimigos.push(criarInimigo(estado, tipo, p.x, p.y));
   }
-  for (const no of estado.nos) {
-    if (no.tipo !== 'fruta' || no.restante > 0) continue;
-    no.recarga += dt;
-    if (no.recarga >= CONFIG.recargaFruta) {
-      no.restante = no.rendimento;
-      no.recarga = 0;
+}
+
+function spawnSwarm(estado, tipo, n) {
+  const rumo = aleatorio(estado) * Math.PI * 2;
+  const def = defDe(tipo);
+  const vel = def.velocidade || 80;
+  const vx = Math.cos(rumo) * vel;
+  const vy = Math.sin(rumo) * vel;
+  const d = CONFIG.distanciaOnda;
+  for (let i = 0; i < n; i++) {
+    const lado = (aleatorio(estado) - 0.5) * 80;
+    const atras = aleatorio(estado) * 40;
+    const x = estado.x - Math.cos(rumo) * (d + atras) - Math.sin(rumo) * lado;
+    const y = estado.y - Math.sin(rumo) * (d + atras) + Math.cos(rumo) * lado;
+    estado.inimigos.push(criarInimigo(estado, tipo, x, y, { vx, vy, ttl: (d * 2 + 80) / vel }));
+  }
+}
+
+function spawnChefe(estado, tipo) {
+  const ang = aleatorio(estado) * Math.PI * 2;
+  const p = pontoFora(estado, ang);
+  const corpo = criarInimigo(estado, tipo, p.x, p.y);
+  estado.chefe = {
+    ...corpo,
+    fase: 1,
+    ataqueEm: 1.1,
+    telegrafo: 0,
+    modo: null,
+    investida: 0,
+    vx: 0,
+    vy: 0,
+    anelExtra: false,
+  };
+}
+
+function chefeDevido(estado, chave) {
+  if (chave === 'pedraChefe') return !estado.chefesMortos.pedra;
+  if (chave === 'bronzeChefe') return estado.chefesMortos.pedra && !estado.chefesMortos.bronze;
+  if (chave === 'ferroChefe') return estado.chefesMortos.bronze && !estado.chefesMortos.ferro;
+  return false;
+}
+
+function verificarMarcos(estado) {
+  for (const [chave, marco] of Object.entries(CONFIG.marcos)) {
+    if (estado.eventosFeitos[chave] || estado.tempo < marco.em) continue;
+    if (!marco.kind && (!chefeDevido(estado, chave) || estado.chefe)) continue;
+    estado.eventosFeitos[chave] = true;
+    if (marco.kind === 'ring') spawnRing(estado, marco.tipo, marco.n);
+    else if (marco.kind === 'swarm') spawnSwarm(estado, marco.tipo, marco.n);
+    else spawnChefe(estado, marco.tipo);
+  }
+}
+
+function nascerHorda(estado, dt) {
+  if (estado.chefe && estado.chefe.tipo === 'colosso-de-ferro') return;
+  const era = eraDaHorda(estado);
+  estado.era = era;
+  const etapa = CONFIG.eras[era];
+  let taxa = etapa.taxa;
+  let max = etapa.max;
+  if (estado.chefe) {
+    taxa *= CONFIG.chefeAfina;
+    max = Math.min(max, CONFIG.chefeMaxVivos);
+  }
+  estado.nascer += dt * taxa;
+  while (estado.nascer >= 1 && vivosNormais(estado) < max) {
+    estado.nascer -= 1;
+    const tipo = etapa.horda[Math.floor(aleatorio(estado) * etapa.horda.length)];
+    const p = pontoFora(estado, aleatorio(estado) * Math.PI * 2);
+    estado.inimigos.push(criarInimigo(estado, tipo, p.x, p.y));
+  }
+}
+
+function perseguir(corpo, estado, dt, vel) {
+  const dx = estado.x - corpo.x;
+  const dy = estado.y - corpo.y;
+  const len = Math.hypot(dx, dy) || 1;
+  corpo.direcao = dir8(dx, dy);
+  corpo.x += (dx / len) * vel * dt;
+  corpo.y += (dy / len) * vel * dt;
+}
+
+function tocarJogador(estado, corpo) {
+  if (corpo.contatoEm > 0 || corpo.dano <= 0) return;
+  const d = Math.hypot(estado.x - corpo.x, estado.y - corpo.y);
+  if (d <= corpo.raio + CONFIG.raioJogador) {
+    corpo.contatoEm = CONFIG.contatoEspera;
+    receberDano(estado, corpo.dano);
+  }
+}
+
+function atualizarInimigos(estado, dt) {
+  const ficam = [];
+  for (const inimigo of estado.inimigos) {
+    inimigo.contatoEm = Math.max(0, inimigo.contatoEm - dt);
+    inimigo.lascaEm = Math.max(0, inimigo.lascaEm - dt);
+    inimigo.auraEm = Math.max(0, inimigo.auraEm - dt);
+    if (inimigo.comportamento === 'flyby') {
+      inimigo.x += inimigo.vx * dt;
+      inimigo.y += inimigo.vy * dt;
+      inimigo.ttl -= dt;
+      inimigo.direcao = dir8(inimigo.vx, inimigo.vy);
+      if (inimigo.ttl <= 0) continue;
+    } else if (inimigo.comportamento === 'torre') {
+      inimigo.tiroEm -= dt;
+      if (inimigo.tiroEm <= 0) {
+        inimigo.tiroEm = defDe(inimigo.tipo).intervalo;
+        atirar(estado, inimigo.x, inimigo.y, estado.x, estado.y, 'pedregulho', false);
+      }
+    } else {
+      perseguir(inimigo, estado, dt, inimigo.velocidade);
+    }
+    tocarJogador(estado, inimigo);
+    if (inimigo.hp > 0) ficam.push(inimigo);
+  }
+  estado.inimigos = ficam;
+}
+
+function atirar(estado, x, y, ax, ay, sprite, aliado) {
+  const dx = ax - x;
+  const dy = ay - y;
+  const len = Math.hypot(dx, dy) || 1;
+  const vel = sprite === 'pedregulho' ? CONFIG.armas.pedregulho.velocidade : CONFIG.armas.lanca.velocidade;
+  const dano = sprite === 'pedregulho' ? CONFIG.armas.pedregulho.dano : CONFIG.armas.lanca.dano;
+  const raio = sprite === 'pedregulho' ? CONFIG.armas.pedregulho.raio : CONFIG.armas.lanca.raio;
+  estado.projeteis.push({
+    id: estado.seq++,
+    sprite,
+    x, y,
+    vx: (dx / len) * vel,
+    vy: (dy / len) * vel,
+    dano,
+    raio,
+    aliado,
+    direcao: dir8(dx, dy),
+  });
+}
+
+function faseDoChefe(chefe) {
+  return chefe.hp <= chefe.hpMax * CONFIG.chefeMeia ? 2 : 1;
+}
+
+function dispararChefe(estado) {
+  const chefe = estado.chefe;
+  chefe.fase = faseDoChefe(chefe);
+  const tipo = chefe.tipo;
+  if (tipo === 'urso-da-caverna') {
+    if (chefe.modo === 'circulo') {
+      estado.zonas.push({
+        x: estado.x, y: estado.y, raio: CONFIG.chefeCirculo,
+        resta: 0, dano: chefe.dano, sprite: 'telegraph',
+      });
+      receberDano(estado, Math.hypot(estado.x - chefe.x, estado.y - chefe.y) < CONFIG.chefeCirculo + 8 ? chefe.dano : 0);
+      chefe.modo = 'investida';
+    } else {
+      const dx = estado.x - chefe.x;
+      const dy = estado.y - chefe.y;
+      const len = Math.hypot(dx, dy) || 1;
+      const vel = CONFIG.chefeInvestida * (chefe.fase === 2 ? 1.35 : 1);
+      chefe.vx = (dx / len) * vel;
+      chefe.vy = (dy / len) * vel;
+      chefe.investida = CONFIG.chefeInvestidaTempo;
+      chefe.modo = 'circulo';
+    }
+  } else if (tipo === 'sentinela-de-bronze') {
+    const vezes = chefe.fase === 2 ? 2 : 1;
+    for (let v = 0; v < vezes; v++) {
+      for (let i = 0; i < CONFIG.chefeAnel; i++) {
+        const ang = (i / CONFIG.chefeAnel) * Math.PI * 2 + v * 0.4;
+        const ax = chefe.x + Math.cos(ang) * 80;
+        const ay = chefe.y + Math.sin(ang) * 80;
+        atirar(estado, chefe.x, chefe.y, ax, ay, 'lanca', false);
+      }
+    }
+  } else {
+    const dx = estado.x - chefe.x;
+    const dy = estado.y - chefe.y;
+    const len = Math.hypot(dx, dy) || 1;
+    chefe.vx = (dx / len) * CONFIG.chefeInvestida;
+    chefe.vy = (dy / len) * CONFIG.chefeInvestida;
+    chefe.investida = CONFIG.chefeInvestidaTempo;
+    for (let i = -1; i <= 1; i++) {
+      const ang = Math.atan2(dy, dx) + i * 0.35;
+      atirar(estado, chefe.x, chefe.y, chefe.x + Math.cos(ang) * 40, chefe.y + Math.sin(ang) * 40, 'pedregulho', false);
     }
   }
+}
+
+function atualizarChefe(estado, dt) {
+  const chefe = estado.chefe;
+  if (!chefe) return;
+  if (chefe.hp <= 0) {
+    ferirCorpo(estado, chefe, 0);
+    return;
+  }
+  chefe.fase = faseDoChefe(chefe);
+  chefe.contatoEm = Math.max(0, (chefe.contatoEm || 0) - dt);
+  chefe.lascaEm = Math.max(0, (chefe.lascaEm || 0) - dt);
+  chefe.auraEm = Math.max(0, (chefe.auraEm || 0) - dt);
+  if (chefe.investida > 0) {
+    chefe.investida -= dt;
+    chefe.x += chefe.vx * dt;
+    chefe.y += chefe.vy * dt;
+  } else if (chefe.tipo !== 'sentinela-de-bronze') {
+    perseguir(chefe, estado, dt, chefe.velocidade * (chefe.fase === 2 ? 1.25 : 1));
+  } else {
+    const dx = estado.x - chefe.x;
+    const dy = estado.y - chefe.y;
+    chefe.direcao = dir8(dx, dy);
+  }
+  tocarJogador(estado, chefe);
+  if (chefe.telegrafo > 0) {
+    chefe.telegrafo -= dt;
+    if (chefe.telegrafo <= 0) dispararChefe(estado);
+    return;
+  }
+  chefe.ataqueEm -= dt;
+  if (chefe.ataqueEm <= 0) {
+    chefe.telegrafo = CONFIG.chefeTelegraph;
+    chefe.ataqueEm = (chefe.fase === 2 ? CONFIG.chefeTelegraph * 1.4 : 2.1);
+    estado.zonas.push({
+      x: chefe.x, y: chefe.y, raio: chefe.raio + 10,
+      resta: CONFIG.chefeTelegraph, dano: 0, sprite: 'telegraph',
+    });
+  }
+}
+
+function ferirCorpo(estado, corpo, dano) {
+  if (!corpo) return;
+  if (corpo.hp > 0 && dano > 0) {
+    corpo.hp -= dano * estado.danoMult;
+    estado.efeitos.push({ tipo: 'acerto', x: corpo.x, y: corpo.y, idade: 0, duracao: CONFIG.efeitoAcerto });
+  }
+  if (corpo.hp > 0) return;
+  if (estado.chefe && corpo.id === estado.chefe.id) {
+    const tipo = corpo.tipo;
+    const xp = corpo.xp;
+    const x = corpo.x;
+    const y = corpo.y;
+    estado.chefe = null;
+    estado.efeitos.push({ tipo: 'morte', x, y, idade: 0, duracao: CONFIG.efeitoMorte });
+    soltarGema(estado, x, y, xp);
+    if (tipo === 'urso-da-caverna') {
+      estado.chefesMortos.pedra = true;
+      estado.era = 'bronze';
+    } else if (tipo === 'sentinela-de-bronze') {
+      estado.chefesMortos.bronze = true;
+      estado.era = 'ferro';
+    } else if (tipo === 'colosso-de-ferro') {
+      estado.chefesMortos.ferro = true;
+      estado.farol = true;
+      estado.vitoria = true;
+      estado.inimigos = [];
+      estado.projeteis = [];
+      estado.zonas = [];
+    }
+  } else {
+    matarInimigo(estado, corpo);
+  }
+}
+
+function atualizarArmas(estado, dt) {
+  const alvos = estado.inimigos.slice();
+  if (estado.chefe) alvos.push(estado.chefe);
+  if (estado.armas.lasca) {
+    estado.anguloLasca += CONFIG.armas.lasca.giro * dt;
+    const n = CONFIG.armas.lasca.orbes;
+    for (let i = 0; i < n; i++) {
+      const ang = estado.anguloLasca + (i / n) * Math.PI * 2;
+      const x = estado.x + Math.cos(ang) * CONFIG.armas.lasca.orbita;
+      const y = estado.y + Math.sin(ang) * CONFIG.armas.lasca.orbita;
+      for (const alvo of alvos) {
+        if (alvo.lascaEm > 0) continue;
+        if (Math.hypot(alvo.x - x, alvo.y - y) <= alvo.raio + CONFIG.armas.lasca.raio) {
+          alvo.lascaEm = CONFIG.armas.lasca.intervalo;
+          ferirCorpo(estado, alvo, CONFIG.armas.lasca.dano);
+        }
+      }
+    }
+  }
+  if (estado.armas.lanca) {
+    estado.tiroEm -= dt;
+    if (estado.tiroEm <= 0) {
+      estado.tiroEm = CONFIG.armas.lanca.intervalo * estado.ritmo;
+      let perto = null;
+      let melhor = Infinity;
+      for (const alvo of alvos) {
+        const d = Math.hypot(alvo.x - estado.x, alvo.y - estado.y);
+        if (d < melhor) {
+          melhor = d;
+          perto = alvo;
+        }
+      }
+      if (perto) atirar(estado, estado.x, estado.y, perto.x, perto.y, 'lanca', true);
+    }
+  }
+  const raioFa = (estado.armas.faisca ? CONFIG.armas.faisca.raio : 0) + (estado.fogueira ? CONFIG.armas.fogueira.raioExtra : 0);
+  const danoFa = (estado.armas.faisca ? CONFIG.armas.faisca.dano : 0) + (estado.fogueira ? CONFIG.armas.fogueira.dano : 0);
+  if (raioFa > 0) {
+    for (const alvo of alvos) {
+      if (alvo.auraEm > 0) continue;
+      if (Math.hypot(alvo.x - estado.x, alvo.y - estado.y) <= raioFa + alvo.raio) {
+        alvo.auraEm = (estado.armas.faisca ? CONFIG.armas.faisca.intervalo : CONFIG.armas.fogueira.intervalo) * estado.ritmo;
+        ferirCorpo(estado, alvo, danoFa);
+      }
+    }
+  }
+}
+
+function atualizarProjeteis(estado, dt) {
+  const ficam = [];
+  for (const p of estado.projeteis) {
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+    let sumiu = false;
+    if (p.aliado) {
+      const alvos = estado.chefe ? estado.inimigos.concat(estado.chefe) : estado.inimigos;
+      for (const alvo of alvos) {
+        if (Math.hypot(alvo.x - p.x, alvo.y - p.y) <= alvo.raio + p.raio) {
+          ferirCorpo(estado, alvo, p.dano);
+          sumiu = true;
+          break;
+        }
+      }
+    } else if (Math.hypot(estado.x - p.x, estado.y - p.y) <= CONFIG.raioJogador + p.raio) {
+      receberDano(estado, p.dano);
+      sumiu = true;
+    }
+    if (!sumiu && Math.hypot(p.x - estado.x, p.y - estado.y) < 520) ficam.push(p);
+  }
+  estado.projeteis = ficam;
+}
+
+function atualizarZonas(estado, dt) {
+  const ficam = [];
+  for (const z of estado.zonas) {
+    z.resta -= dt;
+    if (z.resta <= 0 && z.dano > 0 && Math.hypot(estado.x - z.x, estado.y - z.y) <= z.raio) {
+      receberDano(estado, z.dano);
+    }
+    if (z.resta > -0.15) ficam.push(z);
+  }
+  estado.zonas = ficam;
+}
+
+function atualizarGemas(estado, dt) {
+  const ficam = [];
+  for (const g of estado.gemas) {
+    const dx = estado.x - g.x;
+    const dy = estado.y - g.y;
+    const d = Math.hypot(dx, dy) || 1;
+    if (d < CONFIG.raioColeta) {
+      g.x += (dx / d) * CONFIG.ima * dt;
+      g.y += (dy / d) * CONFIG.ima * dt;
+    }
+    if (d < 10) ganharXp(estado, g.valor);
+    else ficam.push(g);
+  }
+  estado.gemas = ficam;
+}
+
+function atualizarEfeitos(estado, dt) {
+  for (const fx of estado.efeitos) fx.idade += dt;
+  estado.efeitos = estado.efeitos.filter((fx) => fx.idade < fx.duracao);
+}
+
+function passo(estado, dt, eixo) {
+  if (estado.pausa || estado.vitoria) return;
+  estado.invulneravel = Math.max(0, estado.invulneravel - dt);
+  moverJogador(estado, dt, eixo);
+  estado.tempo += dt;
   estado.desdeSave += dt;
-  estado.lentidao = estado.fome <= 0 || estado.calor <= 0;
-  estado.morte = false;
+  verificarMarcos(estado);
+  if (!estado.vitoria) nascerHorda(estado, dt);
+  atualizarInimigos(estado, dt);
+  atualizarChefe(estado, dt);
+  atualizarArmas(estado, dt);
+  atualizarProjeteis(estado, dt);
+  atualizarZonas(estado, dt);
+  atualizarGemas(estado, dt);
+  atualizarEfeitos(estado, dt);
+  estado.era = estado.vitoria ? 'ferro' : eraDaHorda(estado);
 }
 
 export function tick(estado, dt, eixo) {
   let rest = Math.max(0, Number(dt) || 0);
   while (rest > 0) {
+    if (estado.pausa || estado.vitoria) return estado;
     const h = Math.min(0.05, rest);
-    mover(estado, h, eixo);
-    sobreviver(estado, h);
+    passo(estado, h, eixo);
     rest -= h;
   }
-  estado.morte = false;
   return estado;
 }
 
-export function podeJuntar(estado, no, opts = {}) {
-  const checarAlcance = opts.alcance !== false;
-  if (!no || no.restante <= 0) return { ok: false, motivo: 'vazio' };
-  if (no.ferramenta && !estado.efeitos[no.ferramenta]) return { ok: false, motivo: 'precisa-machado' };
-  if (checarAlcance && distancia(estado.x, estado.y, no.x, no.y) > CONFIG.alcance) {
-    return { ok: false, motivo: 'longe' };
-  }
-  return { ok: true };
+export function escuridao(estado) {
+  if (!estado || estado.vitoria) return 0;
+  return estado.era === 'ferro' ? CONFIG.escuridaoFerro : 0;
 }
 
-export function juntar(estado, id) {
-  const no = estado.nos.find((n) => n.id === id);
-  const r = podeJuntar(estado, no);
-  if (!r.ok) return r;
-  const ganho = no.restante;
-  estado.inventario[no.item] += ganho;
-  no.restante = 0;
-  no.recarga = 0;
-  return { ok: true, item: no.item, ganho };
-}
-
-export function desbloqueada(estado, est) {
-  if (!est) return false;
-  if (ERAS[estado.era].ordem < ERAS[est.precisaEra].ordem) return false;
-  if (est.precisaEfeito && !estado.efeitos[est.precisaEfeito]) return false;
-  for (const efeito of est.precisaEfeitos || []) {
-    if (!estado.efeitos[efeito]) return false;
-  }
-  return true;
-}
-
-export function estacaoPronta(estado, id) {
-  const est = estacaoPorId(id);
-  if (!est) return false;
-  return (estado.progresso[id] || 0) >= expandirCusto(est).length;
-}
-
-export function faltando(estado, id) {
-  const est = estacaoPorId(id);
-  if (!est || estacaoPronta(estado, id)) return null;
-  return expandirCusto(est)[estado.progresso[id] || 0];
-}
-
-export function contador(estado, id) {
-  const est = estacaoPorId(id);
-  const n = est ? expandirCusto(est).length : 0;
-  const x = estado.progresso[id] || 0;
-  return { x, n, texto: `${x}/${n}`, pronto: x >= n && n > 0, proposta: true };
-}
-
-function aplicarEfeito(estado, est) {
-  estado.efeitos[est.efeito] = true;
-  if (est.efeito.startsWith('era:')) {
-    const era = est.efeito.slice(4);
-    if (ERAS[era] && ERAS[era].ordem > ERAS[estado.era].ordem) estado.era = era;
-  }
-  if (est.efeito === 'farol') estado.farol = true;
-  return est.efeito;
-}
-
-export function fundir(estado) {
-  if (!estado.efeitos.fornalha) return { ok: false, motivo: 'precisa-passo' };
-  if (distancia(estado.x, estado.y, estado.postos.fornalha.x, estado.postos.fornalha.y) > CONFIG.alcance) {
-    return { ok: false, motivo: 'longe' };
-  }
-  if ((estado.inventario.minerio || 0) < 1) return { ok: false, motivo: 'sem-minerio' };
-  estado.inventario.minerio -= 1;
-  estado.inventario.barra += 1;
-  return { ok: true, item: 'barra', ganho: 1 };
-}
-
-export function colher(estado) {
-  if (!estado.efeitos.canteiro) return { ok: false, motivo: 'precisa-passo' };
-  if (distancia(estado.x, estado.y, estado.postos.canteiro.x, estado.postos.canteiro.y) > CONFIG.alcance) {
-    return { ok: false, motivo: 'longe' };
-  }
-  const n = Math.floor(estado.canteiroFruta);
-  if (n < 1) return { ok: false, motivo: 'vazio' };
-  estado.canteiroFruta -= n;
-  estado.inventario.fruta += n;
-  return { ok: true, item: 'fruta', ganho: n };
-}
-
-export function entregar(estado, id) {
-  const est = estacaoPorId(id);
-  const posto = estado.postos[id];
-  if (!est || !posto) return { ok: false, motivo: 'nada' };
-  if (distancia(estado.x, estado.y, posto.x, posto.y) > CONFIG.alcance) return { ok: false, motivo: 'longe' };
-  if (!desbloqueada(estado, est)) {
-    return { ok: false, motivo: est.precisaEfeito && !estado.efeitos[est.precisaEfeito] ? 'precisa-passo' : 'era-cedo' };
-  }
-  if (estacaoPronta(estado, id)) {
-    if (est.efeito === 'fornalha') return fundir(estado);
-    if (est.efeito === 'canteiro') return colher(estado);
-    return { ok: false, motivo: 'pronto' };
-  }
-  const item = faltando(estado, id);
-  if ((estado.inventario[item] || 0) < 1) return { ok: false, motivo: 'sem-item', item };
-  estado.inventario[item] -= 1;
-  estado.progresso[id] += 1;
-  let efeito = null;
-  if (estacaoPronta(estado, id)) efeito = aplicarEfeito(estado, est);
-  const c = contador(estado, id);
-  return { ok: true, item, x: c.x, n: c.n, efeito };
-}
-
-export function alvoInteracao(estado) {
+export function orbesLasca(estado) {
+  if (!estado.armas.lasca) return [];
+  const n = CONFIG.armas.lasca.orbes;
   const lista = [];
-  for (const est of ESTACOES) {
-    const p = estado.postos[est.id];
-    const d = distancia(estado.x, estado.y, p.x, p.y);
-    if (d <= CONFIG.alcance) lista.push({ tipo: 'estacao', id: est.id, d });
+  for (let i = 0; i < n; i++) {
+    const ang = estado.anguloLasca + (i / n) * Math.PI * 2;
+    lista.push({
+      x: estado.x + Math.cos(ang) * CONFIG.armas.lasca.orbita,
+      y: estado.y + Math.sin(ang) * CONFIG.armas.lasca.orbita,
+    });
   }
-  for (const no of estado.nos) {
-    if (no.restante <= 0) continue;
-    const d = distancia(estado.x, estado.y, no.x, no.y);
-    if (d <= CONFIG.alcance) lista.push({ tipo: 'no', id: no.id, d });
-  }
-  if (!lista.length) return null;
-  lista.sort((a, b) => a.d - b.d);
-  return lista[0];
-}
-
-export function interagir(estado) {
-  const alvo = alvoInteracao(estado);
-  if (!alvo) return { ok: false, motivo: 'longe' };
-  if (alvo.tipo === 'no') return juntar(estado, alvo.id);
-  return entregar(estado, alvo.id);
-}
-
-export function comer(estado) {
-  if ((estado.inventario.fruta || 0) < 1) return { ok: false, motivo: 'sem-fruta' };
-  estado.inventario.fruta -= 1;
-  estado.fome = Math.min(CONFIG.fomeMax, estado.fome + CONFIG.frutaRecupera);
-  return { ok: true };
-}
-
-function noMaisPerto(estado, item) {
-  let melhor = null;
-  let melhorD = Infinity;
-  for (const no of estado.nos) {
-    if (no.item !== item || no.restante <= 0) continue;
-    if (!podeJuntar(estado, no, { alcance: false }).ok) continue;
-    const d = distancia(estado.x, estado.y, no.x, no.y);
-    if (d < melhorD) {
-      melhor = no;
-      melhorD = d;
-    }
-  }
-  return melhor;
-}
-
-export function proximoPasso(estado) {
-  if (estado.efeitos.farol) {
-    const p = estado.postos.farol;
-    return { id: 'fim', texto: TEXTOS.fim, x: p.x, y: p.y, proposta: true };
-  }
-  for (const est of ESTACOES) {
-    if (estacaoPronta(estado, est.id)) continue;
-    if (!desbloqueada(estado, est)) continue;
-    const item = faltando(estado, est.id);
-    if (item && (estado.inventario[item] || 0) < 1) {
-      if (item === 'barra') {
-        if ((estado.inventario.minerio || 0) > 0 && estado.efeitos.fornalha) {
-          const p = estado.postos.fornalha;
-          return { id: 'fundir', texto: TEXTOS.buscar.barra, x: p.x, y: p.y, proposta: true };
-        }
-        const veio = noMaisPerto(estado, 'minerio');
-        if (veio) return { id: veio.id, texto: TEXTOS.buscar.minerio, x: veio.x, y: veio.y, proposta: true };
-      }
-      const no = noMaisPerto(estado, item);
-      if (no) return { id: no.id, texto: TEXTOS.buscar[item], x: no.x, y: no.y, proposta: true };
-    }
-    const p = estado.postos[est.id];
-    return { id: est.id, texto: TEXTOS.estacao[est.id], x: p.x, y: p.y, proposta: true };
-  }
-  const p = estado.postos.farol;
-  return { id: 'fim', texto: TEXTOS.fim, x: p.x, y: p.y, proposta: true };
-}
-
-export function custoCampanha() {
-  const t = { madeira: 0, pedra: 0, minerio: 0, fruta: 0, barra: 0 };
-  for (const est of ESTACOES) {
-    for (const [k, n] of est.custo) t[k] += n;
-  }
-  t.minerio += t.barra;
-  return t;
-}
-
-export function ofertaDoMapa(estado) {
-  const o = { madeira: 0, pedra: 0, minerio: 0, fruta: 0, barra: 0 };
-  for (const no of estado.nos) o[no.item] += no.rendimento;
-  return o;
+  return lista;
 }
 
 export function serializar(estado) {
-  const nos = {};
-  for (const no of estado.nos) nos[no.id] = { restante: no.restante, recarga: no.recarga };
   return {
     schemaVersion: CONFIG.schemaVersion,
     proposta: true,
     modo: 'facil',
     era: estado.era,
-    fome: estado.fome,
-    calor: estado.calor,
-    hora: estado.hora,
+    tempo: estado.tempo,
     x: estado.x,
     y: estado.y,
-    inventario: { ...estado.inventario },
-    efeitos: { ...estado.efeitos },
-    progresso: { ...estado.progresso },
-    nos,
-    canteiroFruta: estado.canteiroFruta,
+    vida: estado.vida,
+    vidaMax: estado.vidaMax,
+    nivel: estado.nivel,
+    xp: estado.xp,
+    xpProx: estado.xpProx,
+    armas: { ...estado.armas },
+    danoMult: estado.danoMult,
+    ritmo: estado.ritmo,
+    fogueira: !!estado.fogueira,
     farol: !!estado.farol,
+    vitoria: !!estado.vitoria,
+    chefesMortos: { ...estado.chefesMortos },
+    semente: estado.semente,
     morte: false,
   };
 }
@@ -554,51 +893,38 @@ export function restaurar(dado) {
   if (typeof dado === 'string') {
     try { obj = JSON.parse(dado); } catch { return null; }
   }
-  if (!obj || typeof obj !== 'object') return null;
-  if (obj.schemaVersion !== CONFIG.schemaVersion || obj.modo !== 'facil' || !ERAS[obj.era]) return null;
-  if (!obj.inventario || typeof obj.inventario !== 'object') return null;
+  if (!obj || obj.schemaVersion !== CONFIG.schemaVersion || obj.modo !== 'facil' || !ERAS[obj.era]) return null;
   const estado = criarPartida();
-  for (const k of Object.keys(estado.inventario)) {
-    const n = obj.inventario[k];
-    if (!numeroFin(n) || n < 0) return null;
-    estado.inventario[k] = n;
-  }
-  if (!numeroFin(obj.x) || !numeroFin(obj.y) || !numeroFin(obj.fome) || !numeroFin(obj.calor) || !numeroFin(obj.hora)) {
-    return null;
-  }
+  if (!numeroFin(obj.x) || !numeroFin(obj.y) || !numeroFin(obj.vida) || !numeroFin(obj.nivel)) return null;
   if (livre(estado, obj.x, obj.y)) {
     estado.x = obj.x;
     estado.y = obj.y;
   }
-  estado.fome = clamp(obj.fome, 0, CONFIG.fomeMax);
-  estado.calor = clamp(obj.calor, 0, CONFIG.calorMax);
-  estado.hora = ((obj.hora % 1) + 1) % 1;
   estado.era = obj.era;
-  estado.efeitos = {};
-  if (obj.efeitos && typeof obj.efeitos === 'object') {
-    for (const [k, v] of Object.entries(obj.efeitos)) if (v === true) estado.efeitos[k] = true;
-  }
-  for (const est of ESTACOES) {
-    const n = obj.progresso?.[est.id];
-    const max = expandirCusto(est).length;
-    estado.progresso[est.id] = numeroFin(n) && n >= 0 ? Math.min(max, Math.floor(n)) : 0;
-  }
-  for (const est of ESTACOES) {
-    if (estacaoPronta(estado, est.id)) aplicarEfeito(estado, est);
-  }
-  if (obj.nos && typeof obj.nos === 'object') {
-    for (const no of estado.nos) {
-      const s = obj.nos[no.id];
-      if (!s) continue;
-      if (!numeroFin(s.restante) || s.restante < 0) return null;
-      no.restante = Math.min(no.rendimento, s.restante);
-      no.recarga = numeroFin(s.recarga) && s.recarga >= 0 ? s.recarga : 0;
+  estado.tempo = Math.max(0, numeroFin(obj.tempo) ? obj.tempo : 0);
+  estado.vidaMax = Math.max(1, numeroFin(obj.vidaMax) ? obj.vidaMax : CONFIG.vidaMax);
+  estado.vida = Math.max(1, Math.min(estado.vidaMax, obj.vida));
+  estado.nivel = Math.max(1, Math.floor(obj.nivel));
+  estado.xpProx = xpPara(estado.nivel);
+  estado.xp = Math.max(0, Math.min(estado.xpProx - 0.001, numeroFin(obj.xp) ? obj.xp : 0));
+  estado.armas = { lasca: { nivel: 1 } };
+  if (obj.armas && typeof obj.armas === 'object') {
+    for (const id of ['lasca', 'lanca', 'faisca']) {
+      if (obj.armas[id]) estado.armas[id] = { nivel: 1 };
     }
   }
-  estado.canteiroFruta = clamp(numeroFin(obj.canteiroFruta) ? obj.canteiroFruta : 0, 0, CONFIG.canteiroMax);
-  estado.farol = !!estado.efeitos.farol;
+  estado.danoMult = numeroFin(obj.danoMult) && obj.danoMult > 0 ? obj.danoMult : 1;
+  estado.ritmo = numeroFin(obj.ritmo) && obj.ritmo > 0 ? obj.ritmo : 1;
+  estado.fogueira = obj.fogueira === true;
+  estado.farol = obj.farol === true;
+  estado.vitoria = obj.vitoria === true;
+  estado.chefesMortos = {
+    pedra: obj.chefesMortos?.pedra === true,
+    bronze: obj.chefesMortos?.bronze === true,
+    ferro: obj.chefesMortos?.ferro === true,
+  };
+  estado.semente = numeroFin(obj.semente) ? obj.semente >>> 0 : estado.semente;
   estado.morte = false;
-  estado.lentidao = estado.fome <= 0 || estado.calor <= 0;
   estado.desdeSave = 0;
   return estado;
 }
