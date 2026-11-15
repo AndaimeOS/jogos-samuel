@@ -231,6 +231,28 @@
       "status": "pronto",
       "novo": true,
       "version": "0.1.0"
+    },
+    {
+      "slug": "planeta-do-samuel",
+      "title": "Planeta do Samuel",
+      "category": "Exploração",
+      "description": "PROPOSTA. Ande pelo planetinha, junte madeira, pedra, minério e fruta, e acenda o farol. Três idades: Pedra, Bronze e Ferro. No Fácil, se a fome ou o calor zeram, o passo só fica mais lento.",
+      "cover": "planeta-do-samuel.webp",
+      "entry": "index.html",
+      "instructions": [
+        "PROPOSTA. No tablet, o joystick fica à esquerda. Interagir e Comer ficam à direita. Os botões são grandes.",
+        "Computador: WASD ou setas andam, E interage, F come, P ou Esc pausa.",
+        "Entregue os materiais na estação. O número x/N em cima mostra o que já chegou. A seta aponta o próximo passo.",
+        "A noite só fica mais escura. A fogueira aquece e ilumina. O jogo guarda sozinho neste aparelho."
+      ],
+      "input": [
+        "touch",
+        "mouse",
+        "keyboard"
+      ],
+      "status": "novo",
+      "novo": true,
+      "version": "0.1.0"
     }
   ]
 }
