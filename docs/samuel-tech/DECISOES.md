@@ -112,3 +112,15 @@ Não apagar decisões antigas: acrescentar uma nova com alternativa, motivo e ef
 - **Limites conhecidos (P2, fila):** sem limite de edições por segundo no servidor (só a família tem o código);
   mensagens grandes aceitas pelo motor; JS total com workers ≈ 591 KB gzip (orçamento de 450 KB vale para o bundle
   principal: 425 KB); sem cópia do backup fora da VPS.
+
+## DEC-014 — Samuel Surfers em cima do MetroDash (2026-11-15)
+
+- **Decisão:** adaptar o código MIT do MetroDash (`e2db18b`, Frank Valdez) e jogar a v1 com os
+  modelos low-poly em código da folha 3D do Gerador. O estilo pixel (billboard) fica no menu,
+  desligado por padrão. Sem GLB, sem Draco, sem meshopt, sem o analytics da demo.
+- **Motivo:** o MetroDash passa na revisão (MIT, sem modelo/fonte/mp3 de terceiro, three sem aviso
+  no audit de produção). As PNG dele não têm licença própria e saem. O código dos modelos pesa
+  menos que os GLB e não pede outro carregador. A faixa fica em 3,1 e o Samuel em cerca de 3,4,
+  como a folha 3D.
+- **Efeito:** `_privado/jogos/samuel-surfers/` é o build estático (three 0.170 dentro do bundle).
+  O modo Fácil não acaba a corrida. Não houve merge nem publicação nesta sessão.
