@@ -38,6 +38,16 @@ Vale o que está aqui e no Notion, não a memória do chat.
 - **Notion:** esta sessão não veio de um card da fila; o hub não foi atualizado.
 - **NEXT:** o Boaz olha o rascunho no iPad. O Gerador pode seguir a opção A dos tiles (chão procedural + decoração). Sem deploy daqui.
 
+## 2026-11-15 — Samuel Surfers 0.1.0 (rascunho de PR, sem publicar)
+
+- **Pedido do Boaz (15/11 19:19 BRT):** fazer o Samuel Surfers na base do MetroDash e marcar pronto se passar no teste do iPad. Merge e deploy ficam com o Boaz. Branch nova, separada do PR #12 e do Corredor. Sem mexer nos outros jogos.
+- **Revisão:** MetroDash `e2db18b` é MIT (Frank Valdez). Não há glTF, fonte nem mp3. As PNG (menu, mundo, sprites do Rook, ~8,3 MB) não têm licença própria e não entram. O analytics da demo sai. O three da v1 é o 0.170 do portal, dentro do bundle. Detalhe em `desenvolvimento/jogos/samuel-surfers/ORIGEM.md`.
+- **Feito:** corrida de 3 faixas, deslize e botões de 76 px, Fácil sem derrota, tutorial na primeira corrida, moedas com som e partícula, recorde no `localStorage`, tela cheia com `webkitRequestFullscreen` e reserva. Estilo da v1 é o low-poly em código (folha 3D). O pixel fica no menu. Respostas ao Gerador em `ARTE.md`. Catálogo `pronto`, versão 0.1.0.
+- **Testes:** `vitest` da sessão 8/8. WebKit, perfil iPad, 1024×768 e 768×1024, só toque, 60 s na página e no iframe, sem erro de console. `verificar_jogo.py --todos` ok.
+- **Não feito:** merge, push da `main`, deploy. Playtest no iPad de verdade.
+- **Notion:** esta sessão não veio de um card da fila; o hub não foi atualizado.
+- **NEXT:** o Boaz revisa o PR rascunho. Este agente não publica.
+
 ## 2026-11-15 — Pebolim 0.1.2 (faixa no iPad, sem rótulo nas hastes)
 
 - **Pedido:** no iPad em pé a faixa "A bola voltou para o meio!" fica mais larga que a mesa e é cortada. Tirar VERMELHO/AZUL de baixo das hastes. Branch `fix/pebolim-faixa-ipad`, PR rascunho. Sem merge e sem publicar.

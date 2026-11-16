@@ -113,7 +113,19 @@ Não apagar decisões antigas: acrescentar uma nova com alternativa, motivo e ef
   mensagens grandes aceitas pelo motor; JS total com workers ≈ 591 KB gzip (orçamento de 450 KB vale para o bundle
   principal: 425 KB); sem cópia do backup fora da VPS.
 
-## DEC-014 — Planeta 0.3 e Pescador no motor da horda (2026-11-15)
+## DEC-014 — Samuel Surfers em cima do MetroDash (2026-11-15)
+
+- **Decisão:** adaptar o código MIT do MetroDash (`e2db18b`, Frank Valdez) e jogar a v1 com os
+  modelos low-poly em código da folha 3D do Gerador. O estilo pixel (billboard) fica no menu,
+  desligado por padrão. Sem GLB, sem Draco, sem meshopt, sem o analytics da demo.
+- **Motivo:** o MetroDash passa na revisão (MIT, sem modelo/fonte/mp3 de terceiro, three sem aviso
+  no audit de produção). As PNG dele não têm licença própria e saem. O código dos modelos pesa
+  menos que os GLB e não pede outro carregador. A faixa fica em 3,1 e o Samuel em cerca de 3,4,
+  como a folha 3D.
+- **Efeito:** `_privado/jogos/samuel-surfers/` é o build estático (three 0.170 dentro do bundle).
+  O modo Fácil não acaba a corrida. Não houve merge nem publicação nesta sessão.
+
+## DEC-015 — Planeta 0.3 e Pescador no motor da horda (2026-11-15)
 
 - **Decisão:** os dois jogos usam a partida solo portada do código MIT de Pedro
   Barretto (vista, horda fora da tela, separação, cartas, tremor, partículas).
@@ -127,7 +139,7 @@ Não apagar decisões antigas: acrescentar uma nova com alternativa, motivo e ef
   recebe só o pacote de cada slug. Respostas ao Gerador em
   `desenvolvimento/jogos/motor-hordas/RESPOSTAS-GERADOR.md`. Sem deploy nesta sessão.
 
-## DEC-015 — Perigos do cenário e sprites do lote 5 (2026-11-15)
+## DEC-016 — Perigos do cenário e sprites do lote 5 (2026-11-15)
 
 - **Decisão:** nevoeiro, onda-gigante e tempestade não são inimigos. São efeitos
   de tela com aviso antes, no mesmo espírito da chuva de meteoros, da enchente
@@ -141,7 +153,7 @@ Não apagar decisões antigas: acrescentar uma nova com alternativa, motivo e ef
 - **Efeito:** os ids saem da horda e do `motor.json`. A arte fica em
   `arte/perigos/`. Pedra e árvore do `cenario/` não bloqueiam o passo.
 
-## DEC-016 — Combate no alvo, no estilo Tibia (2026-11-15)
+## DEC-017 — Combate no alvo, no estilo Tibia (2026-11-15)
 
 - **Decisão (Boaz, 15/11 18:20 BRT):** o Planeta e o Pescador atacam sozinhos o
   bicho marcado. A mira escolhe o mais perto; o chefe no alcance tem prioridade
@@ -156,7 +168,7 @@ Não apagar decisões antigas: acrescentar uma nova com alternativa, motivo e ef
 - **Efeito:** o código mora em `desenvolvimento/jogos/motor-hordas/`. Sem deploy
   nesta sessão.
 
-## DEC-017 — Mira no alcance da arma, moldura no sprite, tempestade sem pontilhado (2026-11-15)
+## DEC-018 — Mira no alcance da arma, moldura no sprite, tempestade sem pontilhado (2026-11-15)
 
 - **Decisão:** a mira mede distância no mundo, todo quadro, e escolhe o bicho vivo
   mais perto. O chefe só passa na frente se estiver dentro do alcance da
@@ -167,7 +179,7 @@ Não apagar decisões antigas: acrescentar uma nova com alternativa, motivo e ef
   e mais 80 px depois de 4 s) e as que nascem juntas viram uma só. O círculo
   desenhado da rede, da espuma e das outras armas no alvo tem no máximo 10 px;
   o raio que acerta continua o da carta. Esse círculo some quando o bicho morre.
-- **Alternativa descartada:** manter os três degraus do pontilhado (DEC-015) e
-  a mira fixa de 420 px (DEC-016). No print de 30 s o pontilhado virava ruído e
+- **Alternativa descartada:** manter os três degraus do pontilhado (DEC-016) e
+  a mira fixa de 420 px (DEC-017). No print de 30 s o pontilhado virava ruído e
   a moldura ia parar longe do barco.
 - **Efeito:** vale para o Planeta e para o Pescador. Sem deploy nesta sessão.
