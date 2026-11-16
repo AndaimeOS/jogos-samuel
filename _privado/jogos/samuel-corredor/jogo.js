@@ -1,7 +1,7 @@
 import {
   ANIMS, CONFIG, FUNDOS, GID_QUEDA, GIDS_PLATAFORMA, GIDS_SOLIDO, ORDEM,
   aoZerarVidas, classificarContato, cortarPulo, decidirBuraco, decidirContato,
-  layoutMapa, layoutNos, medida, proximaFase, zoomDaFase,
+  layoutMapa, layoutNos, lerpDaCamera, medida, offsetDaCamera, proximaFase, zoomDaFase,
 } from './regras.js';
 
 const PLAT = new Set(GIDS_PLATAFORMA);
@@ -698,7 +698,6 @@ class Fase extends Phaser.Scene {
 
     this.cameras.main.setRoundPixels(true);
     this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
-    this.cameras.main.startFollow(this.player, true, CONFIG.cameraLerp, CONFIG.cameraLerp);
     this.cameras.main.setBackgroundColor(data.id === 'caverna' ? '#101820' : '#0c2420');
 
     this.coracoes = [];
@@ -846,8 +845,14 @@ class Fase extends Phaser.Scene {
   }
 
   enquadrar() {
-    this.zoom = zoomDaFase(this.scale.width);
-    this.cameras.main.setZoom(this.zoom);
+    const largura = this.scale.width;
+    this.zoom = zoomDaFase(largura);
+    const cam = this.cameras.main;
+    cam.setZoom(this.zoom);
+    const offsetX = offsetDaCamera(largura, this.zoom);
+    const lerp = lerpDaCamera(largura);
+    if (this.player) cam.startFollow(this.player, true, lerp, lerp, offsetX, 0);
+    else cam.setFollowOffset(offsetX, 0).setLerp(lerp, lerp);
     this.posicionarFixos();
     this.rolarFundos();
   }
@@ -929,6 +934,14 @@ class Fase extends Phaser.Scene {
       noBloco,
       blocoQueda: this.blocos[0] && this.blocos[0].active ? this.blocos[0].y - (this.blocos[0].getData('oy') || this.blocos[0].y) : 0,
       tipos: this.inimigos.getChildren().filter((i) => i.active && i.getData('vivo')).map((i) => i.getData('tipo')),
+      zoom: this.zoom || 1,
+      vistaL: this.cameras.main.worldView.x,
+      vistaR: this.cameras.main.worldView.right,
+      vistaW: this.cameras.main.worldView.width,
+      aFrente: this.cameras.main.worldView.right - p.x,
+      fracao: (p.x - this.cameras.main.worldView.x) / this.cameras.main.worldView.width,
+      offset: this.cameras.main.followOffset.x,
+      mapaW: this.map.widthInPixels,
     };
   }
 
@@ -1024,6 +1037,7 @@ class Fase extends Phaser.Scene {
     if (decidirBuraco(api.modo) === 'plataforma') {
       this.player.setPosition(this.ultimoChao.x, this.ultimoChao.y - 1);
       this.player.body.setVelocity(0, 0);
+      this.enquadrar();
       return;
     }
     api.vidas = aoZerarVidas(api.vidas - 1);
@@ -1037,6 +1051,15 @@ class Fase extends Phaser.Scene {
     this.player.setPosition(ponto.x, ponto.y - 1);
     this.player.body.setVelocity(0, 0);
     this.dog.setPosition(ponto.x - 24, ponto.y);
+    this.enquadrar();
+  }
+
+  colocar(x) {
+    if (!this.player) return;
+    this.player.setPosition(x, this.spawn.y - 1);
+    this.player.body.setVelocity(0, 0);
+    this.dog.setPosition(x - 26, this.spawn.y);
+    this.enquadrar();
   }
 
   vencer() {
@@ -1360,6 +1383,8 @@ api.congelar = () => {
   cena.congelada = true;
   cena.physics.pause();
 };
+api.ir = (id) => comecar(id);
+api.colocar = (x) => faseAtiva()?.colocar(x);
 api.soltarNoBuraco = () => faseAtiva()?.soltarNoBuraco();
 api.porNoInimigo = () => faseAtiva()?.porNoInimigo() ?? false;
 api.estado = () => api.olhar();

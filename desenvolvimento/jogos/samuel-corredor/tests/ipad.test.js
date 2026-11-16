@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { mkdir } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { createConnection } from 'node:net';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -375,6 +375,128 @@ describe('iPad WebKit (geração 7)', () => {
 
   it('iframe 768×1024: 60 s de toque', async () => {
     await sessentaNoIframe(768, 1024, 'retrato');
+  });
+
+  it('retrato: câmera à frente, zoom 1,1, e a paisagem continua no centro', async () => {
+    const medidas = {};
+    const context = await contexto(768, 1024);
+    const page = await context.newPage();
+    const erros = [];
+    ouvir(page, erros);
+    await page.addInitScript(() => localStorage.clear());
+    await page.goto(jogoUrl, { waitUntil: 'domcontentloaded' });
+    await esperarPronto(page, erros);
+    await page.locator('#btnCampo').tap();
+    await page.waitForFunction(() => window.__corredor.olhar().tela === 'fase' && window.__corredor.olhar().noChao);
+    await page.waitForTimeout(350);
+    const comeco = await page.evaluate(() => window.__corredor.olhar());
+    medidas.comeco = comeco;
+    expect(comeco.zoom).toBe(1.1);
+    expect(comeco.vistaL).toBeLessThanOrEqual(1);
+    expect(comeco.fracao).toBeGreaterThan(0.18);
+    expect(comeco.fracao).toBeLessThan(0.32);
+    expect(comeco.aFrente).toBeGreaterThan(110);
+    await page.screenshot({ path: path.join(arte, 'samuel-corredor-retrato-comeco.png') });
+
+    await segurar(page, 'btnDir', true);
+    const amostras = [];
+    const t0 = Date.now();
+    let buraco = null;
+    while (Date.now() - t0 < 4000) {
+      const o = await page.evaluate(() => window.__corredor.olhar());
+      amostras.push(o.vistaL);
+      if (o.x > 180 && o.x < 240 && o.vistaR > 300 && o.noChao) {
+        buraco = o;
+        break;
+      }
+    }
+    await page.screenshot({ path: path.join(arte, 'samuel-corredor-retrato-buraco.png') });
+    await soltar(page);
+    expect(buraco, 'o buraco não entrou na frente').toBeTruthy();
+    medidas.buraco = buraco;
+    expect(buraco.fracao).toBeGreaterThan(0.18);
+    expect(buraco.fracao).toBeLessThan(0.36);
+    expect(buraco.aFrente).toBeGreaterThan(100);
+    for (let i = 1; i < amostras.length; i++) {
+      expect(amostras[i] - amostras[i - 1], 'a câmera voltou').toBeGreaterThanOrEqual(-1);
+      expect(amostras[i] - amostras[i - 1]).toBeLessThanOrEqual(8);
+    }
+
+    await page.evaluate(() => window.__corredor.colocar(500));
+    await page.waitForTimeout(200);
+    const fim = await page.evaluate(() => window.__corredor.olhar());
+    medidas.fim = fim;
+    expect(fim.vistaL).toBeGreaterThanOrEqual(0);
+    expect(fim.vistaR).toBeGreaterThanOrEqual(fim.mapaW - 2);
+    expect(fim.vistaR).toBeLessThanOrEqual(fim.mapaW + 2);
+    await page.screenshot({ path: path.join(arte, 'samuel-corredor-retrato-fim.png') });
+
+    await page.evaluate(() => window.__corredor.definirModo('normal'));
+    await page.evaluate(() => window.__corredor.colocar(288));
+    await page.waitForTimeout(250);
+    await page.evaluate(() => window.__corredor.colocar(360));
+    await page.waitForTimeout(150);
+    await page.evaluate(() => window.__corredor.soltarNoBuraco());
+    await page.waitForFunction(() => {
+      const o = window.__corredor.olhar();
+      return o.x > 270 && o.x < 310 && o.y < 210 && o.noChao;
+    });
+    await page.waitForTimeout(80);
+    const renasceu = await page.evaluate(() => window.__corredor.olhar());
+    medidas.renasceu = renasceu;
+    expect(renasceu.aFrente).toBeGreaterThan(100);
+    expect(renasceu.fracao).toBeGreaterThan(0.18);
+    expect(renasceu.fracao).toBeLessThan(0.36);
+    expect(renasceu.vistaL).toBeGreaterThan(180);
+
+    await page.evaluate(() => {
+      window.__corredor.vencidas = ['campo', 'floresta'];
+      window.__corredor.ir('caverna');
+    });
+    await page.waitForFunction(() => window.__corredor.olhar().fase === 'caverna' && window.__corredor.olhar().noChao);
+    await page.evaluate(() => window.__corredor.colocar(270));
+    await page.waitForTimeout(250);
+    const bloco = await page.evaluate(() => window.__corredor.olhar());
+    medidas.bloco = bloco;
+    expect(bloco.zoom).toBe(1.1);
+    expect(bloco.vistaR).toBeGreaterThan(340);
+    expect(bloco.x).toBeLessThan(304);
+    await page.screenshot({ path: path.join(arte, 'samuel-corredor-retrato-bloco.png') });
+    expect(erros, erros.join('\n')).toEqual([]);
+    await context.close();
+
+    const paisagem = await contexto(1024, 768);
+    const pagina = await paisagem.newPage();
+    const errosP = [];
+    ouvir(pagina, errosP);
+    await pagina.addInitScript(() => localStorage.clear());
+    await pagina.goto(jogoUrl, { waitUntil: 'domcontentloaded' });
+    await esperarPronto(pagina, errosP);
+    await pagina.locator('#btnCampo').tap();
+    await pagina.waitForFunction(() => window.__corredor.olhar().tela === 'fase' && window.__corredor.olhar().noChao);
+    await pagina.evaluate(() => window.__corredor.colocar(330));
+    await pagina.waitForTimeout(250);
+    const lado = await pagina.evaluate(() => window.__corredor.olhar());
+    medidas.paisagem = lado;
+    expect(lado.zoom).toBe(1);
+    expect(Math.abs(lado.offset)).toBeLessThan(1);
+    expect(lado.fracao).toBeGreaterThan(0.42);
+    expect(lado.fracao).toBeLessThan(0.58);
+    expect(lado.vistaW).toBeGreaterThan(300);
+    await pagina.screenshot({ path: path.join(arte, 'samuel-corredor-paisagem-camera.png') });
+    expect(errosP, errosP.join('\n')).toEqual([]);
+    await paisagem.close();
+
+    const resumo = {
+      corrida: 110,
+      comeco: { aFrente: medidas.comeco.aFrente, fracao: medidas.comeco.fracao, vistaW: medidas.comeco.vistaW, zoom: medidas.comeco.zoom },
+      buraco: { aFrente: medidas.buraco.aFrente, fracao: medidas.buraco.fracao, x: medidas.buraco.x, vistaL: medidas.buraco.vistaL, vistaR: medidas.buraco.vistaR },
+      renasceu: { aFrente: medidas.renasceu.aFrente, fracao: medidas.renasceu.fracao, x: medidas.renasceu.x },
+      fim: { aFrente: medidas.fim.aFrente, fracao: medidas.fim.fracao, vistaL: medidas.fim.vistaL, vistaR: medidas.fim.vistaR, mapaW: medidas.fim.mapaW },
+      bloco: { aFrente: medidas.bloco.aFrente, fracao: medidas.bloco.fracao, x: medidas.bloco.x, vistaR: medidas.bloco.vistaR },
+      paisagem: { aFrente: medidas.paisagem.aFrente, fracao: medidas.paisagem.fracao, zoom: medidas.paisagem.zoom, vistaW: medidas.paisagem.vistaW, offset: medidas.paisagem.offset },
+    };
+    await writeFile('/tmp/corredor-camera.json', JSON.stringify(resumo, null, 2));
   });
 
   it('prova a floresta, a caverna e o mapa com fase vencida', async () => {

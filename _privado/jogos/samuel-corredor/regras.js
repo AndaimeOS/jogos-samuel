@@ -115,10 +115,28 @@ export const FUNDOS = {
   ],
 };
 
-/** No retrato a câmera aproxima só o bastante para o chão crescer.
- *  1,4 na tela de 180 px mostra 129 px de largura. 1 na paisagem. */
+/** Retrato: 1,1. Paisagem: 1, sem aproximar. */
 export function zoomDaFase(largura) {
-  return largura < 220 ? 1.4 : 1;
+  return largura < 220 ? 1.1 : 1;
+}
+
+/** Fração da largura visível em que o Samuel fica, correndo para a direita.
+ *  Retrato: um quarto, à esquerda, para a pista aparecer na frente.
+ *  Paisagem: no meio. */
+export function ancoraDaCamera(largura) {
+  return largura < 220 ? 0.25 : 0.5;
+}
+
+/** O Phaser olha para (x − offset) e põe esse ponto em scroll + largura/2.
+ *  Offset negativo empurra o olhar para a direita do Samuel. */
+export function offsetDaCamera(largura, zoom = zoomDaFase(largura), ancora = ancoraDaCamera(largura)) {
+  return (ancora - 0.5) * (largura / zoom);
+}
+
+/** Suavização do follow. A paisagem fica no lerp antigo.
+ *  No retrato 0,14 atrasava uns 11 px a 110 px/s e tirava o Samuel do quarto. */
+export function lerpDaCamera(largura) {
+  return largura < 220 ? 0.5 : CONFIG.cameraLerp;
 }
 
 /** Largura lógica para a altura fixa de 240, sem tarja 16:9. */

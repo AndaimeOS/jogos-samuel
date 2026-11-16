@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   ANIMS, COLUNAS, CONFIG, GID_QUEDA, GIDS_ENFEITE, GIDS_PLATAFORMA, GIDS_SOLIDO,
   ORDEM, aoZerarVidas, botaoEmPtZoomInteiro, botaoEmPxCss, classificarContato,
-  cortarPulo, decidirBuraco, decidirContato, gid, layoutMapa, layoutNos, medida, proximaFase, zoomDaFase,
+  cortarPulo, decidirBuraco, decidirContato, gid, layoutMapa, layoutNos, lerpDaCamera, medida, offsetDaCamera, proximaFase, zoomDaFase, ancoraDaCamera,
 } from '../../../../_privado/jogos/samuel-corredor/regras.js';
 
 const raiz = new URL('../../../../_privado/jogos/samuel-corredor/', import.meta.url);
@@ -46,8 +46,17 @@ describe('regras', () => {
     expect(layoutNos(320)[1].x).toBeGreaterThan(layoutNos(320)[0].x);
     expect(layoutNos(180)[1].y).toBeGreaterThan(layoutNos(180)[0].y);
     expect(layoutNos(180)[0].w).toBeGreaterThanOrEqual(48);
-    expect(zoomDaFase(180)).toBe(1.4);
+    expect(zoomDaFase(180)).toBe(1.1);
     expect(zoomDaFase(320)).toBe(1);
+    expect(ancoraDaCamera(180)).toBe(0.25);
+    expect(ancoraDaCamera(320)).toBe(0.5);
+    expect(offsetDaCamera(320)).toBe(0);
+    expect(offsetDaCamera(180)).toBeCloseTo(-0.25 * (180 / 1.1));
+    expect(lerpDaCamera(320)).toBe(CONFIG.cameraLerp);
+    expect(lerpDaCamera(180)).toBe(0.5);
+    const aFrente = (180 / 1.1) * 0.75;
+    expect(aFrente / CONFIG.corrida).toBeGreaterThan(1);
+    expect(aFrente / CONFIG.corrida).toBeLessThan(1.25);
     const faixas = layoutMapa(180);
     expect(faixas[0].y).toBeGreaterThanOrEqual(40);
     expect(faixas[2].y + faixas[2].h).toBeCloseTo(240);
