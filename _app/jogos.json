@@ -255,6 +255,27 @@
       "version": "0.2.0"
     },
     {
+      "slug": "samuel-surfers",
+      "title": "Samuel Surfers",
+      "category": "Corrida",
+      "description": "Corrida sem fim em três faixas. O Samuel corre, o Doguinho vai ao lado, e dá para pular, rolar e desviar.",
+      "cover": "samuel-surfers.webp",
+      "entry": "index.html",
+      "instructions": [
+        "Deslize o dedo: para os lados troca de faixa, para cima pula, para baixo rola. Os botões grandes fazem a mesma coisa.",
+        "Pausa e Tela cheia ficam sempre na tela. No computador, as setas e o P também funcionam.",
+        "No Fácil, bater só faz o Samuel tropeçar e ir mais devagar. A corrida não acaba.",
+        "No Normal, uma batida encerra a corrida. As moedas e o recorde ficam neste aparelho."
+      ],
+      "input": [
+        "touch",
+        "keyboard"
+      ],
+      "status": "pronto",
+      "novo": true,
+      "version": "0.1.0"
+    },
+    {
       "slug": "samuel-corredor",
       "title": "Samuel Corredor",
       "category": "Plataforma",
