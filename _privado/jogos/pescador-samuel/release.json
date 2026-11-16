@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "release_id": "pescador-samuel@0.1.0+2971c97.producao",
+  "release_id": "pescador-samuel@0.1.0+3a211de.producao",
   "game_slug": "pescador-samuel",
   "version": "0.1.0",
-  "source_commit": "2971c978c21a7d0ff2d79e902188c63e1d3d2182",
+  "source_commit": "3a211de278ab33b2d82934bafaa9c24c41becb94",
   "environment": "producao",
-  "built_at": "2026-11-15T22:37:50+00:00",
+  "built_at": "2026-11-16T00:41:16+00:00",
   "public_url": "https://samuel.tech/jogar/?jogo=pescador-samuel",
   "files_base_url": "https://samuel.tech/jogo/pescador-samuel/",
   "files": {
@@ -123,7 +123,7 @@
     "arte/monstros/rio/caranguejo.png": "c9a92397abb193b1a2debb5acfe9662b491ab026c843db5c08554388b39578ff",
     "arte/monstros/rio/piranha.png": "1c907c88f230b6ff1a055db9ad327a7b119a31ea9492881f5f0a853db3e0bfe3",
     "arte/monstros/rio/sapo-pulador.png": "8e9e8ab50b095c8aa6e7c909701657bfabca24fbc9084ff4b874d1d0d1bd607a",
-    "arte/motor.json": "5176e12d69891f6915f5d9c12df73143480630dc178952284e3e2b5089c9f51d",
+    "arte/motor.json": "134ba229c4d08126a0333668742676f70c95739ea9d563943e54dbc5754534c8",
     "arte/perigos/nevoeiro/aviso.png": "96aba516fb20c6b12b1abd44554274025abba3336be8bb7a99e24649c2e9662f",
     "arte/perigos/nevoeiro/borda.png": "26b5aabde854218bc3b693aa4743e9f7ac7446a6af35a5ba41ec984a7752898b",
     "arte/perigos/nevoeiro/camada.png": "7548b78725e545e4e83a63db8f3680ed24d160a477cd10dd9fc13866a0f5381d",
@@ -199,10 +199,6 @@
     "arte/sprites/samuel-barco-cinza/Idle.png": "4fe812df67b8581a39f1997aceb10aa40d43594139d381aafae985d1566f1f09",
     "arte/sprites/samuel-barco-cinza/Walk.png": "17f270714d43e96e18fa9e8a10bc4a50905160d8e670c8d5f05c361fc294c823",
     "arte/sprites/samuel-barco-cinza/portrait.png": "7784d67a4a09cec80584631e45cccc5ba20295930ff8e693c58e3a21575405af",
-    "arte/sprites/samuel-barco-colete/Hurt.png": "d7425db41898683295579e3359c072bec2a019d95fc185085ae8de8fbd69475c",
-    "arte/sprites/samuel-barco-colete/Idle.png": "eccad59fb953ddadb51bbe488f19f30042b15d9ad18d2c437362af473f929091",
-    "arte/sprites/samuel-barco-colete/Walk.png": "b1e4e2124b821978db3ca19f3c3eb7c946dea85198661113cf8649e560dbf45c",
-    "arte/sprites/samuel-barco-colete/portrait.png": "39e141e2306e36cb8725a1363e0d01bee893417e7870959c90d14e5d30a7c076",
     "arte/sprites/sapo-pulador/Hurt.png": "3b4733af37ea2cb643ad2b61cec0aa00815b7487ac285f641bc8f8ada5a2911a",
     "arte/sprites/sapo-pulador/Idle.png": "8a0d222b69b1884370ad61ed816f3bcc7820d2a0359edcad5dfb379c3a4f5368",
     "arte/sprites/sapo-pulador/Sumico.png": "2e99ae827ce6f05ef93f02edce9e1f9b067462258a54dbd79b735605620b77cf",
@@ -219,6 +215,6 @@
     "arte/sprites/tubarao/Walk.png": "444f5920429466ee1ef45ad32232b93cb430ef361d0aa7ac04b44e9c9e05436a",
     "arte/sprites/tubarao/portrait.png": "d10c880470cf164a1ee48a99397d290c0ae390e6ca2428c055440b9919aa70e0",
     "index.html": "bef717da887b091a58f7c2df78af1c60894de068700f6ee776bc616db9e709b6",
-    "jogo.js": "c87b0514853b52ee70c787f144d1b40022edeffa7b57c2dc01bd33f7030d3679"
+    "jogo.js": "3a045071dfcad19b0493238bc61f1f1da2e9dbd4d0503ad8fbf128b12f22941b"
   }
 }
