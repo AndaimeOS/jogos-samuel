@@ -3,6 +3,14 @@
 Atualizado ao fim de cada sessão (ST-090). Um bloco por sessão, o mais novo em cima.
 Vale o que está aqui e no Notion, não a memória do chat.
 
+## 2026-11-16 — Samuel Corredor 0.1.0 (câmera do retrato à frente)
+
+- **Pedido do Boaz (15/11 21:28 BRT, opção B):** só a câmera do retrato. O Samuel fica a cerca de 1/4 da largura, à esquerda, com a pista na frente. Zoom cerca de 1,1. A câmera não passa da borda da fase. Paisagem, mapa, arte, física, buraco, bloco e vitória ficam como estão. Sem merge e sem deploy.
+- **Feito:** zoom do retrato 1,1 (a vista tem 164 px de largura). O follow empurra o olhar para a direita e o lerp do retrato foi para 0,5, senão o atraso de 0,14 tirava o Samuel do quarto. No começo a pista à frente mediu 124 px (1,13 s a 110 px/s). Correndo, antes do buraco, 120 px (1,10 s). Logo depois de renascer no marco, 122 px (1,11 s). 1,2 s seriam 132 px e 1,5 s seriam 165 px: 165 px não cabem numa vista de 164 px. No fim a câmera para em x = 576, a borda do campo, e sobram 76 px. Na paisagem o zoom segue 1, o offset é 0 e o Samuel fica no centro (fração 0,50, vista de 320 px).
+- **Testes:** regras 7/7 e iPad WebKit 8/8, inclusive 60 s nos dois sentidos e no iframe. `verificar_jogo.py --todos` ok.
+- **Não feito:** merge e deploy. O Boaz publica.
+- **NEXT:** o Boaz olha os prints do retrato.
+
 ## 2026-11-15 — Samuel Corredor 0.1.0 (zoom do retrato em 1,4)
 
 - **Pedido do Boaz:** só o zoom do retrato. O 2,2 passou do ponto: o Samuel ocupava cerca de um terço da largura e o buraco aparecia em cima da hora. Ficar entre 1,4 e 1,5. Sem mexer no resto. Sem merge e sem deploy.
