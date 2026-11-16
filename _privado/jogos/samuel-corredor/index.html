@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Samuel Corredor</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect fill='%23B9ED80' width='16' height='16'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<div id="jogo">
+  <div id="palco"></div>
+
+  <div id="barra">
+    <a id="btnSair" href="/jogos/" target="_top" data-alvo>← Jogos</a>
+    <button id="btnNormal" type="button" data-alvo aria-pressed="true">Normal</button>
+    <button id="btnFacil" type="button" data-alvo aria-pressed="false">Fácil</button>
+  </div>
+
+  <button id="btnCampo" class="faixa" type="button" data-alvo aria-label="Campo"></button>
+  <button id="btnFloresta" class="faixa" type="button" data-alvo aria-label="Floresta"></button>
+  <button id="btnCaverna" class="faixa" type="button" data-alvo aria-label="Caverna"></button>
+
+  <button id="btnEsq" class="ctrl" type="button" data-alvo aria-label="Esquerda" hidden></button>
+  <button id="btnDir" class="ctrl" type="button" data-alvo aria-label="Direita" hidden></button>
+  <button id="btnPulo" class="ctrl" type="button" data-alvo aria-label="Pular" hidden></button>
+  <button id="btnPausa" class="ctrl" type="button" data-alvo aria-label="Pausa" hidden></button>
+  <button id="btnTela" class="ctrl" type="button" data-alvo aria-label="Tela cheia"></button>
+
+  <div id="pausa" hidden>
+    <div class="cartao">
+      <div class="barra-janela"><span>pausa.exe</span><span>✦</span></div>
+      <div class="corpo">
+        <h2>Pausa</h2>
+        <button id="btnSeguir" type="button" data-alvo>Continuar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="vitoria" hidden>
+    <div class="cartao">
+      <div class="barra-janela"><span>fase_vencida.exe</span><span>✦</span></div>
+      <div class="corpo">
+        <h2 id="tituloVitoria">Fase vencida</h2>
+        <div class="placar">
+          <canvas id="vitoriaMoedaIcon" width="16" height="16"></canvas>
+          <span id="vitoriaMoedas">0</span>
+          <span id="vitoriaCristais"></span>
+        </div>
+        <div class="acoes">
+          <button id="btnRepetir" class="ctrl" type="button" data-alvo aria-label="De novo"></button>
+          <button id="btnProxima" class="ctrl" type="button" data-alvo aria-label="Próxima fase"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="phaser.min.js"></script>
+<script type="module" src="jogo.js"></script>
+</body>
+</html>

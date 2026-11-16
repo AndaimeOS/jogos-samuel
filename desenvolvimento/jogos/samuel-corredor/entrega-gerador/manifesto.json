@@ -1,0 +1,525 @@
+{
+ "jogo": "Samuel Corredor",
+ "entrega": "final",
+ "data": "2026-11-15",
+ "segue": "ARTE.md (branch cursor/samuel-corredor-2db6, PR #13)",
+ "atlas": {
+  "arquivo": "arte/atlas.png",
+  "px": [
+   256,
+   256
+  ],
+  "quadros": 54,
+  "vao_px": 2,
+  "trimmed": false,
+  "formato": "JSON Hash"
+ },
+ "regras": [
+  "pixel art em código",
+  "contorno #193337",
+  "paleta estilo-v2 + derivados",
+  "alpha só 0/255",
+  "sem logo, nome, idade ou sangue",
+  "nada das fotos privadas (conferido por hash)"
+ ],
+ "arquivos": [
+  {
+   "arquivo": "LEIA.md",
+   "sha256": "e27253943258c91125d520562b40871520fda8310989534f6977125512e64402",
+   "bytes": 3846
+  },
+  {
+   "arquivo": "_src/__pycache__/entrega.cpython-313.pyc",
+   "sha256": "e2aab5dc0e26483d9780211dab13c2668eb105be3b99b3bf9fa81c454f648c6a",
+   "bytes": 10967
+  },
+  {
+   "arquivo": "_src/__pycache__/fases.cpython-313.pyc",
+   "sha256": "ec6bf45f4a6fce52a1058c5bfc66ded8c68af4c49f529d945dd0e20d1e83c2e7",
+   "bytes": 10755
+  },
+  {
+   "arquivo": "_src/entrega.py",
+   "sha256": "177d3e769553ba8043ddf183f2bed8482757c0b6fa8237a67dc621179c709b22",
+   "bytes": 5377
+  },
+  {
+   "arquivo": "_src/fases.py",
+   "sha256": "d63e50e63017b9ba7bc119e8fc0a6a156073e9ebdb563a3ad994ff1bf1d38043",
+   "bytes": 5667
+  },
+  {
+   "arquivo": "_src/manifesto.py",
+   "sha256": "830c92dc74848187c01da01f84a3e87aaf99785c63f3648a478252272093bedc",
+   "bytes": 1122
+  },
+  {
+   "arquivo": "_src/pecas_v2.py",
+   "sha256": "ea337acc815960a183f78d8dc6601227b55cbe9e786ae4f55d29463693f7c86f",
+   "bytes": 4455
+  },
+  {
+   "arquivo": "_src/previas.py",
+   "sha256": "f23fef6df5d76aa4f9c3b71f5bb4b52c5cb4f4c68c7851dc9c3ae37996a7cfa2",
+   "bytes": 8371
+  },
+  {
+   "arquivo": "_src/teste-phaser.html",
+   "sha256": "918781edf87d768220db46572262d5a3228a55b0c5edfb8ac111f872288b0ac7",
+   "bytes": 2206
+  },
+  {
+   "arquivo": "_src/validar.py",
+   "sha256": "cd24bd13e7730e2e088c7f7c30fb553ef93bbcac31ae53add76d56afc26e9e7f",
+   "bytes": 6241
+  },
+  {
+   "arquivo": "animacoes.json",
+   "sha256": "85510766ed6fd3589069b812cff7d486dde42769e9c659399a1b2e3cc285b8ca",
+   "bytes": 3628
+  },
+  {
+   "arquivo": "arte/atlas.json",
+   "sha256": "f7f412ad9e9e3c3e6cf089b705b13d593666f998cadf903bb7bc962696090900",
+   "bytes": 14856
+  },
+  {
+   "arquivo": "arte/atlas.png",
+   "sha256": "434bd643f303ec2a9f9785c7da08172a16772a4f8ebc19a3ef155084b1344647",
+   "bytes": 13100,
+   "px": [
+    256,
+    256
+   ]
+  },
+  {
+   "arquivo": "arte/controles/botao-direita.png",
+   "sha256": "6ce89b39657b55062df41cd58a81d52aca5e6695376bbbf51c33d0d74595acbe",
+   "bytes": 806,
+   "px": [
+    64,
+    32
+   ]
+  },
+  {
+   "arquivo": "arte/controles/botao-esquerda.png",
+   "sha256": "54a6a090bddf3ee5080329be1a31a5ea975e9f86ce8af2570cb07265cf8f4e5b",
+   "bytes": 824,
+   "px": [
+    64,
+    32
+   ]
+  },
+  {
+   "arquivo": "arte/controles/botao-pausa.png",
+   "sha256": "4d68e627e90044c8ea25f8bcff80151d8233b50f3b4d177acfbb619737e89986",
+   "bytes": 560,
+   "px": [
+    48,
+    24
+   ]
+  },
+  {
+   "arquivo": "arte/controles/botao-proxima.png",
+   "sha256": "ce430f21ba9c71dc8d6f2f22e1b36609b3b0894831912837dc729d257ce56f51",
+   "bytes": 1028,
+   "px": [
+    80,
+    40
+   ]
+  },
+  {
+   "arquivo": "arte/controles/botao-pular.png",
+   "sha256": "74e0bb914b9a42813cd6f477b80662c4d27a4e0a43cb8542c8cf3d71a3082627",
+   "bytes": 1039,
+   "px": [
+    80,
+    40
+   ]
+  },
+  {
+   "arquivo": "arte/controles/botao-repetir.png",
+   "sha256": "4ee4db0ed18b654e7e1dfb17f0538eb70c5612ec8fc5b488bd3658a89d38571c",
+   "bytes": 788,
+   "px": [
+    48,
+    24
+   ]
+  },
+  {
+   "arquivo": "arte/controles/botao-sair-tela-cheia.png",
+   "sha256": "2e707317e4751a8695de4af875d135dc902ad8e2734120df21af2719aeaa0e1e",
+   "bytes": 618,
+   "px": [
+    48,
+    24
+   ]
+  },
+  {
+   "arquivo": "arte/controles/botao-tela-cheia.png",
+   "sha256": "102f85d99d73ef96f4ee969ba9812c3abd6f9e1311c645b0c74d5a9aeca34a76",
+   "bytes": 601,
+   "px": [
+    48,
+    24
+   ]
+  },
+  {
+   "arquivo": "arte/fases/campo.json",
+   "sha256": "fa43f0859052f5c6db3002179a4bb2b9b140804624546ae85b5ba94c8f134033",
+   "bytes": 6732
+  },
+  {
+   "arquivo": "arte/fases/caverna.json",
+   "sha256": "24f70eb9067bce8f0f4121353d681195564c7e8f160d66415bed9570d29ae527",
+   "bytes": 7574
+  },
+  {
+   "arquivo": "arte/fases/floresta.json",
+   "sha256": "635dcbf2e149a6719292787f62f0129830e3b6129d4354a2ec3ba4d6c3fafdb1",
+   "bytes": 7371
+  },
+  {
+   "arquivo": "arte/fundos/campo/ceu.png",
+   "sha256": "c84b0ebf6ae01578ae13c7e28bb622e8b74f661f5bde42dbecc8f3d6dec700fb",
+   "bytes": 223,
+   "px": [
+    16,
+    240
+   ]
+  },
+  {
+   "arquivo": "arte/fundos/campo/moitas.png",
+   "sha256": "ae1345ffd56324b81dbe032f99602d455e075f47f68b610db28d6b05c0788014",
+   "bytes": 1164,
+   "px": [
+    256,
+    96
+   ]
+  },
+  {
+   "arquivo": "arte/fundos/campo/morros.png",
+   "sha256": "3463ae3b692c6c2da73bfb2682f0b2363c1032a0bdd95cc1e06450936b935fa5",
+   "bytes": 685,
+   "px": [
+    256,
+    80
+   ]
+  },
+  {
+   "arquivo": "arte/fundos/campo/morros_longe.png",
+   "sha256": "6880c6be2ceca410e6584ba2f9da9e456d9cd95b10a0379001096609fe2ea0be",
+   "bytes": 659,
+   "px": [
+    256,
+    96
+   ]
+  },
+  {
+   "arquivo": "arte/fundos/campo/nuvens.png",
+   "sha256": "67b04a23ace20dd2cb7a708f2ee1d9e39e660db904af8804eac0fe59c504b2f5",
+   "bytes": 642,
+   "px": [
+    256,
+    64
+   ]
+  },
+  {
+   "arquivo": "arte/fundos/caverna/castelo.png",
+   "sha256": "209a0080bf10b37acd622da1627803152161f716e0ef79462c90b7bb13ce13c5",
+   "bytes": 806,
+   "px": [
+    256,
+    130
+   ]
+  },
+  {
+   "arquivo": "arte/fundos/caverna/ceu.png",
+   "sha256": "b0eccae46b1a8974fee62f9ad12a4f1d8f217b03928aef1a381881ca2d4d175b",
+   "bytes": 237,
+   "px": [
+    16,
+    240
+   ]
+  },
+  {
+   "arquivo": "arte/fundos/caverna/estalactites.png",
+   "sha256": "ff4b01442463096f962994d07b28576b2c79450baa3af6c9424a98a66d99e060",
+   "bytes": 816,
+   "px": [
+    256,
+    48
+   ]
+  },
+  {
+   "arquivo": "arte/fundos/caverna/pedras.png",
+   "sha256": "bbcd9029df9cfd904c9041628d96861d31d27fe3810caa4588b2bceca0e60e9a",
+   "bytes": 952,
+   "px": [
+    256,
+    80
+   ]
+  },
+  {
+   "arquivo": "arte/fundos/floresta/ceu.png",
+   "sha256": "3c5debbb11313d14ea805f9925ff89b165d2ceb8d7d442e922e20db4481b82e1",
+   "bytes": 228,
+   "px": [
+    16,
+    240
+   ]
+  },
+  {
+   "arquivo": "arte/fundos/floresta/copas.png",
+   "sha256": "6587f286bf4a400e905660010b36a1cc1bebb51a7531032ce11f5d29a9e29f9f",
+   "bytes": 1087,
+   "px": [
+    256,
+    56
+   ]
+  },
+  {
+   "arquivo": "arte/fundos/floresta/mata_longe.png",
+   "sha256": "9f3d9cab13400d8213b8be2376ed793ea8d71f4849c370d4122580a6fc88e866",
+   "bytes": 981,
+   "px": [
+    256,
+    150
+   ]
+  },
+  {
+   "arquivo": "arte/fundos/floresta/samambaias.png",
+   "sha256": "dfa563b1bc58daf480cb64a2fc43275eaa3a87f6fa0b9f715bf0e0f7c7b30676",
+   "bytes": 1023,
+   "px": [
+    256,
+    88
+   ]
+  },
+  {
+   "arquivo": "arte/fundos/floresta/troncos.png",
+   "sha256": "de4ec11eff8b86d6054cf408ea74f5262e5e3be39d14e2925bea39f663d79504",
+   "bytes": 859,
+   "px": [
+    256,
+    240
+   ]
+  },
+  {
+   "arquivo": "arte/hud/coracao-vazio.png",
+   "sha256": "e8b86ab1ddb8291fea490e7cce3197377ccf41e53c88d1e0f16c003885969936",
+   "bytes": 223,
+   "px": [
+    14,
+    13
+   ]
+  },
+  {
+   "arquivo": "arte/hud/coracao.png",
+   "sha256": "ae6418db1e03d498612d875b33f260a4fc254fa42fa735ab58833a2ea53d2f11",
+   "bytes": 210,
+   "px": [
+    14,
+    13
+   ]
+  },
+  {
+   "arquivo": "arte/hud/digitos.png",
+   "sha256": "e1a5b1dd168dfb7fbd951d4fdad941695849ea907bc0c9269d70f988fc41bc04",
+   "bytes": 315,
+   "px": [
+    80,
+    12
+   ]
+  },
+  {
+   "arquivo": "arte/hud/estrela-slot.png",
+   "sha256": "7f5be4df0bf634530463aaf3f91e050b60fd6dba96e2e37fa3f80a9e388bbd0d",
+   "bytes": 338,
+   "px": [
+    32,
+    16
+   ]
+  },
+  {
+   "arquivo": "arte/tiles.png",
+   "sha256": "697486b0ef0859ac88375741d063f2deab0a838347648b021c1f83e4a219da5e",
+   "bytes": 2578,
+   "px": [
+    192,
+    48
+   ]
+  },
+  {
+   "arquivo": "previas/atlas_magenta.png",
+   "sha256": "a6c0bb1bb501b06ef584c0c877360e9c02ffac5808544f51fbd3d03b11c1315c",
+   "bytes": 22085,
+   "px": [
+    768,
+    768
+   ]
+  },
+  {
+   "arquivo": "previas/atlas_preto.png",
+   "sha256": "da65c45db0d5d394eb543f9e8ef3133e3ac7836f91c003f984599352befa5c20",
+   "bytes": 21853,
+   "px": [
+    768,
+    768
+   ]
+  },
+  {
+   "arquivo": "previas/folha-resumo.png",
+   "sha256": "704480fe5fef2ba2745f336a8cd7082c8f476cf241b5a048616d1eca21cb1f85",
+   "bytes": 75467,
+   "px": [
+    1400,
+    1180
+   ]
+  },
+  {
+   "arquivo": "previas/gif/bandeira_tremular.gif",
+   "sha256": "7e7d755806009ec3f023ed1d43372348b89b2d4ecbd5c2f5077badbf240859c4",
+   "bytes": 5165
+  },
+  {
+   "arquivo": "previas/gif/besouro_andar.gif",
+   "sha256": "1beecd20af239429c5dbaf3c4e79b983a3b4d6d4f340dfe9d1838311397b886b",
+   "bytes": 1789
+  },
+  {
+   "arquivo": "previas/gif/brilho_piscar.gif",
+   "sha256": "df3b089d42e0c8f9ea40b947be9b717d73b33cf7e150949078d66a88102ff5ca",
+   "bytes": 511
+  },
+  {
+   "arquivo": "previas/gif/castelinho_brilhar.gif",
+   "sha256": "9b61a7d363a24ed2d4aaef56c6756731d1b512609362b5a07aef936179c6780f",
+   "bytes": 3723
+  },
+  {
+   "arquivo": "previas/gif/castelinho_parado.gif",
+   "sha256": "15428835c004d475478c93cfeb8118a632602a58eb8ff70f9e65c3fd698cc6b2",
+   "bytes": 1839
+  },
+  {
+   "arquivo": "previas/gif/cogumelo_mola.gif",
+   "sha256": "3a790df8441eb1b55b74b5057061bb9cbb1868b87e09940965e2ad17fd2f5497",
+   "bytes": 3715
+  },
+  {
+   "arquivo": "previas/gif/doguinho_comemorar.gif",
+   "sha256": "092b0e803985119b806ef6907f6e0bee2ee634433c95156ce5ba34e595369e60",
+   "bytes": 1914
+  },
+  {
+   "arquivo": "previas/gif/doguinho_correr.gif",
+   "sha256": "29209383a44ac51e8b8b5c5c86dbf9e57ec21a685b165be7f0f5df4bf0d3deb6",
+   "bytes": 1972
+  },
+  {
+   "arquivo": "previas/gif/doguinho_feliz.gif",
+   "sha256": "43039e19725bca76f2d5db9cf0723ca8f259d39b408c7b20a898bc4b77cacea4",
+   "bytes": 1005
+  },
+  {
+   "arquivo": "previas/gif/doguinho_parado.gif",
+   "sha256": "03c5219515fc7334f8bdb4a82159ef0b8ea184242aa43070a511aa421adcc3e7",
+   "bytes": 967
+  },
+  {
+   "arquivo": "previas/gif/doguinho_pular.gif",
+   "sha256": "c8dd96843d6b07305c82d8f65a7edb224a75a3fb67efcfc0d9abd50a6f75e978",
+   "bytes": 989
+  },
+  {
+   "arquivo": "previas/gif/estrela_brilhar.gif",
+   "sha256": "836f921af58308a40f4e0a9f301fd663add4610a9e508a82185937f3328f4753",
+   "bytes": 961
+  },
+  {
+   "arquivo": "previas/gif/lesma_andar.gif",
+   "sha256": "18029821e791005292e6a1213e67b9a8fb0612991d3868c238981c9dbe0797d7",
+   "bytes": 2228
+  },
+  {
+   "arquivo": "previas/gif/marco_aceso.gif",
+   "sha256": "124b9b09ac19f3e96b466946b1ab03ed6bc2bcfd38178f0646c6b1463eac553c",
+   "bytes": 1449
+  },
+  {
+   "arquivo": "previas/gif/marco_apagado.gif",
+   "sha256": "07fab40ad268b1cfc5d48351bae15ee4a274b49c22cdb7414981e2069b82ea22",
+   "bytes": 672
+  },
+  {
+   "arquivo": "previas/gif/moeda_girar.gif",
+   "sha256": "57146fb9c11979bb403e0e1ca3f8c18ef4149e1d6e6ace2d0f996562797b6d7f",
+   "bytes": 1866
+  },
+  {
+   "arquivo": "previas/gif/morcego_voar.gif",
+   "sha256": "f66baa57a874077471e3d548e08238651e1df3a1e01a2f9e4d7c2a2bb3e7b958",
+   "bytes": 1550
+  },
+  {
+   "arquivo": "previas/gif/plataforma_helice.gif",
+   "sha256": "3df51d44d1cdd67dabf551aa13e4a2f8757f2ddd5e44a8096087b8f60a566e81",
+   "bytes": 1782
+  },
+  {
+   "arquivo": "previas/gif/poeira_sumir.gif",
+   "sha256": "73c6fdc18d775c1433a27c0bac4b60328b224c41e07ba1e964672e5bfd442d67",
+   "bytes": 593
+  },
+  {
+   "arquivo": "previas/gif/pof_estourar.gif",
+   "sha256": "5c0e2ee1d0ef5eb3bcfaa6a51f57f7fdd723243d57582581edaba979df2b63ac",
+   "bytes": 1544
+  },
+  {
+   "arquivo": "previas/gif/samuel_cair.gif",
+   "sha256": "58ea41d805b32b22b0af142b6293b83f2debf7939f4dce2533773f148468ee07",
+   "bytes": 2144
+  },
+  {
+   "arquivo": "previas/gif/samuel_comemorar.gif",
+   "sha256": "459db2918885cb550a9600c87f7cfe675ed287a0b37d753212295874af091a8e",
+   "bytes": 4486
+  },
+  {
+   "arquivo": "previas/gif/samuel_correr.gif",
+   "sha256": "d87b9ab5766f11b0f54b32fb5f7b7aeffa4a56721dea4e033dfca431c4818580",
+   "bytes": 8060
+  },
+  {
+   "arquivo": "previas/gif/samuel_dano.gif",
+   "sha256": "9082f24a2af69f18188b0274a2d9c1f1a132f7aca771f0f9bdc34cdeb59514a0",
+   "bytes": 2140
+  },
+  {
+   "arquivo": "previas/gif/samuel_parado.gif",
+   "sha256": "0bd53a643b825150c67da0fc9481ff9c3ed435f767075b54280617a2762d65e3",
+   "bytes": 2196
+  },
+  {
+   "arquivo": "previas/gif/samuel_pular.gif",
+   "sha256": "4a163fbddcdcd843f8b1d0eae8c2a91bd054a74a1184b68a10e2baf584dfe441",
+   "bytes": 2122
+  },
+  {
+   "arquivo": "previas/pecas-novas_magenta_preto.png",
+   "sha256": "ddb89d9714be15ae5d4b300d882b1c1fbb693d5c796809367ea576a3a9891dd9",
+   "bytes": 14369,
+   "px": [
+    1776,
+    608
+   ]
+  },
+  {
+   "arquivo": "previas/validacao.json",
+   "sha256": "8c57bf900462b15f9048ab09521633a4bec2fdc7f1eaaf79654fcb87f97425e6",
+   "bytes": 1737
+  }
+ ]
+}

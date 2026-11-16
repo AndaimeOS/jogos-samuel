@@ -11,6 +11,8 @@ Vale o que está aqui e no Notion, não a memória do chat.
 - **Não feito:** merge do PR #12 e publicação no samuel.tech.
 - **NEXT:** o Boaz junta e publica, se os prints da camiseta cinza estiverem certos.
 
+## 2026-11-15 — Planeta e Pescador: mira, moldura, tempestade e tela limpa
+
 - **Pedido:** na mesma branch do PR #12, sem merge e sem deploy. Os prints de 30 s do Pescador ainda barravam o Boaz: a moldura ia num bicho longe, a moldura era grande demais, a tempestade pontilhava a tela inteira, tinha ícone e anel demais, e o barco parecia pequeno e borrado.
 - **Causas e o que mudou:** a mira do jogo já usava o mundo e o bicho vivo mais perto, mas o print antigo empurrava o alvo para 110 px e deixava a moldura presa nele. O alcance da mira agora é o da ferramenta mais longa (o chefe só ganha dentro desse alcance). A moldura lê os pixels opacos do quadro e fica 2 px fora deles. A tempestade não usa mais o pontilhado de `escurecer.png`: um véu uniforme de 16% e a chuva a 35%. As gemas puxam de 110 px, juntam as que estão a 18 px e, depois de 4 s, vêm de mais longe. O anel da rede deixou de ter o raio do dano (cerca de 42 px) e marca o alvo com um círculo de no máximo 10 px; some quando esse bicho morre. O barco `samuel-barco-colete` já estava na escala 1, quadro 48×48, corpo opaco 20×39: no iPad ele ocupa uns 20 px do mundo (~342 de largura), por isso parece pequeno. O recorte e a direção estão certos.
 - **Testes:** motor 10/10. iPad WebKit 6/6. `verificar_jogo.py --todos` ok. Pebolim 35/35, Reino 18/18, Minigolfe 53/53, Corrida do Jack 19/19.
@@ -43,6 +45,48 @@ Vale o que está aqui e no Notion, não a memória do chat.
 - **Não feito:** publicar no samuel.tech. O visual do barco (cinza ou colete) ainda espera o Boaz; o padrão desta versão é o colete.
 - **Notion:** esta sessão não veio de um card da fila; o hub não foi atualizado.
 - **NEXT:** o Boaz olha o rascunho no iPad. O Gerador pode seguir a opção A dos tiles (chão procedural + decoração). Sem deploy daqui.
+
+## 2026-11-16 — Samuel Corredor 0.1.0 (câmera do retrato à frente)
+
+- **Pedido do Boaz (15/11 21:28 BRT, opção B):** só a câmera do retrato. O Samuel fica a cerca de 1/4 da largura, à esquerda, com a pista na frente. Zoom cerca de 1,1. A câmera não passa da borda da fase. Paisagem, mapa, arte, física, buraco, bloco e vitória ficam como estão. Sem merge e sem deploy.
+- **Feito:** zoom do retrato 1,1 (a vista tem 164 px de largura). O follow empurra o olhar para a direita e o lerp do retrato foi para 0,5, senão o atraso de 0,14 tirava o Samuel do quarto. No começo a pista à frente mediu 124 px (1,13 s a 110 px/s). Correndo, antes do buraco, 120 px (1,10 s). Logo depois de renascer no marco, 122 px (1,11 s). 1,2 s seriam 132 px e 1,5 s seriam 165 px: 165 px não cabem numa vista de 164 px. No fim a câmera para em x = 576, a borda do campo, e sobram 76 px. Na paisagem o zoom segue 1, o offset é 0 e o Samuel fica no centro (fração 0,50, vista de 320 px).
+- **Testes:** regras 7/7 e iPad WebKit 8/8, inclusive 60 s nos dois sentidos e no iframe. `verificar_jogo.py --todos` ok.
+- **Não feito:** merge e deploy. O Boaz publica.
+- **NEXT:** o Boaz olha os prints do retrato.
+
+## 2026-11-15 — Samuel Corredor 0.1.0 (zoom do retrato em 1,4)
+
+- **Pedido do Boaz:** só o zoom do retrato. O 2,2 passou do ponto: o Samuel ocupava cerca de um terço da largura e o buraco aparecia em cima da hora. Ficar entre 1,4 e 1,5. Sem mexer no resto. Sem merge e sem deploy.
+- **Feito:** `zoomDaFase` no retrato passou de 2,2 para 1,4. A tela lógica tem 180 px de largura, então a câmera mostra 129 px. A corrida é 110 px/s; 1,5 s à frente seriam 165 px, o que não cabe nessa largura. Com o Samuel no centro sobram 64 px (0,6 s). No começo, com a câmera grudada na esquerda e ele em x ≈ 40, sobram 89 px (0,8 s).
+- **Testes:** regras 7/7 e iPad WebKit 7/7, inclusive 60 s nos dois sentidos e no iframe. `verificar_jogo.py --todos` ok. Smoke dos jogos prontos ok.
+- **Não feito:** merge e deploy. O Boaz publica.
+- **NEXT:** o Boaz olha os prints do retrato.
+
+## 2026-11-15 — Samuel Corredor 0.1.0 (rodada 2, ainda sem publicar)
+
+- **Pedido:** última rodada. Mapa com o fundo de cada fase, retrato sem o céu vazio, buraco que pareça buraco, print do bloco com o Samuel em cima, vitória com uma estrela cheia. Sem merge e sem deploy.
+- **Feito:** o mapa usa o céu e o chão de cada fase (`tiles.png`), o caminho pontilhado e o título "Escolha a fase", com o Samuel em pé no nó atual. No retrato a câmera usa zoom 2,2 (altura visível ~109 px) e o céu vazio acima do morro fica abaixo de 25%. O fundo do buraco, no campo e na floresta, escurece até quase preto. O bloco que cai continua sólido e leva o Samuel junto. A vitória da rodada mostra 1 cristal cheio e 2 vazios.
+- **Testes:** regras 7/7 e iPad WebKit 7/7 (60 s em 1024×768 e 768×1024, 60 s no iframe nos dois sentidos, sem erro no console). `verificar_jogo.py --todos` ok. O smoke dos jogos prontos passou.
+- **Não feito:** merge, deploy, fundo `_v2` do Gerador (o buraco já foi escurecido aqui).
+- **NEXT:** o Boaz olha os prints. Este agente não faz o deploy.
+
+## 2026-11-15 — Samuel Corredor 0.1.0 (arte final, ainda sem publicar)
+
+- **Pedido:** entrar a entrega final do Gerador (`corredor-entrega`) no lugar dos placeholders e fechar a rodada dos prints (moedas e 3 cristais, mapa com nós, castelinho, floresta e caverna provadas, 60 s de toque no retrato e no iframe). Sem merge, sem push na `main` e sem deploy.
+- **Feito:** arte em `f9b7af2`. Atlas 256×256, 54 quadros, JSON Hash, vão de 2 px, `trimmed: false`. O castelinho com troféu fecha a caverna; o marco acende no checkpoint; a vitória segura a pose em V (`samuel/comemorar_0`). As fases do Gerador são iguais byte a byte ao `gerar-fases.mjs` (`gid = linha*12 + coluna + 1`, especial da caverna = 35). Hitbox segue 14×40, offset (9, 8); no campo o pé encosta em y = 192. Os fps sugeridos dos extras ficaram em 4. O buraco do campo e da floresta mostra o pé do céu (faixa verde chapada): falta um fundo `_v2` mais fundo. O jogo não tapa isso com cor.
+- **Testes:** `npx vitest run` no jogo — regras 7/7 e iPad WebKit (geração 7) 7/7: 60 s em 1024×768 e em 768×1024, 60 s no iframe de `/jogar/?jogo=samuel-corredor` nos dois sentidos, sem erro no console. `verificar_jogo.py samuel-corredor` ok. As outras suítes já tinham passado depois do catálogo e não foram reexecutadas nesta leva (o texto do catálogo só mudou a frase da bandeira e do castelinho).
+- **Não feito:** merge, deploy, playtest no iPad de verdade, fundo `_v2` dos buracos.
+- **Notion:** esta sessão não veio de um card da fila; o hub não foi atualizado.
+- **NEXT:** o Boaz olha os prints, pede o fundo `_v2` se quiser, faz o merge e publica. Este agente não faz o deploy.
+
+## 2026-11-15 — Samuel Corredor 0.1.0 (Phaser, proposta jogável)
+
+- **Pedido do Boaz (15/11 18:42 e 18:44 BRT):** testar o Phaser num jogo novo, "Faz o Samuel Corredor". Plataforma 2D de lado, três fases curtas, mapa, modo Fácil. Sem merge, sem push na `main` e sem deploy: o Boaz confere os prints e publica.
+- **Feito:** slug `samuel-corredor`, branch `cursor/samuel-corredor-2db6`, código em `bde1aad`. Catálogo com `status: "pronto"` e `version: 0.1.0`, então a biblioteca lista o jogo depois do merge. Manifesto `samuel-corredor@0.1.0+bde1aad.producao` (`environment: producao`, como o `release_jogo.py`). Phaser 3.88.2 MIT, build arcade, em `phaser.min.js`. Arte da amostra do Gerador. Respostas no `desenvolvimento/jogos/samuel-corredor/ARTE.md`.
+- **Testes:** `npx vitest run` no jogo — regras 7/7 e iPad WebKit (geração 7) 5/5, inclusive 60 s em 1024×768, retrato 768×1024 e o iframe de `/jogar/?jogo=samuel-corredor`, sem erro no console. `verificar_jogo.py --todos` ok. Os outros jogos não foram alterados; as suítes deles não foram reexecutadas aqui.
+- **Não feito:** merge, deploy, playtest no iPad de verdade. O troféu da caverna não veio na amostra: a meta é a bandeira. O marco do meio é um poste desenhado no código.
+- **Notion:** esta sessão não veio de um card da fila; o hub não foi atualizado.
+- **NEXT:** o Boaz olha os prints, faz o merge e publica. Este agente não faz o deploy.
 
 ## 2026-11-15 — Samuel Surfers 0.1.0 (rascunho de PR, sem publicar)
 

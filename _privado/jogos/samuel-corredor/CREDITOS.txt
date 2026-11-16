@@ -1,0 +1,11 @@
+Samuel Corredor — proposta jogável 0.1.0
+Portal samuel.tech. Jogo original. Sem arte, nome ou som de outra franquia.
+
+Motor: Phaser 3.88.2, build arcade (dist/phaser-arcade-physics.min.js).
+Copyright (c) 2024 Richard Davey, Phaser Studio Inc.
+Licença MIT. O texto integral está em LICENSE.txt.
+https://github.com/phaserjs/phaser
+
+Arte: pixel art própria desta casa (entrega final de 15/11/2026). Atlas 256×256,
+Samuel 32×48, tiles 16×16, castelinho com troféu e marco do checkpoint.
+O formato está em desenvolvimento/jogos/samuel-corredor/ARTE.md.
