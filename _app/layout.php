@@ -35,7 +35,7 @@ function cabecalho(array $o = []): void
 <?php endif; ?>
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/assets/img/icone-180.png">
-<link rel="stylesheet" href="/assets/css/samuel.css?v=8">
+<link rel="stylesheet" href="/assets/css/samuel.css?v=9">
 </head>
 <body>
 <a class="skip" href="#main">Pular para o conteúdo</a>
