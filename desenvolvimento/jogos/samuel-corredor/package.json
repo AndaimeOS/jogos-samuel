@@ -1,0 +1,15 @@
+{
+  "name": "samuel-corredor",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Testes do Samuel Corredor. O jogo em si está em _privado/jogos/samuel-corredor/.",
+  "scripts": {
+    "test": "vitest run",
+    "fases": "node gerar-fases.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.58.2",
+    "vitest": "3.2.7"
+  }
+}

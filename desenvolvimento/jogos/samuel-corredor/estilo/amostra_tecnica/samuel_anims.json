@@ -1,0 +1,49 @@
+{
+ "samuel/parado": {
+  "frames": [
+   "samuel/parado_0"
+  ],
+  "frameRate": 1,
+  "repeat": -1
+ },
+ "samuel/correr": {
+  "frames": [
+   "samuel/correr_0",
+   "samuel/correr_1",
+   "samuel/correr_2",
+   "samuel/correr_1"
+  ],
+  "frameRate": 10,
+  "repeat": -1
+ },
+ "samuel/pular": {
+  "frames": [
+   "samuel/pular_0"
+  ],
+  "frameRate": 1,
+  "repeat": 0
+ },
+ "samuel/cair": {
+  "frames": [
+   "samuel/cair_0"
+  ],
+  "frameRate": 1,
+  "repeat": 0
+ },
+ "samuel/dano": {
+  "frames": [
+   "samuel/dano_0"
+  ],
+  "frameRate": 1,
+  "repeat": 0,
+  "nota": "piscar com setVisible/alpha no código durante a invencibilidade"
+ },
+ "samuel/comemorar": {
+  "frames": [
+   "samuel/comemorar_0",
+   "samuel/parado_0"
+  ],
+  "frameRate": 4,
+  "repeat": 3
+ }
+}
