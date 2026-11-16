@@ -3,6 +3,16 @@
 Atualizado ao fim de cada sessão (ST-090). Um bloco por sessão, o mais novo em cima.
 Vale o que está aqui e no Notion, não a memória do chat.
 
+## 2026-11-16 — Planeta do Samuel 0.4.0 (ilha grande, sem publicar)
+
+- **Pedido do Boaz (15/11 22:41 BRT):** as fases são pequenas e não usam a base. Subir o Planeta para a escala da Isle of Embers (128×128, tile 32 px) antes do resto. Sem merge e sem deploy.
+- **Feito:** o `MAPA` de 40×20 saiu. `ilha.js` gera a ilha com semente, queda radial, vulcão no centro, praia, mato, rocha e recursos espalhados. A câmera segue e para na borda. O mapinha no canto de cima aponta o farol. O dia dura 240 s. O urso investe e atordoa; a sentinela voa e cospe. O colosso de ferro continua o chefe da terceira idade. O chão só desenha os pedaços na tela.
+- **Medidas (WebKit, iPad geração 7, 1024×768):** travessia 43,1 s a 78 px/s (mundo 4096 px); geração da ilha 22 ms; FPS 62,4 num trecho de 2 s; resposta do HTML 5 ms no servidor local.
+- **Testes:** regras 17/17 e iPad WebKit 3/3 (paisagem, retrato e iframe de `/jogar/?jogo=planeta-do-samuel`, só toque). `verificar_jogo.py --todos` ok.
+- **Não feito:** merge e deploy. A fabricação completa da base (estações, fome, calor) não voltou: o laço segue sendo horda, XP e cartas. Arbusto cura e veio solta gema. A palmeira usa o sprite da árvore.
+- **Notion:** esta sessão não veio de um card da fila; o hub não foi atualizado.
+- **NEXT:** o Boaz olha os prints da ilha. Este agente não faz o deploy.
+
 ## 2026-11-16 — Samuel Corredor 0.1.0 (câmera do retrato à frente)
 
 - **Pedido do Boaz (15/11 21:28 BRT, opção B):** só a câmera do retrato. O Samuel fica a cerca de 1/4 da largura, à esquerda, com a pista na frente. Zoom cerca de 1,1. A câmera não passa da borda da fase. Paisagem, mapa, arte, física, buraco, bloco e vitória ficam como estão. Sem merge e sem deploy.

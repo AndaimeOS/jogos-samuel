@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
+import { CHAO, NO } from '../../../../_privado/jogos/planeta-do-samuel/ilha.js';
 import {
   CONFIG, ERAS, PROPOSTA, TEXTOS,
-  escolherCarta, faixaXp, ganharXp, receberDano, restaurar, serializar, tick, criarPartida, xpPara,
+  escolherCarta, escuridao, faixaXp, ganharXp, limiteCamera, receberDano, restaurar, serializar,
+  tempoDeTravessia, tick, criarPartida, xpPara,
 } from '../../../../_privado/jogos/planeta-do-samuel/regras.js';
 
 function partida() {
@@ -204,6 +206,138 @@ describe('chefes e farol', () => {
   });
 });
 
+describe('ilha grande', () => {
+  it('gera 128×128 com praia, mato, rocha e vulcão, e a travessia passa de 25 s', () => {
+    const e = partida();
+    expect(e.colunas).toBe(128);
+    expect(e.linhas).toBe(128);
+    expect(CONFIG.bloco).toBe(32);
+    expect(e.colunas * CONFIG.bloco).toBe(4096);
+    expect(e.geracaoMs).toBeLessThan(150);
+    expect(tempoDeTravessia(e)).toBeGreaterThanOrEqual(25);
+    const tipos = new Set(e.terreno);
+    expect(tipos.has(CHAO.PRAIA)).toBe(true);
+    expect(tipos.has(CHAO.MATO)).toBe(true);
+    expect(tipos.has(CHAO.ROCHA)).toBe(true);
+    expect(e.terreno[64 * 128 + 64]).toBe(CHAO.BRASA);
+    expect(e.terreno[e.inicio.lin * 128 + e.inicio.col]).toBeGreaterThanOrEqual(CHAO.GRAMA);
+    const quadrantes = [0, 0, 0, 0];
+    for (const no of e.lista) {
+      if (!e.recursos[no.i]) continue;
+      quadrantes[(no.col < 64 ? 0 : 1) + (no.lin < 64 ? 0 : 2)] += 1;
+    }
+    expect(quadrantes.every((n) => n > 20)).toBe(true);
+    expect(Math.hypot(e.farolPos.x - e.inicio.x, e.farolPos.y - e.inicio.y)).toBeGreaterThan(800);
+  });
+
+  it('água funda e recurso seguram o passo; o arbusto cura', () => {
+    const e = partida();
+    e.x = 8;
+    e.y = 8;
+    tick(e, 0.2, { x: -1, y: -1 });
+    expect(e.x).toBe(8);
+    expect(e.y).toBe(8);
+    const arvore = e.lista.find((no) => e.recursos[no.i] === NO.ARVORE);
+    e.x = (arvore.col + 0.5) * CONFIG.bloco;
+    e.y = (arvore.lin + 0.5) * CONFIG.bloco;
+    const preso = e.x;
+    tick(e, 0.2, { x: 1, y: 0 });
+    expect(e.x).toBe(preso);
+    const mato = e.lista.find((no) => e.recursos[no.i] === NO.ARBUSTO);
+    e.x = (mato.col + 0.5) * CONFIG.bloco;
+    e.y = (mato.lin + 0.5) * CONFIG.bloco;
+    e.vida = 40;
+    tick(e, 0.05, { x: 0, y: 0 });
+    expect(e.recursos[mato.i]).toBe(NO.NENHUM);
+    expect(e.vida).toBe(40 + CONFIG.curaArbusto);
+  });
+
+  it('a câmera para na borda do mundo', () => {
+    const e = partida();
+    e.x = 4;
+    e.y = 4;
+    const perto = limiteCamera(e, 320, 240);
+    expect(perto.x).toBe(0);
+    expect(perto.y).toBe(0);
+    e.x = 4000;
+    e.y = 4000;
+    const longe = limiteCamera(e, 320, 240);
+    expect(longe.x + longe.w).toBeLessThanOrEqual(4096);
+    expect(longe.y + longe.h).toBeLessThanOrEqual(4096);
+    expect(longe.x).toBeGreaterThan(3000);
+  });
+});
+
+describe('dia e chefes da ilha', () => {
+  it('a noite dura o trecho 0,66–0,97 de um dia de 240 s', () => {
+    const e = partida();
+    expect(CONFIG.duracaoDia).toBe(240);
+    e.tempo = 20;
+    expect(escuridao(e)).toBe(0);
+    e.tempo = 0.8 * CONFIG.duracaoDia;
+    expect(escuridao(e)).toBeCloseTo(CONFIG.escuridaoNoite, 5);
+    e.vitoria = true;
+    expect(escuridao(e)).toBe(0);
+  });
+
+  it('o urso investe, bate e fica atordoado, levando o dobro', () => {
+    const e = partida();
+    e.tempo = CONFIG.marcos.pedraChefe.em - 0.02;
+    avancar(e, 0.1);
+    expect(e.chefe.tipo).toBe('urso-da-caverna');
+    e.chefe.x = 12;
+    e.chefe.y = e.inicio.y;
+    e.chefe.modo = 'investe';
+    e.chefe.vx = -400;
+    e.chefe.vy = 0;
+    e.chefe.investida = 0.6;
+    avancar(e, 0.1);
+    expect(e.chefe.modo).toBe('atordoado');
+    e.anguloLasca = 0;
+    e.chefe.x = e.x + CONFIG.armas.lasca.orbita;
+    e.chefe.y = e.y;
+    e.chefe.lascaEm = 0;
+    e.chefe.hp = 80;
+    avancar(e, 0.05);
+    const comStun = 80 - e.chefe.hp;
+    const outro = partida();
+    outro.tempo = CONFIG.marcos.pedraChefe.em - 0.02;
+    avancar(outro, 0.1);
+    outro.chefe.modo = 'anda';
+    outro.chefe.ataqueEm = 5;
+    outro.anguloLasca = 0;
+    outro.chefe.x = outro.x + CONFIG.armas.lasca.orbita;
+    outro.chefe.y = outro.y;
+    outro.chefe.lascaEm = 0;
+    outro.chefe.hp = 80;
+    avancar(outro, 0.05);
+    expect(comStun).toBeGreaterThan(80 - outro.chefe.hp);
+  });
+
+  it('a sentinela voa e cospe na direção do Samuel', () => {
+    const e = partida();
+    e.chefesMortos.pedra = true;
+    e.era = 'bronze';
+    e.tempo = CONFIG.marcos.bronzeChefe.em - 0.02;
+    for (const chave of Object.keys(CONFIG.marcos)) {
+      if (chave !== 'bronzeChefe') e.eventosFeitos[chave] = true;
+    }
+    avancar(e, 0.1);
+    expect(e.chefe.tipo).toBe('sentinela-de-bronze');
+    e.chefe.x = e.x + 90;
+    e.chefe.y = e.y;
+    e.chefe.casa = { x: e.chefe.x, y: e.chefe.y };
+    e.chefe.ataqueEm = 0.01;
+    const antes = e.projeteis.length;
+    avancar(e, 0.1);
+    expect(e.projeteis.length).toBeGreaterThan(antes);
+    expect(e.projeteis.some((p) => p.sprite === 'faisca' && !p.aliado)).toBe(true);
+    const x = e.chefe.x;
+    avancar(e, 0.3);
+    expect(e.chefe.x).not.toBe(x);
+  });
+});
+
 describe('save', () => {
   it('grava o progresso e recusa save antigo ou lixo', () => {
     const e = partida();
@@ -219,5 +353,6 @@ describe('save', () => {
     expect(deVolta.morte).toBe(false);
     expect(restaurar('{')).toBeNull();
     expect(restaurar('{"schemaVersion":1,"modo":"facil","era":"pedra"}')).toBeNull();
+    expect(restaurar('{"schemaVersion":2,"modo":"facil","era":"pedra","x":1,"y":1,"vida":1,"nivel":1}')).toBeNull();
   });
 });

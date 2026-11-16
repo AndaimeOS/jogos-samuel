@@ -236,11 +236,11 @@
       "slug": "planeta-do-samuel",
       "title": "Planeta do Samuel",
       "category": "Exploração",
-      "description": "Ande pelo planetinha, deixe as armas baterem sozinhas e escolha um upgrade quando o nível subir. Três idades — Pedra, Bronze e Ferro — até acender o farol.",
+      "description": "A ilha é grande: praia, mato, pedra e o vulcão no meio. As armas batem sozinhas, o mapinha aponta o farol, e o dia escurece. Três idades — Pedra, Bronze e Ferro.",
       "cover": "planeta-do-samuel.webp",
       "entry": "index.html",
       "instructions": [
-        "No tablet, o joystick fica à esquerda. Pausa e Tela ficam no alto. Os botões são grandes.",
+        "No tablet, o joystick fica à esquerda. Pausa e Tela ficam no alto. O mapinha, no canto, mostra o caminho até o farol.",
         "Computador: WASD ou setas andam, P ou Esc pausa.",
         "A lasca gira sozinha. Quando o nível sobe, escolha uma carta. O Bronze traz a lança; o Ferro, a faísca e a fogueira.",
         "No Fácil, se a vida zera, você volta ao centro e não perde o progresso. O jogo guarda sozinho neste aparelho."
@@ -252,7 +252,7 @@
       ],
       "status": "pronto",
       "novo": true,
-      "version": "0.2.0"
+      "version": "0.4.0"
     },
     {
       "slug": "samuel-surfers",

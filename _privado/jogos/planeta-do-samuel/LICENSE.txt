@@ -14,7 +14,12 @@ https://github.com/JaiGod/isle-of-embers
 
 A licença MIT dessa obra é reproduzida abaixo porque o laço
 (juntar, fabricar em estações, ciclo de dia e noite, acender um sinal)
-foi consultado nela. A reescrita é original.
+foi consultado nela. Na v0.4 também foram lidas as regras de
+scripts/world.gd, scripts/data.gd e scripts/game.gd: ilha de 128×128
+com tile de 32 px, queda radial, limiares de praia/mato/rocha/vulcão,
+taxas dos recursos, dia de 240 s, investida que atordoa e cuspe voando.
+Nada disso foi copiado: o ruído, o desenho e os nomes são deste jogo.
+A reescrita é original.
 
 Alia Domus é obra fechada. Nada dela (código, arte, texto ou nomes) foi copiado.
 

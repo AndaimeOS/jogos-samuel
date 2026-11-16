@@ -1,6 +1,8 @@
 # Planeta do Samuel
 
-Versão 0.2.0. O arquivo que roda é `_privado/jogos/planeta-do-samuel/index.html`.
+Versão 0.4.0. O arquivo que roda é `_privado/jogos/planeta-do-samuel/index.html`.
+A ilha é gerada: 128×128 tiles de 32 px, com praia, mato, rocha e vulcão.
+O mapinha no canto aponta o farol. O dia dura 240 s.
 Os números ajustáveis ficam em `CONFIG`, dentro de `regras.js`, todos marcados como **PROPOSTA**. Essa palavra não aparece na tela.
 
 Vista 3/4, em pixel, pensada para o tablet deitado. O ataque é automático.

@@ -99,6 +99,13 @@
   .botoes { display: flex; flex-wrap: wrap; gap: 8px; }
   #aviso { position: absolute; z-index: 4; top: 72px; left: 16px; margin: 0; font-weight: 700; background: #F5F2E8; border: 2px solid #193337; padding: 6px 8px; }
   #aviso:empty { display: none; }
+  #minimapa {
+    position: absolute; z-index: 4; top: 118px; left: 12px;
+    width: 112px; height: 112px; box-sizing: border-box;
+    border: 2px solid #193337; box-shadow: 3px 3px 0 #193337;
+    image-rendering: pixelated; image-rendering: crisp-edges;
+    background: #1E6E94; pointer-events: none;
+  }
 </style>
 </head>
 <body>
@@ -120,6 +127,7 @@
       <div class="medidor" id="medChefe" hidden aria-label="Chefe"><i><b id="barraChefe"></b></i></div>
     </div>
   </header>
+  <canvas id="minimapa" width="128" height="128" aria-label="Mapa da ilha. A seta aponta o farol."></canvas>
   <p id="aviso" role="status"></p>
   <p id="dica"></p>
   <div id="joystick" data-alvo aria-label="Joystick"><div id="knob"></div></div>

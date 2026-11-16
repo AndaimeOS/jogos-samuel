@@ -1,10 +1,12 @@
-/* Apresentação da v0.2: horda, XP, cartas e chefes.
+/* Apresentação da v0.4: ilha grande, horda, XP, cartas e chefes.
    Câmera, stick, direção, pixel, sombra, chão e noite já reescritos do MIT. */
 
 import {
   CONFIG, ERAS, PROPOSTA, TEXTOS,
-  escolherCarta, escuridao, ganharXp, orbesLasca, receberDano, restaurar, serializar, tick, criarPartida,
+  escolherCarta, escuridao, ganharXp, limiteCamera, orbesLasca, receberDano,
+  restaurar, serializar, tempoDeTravessia as segundosDeTravessia, tick, criarPartida,
 } from './regras.js';
+import { CHAO } from './ilha.js';
 import { agarreDesceu, agarreMoveu, agarreSoltou } from './motor/joystick.js';
 import { sombra } from './motor/pixelart.js';
 import { escolherVista, vistaQueCabe } from './motor/viewport.js';
@@ -36,7 +38,16 @@ let joyAtivo = false;
 let agarre = null;
 let vista = { w: 320, h: 240, cssScale: 3 };
 let cartasChave = '';
+let quadros = 0;
 const teclas = {};
+const COR_MINI = ['#1E6E94', '#4AA0C4', '#E6D3A1', '#5A9A48', '#2F6B32', '#8D98A0', '#5A463C', '#E2544A'];
+const RGB_MINI = COR_MINI.map((hex) => {
+  const n = parseInt(hex.slice(1), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+});
+const RGB_NO = [47, 125, 69];
+const RGB_VEIO = [196, 160, 96];
+let miniImg = null;
 
 function salvar() {
   estado.desdeSave = 0;
@@ -71,15 +82,7 @@ function ajustarTela() {
 }
 
 function camera() {
-  const mundoL = estado.colunas * CONFIG.bloco;
-  const mundoA = estado.linhas * CONFIG.bloco;
-  let x = estado.x - vista.w / 2;
-  let y = estado.y - 10 - vista.h / 2;
-  if (mundoL <= vista.w) x = (mundoL - vista.w) / 2;
-  else x = Math.max(0, Math.min(mundoL - vista.w, x));
-  if (mundoA <= vista.h) y = (mundoA - vista.h) / 2;
-  else y = Math.max(0, Math.min(mundoA - vista.h, y));
-  return { x: Math.round(x), y: Math.round(y), w: vista.w, h: vista.h };
+  return limiteCamera(estado, vista.w, vista.h);
 }
 
 function corpo(id, x, y, opts) {
@@ -137,7 +140,21 @@ function desenhar() {
   const fila = [];
   const por = (y, desenha) => fila.push({ y, i: fila.length, desenha });
   por(estado.farolPos.y, () => corpo(estado.farol ? 'farol-aceso' : 'farol-0', estado.farolPos.x, estado.farolPos.y));
-  por(184, () => corpo('cao-parado', 270, 184));
+  por(estado.inicio.y, () => corpo('cao-parado', estado.inicio.x + 40, estado.inicio.y));
+  const bloco = CONFIG.bloco;
+  const c0 = Math.floor(cam.x / bloco) - 3;
+  const c1 = Math.ceil((cam.x + cam.w) / bloco) + 1;
+  const l0 = Math.floor(cam.y / bloco) - 4;
+  const l1 = Math.ceil((cam.y + cam.h) / bloco) + 2;
+  const spriteNo = ['', 'arvore', 'rocha', 'arbusto', 'veio', 'arvore'];
+  for (const no of estado.lista) {
+    if (no.col < c0 || no.col > c1 || no.lin < l0 || no.lin > l1) continue;
+    const tipo = estado.recursos[no.i];
+    if (!tipo) continue;
+    const x = (no.col + 0.5) * bloco;
+    const y = (no.lin + 1) * bloco - 2;
+    por(y, () => corpo(spriteNo[tipo], x, y));
+  }
   for (const g of estado.gemas) por(g.y, () => desenharSprite(ctx, g.sprite, relogio, g.x, g.y));
   for (const inimigo of estado.inimigos) {
     por(inimigo.y, () => corpo(inimigo.sprite, inimigo.x, inimigo.y, { direcao: inimigo.direcao }));
@@ -167,9 +184,60 @@ function desenhar() {
   desenharFeixe();
   ctx.restore();
   const luzes = [];
+  const esc = escuridao(estado);
+  if (esc > 0.04) {
+    luzes.push({ x: estado.x, y: estado.y - 8, raio: 96 });
+    if (estado.cratera) luzes.push({ x: estado.cratera.x, y: estado.cratera.y, raio: 150 });
+  }
   if (estado.fogueira) luzes.push({ x: estado.x, y: estado.y, raio: CONFIG.raioFogueira });
   if (estado.farol) luzes.push({ x: estado.farolPos.x, y: estado.farolPos.y - 40, raio: CONFIG.raioFarol });
-  desenharNoite(ctx, cam, escuridao(estado), luzes);
+  desenharNoite(ctx, cam, esc, luzes);
+  desenharMinimapa();
+}
+
+function desenharMinimapa() {
+  const canvas = document.getElementById('minimapa');
+  if (!canvas || !estado.terreno) return;
+  const g = canvas.getContext('2d');
+  const lado = estado.colunas;
+  if (!miniImg || miniImg.width !== lado) miniImg = g.createImageData(lado, lado);
+  const data = miniImg.data;
+  const terreno = estado.terreno;
+  const recursos = estado.recursos;
+  for (let i = 0; i < terreno.length; i++) {
+    const o = i * 4;
+    const tipo = recursos[i];
+    let rgb = RGB_MINI[terreno[i]] || RGB_MINI[CHAO.FUNDO];
+    if (tipo) rgb = tipo === 4 ? RGB_VEIO : RGB_NO;
+    data[o] = rgb[0];
+    data[o + 1] = rgb[1];
+    data[o + 2] = rgb[2];
+    data[o + 3] = 255;
+  }
+  const px = (ponto, r, g2, b) => {
+    const col = Math.max(0, Math.min(lado - 1, Math.floor(ponto.x / CONFIG.bloco)));
+    const lin = Math.max(0, Math.min(lado - 1, Math.floor(ponto.y / CONFIG.bloco)));
+    for (let y = lin - 1; y <= lin + 1; y++) {
+      for (let x = col - 1; x <= col + 1; x++) {
+        if (x < 0 || y < 0 || x >= lado || y >= lado) continue;
+        const o = (y * lado + x) * 4;
+        data[o] = r;
+        data[o + 1] = g2;
+        data[o + 2] = b;
+      }
+    }
+  };
+  px(estado.farolPos, 242, 209, 90);
+  px(estado, 255, 157, 82);
+  g.putImageData(miniImg, 0, 0);
+  const sx = (ponto) => (ponto.x / (lado * CONFIG.bloco)) * canvas.width;
+  const sy = (ponto) => (ponto.y / (lado * CONFIG.bloco)) * canvas.height;
+  g.strokeStyle = '#F2D15A';
+  g.lineWidth = 2;
+  g.beginPath();
+  g.moveTo(sx(estado), sy(estado));
+  g.lineTo(sx(estado.farolPos), sy(estado.farolPos));
+  g.stroke();
 }
 
 function relogioTexto(seg) {
@@ -265,6 +333,7 @@ function mostrarCartas() {
 }
 
 function frame(t) {
+  quadros += 1;
   const dt = ultimo ? Math.min(0.05, (t - ultimo) / 1000) : 0;
   ultimo = t;
   relogio += dt;
@@ -412,6 +481,9 @@ window.__planeta = {
   CONFIG, PROPOSTA, TEXTOS, ERAS, manifesto,
   get estado() { return estado; },
   tick, ganharXp, escolherCarta, receberDano, serializar, restaurar, escuridao,
+  limiteCamera,
+  tempoDeTravessia() { return segundosDeTravessia(estado); },
+  quadros() { return quadros; },
   salvar, comecar, quadroCodigo,
   saveUtil,
   idsSprites() { return Object.keys(manifesto.sprites); },

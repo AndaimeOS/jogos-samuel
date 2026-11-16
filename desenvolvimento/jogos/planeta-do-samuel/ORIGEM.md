@@ -11,6 +11,21 @@ juntar recursos, fabricar em estações, ciclo de dia e noite, e acender um sina
 no fim. O código, a arte, os textos e os nomes daquele jogo **não** foram copiados.
 A reescrita é em JS, com idades Pedra, Bronze e Ferro pedidas para esta proposta.
 
+Na v0.4 a ilha deixa o mapa desenhado à mão. As regras lidas em
+`scripts/world.gd`, `scripts/data.gd` e `scripts/game.gd` e reescritas em
+`ilha.js` / `regras.js`:
+
+- grade 128×128, tile de 32 px (mundo de 4096 px);
+- queda radial `1 - d * 1.18`, vulcão no centro, ruído nas frequências 0,045 / 0,08 / 0,06;
+- limiares de água funda, rasa, praia, grama, mato, rocha, cinza e brasa;
+- taxas de árvore, arbusto, pedra, palmeira e veio, com 14 veios garantidos;
+- dia de 240 s, noite entre 0,66 e 0,97, escuridão até 0,82;
+- chefe que investe e atordoa ao bater, e chefe que voa e cospe.
+
+O ruído é um simplex nosso (não o FastNoiseLite do Godot). A palmeira usa o
+sprite da árvore, porque esta arte não tem palmeira. Os nomes continuam os
+do Planeta: urso da caverna, sentinela de bronze, colosso de ferro.
+
 O aviso MIT fica em `_privado/jogos/planeta-do-samuel/LICENSE.txt` e os créditos em
 `CREDITOS.txt`, porque o laço foi consultado nessa obra.
 
@@ -40,6 +55,7 @@ como proposta. O mapa da ilha continua. A coleta x/N, a fome e o calor saíram d
 | `regras.js` (`faixaXp`) | `src/game/pickups.ts` (`xpTier`) |
 | `regras.js` (anel, bando, chefe) | `src/game/spawner.ts` |
 | `regras.js` (fase na metade da vida) | `src/game/bossFight.ts` |
+| `ilha.js` | regras de `scripts/world.gd` e `scripts/data.gd` (Isle of Embers, MIT), reescritas |
 
 Não foi copiado: `public/assets/`, nome, sprite, grito ou criatura de Pokémon,
 conta, Clerk, PostHog, o build Vite, a lista de golpes. A arte é placeholder

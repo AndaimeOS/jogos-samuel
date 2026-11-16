@@ -243,6 +243,59 @@ describe('iPad WebKit', () => {
     expect(tela.n).toBeGreaterThan(20);
     await samuelAndou(page);
 
+    const medidas = await page.evaluate(() => {
+      const nav = performance.getEntriesByType('navigation')[0];
+      return {
+        cargaMs: nav ? Math.round(nav.responseEnd) : null,
+        geracaoMs: Math.round(window.__planeta.estado.geracaoMs),
+        travessiaSeg: Number(window.__planeta.tempoDeTravessia().toFixed(1)),
+        mundoPx: window.__planeta.estado.colunas * window.__planeta.CONFIG.bloco,
+        velocidade: window.__planeta.CONFIG.velocidade,
+      };
+    });
+    expect(medidas.mundoPx).toBe(4096);
+    expect(medidas.travessiaSeg).toBeGreaterThanOrEqual(25);
+    expect(medidas.geracaoMs).toBeLessThan(200);
+    const tFps = await page.evaluate(() => ({ q: window.__planeta.quadros(), t: performance.now() }));
+    await page.waitForTimeout(2000);
+    const tFps2 = await page.evaluate(() => ({ q: window.__planeta.quadros(), t: performance.now() }));
+    medidas.fps = Number(((tFps2.q - tFps.q) / ((tFps2.t - tFps.t) / 1000)).toFixed(1));
+    expect(medidas.fps).toBeGreaterThan(45);
+    await writeFile(path.join(arte, 'planeta-v04-medidas.json'), `${JSON.stringify(medidas, null, 2)}\n`);
+
+    const mini = await page.locator('#minimapa').boundingBox();
+    const joy = await page.locator('#joystick').boundingBox();
+    const pausa = await page.locator('#btnPausa').boundingBox();
+    const telaCheia = await page.locator('#btnTela').boundingBox();
+    const encosta = (a, b) => a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
+    expect(encosta(mini, joy)).toBe(false);
+    expect(encosta(mini, pausa)).toBe(false);
+    expect(encosta(mini, telaCheia)).toBe(false);
+
+    async function area(nome, arquivo) {
+      await page.evaluate((chave) => {
+        const e = window.__planeta.estado;
+        const p = e.amostras[chave];
+        e.x = p.x;
+        e.y = p.y;
+        e.inimigos = [];
+        e.chefe = null;
+        e.projeteis = [];
+        e.zonas = [];
+        e.enchente = null;
+        e.tempo = 20;
+        window.__planeta.travar(true);
+        window.__planeta.desenhar();
+      }, nome);
+      await page.screenshot({ path: path.join(arte, arquivo) });
+    }
+    await area('praia', 'planeta-v04-praia.png');
+    await area('mato', 'planeta-v04-mato.png');
+    await area('vulcao', 'planeta-v04-vulcao.png');
+    await page.locator('#minimapa').screenshot({ path: path.join(arte, 'planeta-v04-minimapa.png') });
+    await page.screenshot({ path: path.join(arte, 'planeta-v04-paisagem.png') });
+    await page.evaluate(() => window.__planeta.travar(false));
+
     await page.evaluate(() => {
       const p = window.__planeta;
       const e = p.estado;
@@ -301,6 +354,7 @@ describe('iPad WebKit', () => {
       e.chefesMortos.bronze = true;
       e.era = 'ferro';
       e.vitoria = false;
+      e.tempo = 0.8 * p.CONFIG.duracaoDia;
       e.armas.faisca = { nivel: 1 };
       e.fogueira = true;
       const por = (tipo, ox, oy) => {
@@ -420,6 +474,7 @@ describe('iPad WebKit', () => {
     expect(tela.n).toBeGreaterThan(20);
     await samuelAndou(page);
     await escolherCartaNoToque(page);
+    await page.screenshot({ path: path.join(arte, 'planeta-v04-retrato.png') });
     await page.screenshot({ path: path.join(arte, 'planeta-v2-retrato.png') });
     expect(erros, erros.join('\n')).toEqual([]);
     await context.close();
@@ -452,6 +507,7 @@ describe('iPad WebKit', () => {
     await samuelAndou(frame);
     await escolherCartaNoToque(frame);
     await fallbackTela(frame);
+    await page.screenshot({ path: path.join(arte, 'planeta-v04-iframe.png') });
     await page.screenshot({ path: path.join(arte, 'planeta-v2-iframe.png') });
     expect(erros, erros.join('\n')).toEqual([]);
     await context.close();

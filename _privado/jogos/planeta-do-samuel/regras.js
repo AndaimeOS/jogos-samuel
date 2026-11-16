@@ -1,24 +1,33 @@
-/* Planeta do Samuel — laço da proposta 0.2.
+/* Planeta do Samuel — laço da proposta 0.4.
    Todos os números estão em CONFIG e são PROPOSTA.
    Reescrito em JS, sem arte de Pokémon, a partir do código MIT de Pedro Barretto:
    xpPara / ganhar XP (src/game/leveling.ts), faixa de gema (src/game/pickups.ts),
    anel, bando e chefe fora da tela (src/game/spawner.ts),
    fase do chefe na metade da vida (src/game/bossFight.ts).
+   A ilha, o dia de 240 s e os dois padrões de chefe (investida que atordoa,
+   cuspe voando) seguem as regras do Isle of Embers, reescritas em ilha.js.
    No Fácil, vida em zero não acaba a partida e não tira progresso. */
 
 import { dir8 } from './motor/math.js';
+import { CHAO, NO, TILE, gerarIlha } from './ilha.js';
 
 export const PROPOSTA = true;
 
 export const CONFIG = {
   proposta: true,
   rotulo: 'PROPOSTA',
-  versao: '0.2.0',
-  schemaVersion: 2,
+  versao: '0.4.0',
+  schemaVersion: 3,
   chaveSave: 'planeta-do-samuel:save',
   modo: 'facil',
   semMorte: true,
-  bloco: 16,
+  bloco: TILE,
+  ladoIlha: 128,
+  sementeIlha: 20261115,
+  duracaoDia: 240,
+  noiteInicio: 0.66,
+  noiteFim: 0.97,
+  escuridaoNoite: 0.82,
   raioJogador: 8,
   velocidade: 78,
   vidaMax: 100,
@@ -36,6 +45,18 @@ export const CONFIG = {
   chefeInvestidaTempo: 0.45,
   chefeCirculo: 30,
   chefeAnel: 8,
+  ursoPreparo: 0.8,
+  ursoInvestida: 300,
+  ursoInvestidaTempo: 0.9,
+  ursoAtordoado: 1.6,
+  ursoAlcance: 420,
+  sentinelaCuspe: 2.4,
+  sentinelaCuspeRaiva: 1.6,
+  cuspeVelocidade: 240,
+  cuspeDano: 11,
+  cuspeFan: 5,
+  curaArbusto: 12,
+  xpVeio: 3,
   melhorarDano: 0.3,
   melhorarIntervalo: 0.82,
   vidaCarta: 25,
@@ -121,29 +142,6 @@ export const TEXTOS = {
   },
 };
 
-export const MAPA = [
-  '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',
-  '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',
-  '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',
-  '~~~~~~~~~~~~~~............~~~~~~~~~~~~~~',
-  '~~~~~~~~~~........OOO.........~~~~~~~~~~',
-  '~~~~~~~~.........O.O.O..........~~~~~~~~',
-  '~~~~~~~...TTT...RR....RR....TT...~~~~~~~',
-  '~~~~~~...TT..T.R........R..T..T...~~~~~~',
-  '~~~~~.............C...Q............~~~~~',
-  '~~~~~.......A.tr.......tr..........~~~~~',
-  '~~~~~......F......S..........F.....~~~~~',
-  '~~~~~.......t...............r......~~~~~',
-  '~~~~~~..L.....B...G.....U.........~~~~~~',
-  '~~~~~~~...........F..............~~~~~~~',
-  '~~~~~~~~...H..........F...E.....~~~~~~~~',
-  '~~~~~~~~~~......P.............~~~~~~~~~~',
-  '~~~~~~~~~~~~~~............~~~~~~~~~~~~~~',
-  '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',
-  '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',
-  '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',
-];
-
 /** EXP para ir do nível `nivel` ao próximo. Fórmula de src/game/leveling.ts. */
 export function xpPara(nivel) {
   const n = Math.max(1, nivel);
@@ -186,27 +184,28 @@ function embaralhar(lista, estado) {
   return a;
 }
 
-export function criarMundo() {
-  const linhas = MAPA.length;
-  const colunas = MAPA[0].length;
-  const tiles = [];
-  let inicio = null;
-  let farol = null;
-  for (let y = 0; y < linhas; y++) {
-    if (MAPA[y].length !== colunas) throw new Error('mapa com largura desigual');
-    let linha = '';
-    for (let x = 0; x < colunas; x++) {
-      const ch = MAPA[y][x];
-      const px = (x + 0.5) * CONFIG.bloco;
-      const py = (y + 0.5) * CONFIG.bloco;
-      if (ch === 'S') inicio = { x: px, y: py };
-      else if (ch === 'L') farol = { x: px, y: py };
-      linha += ch === '~' ? '~' : '.';
-    }
-    tiles.push(linha);
-  }
-  if (!inicio || !farol) throw new Error('mapa sem começo ou farol');
-  return { tiles, colunas, linhas, inicio, farol };
+export function criarMundo(semente = CONFIG.sementeIlha) {
+  const ilha = gerarIlha(semente);
+  return {
+    terreno: ilha.terreno,
+    recursos: ilha.recursos.slice(),
+    lista: ilha.lista,
+    colunas: ilha.colunas,
+    linhas: ilha.linhas,
+    inicio: ilha.inicio,
+    farol: ilha.farol,
+    cratera: ilha.cratera,
+    amostras: ilha.amostras,
+    travessia: ilha.travessia,
+    geracaoMs: ilha.geracaoMs,
+    contagem: ilha.contagem,
+  };
+}
+
+/** Segundos para cruzar a ilha em linha reta, na velocidade do Samuel. */
+export function tempoDeTravessia(estado, velocidade = CONFIG.velocidade) {
+  const largura = estado?.travessia?.larguraPx || 0;
+  return largura / Math.max(1, velocidade);
 }
 
 function carta(id, tipo) {
@@ -289,7 +288,13 @@ export function criarPartida() {
     y: mundo.inicio.y,
     inicio: mundo.inicio,
     farolPos: mundo.farol,
-    tiles: mundo.tiles,
+    cratera: mundo.cratera,
+    amostras: mundo.amostras,
+    travessia: mundo.travessia,
+    geracaoMs: mundo.geracaoMs,
+    terreno: mundo.terreno,
+    recursos: mundo.recursos,
+    lista: mundo.lista,
     colunas: mundo.colunas,
     linhas: mundo.linhas,
     vida: CONFIG.vidaMax,
@@ -320,7 +325,7 @@ export function criarPartida() {
     anguloLasca: 0,
     tiroEm: 0.6,
     eventosFeitos: {},
-    semente: 20261115,
+    semente: CONFIG.sementeIlha,
     seq: 1,
     desdeSave: 0,
   };
@@ -330,12 +335,60 @@ function bloqueia(estado, x, y) {
   const col = Math.floor(x / CONFIG.bloco);
   const lin = Math.floor(y / CONFIG.bloco);
   if (lin < 0 || col < 0 || lin >= estado.linhas || col >= estado.colunas) return true;
-  return estado.tiles[lin][col] === '~';
+  const i = lin * estado.colunas + col;
+  if (estado.terreno[i] === CHAO.FUNDO) return true;
+  return estado.recursos[i] !== NO.NENHUM;
+}
+
+function cabe(estado, x, y, raio) {
+  return [[0, 0], [raio, 0], [-raio, 0], [0, raio], [0, -raio]].every(([ox, oy]) => !bloqueia(estado, x + ox, y + oy));
+}
+
+/** Anda e devolve true se o passo inteiro bateu em chão ou recurso. */
+function andar(estado, corpo, vx, vy, dt) {
+  const raio = Math.min(corpo.raio || CONFIG.raioJogador, 12);
+  const dx = vx * dt;
+  const dy = vy * dt;
+  if (dx === 0 && dy === 0) return false;
+  const nx = corpo.x + dx;
+  const ny = corpo.y + dy;
+  if (cabe(estado, nx, ny, raio)) {
+    corpo.x = nx;
+    corpo.y = ny;
+    return false;
+  }
+  let andou = false;
+  if (cabe(estado, nx, corpo.y, raio)) {
+    corpo.x = nx;
+    andou = true;
+  }
+  if (cabe(estado, corpo.x, ny, raio)) {
+    corpo.y = ny;
+    andou = true;
+  }
+  return !andou;
+}
+
+function pertoAndavel(estado, x, y) {
+  if (cabe(estado, x, y, 8)) return { x, y };
+  const bloco = CONFIG.bloco;
+  const col = Math.floor(x / bloco);
+  const lin = Math.floor(y / bloco);
+  for (let r = 1; r <= 8; r++) {
+    for (let dy = -r; dy <= r; dy++) {
+      for (let dx = -r; dx <= r; dx++) {
+        if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;
+        const px = (col + dx + 0.5) * bloco;
+        const py = (lin + dy + 0.5) * bloco;
+        if (cabe(estado, px, py, 8)) return { x: px, y: py };
+      }
+    }
+  }
+  return null;
 }
 
 function livre(estado, x, y) {
-  const r = CONFIG.raioJogador;
-  return [[0, 0], [r, 0], [-r, 0], [0, r], [0, -r]].every(([dx, dy]) => !bloqueia(estado, x + dx, y + dy));
+  return cabe(estado, x, y, CONFIG.raioJogador);
 }
 
 function moverJogador(estado, dt, eixo) {
@@ -444,14 +497,16 @@ function vivosNormais(estado) {
 
 function pontoFora(estado, ang) {
   const d = CONFIG.distanciaOnda;
-  return { x: estado.x + Math.cos(ang) * d, y: estado.y + Math.sin(ang) * d };
+  const x = estado.x + Math.cos(ang) * d;
+  const y = estado.y + Math.sin(ang) * d;
+  return pertoAndavel(estado, x, y);
 }
 
 function spawnRing(estado, tipo, n) {
   for (let i = 0; i < n; i++) {
     const ang = (i / n) * Math.PI * 2;
     const p = pontoFora(estado, ang);
-    estado.inimigos.push(criarInimigo(estado, tipo, p.x, p.y));
+    if (p) estado.inimigos.push(criarInimigo(estado, tipo, p.x, p.y));
   }
 }
 
@@ -465,9 +520,10 @@ function spawnSwarm(estado, tipo, n) {
   for (let i = 0; i < n; i++) {
     const lado = (aleatorio(estado) - 0.5) * 80;
     const atras = aleatorio(estado) * 40;
-    const x = estado.x - Math.cos(rumo) * (d + atras) - Math.sin(rumo) * lado;
-    const y = estado.y - Math.sin(rumo) * (d + atras) + Math.cos(rumo) * lado;
-    estado.inimigos.push(criarInimigo(estado, tipo, x, y, { vx, vy, ttl: (d * 2 + 80) / vel }));
+    const brutoX = estado.x - Math.cos(rumo) * (d + atras) - Math.sin(rumo) * lado;
+    const brutoY = estado.y - Math.sin(rumo) * (d + atras) + Math.cos(rumo) * lado;
+    const p = pertoAndavel(estado, brutoX, brutoY);
+    if (p) estado.inimigos.push(criarInimigo(estado, tipo, p.x, p.y, { vx, vy, ttl: (d * 2 + 80) / vel }));
   }
 }
 
@@ -518,7 +574,7 @@ function spawnRaios(estado) {
 
 function spawnChefe(estado, tipo) {
   const ang = aleatorio(estado) * Math.PI * 2;
-  const p = pontoFora(estado, ang);
+  const p = pontoFora(estado, ang) || { x: estado.x + 48, y: estado.y };
   const corpo = criarInimigo(estado, tipo, p.x, p.y);
   estado.chefe = {
     ...corpo,
@@ -570,7 +626,7 @@ function nascerHorda(estado, dt) {
     estado.nascer -= 1;
     const tipo = etapa.horda[Math.floor(aleatorio(estado) * etapa.horda.length)];
     const p = pontoFora(estado, aleatorio(estado) * Math.PI * 2);
-    estado.inimigos.push(criarInimigo(estado, tipo, p.x, p.y));
+    if (p) estado.inimigos.push(criarInimigo(estado, tipo, p.x, p.y));
   }
 }
 
@@ -579,17 +635,129 @@ function perseguir(corpo, estado, dt, vel) {
   const dy = estado.y - corpo.y;
   const len = Math.hypot(dx, dy) || 1;
   corpo.direcao = dir8(dx, dy);
-  corpo.x += (dx / len) * vel * dt;
-  corpo.y += (dy / len) * vel * dt;
+  andar(estado, corpo, (dx / len) * vel, (dy / len) * vel, dt);
 }
 
-function tocarJogador(estado, corpo) {
-  if (corpo.contatoEm > 0 || corpo.dano <= 0) return;
+function tocarJogador(estado, corpo, dano = corpo.dano) {
+  if (corpo.contatoEm > 0 || dano <= 0) return;
   const d = Math.hypot(estado.x - corpo.x, estado.y - corpo.y);
   if (d <= corpo.raio + CONFIG.raioJogador) {
     corpo.contatoEm = CONFIG.contatoEspera;
-    receberDano(estado, corpo.dano);
+    receberDano(estado, dano);
   }
+}
+
+function cuspir(estado, x, y, ang) {
+  const vel = CONFIG.cuspeVelocidade;
+  estado.projeteis.push({
+    id: estado.seq++,
+    sprite: 'faisca',
+    x,
+    y,
+    vx: Math.cos(ang) * vel,
+    vy: Math.sin(ang) * vel,
+    dano: CONFIG.cuspeDano,
+    raio: 6,
+    aliado: false,
+    direcao: dir8(Math.cos(ang), Math.sin(ang)),
+  });
+}
+
+function urso(estado, dt) {
+  const chefe = estado.chefe;
+  chefe.fase = faseDoChefe(chefe);
+  chefe.contatoEm = Math.max(0, (chefe.contatoEm || 0) - dt);
+  chefe.lascaEm = Math.max(0, (chefe.lascaEm || 0) - dt);
+  chefe.auraEm = Math.max(0, (chefe.auraEm || 0) - dt);
+  const dx = estado.x - chefe.x;
+  const dy = estado.y - chefe.y;
+  const dist = Math.hypot(dx, dy) || 1;
+  chefe.direcao = dir8(dx, dy);
+  const modo = chefe.modo || 'anda';
+  if (modo === 'prepara') {
+    chefe.telegrafo -= dt;
+    if (chefe.telegrafo <= 0) {
+      chefe.modo = 'investe';
+      const folego = chefe.fase === 2 ? 1.2 : 1;
+      chefe.investida = CONFIG.ursoInvestidaTempo;
+      chefe.vx = (dx / dist) * CONFIG.ursoInvestida * folego;
+      chefe.vy = (dy / dist) * CONFIG.ursoInvestida * folego;
+    }
+  } else if (modo === 'investe') {
+    chefe.investida -= dt;
+    const bateu = andar(estado, chefe, chefe.vx, chefe.vy, dt);
+    if (bateu) {
+      chefe.modo = 'atordoado';
+      chefe.telegrafo = CONFIG.ursoAtordoado;
+      chefe.vx = 0;
+      chefe.vy = 0;
+    } else if (chefe.investida <= 0) {
+      chefe.modo = 'anda';
+      chefe.ataqueEm = chefe.fase === 2 ? 1.3 : 2.2;
+    }
+  } else if (modo === 'atordoado') {
+    chefe.telegrafo -= dt;
+    if (chefe.telegrafo <= 0) {
+      chefe.modo = 'anda';
+      chefe.ataqueEm = 1.5;
+    }
+  } else {
+    const vel = chefe.velocidade * (chefe.fase === 2 ? 1.25 : 1);
+    andar(estado, chefe, (dx / dist) * vel, (dy / dist) * vel, dt);
+    chefe.ataqueEm = (chefe.ataqueEm ?? 1.1) - dt;
+    if (chefe.ataqueEm <= 0 && dist < CONFIG.ursoAlcance) {
+      chefe.modo = 'prepara';
+      chefe.telegrafo = CONFIG.ursoPreparo;
+      estado.zonas.push({
+        x: chefe.x, y: chefe.y, raio: chefe.raio + 14,
+        resta: CONFIG.ursoPreparo, dano: 0, sprite: 'telegraph',
+      });
+    }
+  }
+  if (chefe.modo !== 'atordoado') {
+    tocarJogador(estado, chefe, chefe.dano * (chefe.modo === 'investe' ? 1.3 : 0.7));
+  }
+}
+
+function sentinela(estado, dt) {
+  const chefe = estado.chefe;
+  chefe.fase = faseDoChefe(chefe);
+  chefe.contatoEm = Math.max(0, (chefe.contatoEm || 0) - dt);
+  chefe.lascaEm = Math.max(0, (chefe.lascaEm || 0) - dt);
+  chefe.auraEm = Math.max(0, (chefe.auraEm || 0) - dt);
+  if (!chefe.casa) chefe.casa = { x: chefe.x, y: chefe.y };
+  chefe.orbita = (chefe.orbita || 0) + dt * (chefe.fase === 2 ? 1.3 : 0.8);
+  const voltaX = chefe.casa.x + Math.cos(chefe.orbita) * CONFIG.bloco * 3;
+  const voltaY = chefe.casa.y + Math.sin(chefe.orbita) * CONFIG.bloco * 3;
+  let ax = voltaX * 0.75 + estado.x * 0.25;
+  let ay = voltaY * 0.75 + estado.y * 0.25;
+  const limite = CONFIG.bloco * 8;
+  const lx = ax - chefe.casa.x;
+  const ly = ay - chefe.casa.y;
+  const ld = Math.hypot(lx, ly);
+  if (ld > limite) {
+    ax = chefe.casa.x + (lx / ld) * limite;
+    ay = chefe.casa.y + (ly / ld) * limite;
+  }
+  const vel = (chefe.velocidade || 40) * (chefe.fase === 2 ? 1.8 : 1.3);
+  const dx = ax - chefe.x;
+  const dy = ay - chefe.y;
+  const dist = Math.hypot(dx, dy) || 1;
+  chefe.x += (dx / dist) * vel * dt;
+  chefe.y += (dy / dist) * vel * dt;
+  chefe.direcao = dir8(estado.x - chefe.x, estado.y - chefe.y);
+  chefe.ataqueEm = (chefe.ataqueEm ?? 1.1) - dt;
+  if (chefe.ataqueEm <= 0) {
+    chefe.faseVoo = (chefe.faseVoo || 0) + 1;
+    chefe.ataqueEm = chefe.fase === 2 ? CONFIG.sentinelaCuspeRaiva : CONFIG.sentinelaCuspe;
+    const base = Math.atan2(estado.y - chefe.y, estado.x - chefe.x);
+    if (chefe.fase === 2 && chefe.faseVoo % 3 === 0) {
+      for (let i = 0; i < 8; i++) cuspir(estado, chefe.x, chefe.y, (i / 8) * Math.PI * 2);
+    } else {
+      for (let i = 0; i < CONFIG.cuspeFan; i++) cuspir(estado, chefe.x, chefe.y, base + (i - 2) * 0.22);
+    }
+  }
+  tocarJogador(estado, chefe, chefe.dano);
 }
 
 function atualizarInimigos(estado, dt) {
@@ -609,9 +777,14 @@ function atualizarInimigos(estado, dt) {
       const dy = estado.y - inimigo.y;
       const len = Math.hypot(dx, dy) || 1;
       const lado = Math.sin((inimigo.faseZ = (inimigo.faseZ || 0) + dt * 7)) * inimigo.velocidade;
-      inimigo.x += ((dx / len) * inimigo.velocidade + (-dy / len) * lado) * dt;
-      inimigo.y += ((dy / len) * inimigo.velocidade + (dx / len) * lado) * dt;
       inimigo.direcao = dir8(dx, dy);
+      andar(
+        estado,
+        inimigo,
+        (dx / len) * inimigo.velocidade + (-dy / len) * lado,
+        (dy / len) * inimigo.velocidade + (dx / len) * lado,
+        dt,
+      );
     } else if (inimigo.comportamento === 'torre') {
       inimigo.tiroEm -= dt;
       if (inimigo.tiroEm <= 0) {
@@ -704,6 +877,14 @@ function atualizarChefe(estado, dt) {
     ferirCorpo(estado, chefe, 0);
     return;
   }
+  if (chefe.tipo === 'urso-da-caverna') {
+    urso(estado, dt);
+    return;
+  }
+  if (chefe.tipo === 'sentinela-de-bronze') {
+    sentinela(estado, dt);
+    return;
+  }
   chefe.fase = faseDoChefe(chefe);
   chefe.contatoEm = Math.max(0, (chefe.contatoEm || 0) - dt);
   chefe.lascaEm = Math.max(0, (chefe.lascaEm || 0) - dt);
@@ -739,7 +920,8 @@ function atualizarChefe(estado, dt) {
 function ferirCorpo(estado, corpo, dano) {
   if (!corpo) return;
   if (corpo.hp > 0 && dano > 0) {
-    corpo.hp -= dano * estado.danoMult;
+    const atordoado = estado.chefe && corpo.id === estado.chefe.id && estado.chefe.modo === 'atordoado';
+    corpo.hp -= dano * estado.danoMult * (atordoado ? 2 : 1);
     estado.efeitos.push({ tipo: 'acerto', x: corpo.x, y: corpo.y, idade: 0, duracao: CONFIG.efeitoAcerto });
   }
   if (corpo.hp > 0) return;
@@ -893,10 +1075,34 @@ function atualizarEfeitos(estado, dt) {
   estado.efeitos = estado.efeitos.filter((fx) => fx.idade < fx.duracao);
 }
 
+function colher(estado) {
+  const alcance = 22;
+  const bloco = CONFIG.bloco;
+  const c0 = Math.floor((estado.x - alcance) / bloco);
+  const c1 = Math.floor((estado.x + alcance) / bloco);
+  const l0 = Math.floor((estado.y - alcance) / bloco);
+  const l1 = Math.floor((estado.y + alcance) / bloco);
+  for (let lin = l0; lin <= l1; lin++) {
+    for (let col = c0; col <= c1; col++) {
+      if (lin < 0 || col < 0 || lin >= estado.linhas || col >= estado.colunas) continue;
+      const i = lin * estado.colunas + col;
+      const tipo = estado.recursos[i];
+      if (tipo !== NO.ARBUSTO && tipo !== NO.VEIO) continue;
+      const cx = (col + 0.5) * bloco;
+      const cy = (lin + 0.5) * bloco;
+      if (Math.hypot(estado.x - cx, estado.y - cy) > alcance + 10) continue;
+      estado.recursos[i] = NO.NENHUM;
+      if (tipo === NO.ARBUSTO) estado.vida = Math.min(estado.vidaMax, estado.vida + CONFIG.curaArbusto);
+      else soltarGema(estado, cx, cy, CONFIG.xpVeio);
+    }
+  }
+}
+
 function passo(estado, dt, eixo) {
   if (estado.pausa || estado.vitoria) return;
   estado.invulneravel = Math.max(0, estado.invulneravel - dt);
   moverJogador(estado, dt, eixo);
+  colher(estado);
   estado.tempo += dt;
   estado.desdeSave += dt;
   verificarMarcos(estado);
@@ -926,7 +1132,28 @@ export function tick(estado, dt, eixo) {
 
 export function escuridao(estado) {
   if (!estado || estado.vitoria) return 0;
-  return estado.era === 'ferro' ? CONFIG.escuridaoFerro : 0;
+  const dia = CONFIG.duracaoDia;
+  const tod = ((estado.tempo % dia) + dia) % dia / dia;
+  const ini = CONFIG.noiteInicio;
+  const fim = CONFIG.noiteFim;
+  let a = 0;
+  if (tod > ini - 0.06 && tod < ini) a = (tod - (ini - 0.06)) / 0.06;
+  else if (tod >= ini && tod < fim) a = 1;
+  else if (tod >= fim) a = 1 - (tod - fim) / (1 - fim);
+  return Math.max(0, Math.min(1, a)) * CONFIG.escuridaoNoite;
+}
+
+/** A câmera segue o Samuel e para na borda do mundo. */
+export function limiteCamera(estado, w, h) {
+  const mundoL = estado.colunas * CONFIG.bloco;
+  const mundoA = estado.linhas * CONFIG.bloco;
+  let x = estado.x - w / 2;
+  let y = estado.y - 10 - h / 2;
+  if (mundoL <= w) x = (mundoL - w) / 2;
+  else x = Math.max(0, Math.min(mundoL - w, x));
+  if (mundoA <= h) y = (mundoA - h) / 2;
+  else y = Math.max(0, Math.min(mundoA - h, y));
+  return { x: Math.round(x), y: Math.round(y), w, h, mundoL, mundoA };
 }
 
 export function orbesLasca(estado) {

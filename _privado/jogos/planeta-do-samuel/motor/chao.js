@@ -1,14 +1,15 @@
-/* Chão em cache. O tile de 16 e o chunk de 256 vêm de
-   desenvolvimento/jogos/pokemon-survivors/src/render/world.ts; o hash2, de
-   src/engine/rng.ts (Copyright (c) 2026 Pedro Barretto, licença MIT).
-   O mapa infinito de biomas não entra: a ilha continua o MAPA de regras.js.
-   A paleta troca com a era. A água anima por cima do chunk. */
+/* Chão em cache, só dos pedaços que a câmera vê.
+   O tile de 32 px cabe 8 vezes num chunk de 256. A grama, a areia e a água
+   usam os sprites do jogo, desenhados em dobro. Mato, rocha, cinza e brasa
+   são pintados com a paleta do portal. O hash2 veio de
+   desenvolvimento/jogos/pokemon-survivors/src/engine/rng.ts
+   (Copyright (c) 2026 Pedro Barretto, licença MIT). */
 
 import { contexto2d, criarCanvas } from './pixelart.js';
 import { desenharSprite } from './sprites.js';
+import { CHAO, TILE } from '../ilha.js';
 
 const CHUNK = 256;
-const TILE = 16;
 const SEMENTE = 1996;
 
 /** Hash inteiro estável → [0, 1). O mesmo de rng.ts. */
@@ -22,10 +23,30 @@ const cache = new Map();
 
 export const limparChao = () => cache.clear();
 
-const agua = (estado, col, lin) => {
-  if (lin < 0 || col < 0 || lin >= estado.linhas || col >= estado.colunas) return true;
-  return estado.tiles[lin][col] === '~';
+const terreno = (estado, col, lin) => {
+  if (lin < 0 || col < 0 || lin >= estado.linhas || col >= estado.colunas) return CHAO.FUNDO;
+  return estado.terreno[lin * estado.colunas + col];
 };
+
+function pintar(g, x, y, cor, variacao, semente) {
+  g.fillStyle = cor;
+  g.fillRect(x, y, TILE, TILE);
+  g.fillStyle = variacao;
+  for (let py = 0; py < TILE; py += 4) {
+    for (let px = 0; px < TILE; px += 4) {
+      if (hash2((x + px) >> 2, (y + py) >> 2, semente) < 0.4) g.fillRect(x + px, y + py, 4, 4);
+    }
+  }
+}
+
+function spriteNoTile(g, id, x, y) {
+  g.save();
+  g.imageSmoothingEnabled = false;
+  g.translate(x, y);
+  g.scale(2, 2);
+  desenharSprite(g, id, 0, 8, 16);
+  g.restore();
+}
 
 const chunkDe = (estado, era, cx, cy) => {
   const chave = `${era}:${cx}:${cy}`;
@@ -35,23 +56,38 @@ const chunkDe = (estado, era, cx, cy) => {
   const g = contexto2d(c);
   const ox = cx * CHUNK;
   const oy = cy * CHUNK;
-  for (let ty = 0; ty < CHUNK / TILE; ty++) {
-    for (let tx = 0; tx < CHUNK / TILE; tx++) {
+  const n = CHUNK / TILE;
+  for (let ty = 0; ty < n; ty++) {
+    for (let tx = 0; tx < n; tx++) {
       const col = Math.floor((ox + tx * TILE) / TILE);
       const lin = Math.floor((oy + ty * TILE) / TILE);
-      if (agua(estado, col, lin)) continue;
-      const praia = agua(estado, col - 1, lin) || agua(estado, col + 1, lin)
-        || agua(estado, col, lin - 1) || agua(estado, col, lin + 1);
-      let id = praia ? `chao-${era}-areia` : `chao-${era}-grama`;
-      if (!praia && hash2(col, lin, SEMENTE) < 0.18) id = `chao-${era}-grama-var`;
-      desenharSprite(g, id, 0, tx * TILE + TILE / 2, ty * TILE + TILE);
+      const t = terreno(estado, col, lin);
+      const x = tx * TILE;
+      const y = ty * TILE;
+      if (t === CHAO.FUNDO || t === CHAO.RASO) continue;
+      if (t === CHAO.ROCHA) {
+        pintar(g, x, y, '#6E7C88', '#C5CED4', SEMENTE + 3);
+      } else if (t === CHAO.CINZA) {
+        pintar(g, x, y, '#5A463C', '#8A5A32', SEMENTE + 5);
+      } else if (t === CHAO.BRASA) {
+        pintar(g, x, y, '#8A3A22', hash2(col, lin, 9) < 0.5 ? '#FF9D52' : '#E2544A', SEMENTE + 7);
+      } else if (t === CHAO.PRAIA) {
+        spriteNoTile(g, `chao-${era}-areia`, x, y);
+      } else {
+        const varinha = hash2(col, lin, SEMENTE) < 0.18 || t === CHAO.MATO;
+        spriteNoTile(g, varinha ? `chao-${era}-grama-var` : `chao-${era}-grama`, x, y);
+        if (t === CHAO.MATO) {
+          g.fillStyle = 'rgba(25, 80, 40, 0.35)';
+          g.fillRect(x, y, TILE, TILE);
+        }
+      }
     }
   }
   cache.set(chave, c);
   return c;
 };
 
-export const desenharChao = (ctx, estado, cam, segundos) => {
+export const desenharChao = (ctx, estado, cam, segundos = 0) => {
   const era = estado.era === 'bronze' || estado.era === 'ferro' ? estado.era : 'pedra';
   const x0 = Math.floor(cam.x / CHUNK);
   const y0 = Math.floor(cam.y / CHUNK);
@@ -69,8 +105,13 @@ export const desenharChao = (ctx, estado, cam, segundos) => {
   const idAgua = `chao-${era}-agua`;
   for (let lin = lin0; lin <= lin1; lin++) {
     for (let col = col0; col <= col1; col++) {
-      if (!agua(estado, col, lin)) continue;
-      desenharSprite(ctx, idAgua, segundos, col * TILE + TILE / 2 - cam.x, lin * TILE + TILE - cam.y);
+      if (terreno(estado, col, lin) !== CHAO.RASO) continue;
+      ctx.save();
+      ctx.imageSmoothingEnabled = false;
+      ctx.translate(col * TILE - cam.x, lin * TILE - cam.y);
+      ctx.scale(2, 2);
+      desenharSprite(ctx, idAgua, segundos, 8, 16);
+      ctx.restore();
     }
   }
 };
