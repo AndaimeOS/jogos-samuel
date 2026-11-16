@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { createConnection } from 'node:net';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -185,6 +185,54 @@ async function fallbackTela(alvo) {
   expect(await alvo.evaluate(() => window.__telaPedido)).toBe('jogo');
 }
 
+async function gravarMedida(extra) {
+  let atual = {};
+  try { atual = JSON.parse(await readFile(path.join(arte, 'planeta-v04-medidas.json'), 'utf8')); } catch { /* primeiro registro */ }
+  await writeFile(path.join(arte, 'planeta-v04-medidas.json'), `${JSON.stringify({ ...atual, ...extra }, null, 2)}\n`);
+}
+
+async function medirFpsLuta(alvo) {
+  return alvo.evaluate(async () => {
+    const p = window.__planeta;
+    const e = p.estado;
+    e.pausa = false;
+    e.cartas = [];
+    e.niveisPendentes = 0;
+    e.chefe = null;
+    e.projeteis = [];
+    e.zonas = [];
+    e.enchente = null;
+    e.tempo = 60;
+    e.inimigos = [];
+    const tipos = p.CONFIG.eras.pedra.horda;
+    for (let i = 0; i < 12; i++) {
+      const tipo = tipos[i % tipos.length];
+      const def = p.CONFIG.inimigos[tipo];
+      const ang = (i / 12) * Math.PI * 2;
+      e.inimigos.push({
+        id: e.seq++, tipo, sprite: def.sprite,
+        x: e.x + Math.cos(ang) * 72,
+        y: e.y + Math.sin(ang) * 48,
+        hp: def.hp, hpMax: def.hp, raio: def.raio,
+        velocidade: def.velocidade, xp: def.xp, dano: def.dano,
+        comportamento: 'chase', direcao: 0, andando: true,
+        contatoEm: 0, lascaEm: 0, auraEm: 0, tiroEm: 2,
+      });
+    }
+    p.definirEixo(1, 0);
+    p.travar(false);
+    p.desenhar();
+    const q0 = p.quadros();
+    const t0 = performance.now();
+    await new Promise((r) => setTimeout(r, 2000));
+    return {
+      fps: Number(((p.quadros() - q0) / ((performance.now() - t0) / 1000)).toFixed(1)),
+      inimigos: e.inimigos.length,
+      tempo: Number(e.tempo.toFixed(1)),
+    };
+  });
+}
+
 async function comecar(alvo) {
   await alvo.locator('#btnComecar').tap();
   await alvo.waitForFunction(() => window.__planeta.atlasPronto() && document.getElementById('titulo').hidden);
@@ -259,9 +307,9 @@ describe('iPad WebKit', () => {
     const tFps = await page.evaluate(() => ({ q: window.__planeta.quadros(), t: performance.now() }));
     await page.waitForTimeout(2000);
     const tFps2 = await page.evaluate(() => ({ q: window.__planeta.quadros(), t: performance.now() }));
-    medidas.fps = Number(((tFps2.q - tFps.q) / ((tFps2.t - tFps.t) / 1000)).toFixed(1));
-    expect(medidas.fps).toBeGreaterThan(45);
-    await writeFile(path.join(arte, 'planeta-v04-medidas.json'), `${JSON.stringify(medidas, null, 2)}\n`);
+    medidas.fpsAndando = Number(((tFps2.q - tFps.q) / ((tFps2.t - tFps.t) / 1000)).toFixed(1));
+    expect(medidas.fpsAndando).toBeGreaterThan(45);
+    await gravarMedida(medidas);
 
     const mini = await page.locator('#minimapa').boundingBox();
     const joy = await page.locator('#joystick').boundingBox();
@@ -291,9 +339,197 @@ describe('iPad WebKit', () => {
     }
     await area('praia', 'planeta-v04-praia.png');
     await area('mato', 'planeta-v04-mato.png');
-    await area('vulcao', 'planeta-v04-vulcao.png');
-    await page.locator('#minimapa').screenshot({ path: path.join(arte, 'planeta-v04-minimapa.png') });
+    await page.evaluate(() => {
+      const e = window.__planeta.estado;
+      e.x = e.inicio.x;
+      e.y = e.inicio.y;
+      e.inimigos = [];
+      e.chefe = null;
+      e.projeteis = [];
+      e.zonas = [];
+      e.tempo = 8;
+      window.__planeta.travar(true);
+      window.__planeta.desenhar();
+    });
     await page.screenshot({ path: path.join(arte, 'planeta-v04-paisagem.png') });
+    await area('vulcao', 'planeta-v04-vulcao.png');
+    const naBrasa = await page.evaluate(() => {
+      const e = window.__planeta.estado;
+      const bloco = window.__planeta.CONFIG.bloco;
+      const c = Math.floor(e.x / bloco);
+      const l = Math.floor(e.y / bloco);
+      return e.terreno[l * e.colunas + c];
+    });
+    expect(naBrasa).not.toBe(7);
+
+    await page.evaluate(() => {
+      const p = window.__planeta;
+      const e = p.estado;
+      e.x = e.inicio.x;
+      e.y = e.inicio.y;
+      e.inimigos = [];
+      e.chefe = null;
+      e.projeteis = [];
+      e.zonas = [];
+      e.pausa = false;
+      e.cartas = [];
+      p.travar(false);
+      const L = e.colunas;
+      const bloco = p.CONFIG.bloco;
+      const anda = (c, l) => {
+        if (c < 0 || l < 0 || c >= L || l >= L) return false;
+        const t = e.terreno[l * L + c];
+        return t !== 0 && t !== 7 && !e.recursos[l * L + c];
+      };
+      const meta = Math.max(8, e.inicio.lin - 24);
+      const visto = new Uint8Array(L * L);
+      const fila = [{ c: e.inicio.col, l: e.inicio.lin }];
+      visto[e.inicio.lin * L + e.inicio.col] = 1;
+      const veio = new Map();
+      let fim = null;
+      for (let k = 0; k < fila.length && !fim; k++) {
+        const cur = fila[k];
+        if (cur.l <= meta) { fim = cur; break; }
+        for (const [dc, dl] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+          const nc = cur.c + dc;
+          const nl = cur.l + dl;
+          const id = nl * L + nc;
+          if (!anda(nc, nl) || visto[id]) continue;
+          visto[id] = 1;
+          veio.set(id, cur);
+          fila.push({ c: nc, l: nl });
+        }
+      }
+      const rota = [];
+      let cur = fim;
+      while (cur) {
+        rota.push(cur);
+        cur = veio.get(cur.l * L + cur.c);
+      }
+      rota.reverse();
+      for (const passo of rota) {
+        const ax = (passo.c + 0.5) * bloco;
+        const ay = (passo.l + 0.5) * bloco;
+        let guard = 0;
+        while (Math.hypot(e.x - ax, e.y - ay) > 8 && guard < 6) {
+          if (e.pausa) p.escolherCarta(e, 0);
+          p.definirEixo(ax - e.x, ay - e.y);
+          p.simular(0.16);
+          guard += 1;
+        }
+      }
+      p.definirEixo(0, 0);
+      e.inimigos = [];
+      e.chefe = null;
+      e.projeteis = [];
+      e.zonas = [];
+      e.pausa = false;
+      p.travar(true);
+      p.desenhar();
+      window.__longe = Math.round(Math.hypot(e.x - e.inicio.x, e.y - e.inicio.y));
+    });
+    expect(await page.evaluate(() => window.__longe)).toBeGreaterThan(400);
+    await page.screenshot({ path: path.join(arte, 'planeta-v04-longe.png') });
+    await page.locator('#minimapa').screenshot({ path: path.join(arte, 'planeta-v04-minimapa-longe.png') });
+
+    await page.evaluate(() => {
+      const p = window.__planeta;
+      const e = p.estado;
+      e.tempo = 60;
+      e.inimigos = [];
+      e.chefe = null;
+      e.projeteis = [];
+      e.zonas = [];
+      e.pausa = false;
+      const tipos = p.CONFIG.eras.pedra.horda;
+      for (let i = 0; i < 12; i++) {
+        const tipo = tipos[i % tipos.length];
+        const def = p.CONFIG.inimigos[tipo];
+        const ang = (i / 12) * Math.PI * 2;
+        e.inimigos.push({
+          id: e.seq++, tipo, sprite: def.sprite,
+          x: e.x + Math.cos(ang) * 78,
+          y: e.y + Math.sin(ang) * 52,
+          hp: def.hp, hpMax: def.hp, raio: def.raio,
+          velocidade: def.velocidade, xp: def.xp, dano: def.dano,
+          comportamento: 'chase', direcao: 2, andando: true,
+          contatoEm: 1, lascaEm: 0, auraEm: 0, tiroEm: 2,
+        });
+      }
+      p.travar(true);
+      p.desenhar();
+    });
+    expect(await page.locator('#relogio').textContent()).toBe('01:00');
+    expect(await page.evaluate(() => window.__planeta.estado.inimigos.length)).toBe(12);
+    await page.screenshot({ path: path.join(arte, 'planeta-v04-horda.png') });
+    const luta = await medirFpsLuta(page);
+    expect(luta.inimigos).toBeGreaterThan(4);
+    expect(luta.fps).toBeGreaterThan(45);
+    await gravarMedida({ fpsLutaPaisagem: luta.fps, inimigosLuta: luta.inimigos, tempoLuta: luta.tempo });
+
+    await page.evaluate(() => {
+      const p = window.__planeta;
+      const e = p.estado;
+      e.inimigos = [];
+      e.projeteis = [];
+      e.chefe = null;
+      e.vitoria = false;
+      e.fogueira = true;
+      e.tempo = 0.8 * p.CONFIG.duracaoDia;
+      p.travar(true);
+      p.desenhar();
+    });
+    expect(await page.evaluate(() => window.__planeta.escuridao(window.__planeta.estado))).toBeGreaterThan(0.7);
+    await page.screenshot({ path: path.join(arte, 'planeta-v04-noite.png') });
+
+    await page.evaluate(() => {
+      const p = window.__planeta;
+      const e = p.estado;
+      e.tempo = 40;
+      e.vitoria = false;
+      e.fogueira = false;
+      e.inimigos = [];
+      e.projeteis = [];
+      e.zonas = [];
+      const def = p.CONFIG.inimigos['urso-da-caverna'];
+      e.chefe = {
+        id: e.seq++, tipo: 'urso-da-caverna', sprite: def.sprite,
+        x: e.x + 64, y: e.y - 8,
+        hp: def.hp * 0.4, hpMax: def.hp, raio: def.raio,
+        velocidade: def.velocidade, xp: def.xp, dano: def.dano,
+        comportamento: 'chefe', direcao: 6,
+        modo: 'atordoado', telegrafo: 1.2, fase: 2,
+        contatoEm: 1, lascaEm: 0, auraEm: 0,
+      };
+      e.zonas.push({ x: e.chefe.x, y: e.chefe.y, raio: def.raio + 14, resta: 0.5, dano: 0, sprite: 'telegraph' });
+      p.travar(true);
+      p.desenhar();
+    });
+    await page.screenshot({ path: path.join(arte, 'planeta-v04-urso.png') });
+
+    await page.evaluate(() => {
+      const p = window.__planeta;
+      const e = p.estado;
+      e.zonas = [];
+      e.inimigos = [];
+      const def = p.CONFIG.inimigos['sentinela-de-bronze'];
+      e.chefe = {
+        id: e.seq++, tipo: 'sentinela-de-bronze', sprite: def.sprite,
+        x: e.x + 96, y: e.y - 20,
+        hp: def.hp, hpMax: def.hp, raio: def.raio,
+        velocidade: def.velocidade, xp: def.xp, dano: def.dano,
+        comportamento: 'chefe', direcao: 6,
+        modo: 'anda', fase: 1, ataqueEm: 0.01, casa: null,
+        contatoEm: 1, lascaEm: 0, auraEm: 0,
+      };
+      e.projeteis = [];
+      p.travar(false);
+      p.simular(0.12);
+      p.travar(true);
+      p.desenhar();
+    });
+    expect(await page.evaluate(() => window.__planeta.estado.projeteis.filter((t) => t.sprite === 'faisca' && !t.aliado).length)).toBeGreaterThan(0);
+    await page.screenshot({ path: path.join(arte, 'planeta-v04-sentinela.png') });
     await page.evaluate(() => window.__planeta.travar(false));
 
     await page.evaluate(() => {
@@ -476,6 +712,11 @@ describe('iPad WebKit', () => {
     await escolherCartaNoToque(page);
     await page.screenshot({ path: path.join(arte, 'planeta-v04-retrato.png') });
     await page.screenshot({ path: path.join(arte, 'planeta-v2-retrato.png') });
+    const lutaRetrato = await medirFpsLuta(page);
+    expect(lutaRetrato.inimigos).toBeGreaterThan(4);
+    expect(lutaRetrato.fps).toBeGreaterThan(45);
+    await page.screenshot({ path: path.join(arte, 'planeta-v04-horda-retrato.png') });
+    await gravarMedida({ fpsLutaRetrato: lutaRetrato.fps, inimigosRetrato: lutaRetrato.inimigos });
     expect(erros, erros.join('\n')).toEqual([]);
     await context.close();
   });
@@ -506,6 +747,12 @@ describe('iPad WebKit', () => {
     }
     await samuelAndou(frame);
     await escolherCartaNoToque(frame);
+    const lutaIframe = await medirFpsLuta(frame);
+    expect(lutaIframe.inimigos).toBeGreaterThan(4);
+    expect(lutaIframe.fps).toBeGreaterThan(45);
+    await frame.evaluate(() => window.__planeta.desenhar());
+    await page.screenshot({ path: path.join(arte, 'planeta-v04-horda-iframe.png') });
+    await gravarMedida({ fpsLutaIframe: lutaIframe.fps, inimigosIframe: lutaIframe.inimigos });
     await fallbackTela(frame);
     await page.screenshot({ path: path.join(arte, 'planeta-v04-iframe.png') });
     await page.screenshot({ path: path.join(arte, 'planeta-v2-iframe.png') });

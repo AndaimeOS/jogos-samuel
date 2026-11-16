@@ -252,6 +252,25 @@ describe('ilha grande', () => {
     expect(e.vida).toBe(40 + CONFIG.curaArbusto);
   });
 
+  it('a brasa segura o passo, como a água funda, e solta uma faísca', () => {
+    const e = partida();
+    expect(e.terreno[64 * 128 + 64]).toBe(CHAO.BRASA);
+    expect(e.amostras.vulcao).toBeTruthy();
+    const borda = e.amostras.vulcao;
+    const iBorda = borda.lin * 128 + borda.col;
+    expect(e.terreno[iBorda]).toBe(CHAO.CINZA);
+    expect(e.recursos[iBorda]).toBe(NO.NENHUM);
+    const viz = [[1, 0], [-1, 0], [0, 1], [0, -1]].find(([dx, dy]) => e.terreno[(borda.lin + dy) * 128 + borda.col + dx] === CHAO.BRASA);
+    expect(viz).toBeTruthy();
+    e.x = borda.x + viz[0] * 12;
+    e.y = borda.y + viz[1] * 12;
+    tick(e, 0.08, { x: viz[0], y: viz[1] });
+    const col = Math.floor(e.x / CONFIG.bloco);
+    const lin = Math.floor(e.y / CONFIG.bloco);
+    expect(e.terreno[lin * 128 + col]).not.toBe(CHAO.BRASA);
+    expect(e.efeitos.some((fx) => fx.tipo === 'acerto')).toBe(true);
+  });
+
   it('a câmera para na borda do mundo', () => {
     const e = partida();
     e.x = 4;

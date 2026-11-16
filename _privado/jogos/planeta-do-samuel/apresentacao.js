@@ -161,7 +161,16 @@ function desenhar() {
   }
   if (estado.chefe) {
     const chefe = estado.chefe;
-    por(chefe.y, () => corpo(chefe.sprite, chefe.x, chefe.y, { direcao: chefe.direcao }));
+    por(chefe.y, () => {
+      corpo(chefe.sprite, chefe.x, chefe.y, { direcao: chefe.direcao });
+      if (chefe.modo === 'atordoado') {
+        ctx.fillStyle = '#F2D15A';
+        for (let i = 0; i < 3; i++) {
+          const a = relogio * 5 + i * 2.1;
+          ctx.fillRect(Math.round(chefe.x + Math.cos(a) * 18 - 2), Math.round(chefe.y - 30 + Math.sin(a) * 4), 4, 4);
+        }
+      }
+    });
   }
   const andando = Math.hypot(eixo.x, eixo.y) > 0.1 && !pausado && !estado.pausa;
   por(estado.y, () => corpo(andando ? 'samuel-andar' : 'samuel-parado', estado.x, estado.y, {

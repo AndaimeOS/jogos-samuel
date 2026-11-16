@@ -18,6 +18,7 @@ Na v0.4 a ilha deixa o mapa desenhado à mão. As regras lidas em
 - grade 128×128, tile de 32 px (mundo de 4096 px);
 - queda radial `1 - d * 1.18`, vulcão no centro, ruído nas frequências 0,045 / 0,08 / 0,06;
 - limiares de água funda, rasa, praia, grama, mato, rocha, cinza e brasa;
+- a brasa segura o passo, como a água funda, e solta uma faísca ao encostar;
 - taxas de árvore, arbusto, pedra, palmeira e veio, com 14 veios garantidos;
 - dia de 240 s, noite entre 0,66 e 0,97, escuridão até 0,82;
 - chefe que investe e atordoa ao bater, e chefe que voa e cospe.

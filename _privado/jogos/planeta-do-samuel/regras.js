@@ -336,8 +336,16 @@ function bloqueia(estado, x, y) {
   const lin = Math.floor(y / CONFIG.bloco);
   if (lin < 0 || col < 0 || lin >= estado.linhas || col >= estado.colunas) return true;
   const i = lin * estado.colunas + col;
-  if (estado.terreno[i] === CHAO.FUNDO) return true;
+  const chao = estado.terreno[i];
+  if (chao === CHAO.FUNDO || chao === CHAO.BRASA) return true;
   return estado.recursos[i] !== NO.NENHUM;
+}
+
+function tipoNo(estado, x, y) {
+  const col = Math.floor(x / CONFIG.bloco);
+  const lin = Math.floor(y / CONFIG.bloco);
+  if (lin < 0 || col < 0 || lin >= estado.linhas || col >= estado.colunas) return CHAO.FUNDO;
+  return estado.terreno[lin * estado.colunas + col];
 }
 
 function cabe(estado, x, y, raio) {
@@ -412,6 +420,20 @@ function moverJogador(estado, dt, eixo) {
   }
   if (livre(estado, nx, estado.y)) estado.x = nx;
   else if (livre(estado, estado.x, ny)) estado.y = ny;
+  const r = CONFIG.raioJogador;
+  const quente = [[0, 0], [r, 0], [-r, 0], [0, r], [0, -r]].some(([ox, oy]) => (
+    tipoNo(estado, nx + ox, ny + oy) === CHAO.BRASA
+  ));
+  if (quente && (estado.calorEm || 0) <= 0) {
+    estado.efeitos.push({
+      tipo: 'acerto',
+      x: estado.x + x * 16,
+      y: estado.y + y * 14,
+      idade: 0,
+      duracao: 0.28,
+    });
+    estado.calorEm = 0.45;
+  }
 }
 
 export function receberDano(estado, quantidade) {
@@ -1101,6 +1123,7 @@ function colher(estado) {
 function passo(estado, dt, eixo) {
   if (estado.pausa || estado.vitoria) return;
   estado.invulneravel = Math.max(0, estado.invulneravel - dt);
+  estado.calorEm = Math.max(0, (estado.calorEm || 0) - dt);
   moverJogador(estado, dt, eixo);
   colher(estado);
   estado.tempo += dt;

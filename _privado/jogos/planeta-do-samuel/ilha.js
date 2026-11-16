@@ -126,6 +126,25 @@ function limparRecursos(recursos, col, lin, raio) {
   }
 }
 
+function beiraDaBrasa(terreno, recursos, farol) {
+  let melhor = null;
+  let melhorD = 1e9;
+  for (let lin = 1; lin < LADO - 1; lin++) {
+    for (let col = 1; col < LADO - 1; col++) {
+      const i = indice(col, lin);
+      if (terreno[i] !== CHAO.CINZA || recursos[i]) continue;
+      const quente = [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => terreno[indice(col + dx, lin + dy)] === CHAO.BRASA);
+      if (!quente) continue;
+      const d = Math.hypot(col - farol.col, lin - farol.lin);
+      if (d < melhorD) {
+        melhorD = d;
+        melhor = centro(col, lin);
+      }
+    }
+  }
+  return melhor;
+}
+
 function acharAmostra(terreno, recursos, pred) {
   for (let lin = 8; lin < LADO - 8; lin++) {
     for (let col = 8; col < LADO - 8; col++) {
@@ -307,7 +326,7 @@ export function gerarIlha(semente) {
     praia: acharAmostra(terreno, recursos, (t) => t === CHAO.PRAIA) || inicio,
     mato: acharAmostra(terreno, recursos, (t, col, lin) => t === CHAO.MATO && Math.hypot(col - spawnCol, lin - spawnLin) > 12) || inicio,
     rocha: acharAmostra(terreno, recursos, (t) => t === CHAO.ROCHA) || inicio,
-    vulcao: centro(farol.col, Math.min(LADO - 2, farol.lin + 2)),
+    vulcao: beiraDaBrasa(terreno, recursos, farol) || centro(farol.col, farol.lin),
   };
   const geracaoMs = (typeof performance !== 'undefined' ? performance.now() : Date.now()) - t0;
   const ilha = {
@@ -342,6 +361,6 @@ export function bloqueiaPonto(ilha, x, y) {
   const lin = Math.floor(y / TILE);
   if (col < 0 || lin < 0 || col >= LADO || lin >= LADO) return true;
   const i = indice(col, lin);
-  if (ilha.terreno[i] === CHAO.FUNDO) return true;
+  if (ilha.terreno[i] === CHAO.FUNDO || ilha.terreno[i] === CHAO.BRASA) return true;
   return ilha.recursos[i] !== NO.NENHUM;
 }

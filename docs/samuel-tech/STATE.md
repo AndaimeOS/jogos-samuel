@@ -3,6 +3,13 @@
 Atualizado ao fim de cada sessão (ST-090). Um bloco por sessão, o mais novo em cima.
 Vale o que está aqui e no Notion, não a memória do chat.
 
+## 2026-11-16 — Planeta 0.4.0: a brasa não se pisa (mesmo PR, sem publicar)
+
+- **Pedido:** no print do vulcão o Samuel estava em cima da lava. Os prints de vulcão e paisagem eram o mesmo arquivo. Faltavam cenas de luta, noite e chefes, e o FPS da horda nos dois sentidos e no iframe.
+- **Decisão:** a brasa segura o passo, como a água funda. No Fácil, dano manda o Samuel de volta para a praia do sul — longe demais para um esbarrão. Encostar na lava solta uma faísca. O print do vulcão fica na cinza, na beira.
+- **Medidas da horda (WebKit, iPad, ~2 s, inimigos na tela):** paisagem 58 fps (11 vivos), retrato 62 fps (16), iframe de `/jogar/` 59,5 fps (15). Andando, sem horda, 62,3 fps.
+- **Não feito:** merge e deploy.
+
 ## 2026-11-16 — Planeta do Samuel 0.4.0 (ilha grande, sem publicar)
 
 - **Pedido do Boaz (15/11 22:41 BRT):** as fases são pequenas e não usam a base. Subir o Planeta para a escala da Isle of Embers (128×128, tile 32 px) antes do resto. Sem merge e sem deploy.
