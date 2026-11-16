@@ -1,0 +1,17 @@
+Créditos — motor das hordas
+
+Código
+  Copyright (c) 2026 Pedro Barretto
+  Pokémon Survivors, licença MIT
+  https://github.com/pedrobarretto/pokemon-survivors
+  O aviso completo está em LICENSE.txt.
+
+  Entram aqui os sistemas da partida solo: vista, joystick flutuante,
+  mapa de regiões, horda que nasce fora da tela, separação dos corpos,
+  empurrão, experiência, cartas, tremor, número de dano e partículas.
+  Não entram conta, ranking, co-op, arena nem os arquivos de public/assets
+  daquele repositório (licença CC BY-NC, que este jogo não usa).
+
+Arte
+  Desenhos originais do samuel.tech, ainda em escala de placeholder.
+  Nenhuma foto real. Nenhum sprite, nome de criatura ou som de Pokémon.

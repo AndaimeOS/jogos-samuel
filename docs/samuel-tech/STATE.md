@@ -3,6 +3,49 @@
 Atualizado ao fim de cada sessão (ST-090). Um bloco por sessão, o mais novo em cima.
 Vale o que está aqui e no Notion, não a memória do chat.
 
+## 2026-11-16 — Pescador de camiseta cinza, branch em dia com a main
+
+- **Pedido do Boaz (15/11 21:33 BRT):** "Pode juntar e publicar o PR #12 com o Planeta e o Pescador, Samuel de camiseta cinza." O merge do PR e o deploy ficam com o Boaz.
+- **Feito:** o barco do Pescador é só o `samuel-barco-cinza` (camiseta cinza, quadro 48, escala 1). O colete saiu do índice, da capa e da pasta. A branch recebeu a `main` (`32b332d`): Samuel Surfers 0.1.0 e Pebolim 0.1.2 ficam. O Planeta continua 0.3.0 e o Pescador 0.1.0. No catálogo, o conflito juntou os três. A DEC-014 da main (Surfers) ficou; as da horda passaram a DEC-015 em diante.
+- **Testes:** motor 11/11. iPad WebKit 6/6 (gen 7, toque, 1024×768 e 768×1024, página e iframe). `verificar_jogo.py --todos` ok. Pebolim 35/35, Reino 18/18, Minigolfe 53/53, Corrida do Jack 19/19, Samuel Surfers 8/8.
+- **Não feito:** merge do PR #12 e publicação no samuel.tech.
+- **NEXT:** o Boaz junta e publica, se os prints da camiseta cinza estiverem certos.
+
+## 2026-11-15 — Planeta e Pescador: mira, moldura, tempestade e tela limpa
+
+- **Pedido:** na mesma branch do PR #12, sem merge e sem deploy. Os prints de 30 s do Pescador ainda barravam o Boaz: a moldura ia num bicho longe, a moldura era grande demais, a tempestade pontilhava a tela inteira, tinha ícone e anel demais, e o barco parecia pequeno e borrado.
+- **Causas e o que mudou:** a mira do jogo já usava o mundo e o bicho vivo mais perto, mas o print antigo empurrava o alvo para 110 px e deixava a moldura presa nele. O alcance da mira agora é o da ferramenta mais longa (o chefe só ganha dentro desse alcance). A moldura lê os pixels opacos do quadro e fica 2 px fora deles. A tempestade não usa mais o pontilhado de `escurecer.png`: um véu uniforme de 16% e a chuva a 35%. As gemas puxam de 110 px, juntam as que estão a 18 px e, depois de 4 s, vêm de mais longe. O anel da rede deixou de ter o raio do dano (cerca de 42 px) e marca o alvo com um círculo de no máximo 10 px; some quando esse bicho morre. O barco `samuel-barco-colete` já estava na escala 1, quadro 48×48, corpo opaco 20×39: no iPad ele ocupa uns 20 px do mundo (~342 de largura), por isso parece pequeno. O recorte e a direção estão certos.
+- **Testes:** motor 10/10. iPad WebKit 6/6. `verificar_jogo.py --todos` ok. Pebolim 35/35, Reino 18/18, Minigolfe 53/53, Corrida do Jack 19/19.
+- **Não feito:** publicar no samuel.tech.
+- **NEXT:** o Boaz olha o rascunho no iPad. Sem deploy daqui.
+
+## 2026-11-15 — Planeta e Pescador: combate no alvo e quatro correções de tela
+
+- **Pedido do Boaz (15/11 18:20 BRT):** "Sim, troca o combate nos dois jogos por esse estilo." Vale para o Planeta e para o Pescador, na branch do PR #12, sem merge e sem deploy. Junto, fechar as quatro falhas visuais do QA.
+- **Combate:** a mira marca sozinha o bicho vivo mais perto. Se o chefe está no alcance, a moldura vai nele. A moldura é vermelha, com borda de tinta. A funda e a lança (e o resto das ferramentas) saem na direção desse alvo; no Pescador, o arpão, o anzol e a rede fazem o mesmo. A bolinha que orbitava o Samuel saiu dos dois jogos, também das cartas. O botão de Ação é um golpe especial no alvo, com recarga. O Samuel não anda sozinho.
+- **As quatro falhas:** o joystick, a pausa, a tela cheia e a Ação desenhavam a folha inteira (dois quadros) — agora o CSS mostra só o quadro da esquerda. O monstro gigante colado no Samuel no segundo 0 era o chefe do teste estacionado em cima dele; o jogo nasce sem bicho por perto, e mamute, caranguejo e robô ficam no tamanho comum. O mapa usa o `mapa_mock.png` (caminho e cenário já na arte; no Pescador, rio, lago e mar). Em pé, a arte estica no palco inteiro e os personagens continuam em pé. A barra branca de cima mostra o nome da fase (Pedra 1, Rio 1) desde o primeiro quadro.
+- **Testes:** motor 7/7. iPad WebKit 6/6 (toque, 1024×768 e 768×1024, página e iframe, 60 s na paisagem). `verificar_jogo.py --todos` ok. Pebolim 35/35, Reino 18/18, Minigolfe 53/53, Corrida do Jack 19/19.
+- **Não feito:** publicar no samuel.tech.
+- **NEXT:** o Boaz olha o rascunho no iPad. Sem deploy daqui.
+
+## 2026-11-15 — Planeta e Pescador: lote 5, chão e perigos
+
+- **Pedido:** na mesma branch do PR #12, sem merge e sem deploy. O lote 5 substitui o 4. Mamute, caranguejo-gigante e robô enferrujado entram com sprite de 8 direções. Nevoeiro, onda-gigante e tempestade são perigos do cenário, com aviso, e no Fácil não tiram vida (os do Planeta também não). O raio do Pescador não tira vida nem no Normal, e o alvo pisca a pelo menos 64 px do barco.
+- **Feito:** `motor_v2.json` virou o `motor.json` do Planeta (16 ids, com Sumico nos três novos). Chão em `arte/chao.json` e decoração em `arte/cenario/` (não bloqueia). Perigos do Pescador em `arte/perigos/`, fora da horda e do `motor.json`. A tempestade usa os três degraus de escurecimento: o mais escuro cobre 19% do tile e o barco continua visível. O colete segue como barco padrão.
+- **Arquivos do índice:** todos os PNGs de `perigos.json` existem e batem com o quadro vezes o número de quadros. Nada faltando.
+- **Testes:** motor 6/6. iPad WebKit 6/6 (toque, 1024×768 e 768×1024, página e iframe, 60 s na paisagem). `verificar_jogo.py --todos` ok. Pebolim 35/35, Reino 18/18, Minigolfe 53/53, Corrida do Jack 19/19.
+- **Não feito:** publicar no samuel.tech.
+- **NEXT:** o Boaz olha o rascunho no iPad. Sem deploy daqui.
+
+## 2026-11-15 — Planeta 0.3 e Pescador no motor da horda
+
+- **Pedido do Boaz (15/11 16:49 BRT):** refazer o Planeta com o motor do Pokémon Survivors e usar o mesmo no Pescador. Branch nova, PR em rascunho. Sem merge, sem push na `main`, sem deploy.
+- **Feito:** `desenvolvimento/jogos/motor-hordas/` porta a partida solo do código MIT (Copyright (c) 2026 Pedro Barretto): vista, joystick flutuante, região de 1100 px, spawn fora da tela, separação, empurrão, XP, 6 golpes e 6 itens, tremor, número de dano e partículas. Sem sprite, nome de criatura ou som daquele jogo. Planeta 0.3.0: 3 eras × 3 fases, chefe na terceira, farol no fim. Pescador 0.1.0: 3 águas × 3 fases, 10ª do peixe lendário, porto. Fácil não perde e não teleporta. Tela cheia com `requestFullscreen` e `webkitRequestFullscreen`. Sprites Walk/Idle/Hurt/Sumico do Gerador em `arte/sprites/<id>/`, escala 1. Respostas em `desenvolvimento/jogos/motor-hordas/RESPOSTAS-GERADOR.md`.
+- **Testes:** motor 5/5. iPad WebKit (gen 7, toque, 1024×768 e 768×1024, página direta e iframe) 6/6, com 60 s de jogo em cada um na paisagem. `verificar_jogo.py --todos` ok. Pebolim 35/35, Reino 18/18, Minigolfe 53/53. Pokémon Survivors e a Ilha não foram reinstalados aqui; o código deles não mudou.
+- **Não feito:** publicar no samuel.tech. O visual do barco (cinza ou colete) ainda espera o Boaz; o padrão desta versão é o colete.
+- **Notion:** esta sessão não veio de um card da fila; o hub não foi atualizado.
+- **NEXT:** o Boaz olha o rascunho no iPad. O Gerador pode seguir a opção A dos tiles (chão procedural + decoração). Sem deploy daqui.
+
 ## 2026-11-16 — Samuel Corredor 0.1.0 (câmera do retrato à frente)
 
 - **Pedido do Boaz (15/11 21:28 BRT, opção B):** só a câmera do retrato. O Samuel fica a cerca de 1/4 da largura, à esquerda, com a pista na frente. Zoom cerca de 1,1. A câmera não passa da borda da fase. Paisagem, mapa, arte, física, buraco, bloco e vitória ficam como estão. Sem merge e sem deploy.

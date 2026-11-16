@@ -1,0 +1,140 @@
+{
+ "formato": "base, alt, path e spots, 3 tons cada [principal, claro, escuro]. No chão o tile de 16 px usa o 1º tom ~70%, o 2º ~20% e o 3º ~10%; alt onde ruido(96)>0.55, path onde |ruido(220)-0.5|<0.08, spots onde ruido(20)>0.76.",
+ "tile": 16,
+ "cor_unica": "cor de um bioma só (para o conteudo.cores do motor-hordas), igual ao 1º tom de base",
+ "biomas": {
+  "pedra": {
+   "base": [
+    "#8FD46A",
+    "#9ADB76",
+    "#84C962"
+   ],
+   "alt": [
+    "#6DBA5C",
+    "#76C264",
+    "#63AE55"
+   ],
+   "path": [
+    "#D9C9A0",
+    "#E2D4AE",
+    "#CDBB90"
+   ],
+   "spots": [
+    "#B9ED80",
+    "#DDF7B5",
+    "#A8E070"
+   ],
+   "cor_unica": "#8FD46A",
+   "descricao": "campo de grama da era de Pedra; alt = grama mais funda; path = trilha de terra; spots = florzinhas claras",
+   "rock": [
+    "pedra-rock-0",
+    "pedra-rock-1",
+    "pedra-rock-2"
+   ],
+   "tree": [
+    "pedra-tree-0",
+    "pedra-tree-1",
+    "pedra-tree-2"
+   ]
+  },
+  "bronze": {
+   "base": [
+    "#F2CC8E",
+    "#F7D69E",
+    "#E8BF7E"
+   ],
+   "alt": [
+    "#E4B070",
+    "#ECBA7C",
+    "#D9A462"
+   ],
+   "path": [
+    "#C9965A",
+    "#D2A066",
+    "#BC8A50"
+   ],
+   "cor_unica": "#F2CC8E",
+   "descricao": "areia quente da era do Bronze; alt = dunas; path = trilha batida",
+   "rock": [
+    "bronze-rock-0",
+    "bronze-rock-1",
+    "bronze-rock-2"
+   ],
+   "tree": [
+    "bronze-tree-0",
+    "bronze-tree-1",
+    "bronze-tree-2"
+   ]
+  },
+  "ferro": {
+   "base": [
+    "#76726A",
+    "#807C73",
+    "#6C6860"
+   ],
+   "alt": [
+    "#55704F",
+    "#5D7856",
+    "#4D6648"
+   ],
+   "path": [
+    "#959186",
+    "#9F9B90",
+    "#8B877C"
+   ],
+   "spots": [
+    "#80695C",
+    "#8A7365",
+    "#765F53"
+   ],
+   "cor_unica": "#76726A",
+   "descricao": "terra escura da era do Ferro; alt = grama escura; path = estrada de cascalho clara; spots = terra avermelhada",
+   "rock": [
+    "ferro-rock-0",
+    "ferro-rock-1",
+    "ferro-rock-2"
+   ],
+   "tree": [
+    "ferro-tree-0",
+    "ferro-tree-1",
+    "ferro-tree-2"
+   ]
+  },
+  "praia-farol": {
+   "base": [
+    "#F2E2B0",
+    "#F7EAC0",
+    "#E8D6A0"
+   ],
+   "alt": [
+    "#DFCC98",
+    "#E7D4A2",
+    "#D5C08A"
+   ],
+   "path": [
+    "#C9E8DE",
+    "#D8F0E8",
+    "#BADED2"
+   ],
+   "spots": [
+    "#F6E8C4",
+    "#F9EED2",
+    "#EEDDB4"
+   ],
+   "cor_unica": "#F2E2B0",
+   "descricao": "areia da praia do farol; alt = areia molhada; path = espuma da maré; spots = areia mais clara",
+   "rock": [
+    "praia-farol-rock-0",
+    "praia-farol-rock-1",
+    "praia-farol-rock-2"
+   ],
+   "tree": [
+    "praia-farol-tree-0",
+    "praia-farol-tree-1",
+    "praia-farol-tree-2"
+   ]
+  }
+ },
+ "licenca": "original, feito por nós, livre para uso no repo",
+ "png": "arte/cenario/<bioma>-rock-0..2.png e arte/cenario/<bioma>-tree-0..2.png (recortados na arte; o pé é a última linha opaca)"
+}
