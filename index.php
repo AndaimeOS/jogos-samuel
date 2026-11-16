@@ -44,6 +44,9 @@ foreach ($lista as $g) {
 }
 ?>
   </div>
+  <div class="mundos-todos">
+    <a class="btn" href="<?= $cta ?>">Ver todos os jogos <span aria-hidden="true">▶</span></a>
+  </div>
   <p class="section-note">* Mundos marcados como “em breve” ainda estão sendo construídos pelo papai.</p>
 </section>
 
