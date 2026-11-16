@@ -19,7 +19,7 @@ O corpo (`body`) define o pé e a sombra. Não encolher para o tamanho dos comun
 
 ## 3. Identificação e caminho
 
-A chave é o nome (`lobo-da-pedra`, `urso`, `samuel-barco-colete`), não um
+A chave é o nome (`lobo-da-pedra`, `urso`, `samuel-barco-cinza`), não um
 número. Não existe `public/assets/` nestes dois jogos. O arquivo publicado fica em:
 
 `_privado/jogos/<slug>/arte/sprites/<id>/{Walk,Idle,Hurt,Sumico,portrait}.png`
@@ -29,8 +29,8 @@ O índice é `arte/motor.json` (corpo, durações, linhas).
 `<slug>` é `planeta-do-samuel` ou `pescador-samuel`.
 
 O urso do Planeta entra na pasta `urso`. O lendário do Pescador entra em
-`peixe-lendario`. O barco padrão nesta versão é `samuel-barco-colete`;
-`samuel-barco-cinza` está no jogo e espera a escolha do Boaz.
+`peixe-lendario`. O barco do Pescador é só o `samuel-barco-cinza`
+(camiseta cinza), aprovado pelo Boaz em 15/11. O colete saiu.
 
 ## 4. Tamanho de quadro e fitSprites
 

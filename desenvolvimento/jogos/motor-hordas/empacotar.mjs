@@ -208,7 +208,7 @@ await jogo('planeta-do-samuel', 'planeta.js', 'Planeta do Samuel')
 await jogo('pescador-samuel', 'pescador.js', 'Pescador Samuel')
 
 const capa = path.join(raiz, 'assets/img/pescador-samuel.webp')
-const barco = path.join(aqui, 'arte/pescador/sprites/samuel-barco-colete/Idle.png')
+const barco = path.join(aqui, 'arte/pescador/sprites/samuel-barco-cinza/Idle.png')
 const fundo = await sharp({ create: { width: 1200, height: 675, channels: 3, background: '#1B5A6E' } }).png().toBuffer()
 const sprite = await sharp(barco).extract({ left: 0, top: 0, width: 48, height: 48 }).resize(420, 420, { kernel: 'nearest' }).png().toBuffer()
 await sharp(fundo).composite([{ input: sprite, gravity: 'centre' }]).webp({ quality: 90 }).toFile(capa)

@@ -183,3 +183,10 @@ Não apagar decisões antigas: acrescentar uma nova com alternativa, motivo e ef
   a mira fixa de 420 px (DEC-017). No print de 30 s o pontilhado virava ruído e
   a moldura ia parar longe do barco.
 - **Efeito:** vale para o Planeta e para o Pescador. Sem deploy nesta sessão.
+
+## DEC-019 — O Pescador usa a camiseta cinza (2026-11-15)
+
+- **Decisão (Boaz, 15/11 21:33 BRT):** o Samuel no barco é o `samuel-barco-cinza`.
+  É o único visual. O colete sai do índice, da capa e da pasta.
+- **Efeito:** a capa da biblioteca e o jogo desenham a camiseta cinza. Sem merge
+  nem publicação nesta sessão.

@@ -160,11 +160,13 @@ describe('contas do motor', () => {
     expect(folhas['lobo-da-pedra'].anims.Sumico.quadros).toBe(5)
     expect(folhas['lobo-da-pedra'].anims.Walk.linhas).toBe(8)
     expect(folhas.urso.anims.Walk.frameH).toBe(72)
-    expect(barco['samuel-barco-colete'].body).toEqual({ bodyW: 20, bodyH: 39, footY: 21 })
-    const folhaBarco = barco['samuel-barco-colete'].anims
+    expect(conteudoPescador.heroi).toBe('samuel-barco-cinza')
+    expect(barco['samuel-barco-colete']).toBeUndefined()
+    expect(barco['samuel-barco-cinza'].body).toEqual({ bodyW: 20, bodyH: 39, footY: 21 })
+    const folhaBarco = barco['samuel-barco-cinza'].anims
     expect(folhaBarco.Walk).toMatchObject({ frameW: 48, frameH: 48, quadros: 4, linhas: 8 })
     expect(folhaBarco.Idle).toMatchObject({ frameW: 48, frameH: 48, quadros: 3, linhas: 8 })
-    const png = await readFile(path.join(aqui, '../arte/pescador/sprites/samuel-barco-colete/Walk.png'))
+    const png = await readFile(path.join(aqui, '../arte/pescador/sprites/samuel-barco-cinza/Walk.png'))
     expect(png.readUInt32BE(16)).toBe(48 * 4)
     expect(png.readUInt32BE(20)).toBe(48 * 8)
     expect(barco['peixe-lendario'].anims.Sumico).toBeTruthy()

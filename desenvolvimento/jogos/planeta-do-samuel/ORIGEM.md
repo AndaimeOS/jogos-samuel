@@ -28,7 +28,7 @@ Personagem, comuns e chefes: folhas Walk / Idle / Hurt em 8 direções, retrato
 40×40 e, nos inimigos, `Sumico.png`. Índice em `arte/motor.json`.
 Escala 1 (o chefe já vem grande). O Sumico toca na morte, junto com as partículas.
 
-O barco padrão é `samuel-barco-colete`. `samuel-barco-cinza` está na mesma pasta.
+O barco do Pescador é o `samuel-barco-cinza` (camiseta cinza). O colete saiu.
 
 Interface, mapa de fases, golpes e chão que ainda não têm folha nova continuam
 com o placeholder anterior. Sem foto real.

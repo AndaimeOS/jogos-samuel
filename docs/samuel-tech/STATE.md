@@ -3,7 +3,13 @@
 Atualizado ao fim de cada sessão (ST-090). Um bloco por sessão, o mais novo em cima.
 Vale o que está aqui e no Notion, não a memória do chat.
 
-## 2026-11-15 — Planeta e Pescador: mira, moldura, tempestade e tela limpa
+## 2026-11-16 — Pescador de camiseta cinza, branch em dia com a main
+
+- **Pedido do Boaz (15/11 21:33 BRT):** "Pode juntar e publicar o PR #12 com o Planeta e o Pescador, Samuel de camiseta cinza." O merge do PR e o deploy ficam com o Boaz.
+- **Feito:** o barco do Pescador é só o `samuel-barco-cinza` (camiseta cinza, quadro 48, escala 1). O colete saiu do índice, da capa e da pasta. A branch recebeu a `main` (`32b332d`): Samuel Surfers 0.1.0 e Pebolim 0.1.2 ficam. O Planeta continua 0.3.0 e o Pescador 0.1.0. No catálogo, o conflito juntou os três. A DEC-014 da main (Surfers) ficou; as da horda passaram a DEC-015 em diante.
+- **Testes:** motor 11/11. iPad WebKit 6/6 (gen 7, toque, 1024×768 e 768×1024, página e iframe). `verificar_jogo.py --todos` ok. Pebolim 35/35, Reino 18/18, Minigolfe 53/53, Corrida do Jack 19/19, Samuel Surfers 8/8.
+- **Não feito:** merge do PR #12 e publicação no samuel.tech.
+- **NEXT:** o Boaz junta e publica, se os prints da camiseta cinza estiverem certos.
 
 - **Pedido:** na mesma branch do PR #12, sem merge e sem deploy. Os prints de 30 s do Pescador ainda barravam o Boaz: a moldura ia num bicho longe, a moldura era grande demais, a tempestade pontilhava a tela inteira, tinha ícone e anel demais, e o barco parecia pequeno e borrado.
 - **Causas e o que mudou:** a mira do jogo já usava o mundo e o bicho vivo mais perto, mas o print antigo empurrava o alvo para 110 px e deixava a moldura presa nele. O alcance da mira agora é o da ferramenta mais longa (o chefe só ganha dentro desse alcance). A moldura lê os pixels opacos do quadro e fica 2 px fora deles. A tempestade não usa mais o pontilhado de `escurecer.png`: um véu uniforme de 16% e a chuva a 35%. As gemas puxam de 110 px, juntam as que estão a 18 px e, depois de 4 s, vêm de mais longe. O anel da rede deixou de ter o raio do dano (cerca de 42 px) e marca o alvo com um círculo de no máximo 10 px; some quando esse bicho morre. O barco `samuel-barco-colete` já estava na escala 1, quadro 48×48, corpo opaco 20×39: no iPad ele ocupa uns 20 px do mundo (~342 de largura), por isso parece pequeno. O recorte e a direção estão certos.
