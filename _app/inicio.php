@@ -369,9 +369,9 @@ function capa_url(array $g): string
 {
     if (($g['origem'] ?? 'site') === 'responsavel') {
         $f = capa_arquivo($g['slug']);
-        return $f ? '/capa.php?j=' . rawurlencode($g['slug']) . '&v=' . filemtime($f) : '/assets/img/ilha-dos-blocos.webp';
+        return $f ? '/capa.php?j=' . rawurlencode($g['slug']) . '&v=' . filemtime($f) : '/assets/img/ilha-dos-blocos.webp?v=2';
     }
-    return !empty($g['cover']) ? '/assets/img/' . $g['cover'] : '/assets/img/ilha-dos-blocos.webp';
+    return !empty($g['cover']) ? '/assets/img/' . $g['cover'] . '?v=2' : '/assets/img/ilha-dos-blocos.webp?v=2';
 }
 
 function perfis(): array

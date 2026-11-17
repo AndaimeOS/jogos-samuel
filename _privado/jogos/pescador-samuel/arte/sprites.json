@@ -1532,5 +1532,362 @@
    32,
    40
   ]
+ },
+ "carta-bota": {
+  "src": "arte/ui/cartas/bota.png",
+  "src2x": "arte/ui/cartas/bota@2x.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "carta-ima": {
+  "src": "arte/ui/cartas/ima.png",
+  "src2x": "arte/ui/cartas/ima@2x.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "carta-escudo": {
+  "src": "arte/ui/cartas/escudo.png",
+  "src2x": "arte/ui/cartas/escudo@2x.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "carta-coracao": {
+  "src": "arte/ui/cartas/coracao.png",
+  "src2x": "arte/ui/cartas/coracao@2x.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "carta-amuleto": {
+  "src": "arte/ui/cartas/amuleto.png",
+  "src2x": "arte/ui/cartas/amuleto@2x.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "carta-relogio": {
+  "src": "arte/ui/cartas/relogio.png",
+  "src2x": "arte/ui/cartas/relogio@2x.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "carta-mochila": {
+  "src": "arte/ui/cartas/mochila.png",
+  "src2x": "arte/ui/cartas/mochila@2x.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "carta-broche": {
+  "src": "arte/ui/cartas/broche.png",
+  "src2x": "arte/ui/cartas/broche@2x.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "carta-anel": {
+  "src": "arte/ui/cartas/anel.png",
+  "src2x": "arte/ui/cartas/anel@2x.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "carta-capa": {
+  "src": "arte/ui/cartas/capa.png",
+  "src2x": "arte/ui/cartas/capa@2x.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "carta-anzol": {
+  "src": "arte/ui/cartas/anzol.png",
+  "src2x": "arte/ui/cartas/anzol@2x.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "carta-linha": {
+  "src": "arte/ui/cartas/linha.png",
+  "src2x": "arte/ui/cartas/linha@2x.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "carta-cardume-tiro": {
+  "src": "arte/ui/cartas/cardume-tiro.png",
+  "src2x": "arte/ui/cartas/cardume-tiro@2x.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "carta-rede": {
+  "src": "arte/ui/cartas/rede.png",
+  "src2x": "arte/ui/cartas/rede@2x.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "carta-espuma": {
+  "src": "arte/ui/cartas/espuma.png",
+  "src2x": "arte/ui/cartas/espuma@2x.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "carta-remo": {
+  "src": "arte/ui/cartas/remo.png",
+  "src2x": "arte/ui/cartas/remo@2x.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "carta-arpao": {
+  "src": "arte/ui/cartas/arpao.png",
+  "src2x": "arte/ui/cartas/arpao@2x.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "carta-boia": {
+  "src": "arte/ui/cartas/boia.png",
+  "src2x": "arte/ui/cartas/boia@2x.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "carta-neblina": {
+  "src": "arte/ui/cartas/neblina.png",
+  "src2x": "arte/ui/cartas/neblina@2x.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "carta-onda": {
+  "src": "arte/ui/cartas/onda.png",
+  "src2x": "arte/ui/cartas/onda@2x.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "carta-arpao-duplo": {
+  "src": "arte/ui/cartas/arpao-duplo.png",
+  "src2x": "arte/ui/cartas/arpao-duplo@2x.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   16
+  ]
  }
 }

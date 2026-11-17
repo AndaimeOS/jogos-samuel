@@ -1229,6 +1229,11 @@ async function iniciar(conteudo) {
   const tela = document.getElementById("tela");
   const ctx = tela.getContext("2d");
   const sprites = await fetch("arte/sprites.json").then((r) => r.json());
+  if ((window.devicePixelRatio || 1) >= 1.5) {
+    for (const sp of Object.values(sprites)) {
+      if (sp.src2x) sp.src = sp.src2x;
+    }
+  }
   const motor = await fetch("arte/motor.json").then((r) => r.json());
   const imagens = {};
   async function carga(chave2, src) {
@@ -1425,7 +1430,10 @@ async function iniciar(conteudo) {
       const img = document.createElement("img");
       img.alt = "";
       const spec = sprites[carta.icone] || sprites[conteudo.golpes[0].icone];
-      if (spec) img.src = spec.src;
+      if (spec) {
+        img.src = spec.src;
+        img.style.imageRendering = "pixelated";
+      }
       const nome = document.createElement("strong");
       nome.textContent = carta.nome;
       const texto = document.createElement("span");
@@ -2230,16 +2238,16 @@ function bifurca(a, b, c, d) {
   };
 }
 var ITENS_COMUNS = [
-  { id: "bota", nome: "Bota leve", texto: "O passo fica mais r\xE1pido.", icone: "icone-vida", soma: { speed: 8 } },
-  { id: "ima", nome: "\xCDm\xE3", texto: "A experi\xEAncia vem de mais longe.", icone: "xp-2", soma: { magnet: 22 } },
-  { id: "escudo", nome: "Escudo", texto: "Os tombos doem menos.", icone: "icone-vida", soma: { armor: 0.08 } },
-  { id: "coracao", nome: "Cora\xE7\xE3o", texto: "Cabe mais vida.", icone: "icone-vida", soma: { hpMax: 18 } },
-  { id: "amuleto", nome: "Amuleto", texto: "Os golpes batem mais forte.", icone: "icone-lasca", soma: { might: 0.12 } },
-  { id: "relogio", nome: "Rel\xF3gio", texto: "Os golpes voltam mais cedo.", icone: "icone-faisca", multiplica: { cooldown: 0.9 } },
-  { id: "mochila", nome: "Mochila", texto: "A \xE1rea dos golpes cresce.", icone: "icone-lanca", soma: { area: 0.12 } },
-  { id: "broche", nome: "Broche", texto: "A vida volta sozinha, devagar.", icone: "icone-fogueira-carta", soma: { regen: 0.35 } },
-  { id: "anel", nome: "Anel", texto: "Solta mais um proj\xE9til.", icone: "lasca", soma: { amount: 1 } },
-  { id: "capa", nome: "Capa", texto: "Os golpes duram mais.", icone: "icone-lanca", soma: { duration: 0.15 } }
+  { id: "bota", nome: "Bota leve", texto: "O passo fica mais r\xE1pido.", icone: "carta-bota", soma: { speed: 8 } },
+  { id: "ima", nome: "\xCDm\xE3", texto: "A experi\xEAncia vem de mais longe.", icone: "carta-ima", soma: { magnet: 22 } },
+  { id: "escudo", nome: "Escudo", texto: "Os tombos doem menos.", icone: "carta-escudo", soma: { armor: 0.08 } },
+  { id: "coracao", nome: "Cora\xE7\xE3o", texto: "Cabe mais vida.", icone: "carta-coracao", soma: { hpMax: 18 } },
+  { id: "amuleto", nome: "Amuleto", texto: "Os golpes batem mais forte.", icone: "carta-amuleto", soma: { might: 0.12 } },
+  { id: "relogio", nome: "Rel\xF3gio", texto: "Os golpes voltam mais cedo.", icone: "carta-relogio", multiplica: { cooldown: 0.9 } },
+  { id: "mochila", nome: "Mochila", texto: "A \xE1rea dos golpes cresce.", icone: "carta-mochila", soma: { area: 0.12 } },
+  { id: "broche", nome: "Broche", texto: "A vida volta sozinha, devagar.", icone: "carta-broche", soma: { regen: 0.35 } },
+  { id: "anel", nome: "Anel", texto: "Solta mais um proj\xE9til.", icone: "carta-anel", soma: { amount: 1 } },
+  { id: "capa", nome: "Capa", texto: "Os golpes duram mais.", icone: "carta-capa", soma: { duration: 0.15 } }
 ];
 function no(ordem, regiao, tipo, x, y, extra) {
   return { ordem, regiao, tipo, x, y, ...extra };
@@ -2270,18 +2278,18 @@ var golpe = (id, nome, texto, icone, sprite, tipo, resto) => ({
   ...resto
 });
 var golpes = [
-  golpe("lasca", "Lasca", "Uma pedra vai no alvo.", "icone-lasca", "pedregulho", "tiro", { dano: 8, vel: 200, cadencia: 0.95, duracao: 1.1, hit: 6, alcance: 240 }),
-  golpe("funda", "Funda", "Uma pedra voa no alvo.", "icone-lasca", "pedregulho", "tiro", { dano: 12, vel: 190, cadencia: 0.85, duracao: 1.2, hit: 6, alcance: 260 }),
+  golpe("lasca", "Lasca", "Uma pedra vai no alvo.", "carta-lasca", "pedregulho", "tiro", { dano: 8, vel: 200, cadencia: 0.95, duracao: 1.1, hit: 6, alcance: 240 }),
+  golpe("funda", "Funda", "Uma pedra voa no alvo.", "carta-funda", "pedregulho", "tiro", { dano: 12, vel: 190, cadencia: 0.85, duracao: 1.2, hit: 6, alcance: 260 }),
   golpe("lanca", "Lan\xE7a", "Uma estocada no alvo perto.", "icone-lanca", "lanca", "estocada", { dano: 14, cadencia: 0.7, duracao: 0.22, alcance: 72, hit: 10 }),
-  golpe("machado", "Machado", "Um golpe curto no alvo.", "icone-lanca", "lanca", "estocada", { dano: 16, cadencia: 0.9, duracao: 0.24, alcance: 64, hit: 12 }),
-  golpe("tocha", "Tocha", "Queima o alvo marcado.", "icone-fogueira-carta", "faisca", "noalvo", { dano: 6, raio: 36, cadencia: 4.5, duracao: 2.4, queima: true, alcance: 200 }),
-  golpe("faisca", "Fa\xEDsca", "Um risco no alvo.", "icone-faisca", "faisca", "tiro", { dano: 9, vel: 260, n: 2, cadencia: 0.7, duracao: 0.6, hit: 5, alcance: 240 }),
+  golpe("machado", "Machado", "Um golpe curto no alvo.", "carta-machado", "lanca", "estocada", { dano: 16, cadencia: 0.9, duracao: 0.24, alcance: 64, hit: 12 }),
+  golpe("tocha", "Tocha", "Queima o alvo marcado.", "carta-tocha", "faisca", "noalvo", { dano: 6, raio: 36, cadencia: 4.5, duracao: 2.4, queima: true, alcance: 200 }),
+  golpe("faisca", "Fa\xEDsca", "Um risco no alvo.", "carta-faisca", "faisca", "tiro", { dano: 9, vel: 260, n: 2, cadencia: 0.7, duracao: 0.6, hit: 5, alcance: 240 }),
   golpe("pedregulho", "Pedregulho", "Uma pedra pesada no alvo.", "pedregulho", "pedregulho", "tiro", { dano: 22, vel: 140, empurrao: 80, cadencia: 1.5, duracao: 1.3, hit: 10, alcance: 220 }),
-  golpe("bumerangue", "Bumerangue", "Vai no alvo e volta.", "icone-lasca", "lasca", "volta", { dano: 10, vel: 160, cadencia: 1.3, duracao: 2.4, alcance: 220 }),
-  golpe("redemoinho", "Redemoinho", "Puxa quem est\xE1 no alvo.", "icone-faisca", "faisca", "noalvo", { dano: 5, raio: 48, puxa: 90, cadencia: 5, duracao: 2.2, alcance: 200 }),
-  golpe("estilingue", "Estilingue", "Tr\xEAs pedrinhas no alvo.", "icone-lasca", "pedregulho", "tiro", { dano: 7, vel: 200, n: 3, cadencia: 1.15, duracao: 0.9, alcance: 240 }),
-  golpe("fogueira", "Fogueira", "Calor em volta do alvo.", "icone-fogueira-carta", "faisca", "noalvo", { dano: 8, raio: 34, queima: true, cadencia: 6, duracao: 2.6, alcance: 180 }),
-  golpe("marreta", "Marreta", "Uma pancada no alvo.", "icone-lanca", "pedregulho", "estocada", { dano: 18, empurrao: 120, cadencia: 1.2, duracao: 0.2, alcance: 68, hit: 14 })
+  golpe("bumerangue", "Bumerangue", "Vai no alvo e volta.", "carta-bumerangue", "lasca", "volta", { dano: 10, vel: 160, cadencia: 1.3, duracao: 2.4, alcance: 220 }),
+  golpe("redemoinho", "Redemoinho", "Puxa quem est\xE1 no alvo.", "carta-redemoinho", "faisca", "noalvo", { dano: 5, raio: 48, puxa: 90, cadencia: 5, duracao: 2.2, alcance: 200 }),
+  golpe("estilingue", "Estilingue", "Tr\xEAs pedrinhas no alvo.", "carta-estilingue", "pedregulho", "tiro", { dano: 7, vel: 200, n: 3, cadencia: 1.15, duracao: 0.9, alcance: 240 }),
+  golpe("fogueira", "Fogueira", "Calor em volta do alvo.", "carta-fogueira", "faisca", "noalvo", { dano: 8, raio: 34, queima: true, cadencia: 6, duracao: 2.6, alcance: 180 }),
+  golpe("marreta", "Marreta", "Uma pancada no alvo.", "carta-marreta", "pedregulho", "estocada", { dano: 18, empurrao: 120, cadencia: 1.2, duracao: 0.2, alcance: 68, hit: 14 })
 ];
 var bicho = (sprite, hp, vel, dano, xp, massa, raio, comportamento, extra) => ({
   sprite,

@@ -2,7 +2,6 @@ import { build } from 'esbuild'
 import { cp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import sharp from 'sharp'
 
 const aqui = path.dirname(fileURLToPath(import.meta.url))
 const raiz = path.resolve(aqui, '../../..')
@@ -183,6 +182,7 @@ Arte
 async function limpar(pasta) {
   await mkdir(pasta, { recursive: true })
   for (const nome of await readdir(pasta)) {
+    if (nome === 'release.json') continue
     await rm(path.join(pasta, nome), { recursive: true, force: true })
   }
 }
@@ -206,10 +206,3 @@ async function jogo(slug, entrada, titulo) {
 
 await jogo('planeta-do-samuel', 'planeta.js', 'Planeta do Samuel')
 await jogo('pescador-samuel', 'pescador.js', 'Pescador Samuel')
-
-const capa = path.join(raiz, 'assets/img/pescador-samuel.webp')
-const barco = path.join(aqui, 'arte/pescador/sprites/samuel-barco-cinza/Idle.png')
-const fundo = await sharp({ create: { width: 1200, height: 675, channels: 3, background: '#1B5A6E' } }).png().toBuffer()
-const sprite = await sharp(barco).extract({ left: 0, top: 0, width: 48, height: 48 }).resize(420, 420, { kernel: 'nearest' }).png().toBuffer()
-await sharp(fundo).composite([{ input: sprite, gravity: 'centre' }]).webp({ quality: 90 }).toFile(capa)
-console.log('capa', capa)
