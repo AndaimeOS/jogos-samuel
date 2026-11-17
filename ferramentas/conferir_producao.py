@@ -86,8 +86,9 @@ def main():
         p, _, q = caminho.partition("?")
         return base + quote(p, safe="/") + ("?" + q if q else "")
 
-    prontos = [g for g in jogos if g.get("status") == "pronto"]
-    fora = [g for g in jogos if g.get("status") != "pronto" and g.get("entry")
+    entregues = {"pronto", "so-computador"}
+    prontos = [g for g in jogos if g.get("status") in entregues]
+    fora = [g for g in jogos if g.get("status") not in entregues and g.get("entry")
             and any(n.startswith(f"_privado/jogos/{g['slug']}/") for n in arquivos)]
 
     # (grupo, caminho no site, conferência) — conferência recebe (status, corpo) e devolve o erro ou None

@@ -42,7 +42,7 @@
         "mouse",
         "keyboard"
       ],
-      "status": "rascunho",
+      "status": "em-breve",
       "novo": true,
       "version": "1.0"
     },
@@ -170,7 +170,7 @@
       "category": "Sobrevivência",
       "description": "Sobrevivência em blocos no mundo da família: junte madeira, faça ferramentas, plante e construa um abrigo antes da noite. Abre em tela própria; melhor no computador.",
       "cover": "ilha-da-vida.webp",
-      "status": "pronto",
+      "status": "so-computador",
       "entry": "index.html",
       "instructions": [
         "Toque em Abrir a Ilha da Vida. Escolha um apelido e digite a senha da família (a mesma da Ilha dos Blocos).",

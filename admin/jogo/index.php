@@ -131,7 +131,7 @@ cabecalho(['titulo' => ($novo ? 'Novo jogo' : 'Editar jogo') . ' — Samuel.tech
 <?php endif; ?>
         </div>
         <div class="field"><label for="status">Status</label><select id="status" name="status" class="campo-texto">
-<?php foreach (['rascunho' => 'Rascunho — só eu testo', 'pronto' => 'Publicado — a família joga', 'em-breve' => 'Em breve — aparece com selo', 'arquivado' => 'Arquivado — escondido'] as $k => $r): ?>          <option value="<?= $k ?>"<?= $k === $v['status'] ? ' selected' : '' ?>><?= $r ?></option>
+<?php foreach (['rascunho' => 'Rascunho — só eu testo', 'pronto' => 'Publicado — a família joga', 'so-computador' => 'Só no computador — a família joga, com selo', 'em-breve' => 'Em breve — aparece com selo', 'arquivado' => 'Arquivado — escondido'] as $k => $r): ?>          <option value="<?= $k ?>"<?= $k === $v['status'] ? ' selected' : '' ?>><?= $r ?></option>
 <?php endforeach; ?>
         </select></div>
         <label class="check"><input type="checkbox" name="novo" value="1"<?= !empty($v['novo']) ? ' checked' : '' ?>> Mostrar selo “Novo!”</label>

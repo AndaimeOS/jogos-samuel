@@ -28,6 +28,10 @@
 .game-card a.plain-btn{display:inline-flex;align-items:center;gap:6px;color:inherit}
 .btn.play{padding:10px 16px;min-height:44px;font-size:14px}
 .status-soon{font:700 12px var(--mono);color:var(--muted)}
+.selo-jogo{display:inline-block;font:900 14px/1.2 var(--mono);letter-spacing:0;text-transform:none;padding:7px 9px;border:2px solid var(--ink);box-shadow:3px 3px 0 var(--ink);background:#fff0cd}
+.game-cover .selo-jogo{position:absolute;top:10px;left:10px;z-index:1;max-width:calc(100% - 20px)}
+.selo-jogo.computador{background:var(--blue)}
+.selo-jogo.breve{background:#fff0cd}
 /* Player */
 .player{padding:24px 0 40px}
 .player-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
@@ -62,7 +66,7 @@ body.player-tela-cheia [data-tela-cheia]{position:fixed;z-index:50;top:max(8px,e
 .admin-status select{width:auto}
 textarea.campo-texto{resize:vertical;min-height:110px}
 .selo-status{display:inline-block;font:700 11px var(--mono);text-transform:uppercase;padding:4px 8px;border:1.5px solid var(--ink);background:var(--paper)}
-.st-pronto{background:var(--green)}.st-em-breve{background:#fff0cd}.st-rascunho{background:var(--purple)}.st-arquivado{background:#ddd9cd}.st-erro{background:#ffe0d6}
+.st-pronto{background:var(--green)}.st-so-computador{background:var(--blue)}.st-em-breve{background:#fff0cd}.st-rascunho{background:var(--purple)}.st-arquivado{background:#ddd9cd}.st-erro{background:#ffe0d6}
 .campo-grupo{border:var(--line);padding:10px 14px;display:flex;gap:18px;flex-wrap:wrap;margin:0}
 .campo-grupo legend{font:700 12px var(--mono);text-transform:uppercase;letter-spacing:1px;padding:0 6px}
 .check{display:inline-flex;align-items:center;gap:8px;min-height:44px;font-size:15px}

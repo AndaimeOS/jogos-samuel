@@ -35,7 +35,7 @@ function cabecalho(array $o = []): void
 <?php endif; ?>
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/assets/img/icone-180.png">
-<link rel="stylesheet" href="/assets/css/samuel.css?v=9">
+<link rel="stylesheet" href="/assets/css/samuel.css?v=10">
 </head>
 <body>
 <a class="skip" href="#main">Pular para o conteúdo</a>
@@ -74,25 +74,35 @@ function rodape(): void
 /** Card de jogo no formato do kit. $modo: 'home' | 'biblioteca' */
 function card_jogo(array $g, string $modo, bool $logado): string
 {
-    $pronto = ($g['status'] ?? '') === 'pronto';
+    $st = $g['status'] ?? '';
+    $jogavel = $st === 'pronto' || $st === 'so-computador';
     $slug = e($g['slug']);
-    $tag = $pronto ? (!empty($g['novo']) ? 'Novo!' : 'Jogável') : 'Em breve';
-    $meta = strtoupper((string) ($g['category'] ?? '')) . ' / ' . ($pronto ? 'PRONTO PARA JOGAR' : 'EM CONSTRUÇÃO');
+    $selo = $st === 'em-breve' ? 'Em breve' : ($st === 'so-computador' ? 'Só no computador' : '');
+    $tag = $selo !== '' ? $selo : (!empty($g['novo']) ? 'Novo!' : 'Jogável');
+    if ($st === 'so-computador') {
+        $faixa = 'SÓ NO COMPUTADOR';
+    } elseif ($jogavel) {
+        $faixa = 'PRONTO PARA JOGAR';
+    } else {
+        $faixa = 'EM CONSTRUÇÃO';
+    }
+    $meta = strtoupper((string) ($g['category'] ?? '')) . ' / ' . $faixa;
     $capa = e(capa_url($g));
     $link = '/jogar/?jogo=' . $slug;
+    $marca = $selo !== ''
+        ? '<span class="selo-jogo' . ($st === 'so-computador' ? ' computador' : ' breve') . '">' . e($selo) . '</span>'
+        : '<span class="tag">' . e($tag) . '</span>';
 
-    if ($modo === 'home') {
-        $acao = $pronto
-            ? '<a class="plain-btn" href="' . e($link) . '">Conhecer o mundo <span aria-hidden="true">↗</span></a>'
-            : '<span class="status-soon">O papai está construindo ✦</span>';
+    if (!$jogavel) {
+        $acao = '<span class="selo-jogo breve">' . e($selo !== '' ? $selo : 'Em breve') . '</span>';
+    } elseif ($modo === 'home') {
+        $acao = '<a class="plain-btn" href="' . e($link) . '">Conhecer o mundo <span aria-hidden="true">↗</span></a>';
     } else {
-        $acao = $pronto
-            ? '<a class="btn play" href="/jogar/?jogo=' . $slug . '"><span aria-hidden="true">▶</span> Jogar</a>'
-              . '<button class="star-btn" type="button" aria-pressed="false" aria-label="Adicionar ' . e($g['title']) . ' aos favoritos" data-favorite="' . $slug . '">☆</button>'
-            : '<span class="status-soon">Em breve ✦</span>';
+        $acao = '<a class="btn play" href="/jogar/?jogo=' . $slug . '"><span aria-hidden="true">▶</span> Jogar</a>'
+              . '<button class="star-btn" type="button" aria-pressed="false" aria-label="Adicionar ' . e($g['title']) . ' aos favoritos" data-favorite="' . $slug . '">☆</button>';
     }
-    return '<article class="game-card' . ($pronto ? '' : ' soon') . '" data-card="' . $slug . '" data-title="' . e(mb_strtolower((string) $g['title'], 'UTF-8')) . '">'
-        . '<div class="game-cover"><img src="' . $capa . '" alt="" loading="lazy" width="1200" height="675"><span class="tag">' . e($tag) . '</span></div>'
+    return '<article class="game-card' . ($jogavel ? '' : ' soon') . '" data-card="' . $slug . '" data-status="' . e($st) . '" data-title="' . e(mb_strtolower((string) $g['title'], 'UTF-8')) . '">'
+        . '<div class="game-cover"><img src="' . $capa . '" alt="" loading="lazy" width="1200" height="675">' . $marca . '</div>'
         . '<div class="card-body"><div class="card-meta">' . e($meta) . '</div><h3>' . e($g['title']) . '</h3><p>' . e($g['description'] ?? '') . '</p>'
         . '<div class="card-action">' . $acao . '</div></div></article>';
 }
