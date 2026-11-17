@@ -3,6 +3,13 @@
 Atualizado ao fim de cada sessão (ST-090). Um bloco por sessão, o mais novo em cima.
 Vale o que está aqui e no Notion, não a memória do chat.
 
+## 2026-11-17 — Capas da biblioteca e ícones das cartas
+
+- **Pedido:** um PR rascunho, a partir da main, com a arte final das 14 capas e os ícones das cartas do Planeta e do Pescador. Sem merge, sem push na `main` ou na `publicacao`, sem deploy. O Mestre do Cubo fica com a capa que já tem. O `release.json` de produção não entra.
+- **Feito:** cada slug de `ordem_14` usa o arquivo de `capa_atual` (webp sem perda, 1200×675). O card pede `?v=2`. Cada carta do manifesto aponta para o ícone final (`<id>.png` e `<id>@2x.png`); em tela retina o jogo usa o @2x com `image-rendering: pixelated`. Saíram só as frases "A lasca gira sozinha." e "O anzol gira sozinho,".
+- **Não feito:** merge, deploy, Notion (a sessão não veio de um card da fila).
+- **NEXT:** o Boaz olha o rascunho. Este agente não publica. Ao juntar com o #17, a capa do Reino conflita (binário). Ao juntar com o #18, a frase da lasca no `jogos.json` e o `jogo.js` empacotado conflitem; o texto do #18 já não traz a lasca.
+
 ## 2026-11-16 — Pescador de camiseta cinza, branch em dia com a main
 
 - **Pedido do Boaz (15/11 21:33 BRT):** "Pode juntar e publicar o PR #12 com o Planeta e o Pescador, Samuel de camiseta cinza." O merge do PR e o deploy ficam com o Boaz.

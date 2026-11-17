@@ -13,18 +13,18 @@ const golpe = (id, nome, texto, icone, sprite, tipo, resto) => ({
 })
 
 const golpes = [
-  golpe('anzol', 'Anzol', 'A linha vai no alvo.', 'icone-anzol', 'anzol-giratorio', 'tiro', { dano: 9, vel: 210, cadencia: 0.9, duracao: 1, hit: 6, alcance: 210 }),
-  golpe('rede', 'Rede', 'A rede cai no alvo.', 'icone-rede', 'rede', 'noalvo', { dano: 11, raio: 42, cadencia: 1.3, duracao: 0.7, alcance: 200 }),
-  golpe('arpao', 'Arpão', 'Um arpão voa no alvo.', 'icone-bolhas', 'bolha', 'tiro', { dano: 12, vel: 240, cadencia: 0.8, duracao: 0.9, hit: 7, alcance: 280 }),
-  golpe('boia', 'Boia', 'Vai no alvo e volta.', 'icone-bolhas', 'bolha', 'volta', { dano: 10, vel: 150, cadencia: 1.35, duracao: 2.5, alcance: 220 }),
-  golpe('espuma', 'Espuma', 'Espuma em volta do alvo.', 'icone-rede', 'rede', 'noalvo', { dano: 6, raio: 40, cadencia: 4.5, duracao: 2, alcance: 200 }),
-  golpe('linha', 'Linha', 'Puxa quem está no alvo.', 'icone-anzol', 'anzol-giratorio', 'noalvo', { dano: 5, raio: 46, puxa: 100, cadencia: 5, duracao: 2, alcance: 200 }),
-  golpe('remo', 'Remo', 'Uma pancada no alvo perto.', 'icone-rede', 'rede', 'estocada', { dano: 16, empurrao: 100, cadencia: 1.1, duracao: 0.2, alcance: 68, hit: 12 }),
-  golpe('cardume-tiro', 'Isca', 'Três iscas no alvo.', 'icone-anzol', 'anzol-giratorio', 'tiro', { dano: 7, vel: 200, n: 3, cadencia: 1.1, duracao: 0.85, alcance: 230 }),
-  golpe('neblina', 'Neblina', 'Névoa em volta do alvo.', 'icone-bolhas', 'bolha', 'noalvo', { dano: 7, raio: 36, cadencia: 5.5, duracao: 2.2, alcance: 180 }),
-  golpe('onda', 'Onda', 'Uma onda vai no alvo.', 'icone-bolhas', 'bolha', 'tiro', { dano: 13, vel: 150, cadencia: 1.4, duracao: 1.1, alcance: 220, hit: 10 }),
+  golpe('anzol', 'Anzol', 'A linha vai no alvo.', 'carta-anzol', 'anzol-giratorio', 'tiro', { dano: 9, vel: 210, cadencia: 0.9, duracao: 1, hit: 6, alcance: 210 }),
+  golpe('rede', 'Rede', 'A rede cai no alvo.', 'carta-rede', 'rede', 'noalvo', { dano: 11, raio: 42, cadencia: 1.3, duracao: 0.7, alcance: 200 }),
+  golpe('arpao', 'Arpão', 'Um arpão voa no alvo.', 'carta-arpao', 'bolha', 'tiro', { dano: 12, vel: 240, cadencia: 0.8, duracao: 0.9, hit: 7, alcance: 280 }),
+  golpe('boia', 'Boia', 'Vai no alvo e volta.', 'carta-boia', 'bolha', 'volta', { dano: 10, vel: 150, cadencia: 1.35, duracao: 2.5, alcance: 220 }),
+  golpe('espuma', 'Espuma', 'Espuma em volta do alvo.', 'carta-espuma', 'rede', 'noalvo', { dano: 6, raio: 40, cadencia: 4.5, duracao: 2, alcance: 200 }),
+  golpe('linha', 'Linha', 'Puxa quem está no alvo.', 'carta-linha', 'anzol-giratorio', 'noalvo', { dano: 5, raio: 46, puxa: 100, cadencia: 5, duracao: 2, alcance: 200 }),
+  golpe('remo', 'Remo', 'Uma pancada no alvo perto.', 'carta-remo', 'rede', 'estocada', { dano: 16, empurrao: 100, cadencia: 1.1, duracao: 0.2, alcance: 68, hit: 12 }),
+  golpe('cardume-tiro', 'Isca', 'Três iscas no alvo.', 'carta-cardume-tiro', 'anzol-giratorio', 'tiro', { dano: 7, vel: 200, n: 3, cadencia: 1.1, duracao: 0.85, alcance: 230 }),
+  golpe('neblina', 'Neblina', 'Névoa em volta do alvo.', 'carta-neblina', 'bolha', 'noalvo', { dano: 7, raio: 36, cadencia: 5.5, duracao: 2.2, alcance: 180 }),
+  golpe('onda', 'Onda', 'Uma onda vai no alvo.', 'carta-onda', 'bolha', 'tiro', { dano: 13, vel: 150, cadencia: 1.4, duracao: 1.1, alcance: 220, hit: 10 }),
   golpe('lanterna', 'Lanterna', 'Luz quente no alvo.', 'icone-album', 'figurinha', 'noalvo', { dano: 6, raio: 34, queima: true, cadencia: 6, duracao: 2.2, alcance: 180 }),
-  golpe('arpao-duplo', 'Arpão fundo', 'Um arpão pesado no alvo.', 'icone-bolhas', 'bolha', 'tiro', { dano: 20, vel: 210, empurrao: 70, cadencia: 1.45, duracao: 0.8, alcance: 260 }),
+  golpe('arpao-duplo', 'Arpão fundo', 'Um arpão pesado no alvo.', 'carta-arpao-duplo', 'bolha', 'tiro', { dano: 20, vel: 210, empurrao: 70, cadencia: 1.45, duracao: 0.8, alcance: 260 }),
 ]
 
 const bicho = (sprite, hp, vel, dano, xp, massa, raio, extra) => ({
@@ -81,10 +81,7 @@ function fase(ordem, regiao, tipo, x, y, extra) {
   })
 }
 
-const itens = ITENS_COMUNS.map((it) => ({
-  ...it,
-  icone: it.id === 'bota' ? 'icone-anzol' : it.id === 'ima' ? 'figurinha' : it.id === 'coracao' ? 'coracao' : it.icone === 'icone-vida' ? 'coracao' : it.icone === 'icone-lasca' ? 'icone-anzol' : it.icone === 'icone-faisca' ? 'icone-bolhas' : it.icone === 'icone-lanca' ? 'icone-rede' : it.icone === 'icone-fogueira-carta' ? 'icone-album' : 'icone-rede',
-}))
+const itens = ITENS_COMUNS
 
 export const conteudoPescador = {
   slug: 'pescador-samuel',

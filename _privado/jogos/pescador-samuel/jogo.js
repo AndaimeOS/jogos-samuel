@@ -1229,6 +1229,11 @@ async function iniciar(conteudo) {
   const tela = document.getElementById("tela");
   const ctx = tela.getContext("2d");
   const sprites = await fetch("arte/sprites.json").then((r) => r.json());
+  if ((window.devicePixelRatio || 1) >= 1.5) {
+    for (const sp of Object.values(sprites)) {
+      if (sp.src2x) sp.src = sp.src2x;
+    }
+  }
   const motor = await fetch("arte/motor.json").then((r) => r.json());
   const imagens = {};
   async function carga(chave2, src) {
@@ -1425,7 +1430,10 @@ async function iniciar(conteudo) {
       const img = document.createElement("img");
       img.alt = "";
       const spec = sprites[carta.icone] || sprites[conteudo.golpes[0].icone];
-      if (spec) img.src = spec.src;
+      if (spec) {
+        img.src = spec.src;
+        img.style.imageRendering = "pixelated";
+      }
       const nome = document.createElement("strong");
       nome.textContent = carta.nome;
       const texto = document.createElement("span");
@@ -2230,16 +2238,16 @@ function bifurca(a, b, c, d) {
   };
 }
 var ITENS_COMUNS = [
-  { id: "bota", nome: "Bota leve", texto: "O passo fica mais r\xE1pido.", icone: "icone-vida", soma: { speed: 8 } },
-  { id: "ima", nome: "\xCDm\xE3", texto: "A experi\xEAncia vem de mais longe.", icone: "xp-2", soma: { magnet: 22 } },
-  { id: "escudo", nome: "Escudo", texto: "Os tombos doem menos.", icone: "icone-vida", soma: { armor: 0.08 } },
-  { id: "coracao", nome: "Cora\xE7\xE3o", texto: "Cabe mais vida.", icone: "icone-vida", soma: { hpMax: 18 } },
-  { id: "amuleto", nome: "Amuleto", texto: "Os golpes batem mais forte.", icone: "icone-lasca", soma: { might: 0.12 } },
-  { id: "relogio", nome: "Rel\xF3gio", texto: "Os golpes voltam mais cedo.", icone: "icone-faisca", multiplica: { cooldown: 0.9 } },
-  { id: "mochila", nome: "Mochila", texto: "A \xE1rea dos golpes cresce.", icone: "icone-lanca", soma: { area: 0.12 } },
-  { id: "broche", nome: "Broche", texto: "A vida volta sozinha, devagar.", icone: "icone-fogueira-carta", soma: { regen: 0.35 } },
-  { id: "anel", nome: "Anel", texto: "Solta mais um proj\xE9til.", icone: "lasca", soma: { amount: 1 } },
-  { id: "capa", nome: "Capa", texto: "Os golpes duram mais.", icone: "icone-lanca", soma: { duration: 0.15 } }
+  { id: "bota", nome: "Bota leve", texto: "O passo fica mais r\xE1pido.", icone: "carta-bota", soma: { speed: 8 } },
+  { id: "ima", nome: "\xCDm\xE3", texto: "A experi\xEAncia vem de mais longe.", icone: "carta-ima", soma: { magnet: 22 } },
+  { id: "escudo", nome: "Escudo", texto: "Os tombos doem menos.", icone: "carta-escudo", soma: { armor: 0.08 } },
+  { id: "coracao", nome: "Cora\xE7\xE3o", texto: "Cabe mais vida.", icone: "carta-coracao", soma: { hpMax: 18 } },
+  { id: "amuleto", nome: "Amuleto", texto: "Os golpes batem mais forte.", icone: "carta-amuleto", soma: { might: 0.12 } },
+  { id: "relogio", nome: "Rel\xF3gio", texto: "Os golpes voltam mais cedo.", icone: "carta-relogio", multiplica: { cooldown: 0.9 } },
+  { id: "mochila", nome: "Mochila", texto: "A \xE1rea dos golpes cresce.", icone: "carta-mochila", soma: { area: 0.12 } },
+  { id: "broche", nome: "Broche", texto: "A vida volta sozinha, devagar.", icone: "carta-broche", soma: { regen: 0.35 } },
+  { id: "anel", nome: "Anel", texto: "Solta mais um proj\xE9til.", icone: "carta-anel", soma: { amount: 1 } },
+  { id: "capa", nome: "Capa", texto: "Os golpes duram mais.", icone: "carta-capa", soma: { duration: 0.15 } }
 ];
 function no(ordem, regiao, tipo, x, y, extra) {
   return { ordem, regiao, tipo, x, y, ...extra };
@@ -2270,18 +2278,18 @@ var golpe = (id, nome, texto, icone, sprite, tipo, resto) => ({
   ...resto
 });
 var golpes = [
-  golpe("anzol", "Anzol", "A linha vai no alvo.", "icone-anzol", "anzol-giratorio", "tiro", { dano: 9, vel: 210, cadencia: 0.9, duracao: 1, hit: 6, alcance: 210 }),
-  golpe("rede", "Rede", "A rede cai no alvo.", "icone-rede", "rede", "noalvo", { dano: 11, raio: 42, cadencia: 1.3, duracao: 0.7, alcance: 200 }),
-  golpe("arpao", "Arp\xE3o", "Um arp\xE3o voa no alvo.", "icone-bolhas", "bolha", "tiro", { dano: 12, vel: 240, cadencia: 0.8, duracao: 0.9, hit: 7, alcance: 280 }),
-  golpe("boia", "Boia", "Vai no alvo e volta.", "icone-bolhas", "bolha", "volta", { dano: 10, vel: 150, cadencia: 1.35, duracao: 2.5, alcance: 220 }),
-  golpe("espuma", "Espuma", "Espuma em volta do alvo.", "icone-rede", "rede", "noalvo", { dano: 6, raio: 40, cadencia: 4.5, duracao: 2, alcance: 200 }),
-  golpe("linha", "Linha", "Puxa quem est\xE1 no alvo.", "icone-anzol", "anzol-giratorio", "noalvo", { dano: 5, raio: 46, puxa: 100, cadencia: 5, duracao: 2, alcance: 200 }),
-  golpe("remo", "Remo", "Uma pancada no alvo perto.", "icone-rede", "rede", "estocada", { dano: 16, empurrao: 100, cadencia: 1.1, duracao: 0.2, alcance: 68, hit: 12 }),
-  golpe("cardume-tiro", "Isca", "Tr\xEAs iscas no alvo.", "icone-anzol", "anzol-giratorio", "tiro", { dano: 7, vel: 200, n: 3, cadencia: 1.1, duracao: 0.85, alcance: 230 }),
-  golpe("neblina", "Neblina", "N\xE9voa em volta do alvo.", "icone-bolhas", "bolha", "noalvo", { dano: 7, raio: 36, cadencia: 5.5, duracao: 2.2, alcance: 180 }),
-  golpe("onda", "Onda", "Uma onda vai no alvo.", "icone-bolhas", "bolha", "tiro", { dano: 13, vel: 150, cadencia: 1.4, duracao: 1.1, alcance: 220, hit: 10 }),
+  golpe("anzol", "Anzol", "A linha vai no alvo.", "carta-anzol", "anzol-giratorio", "tiro", { dano: 9, vel: 210, cadencia: 0.9, duracao: 1, hit: 6, alcance: 210 }),
+  golpe("rede", "Rede", "A rede cai no alvo.", "carta-rede", "rede", "noalvo", { dano: 11, raio: 42, cadencia: 1.3, duracao: 0.7, alcance: 200 }),
+  golpe("arpao", "Arp\xE3o", "Um arp\xE3o voa no alvo.", "carta-arpao", "bolha", "tiro", { dano: 12, vel: 240, cadencia: 0.8, duracao: 0.9, hit: 7, alcance: 280 }),
+  golpe("boia", "Boia", "Vai no alvo e volta.", "carta-boia", "bolha", "volta", { dano: 10, vel: 150, cadencia: 1.35, duracao: 2.5, alcance: 220 }),
+  golpe("espuma", "Espuma", "Espuma em volta do alvo.", "carta-espuma", "rede", "noalvo", { dano: 6, raio: 40, cadencia: 4.5, duracao: 2, alcance: 200 }),
+  golpe("linha", "Linha", "Puxa quem est\xE1 no alvo.", "carta-linha", "anzol-giratorio", "noalvo", { dano: 5, raio: 46, puxa: 100, cadencia: 5, duracao: 2, alcance: 200 }),
+  golpe("remo", "Remo", "Uma pancada no alvo perto.", "carta-remo", "rede", "estocada", { dano: 16, empurrao: 100, cadencia: 1.1, duracao: 0.2, alcance: 68, hit: 12 }),
+  golpe("cardume-tiro", "Isca", "Tr\xEAs iscas no alvo.", "carta-cardume-tiro", "anzol-giratorio", "tiro", { dano: 7, vel: 200, n: 3, cadencia: 1.1, duracao: 0.85, alcance: 230 }),
+  golpe("neblina", "Neblina", "N\xE9voa em volta do alvo.", "carta-neblina", "bolha", "noalvo", { dano: 7, raio: 36, cadencia: 5.5, duracao: 2.2, alcance: 180 }),
+  golpe("onda", "Onda", "Uma onda vai no alvo.", "carta-onda", "bolha", "tiro", { dano: 13, vel: 150, cadencia: 1.4, duracao: 1.1, alcance: 220, hit: 10 }),
   golpe("lanterna", "Lanterna", "Luz quente no alvo.", "icone-album", "figurinha", "noalvo", { dano: 6, raio: 34, queima: true, cadencia: 6, duracao: 2.2, alcance: 180 }),
-  golpe("arpao-duplo", "Arp\xE3o fundo", "Um arp\xE3o pesado no alvo.", "icone-bolhas", "bolha", "tiro", { dano: 20, vel: 210, empurrao: 70, cadencia: 1.45, duracao: 0.8, alcance: 260 })
+  golpe("arpao-duplo", "Arp\xE3o fundo", "Um arp\xE3o pesado no alvo.", "carta-arpao-duplo", "bolha", "tiro", { dano: 20, vel: 210, empurrao: 70, cadencia: 1.45, duracao: 0.8, alcance: 260 })
 ];
 var bicho = (sprite, hp, vel, dano, xp, massa, raio, extra) => ({
   sprite,
@@ -2340,10 +2348,7 @@ function fase(ordem, regiao, tipo, x, y, extra) {
     perigos: tipo === "fim" ? [] : PERIGOS
   });
 }
-var itens = ITENS_COMUNS.map((it) => ({
-  ...it,
-  icone: it.id === "bota" ? "icone-anzol" : it.id === "ima" ? "figurinha" : it.id === "coracao" ? "coracao" : it.icone === "icone-vida" ? "coracao" : it.icone === "icone-lasca" ? "icone-anzol" : it.icone === "icone-faisca" ? "icone-bolhas" : it.icone === "icone-lanca" ? "icone-rede" : it.icone === "icone-fogueira-carta" ? "icone-album" : "icone-rede"
-}));
+var itens = ITENS_COMUNS;
 var conteudoPescador = {
   slug: "pescador-samuel",
   api: "__pescador",

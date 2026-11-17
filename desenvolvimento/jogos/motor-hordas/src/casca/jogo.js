@@ -9,6 +9,11 @@ export async function iniciar(conteudo) {
   const tela = document.getElementById('tela')
   const ctx = tela.getContext('2d')
   const sprites = await fetch('arte/sprites.json').then((r) => r.json())
+  if ((window.devicePixelRatio || 1) >= 1.5) {
+    for (const sp of Object.values(sprites)) {
+      if (sp.src2x) sp.src = sp.src2x
+    }
+  }
   const motor = await fetch('arte/motor.json').then((r) => r.json())
   const imagens = {}
   async function carga(chave, src) {
@@ -204,7 +209,10 @@ export async function iniciar(conteudo) {
       const img = document.createElement('img')
       img.alt = ''
       const spec = sprites[carta.icone] || sprites[conteudo.golpes[0].icone]
-      if (spec) img.src = spec.src
+      if (spec) {
+        img.src = spec.src
+        img.style.imageRendering = 'pixelated'
+      }
       const nome = document.createElement('strong')
       nome.textContent = carta.nome
       const texto = document.createElement('span')
