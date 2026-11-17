@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$rotulos = ['rascunho' => 'Rascunho (só você vê)', 'pronto' => 'Publicado', 'em-breve' => 'Em breve', 'arquivado' => 'Arquivado'];
+$rotulos = ['rascunho' => 'Rascunho (só você vê)', 'pronto' => 'Publicado', 'so-computador' => 'Só no computador', 'em-breve' => 'Em breve', 'arquivado' => 'Arquivado'];
 cabecalho(['titulo' => 'Área do responsável — Samuel.tech', 'privado' => true]);
 
 if (!config()): ?>
@@ -172,6 +172,6 @@ $csrf = e(token_csrf());
     </article>
 <?php endforeach; ?>
   </div>
-  <p class="section-note">Publicado = a família vê e joga · Em breve = aparece com selo, sem jogar · Rascunho = só você testa · Arquivado = some da biblioteca.</p>
+  <p class="section-note">Publicado = a família vê e joga · Só no computador = a família joga, com o selo · Em breve = aparece com selo, sem jogar · Rascunho = só você testa · Arquivado = some da biblioteca.</p>
 </section>
 <?php rodape();

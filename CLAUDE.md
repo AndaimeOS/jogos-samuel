@@ -74,7 +74,7 @@ ferramentas/             empacotar.sh, conferir_producao.py, atualizar_publicaca
 - **Jogos do responsável** (cadastrados em `/admin`): ficam FORA da pasta pública, no diretório
   `samuel-dados/` ao lado de `samuel-config.php` → `catalogo.json`, `jogos/<slug>/`, `capas/<slug>.webp`.
   Sobrevivem às publicações. `status_site` nesse JSON guarda o status trocado de jogos do site.
-- Status: `pronto` (família joga) · `em-breve` (selo, sem jogar) · `rascunho` (só no modo responsável) · `arquivado` (escondido).
+- Status: `pronto` (família joga) · `so-computador` (família joga, selo “Só no computador”) · `em-breve` (selo, sem jogar) · `rascunho` (só no modo responsável) · `arquivado` (escondido).
 - Import do .zip: rejeita `..`/caminho absoluto, ignora ocultos e `__MACOSX`, só extensões de `EXTENSOES_JOGO`
   (nunca `.php`/`.htaccess`), máx. 3000 arquivos/300 MB, achata pasta única no topo, troca de versão atômica.
 - Área do responsável: senha do responsável → `adm` no cookie por 30 min; formulários com token CSRF.

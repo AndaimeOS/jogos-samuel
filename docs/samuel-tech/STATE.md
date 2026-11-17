@@ -3,6 +3,14 @@
 Atualizado ao fim de cada sessão (ST-090). Um bloco por sessão, o mais novo em cima.
 Vale o que está aqui e no Notion, não a memória do chat.
 
+## 2026-11-17 — Reino de camiseta cinza e selos do catálogo
+
+- **Pedido:** camiseta cinza no Reino, selos no catálogo e testes no iPad. Sem merge, sem push na `main` e sem deploy. O arquivo de ideias da ilha grande sai deste rascunho. O PR #16 fica para outro agente reabrir e publicar; esta sessão não mexe mais nele.
+- **Feito:** a roupa do Samuel no Reino é `#8d9397`, o mesmo cinza do Planeta, do Pescador, do Corredor e do Surfers. A capa acompanha. Ilha da Vida é `so-computador` (joga, com selo). A turma dos pets e o Mestre do Cubo são `em-breve` (selo, sem link; o Mestre continua 404). Teste iPad WebKit 3/3. `verificar_jogo.py --todos` ok.
+- **No PR #16, antes da mudança do dono:** um comentário apontou o arquivo de ideias e o PR #17, e o PR #16 foi fechado sem merge. A branch `cursor/planeta-ilha-grande-2bd5` ficou. Depois o dono pediu para não deixar o #16 fechado; outro agente reabre e publica. Esta sessão não comentou de novo e não fechou de novo.
+- **Não feito:** merge, push da `main`, deploy, reabrir o #16. Notion: a sessão não veio de um card da fila.
+- **NEXT:** o Boaz olha o rascunho #17. Este agente não publica.
+
 ## 2026-11-16 — Pescador de camiseta cinza, branch em dia com a main
 
 - **Pedido do Boaz (15/11 21:33 BRT):** "Pode juntar e publicar o PR #12 com o Planeta e o Pescador, Samuel de camiseta cinza." O merge do PR e o deploy ficam com o Boaz.

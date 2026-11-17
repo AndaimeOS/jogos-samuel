@@ -184,6 +184,21 @@ Não apagar decisões antigas: acrescentar uma nova com alternativa, motivo e ef
   a moldura ia parar longe do barco.
 - **Efeito:** vale para o Planeta e para o Pescador. Sem deploy nesta sessão.
 
+## DEC-020 — Reino de camiseta cinza e selos do catálogo (2026-11-17)
+
+- **Decisão:** no Reino dos Blocos a roupa do Samuel deixa de ser o laranja
+  `#ff7a2e` e passa a ser a camiseta cinza `#8d9397`, o mesmo tom dos sprites
+  do Planeta, do Pescador, do Corredor e do código do Surfers. O painel amarelo
+  da jaqueta vira o mesmo cinza, para o tronco ser a camiseta. A sola do tênis
+  continua laranja. No catálogo, Ilha da Vida fica `so-computador` (a família
+  ainda abre, com o selo “Só no computador”) e A turma dos pets e o Mestre do
+  Cubo ficam `em-breve` (selo “Em breve”, sem link e sem página). O Mestre
+  continua 404 fora do card.
+- **Alternativa descartada:** deixar o amarelo no meio de uma jaqueta cinza, e
+  inventar um status paralelo só na capa do card sem o `jogos.json`.
+- **Efeito:** sem merge e sem publicação nesta sessão. O PR #16 fica com
+  outro agente.
+
 ## DEC-019 — O Pescador usa a camiseta cinza (2026-11-15)
 
 - **Decisão (Boaz, 15/11 21:33 BRT):** o Samuel no barco é o `samuel-barco-cinza`.

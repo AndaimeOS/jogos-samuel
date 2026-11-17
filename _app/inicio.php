@@ -249,8 +249,8 @@ function registrar_tentativa(bool $acertou): void
 //  • “site”: _app/jogos.json + arquivos em _privado/jogos/ (vem do repositório)
 //  • “responsável”: cadastrados em /admin. Ficam em samuel-dados/ FORA da pasta
 //    pública (ao lado do samuel-config.php), então sobrevivem às publicações.
-const STATUS_VISIVEIS = ['pronto', 'em-breve'];
-const STATUS_TODOS = ['rascunho', 'pronto', 'em-breve', 'arquivado'];
+const STATUS_VISIVEIS = ['pronto', 'so-computador', 'em-breve'];
+const STATUS_TODOS = ['rascunho', 'pronto', 'so-computador', 'em-breve', 'arquivado'];
 const EXTENSOES_JOGO = [
     'html' => 'text/html; charset=utf-8', 'htm' => 'text/html; charset=utf-8',
     'js' => 'text/javascript; charset=utf-8', 'mjs' => 'text/javascript; charset=utf-8',
@@ -319,7 +319,7 @@ function jogos_todos(bool $recarregar = false): array
     return $j;
 }
 
-/** Jogos que a família vê (pronto + em breve). */
+/** Jogos que a família vê (pronto, só no computador e em breve). */
 function jogos(): array
 {
     return array_values(array_filter(jogos_todos(), function ($g) {
@@ -350,7 +350,7 @@ function jogo_jogavel(array $g): bool
 {
     $st = $g['status'] ?? '';
     $existe = is_file(pasta_jogo($g) . '/' . ($g['entry'] ?? 'index.html'));
-    return $existe && ($st === 'pronto' || (in_array($st, ['rascunho', 'arquivado'], true) && modo_responsavel()));
+    return $existe && ($st === 'pronto' || $st === 'so-computador' || (in_array($st, ['rascunho', 'arquivado'], true) && modo_responsavel()));
 }
 
 /** Arquivo da capa de um jogo do responsável (.webp ou .jpg), ou null. */
