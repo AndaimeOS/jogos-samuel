@@ -183,6 +183,7 @@ Arte
 async function limpar(pasta) {
   await mkdir(pasta, { recursive: true })
   for (const nome of await readdir(pasta)) {
+    if (nome === 'release.json') continue
     await rm(path.join(pasta, nome), { recursive: true, force: true })
   }
 }

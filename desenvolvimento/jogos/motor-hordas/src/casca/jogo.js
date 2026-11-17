@@ -1,4 +1,5 @@
-import { criarPartida, escolherCarta, ganharXp, tick, trazerChefe } from '../motor/partida.js'
+import { criarPartida, escolherCarta, ganharXp, progressoDaPartida, tick, trazerChefe } from '../motor/partida.js'
+import { migrarSave, progressoParaFase, saveVazio } from '../motor/save.js'
 import { encaixarVista, formatarTempo, hash2, joystick } from '../motor/numeros.js'
 import { biomaEm } from '../motor/mundo.js'
 
@@ -57,6 +58,8 @@ export async function iniciar(conteudo) {
 
   let partida = null
   let save = lerSave(conteudo)
+  let eraGravada = ''
+  let hudIcones = ''
   let pronto = true
   let eixo = { x: 0, y: 0 }
   let acaoPulso = false
@@ -81,18 +84,33 @@ export async function iniciar(conteudo) {
   function lerSave(c) {
     const chave = `${c.slug}:save`
     try {
-      const bruto = JSON.parse(localStorage.getItem(chave) || 'null')
-      if (bruto && bruto.schemaVersion === 2) return bruto
+      return migrarSave(JSON.parse(localStorage.getItem(chave) || 'null'))
     } catch { /* save velho ou vazio */ }
-    return { schemaVersion: 2, modo: 'facil', aberta: 1, vencidas: [], album: [], barcoDourado: false }
+    return saveVazio()
   }
   function gravar() {
     save.album = partida ? partida.album : save.album
     save.barcoDourado = partida ? partida.barcoDourado : save.barcoDourado
     localStorage.setItem(`${conteudo.slug}:save`, JSON.stringify(save))
   }
+  function lembrarEra() {
+    if (!partida || partida.fase.tipo === 'fim') return
+    const era = progressoDaPartida(partida)
+    const texto = JSON.stringify(era)
+    if (texto === eraGravada) return
+    eraGravada = texto
+    save.era = era
+    gravar()
+  }
 
   function entrar(indice) {
+    const fase = conteudo.fases[indice]
+    const progresso = progressoParaFase(save, fase)
+    if (!progresso && fase && fase.tipo !== 'fim') {
+      save.era = null
+      eraGravada = ''
+      gravar()
+    }
     partida = criarPartida(conteudo, {
       fase: indice,
       modo: save.modo,
@@ -100,7 +118,11 @@ export async function iniciar(conteudo) {
       vista: { w: vista.w, h: vista.h },
       album: save.album,
       barcoDourado: save.barcoDourado,
+      progresso,
     })
+    eraGravada = ''
+    hudIcones = ''
+    lembrarEra()
     mostrar(mapa, false)
     mostrar(vitoria, false)
     mostrar(derrota, false)
@@ -212,6 +234,7 @@ export async function iniciar(conteudo) {
       b.append(img, nome, texto)
       b.addEventListener('click', () => {
         escolherCarta(partida, i)
+        lembrarEra()
         if (partida.pausa === 'cartas') pintarCartas()
         else mostrar(levelup, false)
       })
@@ -237,12 +260,14 @@ export async function iniciar(conteudo) {
     const ordem = partida.fase.ordem
     if (!save.vencidas.includes(ordem)) save.vencidas.push(ordem)
     save.aberta = Math.max(save.aberta, ordem + 1)
+    lembrarEra()
     gravar()
     mostrar(vitoria, true)
   }
 
   function sincronizarHud() {
     if (!partida) return
+    lembrarEra()
     document.getElementById('nivel').textContent = String(partida.jogador.nivel)
     document.getElementById('faseNome').textContent = nomeDa(partida.fase)
     const icone = document.getElementById('iconePerigo')
@@ -260,38 +285,42 @@ export async function iniciar(conteudo) {
     }
     document.getElementById('relogio').textContent = formatarTempo(partida.tempo)
     document.getElementById('barraXp').style.width = `${Math.max(0, Math.min(100, (partida.jogador.xp / partida.jogador.xpProx) * 100))}%`
-    const vidas = document.getElementById('vidas')
     const cheias = Math.round((partida.jogador.hp / partida.jogador.stats.hpMax) * 5)
-    vidas.replaceChildren()
-    for (let i = 0; i < 5; i++) {
-      const img = document.createElement('img')
-      img.alt = ''
-      img.src = sprites[i < cheias ? conteudo.vida : conteudo.vidaVazia].src
-      vidas.append(img)
-    }
-    const golpes = document.getElementById('golpes')
-    golpes.replaceChildren()
-    for (let i = 0; i < 6; i++) {
-      const g = partida.jogador.golpes[i]
-      const img = document.createElement('img')
-      img.alt = ''
-      if (g) {
-        const def = conteudo.golpes.find((d) => d.id === g.id)
-        if (def && sprites[def.icone]) img.src = sprites[def.icone].src
+    const assinatura = `${cheias}|${partida.jogador.golpes.map((g) => g.id).join(',')}|${partida.jogador.itens.map((it) => it.id).join(',')}`
+    if (assinatura !== hudIcones) {
+      hudIcones = assinatura
+      const vidas = document.getElementById('vidas')
+      vidas.replaceChildren()
+      for (let i = 0; i < 5; i++) {
+        const img = document.createElement('img')
+        img.alt = ''
+        img.src = sprites[i < cheias ? conteudo.vida : conteudo.vidaVazia].src
+        vidas.append(img)
       }
-      golpes.append(img)
-    }
-    const itens = document.getElementById('itens')
-    itens.replaceChildren()
-    for (let i = 0; i < 6; i++) {
-      const it = partida.jogador.itens[i]
-      const img = document.createElement('img')
-      img.alt = ''
-      if (it) {
-        const def = conteudo.itens.find((d) => d.id === it.id)
-        if (def && sprites[def.icone]) img.src = sprites[def.icone].src
+      const golpes = document.getElementById('golpes')
+      golpes.replaceChildren()
+      for (let i = 0; i < 6; i++) {
+        const g = partida.jogador.golpes[i]
+        const img = document.createElement('img')
+        img.alt = ''
+        if (g) {
+          const def = conteudo.golpes.find((d) => d.id === g.id)
+          if (def && sprites[def.icone]) img.src = sprites[def.icone].src
+        }
+        golpes.append(img)
       }
-      itens.append(img)
+      const itens = document.getElementById('itens')
+      itens.replaceChildren()
+      for (let i = 0; i < 6; i++) {
+        const it = partida.jogador.itens[i]
+        const img = document.createElement('img')
+        img.alt = ''
+        if (it) {
+          const def = conteudo.itens.find((d) => d.id === it.id)
+          if (def && sprites[def.icone]) img.src = sprites[def.icone].src
+        }
+        itens.append(img)
+      }
     }
     const med = document.getElementById('medChefe')
     if (partida.chefe && partida.chefe.morrendo < 0) {
@@ -433,15 +462,19 @@ export async function iniciar(conteudo) {
       ctx.drawImage(img, Math.round(e.x - img.naturalWidth / 2), Math.round(e.y - img.naturalHeight), img.naturalWidth, img.naturalHeight)
     }
     const mundo = (wx, wy) => [wx - camX, wy - camY]
+    const naTela = (wx, wy, folga) => wx >= camX - folga && wy >= camY - folga && wx <= camX + vista.w + folga && wy <= camY + vista.h + folga
     for (const g of partida.gemas) {
+      if (!naTela(g.x, g.y, 16)) continue
       const [x, y] = mundo(g.x, g.y)
       desenharSprite(conteudo.gema[g.faixa - 1] || conteudo.gema[0], x, y + 6, 0, partida.tempo, 12, false)
     }
     for (const c of partida.cardumes) {
+      if (!naTela(c.x, c.y, 20)) continue
       const [x, y] = mundo(c.x, c.y)
       desenharSprite('cardume', x, y + 8, 0, 0, 14, false)
     }
     for (const z of partida.zonas) {
+      if (!naTela(z.x, z.y, z.r + 4)) continue
       const [x, y] = mundo(z.x, z.y)
       ctx.strokeStyle = '#E2544A'
       ctx.lineWidth = 2
@@ -450,7 +483,11 @@ export async function iniciar(conteudo) {
       ctx.stroke()
     }
     desenharPerigo('chao', mundo)
-    const lista = [...partida.inimigos].sort((a, b) => a.y - b.y)
+    const lista = []
+    for (const b of partida.inimigos) {
+      if (naTela(b.x, b.y, 96)) lista.push(b)
+    }
+    lista.sort((a, b) => a.y - b.y)
     for (const b of lista) {
       const [x, y] = mundo(b.x, b.y)
       if (b.morrendo >= 0) {
@@ -471,8 +508,11 @@ export async function iniciar(conteudo) {
       const idHeroi = j.andando ? conteudo.heroiAnda : conteudo.heroiParado
       desenharSprite(idHeroi, jx, jy, j.dir, j.anim, conteudo.heroiAltura, !!partida.barcoDourado)
     }
-    if (partida.alvo && partida.alvo.morrendo < 0) desenharMoldura(mundo, partida.alvo)
+    if (partida.alvo && partida.alvo.morrendo < 0 && naTela(partida.alvo.x, partida.alvo.y, 96)) desenharMoldura(mundo, partida.alvo)
     for (const a of partida.ataques) {
+      const ax = a.x != null ? a.x : partida.jogador.x
+      const ay = a.y != null ? a.y : partida.jogador.y
+      if (!naTela(ax, ay, 48) && !(a.tipo === 'estocada' && naTela(a.ax, a.ay, 48))) continue
       if (a.tipo === 'estocada') {
         const [x1, y1] = mundo(a.x, a.y)
         const [x2, y2] = mundo(a.ax, a.ay)
@@ -505,6 +545,7 @@ export async function iniciar(conteudo) {
       }
     }
     for (const part of partida.particulas) {
+      if (!naTela(part.x, part.y, 8)) continue
       const [x, y] = mundo(part.x, part.y)
       ctx.globalAlpha = 1 - part.vida / part.ttl
       ctx.fillStyle = part.cor
@@ -514,6 +555,7 @@ export async function iniciar(conteudo) {
     ctx.font = '700 10px Courier New, monospace'
     ctx.textAlign = 'center'
     for (const t of partida.textos) {
+      if (!naTela(t.x, t.y, 24)) continue
       const [x, y] = mundo(t.x, t.y)
       ctx.fillStyle = t.cor
       ctx.fillText(t.texto, x, y)
@@ -889,6 +931,7 @@ export async function iniciar(conteudo) {
 
   document.addEventListener('visibilitychange', () => {
     if (document.hidden && partida && partida.pausa === 'jogo') {
+      lembrarEra()
       partida.pausa = 'pausa'
       partida._suspenso = true
       mostrar(pausa, true)

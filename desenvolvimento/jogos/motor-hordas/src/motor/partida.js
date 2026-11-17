@@ -14,15 +14,51 @@ import {
 export const PROPOSTA = true
 export const MAX_GOLPES = 6
 export const MAX_ITENS = 6
-export const MAX_PARTICULAS = 900
-export const MAX_TEXTOS = 120
+/** Teto na tela. A horda de 90 s passava de 500 faíscas e 120 números e o iPad caía de quadro. */
+export const MAX_PARTICULAS = 180
+export const MAX_TEXTOS = 32
 
-/** Curva do spawner (waves.ts), comprimida na fase. Os segundos são PROPOSTA. */
+/**
+ * Duração das fases comuns, em segundos. PROPOSTA — ajuste este número.
+ * Chefes e o lendário usam o mesmo valor. O farol e o porto ficam em zero.
+ */
+export const DURACAO_FASE = 90
+
+/**
+ * Relógio em que a curva e os eventos foram medidos (a fase comum antiga).
+ * Os marcos esticam com a duração: 16 s aqui viram 40 s numa fase de 90 s.
+ */
+export const RITMO_BASE = 36
+
+/** Curva do spawner no relógio de RITMO_BASE. Os segundos são PROPOSTA. */
 export const CURVA = [
-  { ate: 20, taxa: 1.4, max: 40 },
-  { ate: 45, taxa: 2.2, max: 70 },
-  { ate: Infinity, taxa: 3, max: 100 },
+  { ate: 20, taxa: 1.4, max: 28 },
+  { ate: 45, taxa: 2.2, max: 18 },
+  { ate: Infinity, taxa: 3, max: 22 },
 ]
+
+/** Bando, elite, chefe e anel, no relógio de RITMO_BASE. Os segundos são PROPOSTA. */
+export const EVENTOS = { bando: 16, elite: 18, chefe: 18, anel: 26 }
+
+export function escalaRitmo(duracao) {
+  const d = typeof duracao === 'number' && duracao > 0 ? duracao : DURACAO_FASE
+  return d / RITMO_BASE
+}
+
+/** Curva e eventos proporcionais à duração. `tempo` é o relógio da fase, em segundos. */
+export function relogioDaFase(tempo, duracao) {
+  const escala = escalaRitmo(duracao)
+  const curva = CURVA.find((c) => tempo < c.ate * escala) || CURVA[CURVA.length - 1]
+  return {
+    escala,
+    taxa: curva.taxa,
+    max: curva.max,
+    bando: tempo >= EVENTOS.bando * escala,
+    elite: tempo >= EVENTOS.elite * escala,
+    anel: tempo >= EVENTOS.anel * escala,
+    chefe: tempo >= EVENTOS.chefe * escala,
+  }
+}
 
 /**
  * Fácil não perde: menos dano, bicho mais lento, regenera e a vida não zera.
@@ -362,20 +398,17 @@ function vivos(p) {
   return p.inimigos.filter((b) => b.morrendo < 0 && !b.chefe).length
 }
 
-function curvaEm(tempo) {
-  return CURVA.find((c) => tempo < c.ate) || CURVA[CURVA.length - 1]
-}
-
-function dispararAnel(p, id, n) {
+function dispararAnel(p, id, n, teto) {
   const j = p.jogador
   const d = distanciaAnel(p.vista.w, p.vista.h) - 20
-  for (let i = 0; i < n; i++) {
-    const a = (i / n) * TAU
+  const quantos = Math.max(0, Math.min(n, teto - vivos(p)))
+  for (let i = 0; i < quantos; i++) {
+    const a = (i / quantos) * TAU
     nascer(p, id, j.x + Math.cos(a) * d, j.y + Math.sin(a) * d)
   }
 }
 
-function dispararBando(p, id, n) {
+function dispararBando(p, id, n, teto) {
   const j = p.jogador
   const ang = faixa(p.rng, 0, TAU)
   const d = distanciaAnel(p.vista.w, p.vista.h)
@@ -384,6 +417,7 @@ function dispararBando(p, id, n) {
   const vx = Math.cos(ang) * vel
   const vy = Math.sin(ang) * vel
   for (let i = 0; i < n; i++) {
+    if (vivos(p) >= teto) break
     const lado = faixa(p.rng, -70, 70)
     const atras = faixa(p.rng, 0, 60)
     nascer(p, id, j.x - Math.cos(ang) * (d + atras) - Math.sin(ang) * lado, j.y - Math.sin(ang) * (d + atras) + Math.cos(ang) * lado, {
@@ -408,10 +442,10 @@ export function trazerChefe(p) {
 function passoSpawner(p, dt) {
   if (p.fase.tipo === 'fim') return
   const dif = DIFICULDADE[p.modo]
-  const curva = curvaEm(p.tempo)
+  const rel = relogioDaFase(p.tempo, p.fase.duracao)
   const chefeVivo = p.chefe && p.chefe.morrendo < 0
-  const taxa = curva.taxa * dif.taxa * (chefeVivo ? 0.35 : 1)
-  const teto = Math.round(curva.max * (chefeVivo ? 0.45 : 1))
+  const taxa = rel.taxa * dif.taxa * (chefeVivo ? 0.35 : 1)
+  const teto = Math.round(rel.max * (chefeVivo ? 0.45 : 1))
   p.acumulo += taxa * dt
   let guard = 0
   while (p.acumulo >= 1 && vivos(p) < teto && guard++ < 8) {
@@ -421,21 +455,22 @@ function passoSpawner(p, dt) {
     const pos = pontoFora(p)
     nascer(p, id, pos.x, pos.y)
   }
-  if (!p.eventos.bando && p.tempo >= 16) {
+  if (!p.eventos.bando && rel.bando) {
     p.eventos.bando = true
-    dispararBando(p, p.fase.bando || p.fase.horda[0], 14)
+    dispararBando(p, p.fase.bando || p.fase.horda[0], 14, teto)
   }
-  if (!p.eventos.anel && p.tempo >= 26) {
+  if (!p.eventos.anel && rel.anel) {
     p.eventos.anel = true
-    dispararAnel(p, p.fase.horda[0], 16)
+    dispararAnel(p, p.fase.horda[0], 16, teto)
   }
-  if (!p.eventos.elite && p.tempo >= 18 && p.fase.tipo === 'fase') {
+  if (!p.eventos.elite && rel.elite && p.fase.tipo === 'fase' && vivos(p) < teto) {
     p.eventos.elite = true
     const pos = pontoFora(p)
     const id = p.fase.horda[p.fase.horda.length - 1]
     nascer(p, id, pos.x, pos.y, { elite: true })
   }
-  if ((p.fase.tipo === 'chefe' || p.fase.tipo === 'lendario') && !p.eventos.chefe && p.tempo >= p.fase.chefeEm) {
+  const marcaChefe = (p.fase.chefeEm ?? EVENTOS.chefe) * rel.escala
+  if ((p.fase.tipo === 'chefe' || p.fase.tipo === 'lendario') && !p.eventos.chefe && p.tempo >= marcaChefe) {
     trazerChefe(p)
   }
 }
@@ -961,6 +996,53 @@ function checarFim(p) {
   if ((p.fase.tipo === 'chefe' || p.fase.tipo === 'lendario') && p.eventos.chefe && !p.chefe) p.pausa = 'vitoria'
 }
 
+function numero(valor, minimo, fallback) {
+  const n = Number(valor)
+  if (!Number.isFinite(n)) return fallback
+  return Math.max(minimo, n)
+}
+
+/** Nível, XP, golpes e itens da era. A fase seguinte da mesma região recebe isto. */
+export function progressoDaPartida(p) {
+  const j = p.jogador
+  return {
+    regiao: p.fase.regiao,
+    nivel: j.nivel,
+    xp: j.xp,
+    golpes: j.golpes.map((g) => ({ id: g.id, nivel: g.nivel, caminho: g.caminho || 0 })),
+    itens: j.itens.map((it) => ({ id: it.id, nivel: it.nivel })),
+    pendentes: j.pendentes || 0,
+  }
+}
+
+function aplicarProgresso(p, bruto) {
+  if (!bruto || bruto.regiao !== p.fase.regiao || p.fase.tipo === 'fim') return false
+  const golpes = []
+  for (const g of Array.isArray(bruto.golpes) ? bruto.golpes : []) {
+    if (!g || !defGolpe(p.conteudo, g.id)) continue
+    golpes.push({
+      id: g.id,
+      nivel: Math.max(1, Math.round(numero(g.nivel, 1, 1))),
+      cd: 0.15,
+      caminho: Math.max(0, Math.round(numero(g.caminho, 0, 0))),
+    })
+  }
+  if (!golpes.length) return false
+  const j = p.jogador
+  j.nivel = Math.max(1, Math.round(numero(bruto.nivel, 1, 1)))
+  j.xp = numero(bruto.xp, 0, 0)
+  j.xpProx = xpPara(j.nivel)
+  j.golpes = golpes.slice(0, MAX_GOLPES)
+  const itens = []
+  for (const it of Array.isArray(bruto.itens) ? bruto.itens : []) {
+    if (!it || !defItem(p.conteudo, it.id)) continue
+    itens.push({ id: it.id, nivel: Math.max(1, Math.round(numero(it.nivel, 1, 1))) })
+  }
+  j.itens = itens.slice(0, MAX_ITENS)
+  j.pendentes = Math.max(0, Math.round(numero(bruto.pendentes, 0, 0)))
+  return true
+}
+
 export function criarPartida(conteudo, opcoes = {}) {
   const fase = conteudo.fases[opcoes.fase ?? 0]
   const modo = opcoes.modo === 'normal' ? 'normal' : 'facil'
@@ -1006,13 +1088,14 @@ export function criarPartida(conteudo, opcoes = {}) {
       stats: { ...BASE },
     },
   }
+  const continuou = aplicarProgresso(p, opcoes.progresso)
   aplicarStats(p)
   p.jogador.hp = p.jogador.stats.hpMax
   if (fase.tipo === 'fim') p.pausa = 'fim'
-  else {
+  else if (!continuou) {
     p.jogador.pendentes = 1
     abrirCartas(p)
-  }
+  } else if (p.jogador.pendentes > 0) abrirCartas(p)
   return p
 }
 

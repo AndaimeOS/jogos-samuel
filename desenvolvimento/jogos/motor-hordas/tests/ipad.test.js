@@ -344,7 +344,7 @@ function suite(slug, api, titulo) {
       const jogado = await fluido(dentro, api, 60)
       expect(jogado).toBeGreaterThanOrEqual(60)
     }
-    for (let n = 0; n < 40 && await dentro.locator('#mapa').isHidden(); n++) {
+    for (let n = 0; n < 80 && await dentro.locator('#mapa').isHidden(); n++) {
       if (!(await dentro.locator('#levelup').isHidden())) {
         await dentro.locator('#carta-0').tap()
         continue

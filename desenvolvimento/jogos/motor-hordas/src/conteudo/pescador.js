@@ -1,3 +1,4 @@
+import { DURACAO_FASE, EVENTOS } from '../motor/partida.js'
 import { ITENS_COMUNS, bifurca, no } from './comun.js'
 
 const golpe = (id, nome, texto, icone, sprite, tipo, resto) => ({
@@ -74,8 +75,8 @@ function fase(ordem, regiao, tipo, x, y, extra) {
     horda: extra.horda || base.horda,
     bando: extra.bando || base.bando,
     chefe: extra.chefe || null,
-    duracao: extra.duracao ?? 36,
-    chefeEm: extra.chefeEm ?? 18,
+    duracao: extra.duracao ?? DURACAO_FASE,
+    chefeEm: extra.chefeEm ?? EVENTOS.chefe,
     chao: base.chao,
     perigos: tipo === 'fim' ? [] : PERIGOS,
   })
@@ -116,14 +117,14 @@ export const conteudoPescador = {
   fases: [
     fase(1, 'rio', 'fase', 28, 150, {}),
     fase(2, 'rio', 'fase', 62, 84, { horda: ['sapo-pulador', 'piranha', 'caranguejo'] }),
-    fase(3, 'rio', 'chefe', 98, 150, { chefe: 'bagre-gigante', duracao: 90 }),
+    fase(3, 'rio', 'chefe', 98, 150, { chefe: 'bagre-gigante' }),
     fase(4, 'lago', 'fase', 134, 96, {}),
     fase(5, 'lago', 'fase', 162, 186, { horda: ['tartaruga-mordedora', 'enguia-eletrica', 'enxame-mosquitos'] }),
-    fase(6, 'lago', 'chefe', 196, 96, { chefe: 'jacare-rei', duracao: 90 }),
+    fase(6, 'lago', 'chefe', 196, 96, { chefe: 'jacare-rei' }),
     fase(7, 'mar', 'fase', 232, 166, {}),
     fase(8, 'mar', 'fase', 258, 86, { horda: ['polvo', 'tubarao', 'agua-viva'] }),
-    fase(9, 'mar', 'chefe', 290, 146, { chefe: 'lula-gigante', duracao: 90 }),
-    fase(10, 'mar', 'lendario', 322, 70, { chefe: 'peixe-lendario-dourado', horda: ['tubarao', 'agua-viva'], duracao: 90 }),
+    fase(9, 'mar', 'chefe', 290, 146, { chefe: 'lula-gigante' }),
+    fase(10, 'mar', 'lendario', 322, 70, { chefe: 'peixe-lendario-dourado', horda: ['tubarao', 'agua-viva'] }),
     fase(11, 'fim', 'fim', 318, 226, { duracao: 0 }),
   ],
   nos: {
@@ -142,8 +143,9 @@ export const conteudoPescador = {
   cores: { rio: '#3FA8A6', margem: '#C4D48A', lago: '#2B7F78', taboa: '#7EA24A', mar: '#1B5A6E', areia: '#E4D2A0' },
   config: {
     proposta: true,
+    duracaoFase: DURACAO_FASE,
     curva: [1.4, 2.2, 3],
-    teto: [40, 70, 100],
+    teto: [28, 18, 22],
     anel: 'hypot/2+12',
     velocidade: 68,
     facil: 'piso 1, cura, monstros mais lentos, sem perder',
