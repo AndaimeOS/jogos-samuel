@@ -1,4 +1,5 @@
-import { criarPartida, escolherCarta, ganharXp, tick, trazerChefe } from '../motor/partida.js'
+import { criarPartida, escolherCarta, ganharXp, progressoDaPartida, tick, trazerChefe } from '../motor/partida.js'
+import { migrarSave, progressoParaFase, saveVazio } from '../motor/save.js'
 import { encaixarVista, formatarTempo, hash2, joystick } from '../motor/numeros.js'
 import { biomaEm } from '../motor/mundo.js'
 
@@ -57,6 +58,7 @@ export async function iniciar(conteudo) {
 
   let partida = null
   let save = lerSave(conteudo)
+  let eraGravada = ''
   let pronto = true
   let eixo = { x: 0, y: 0 }
   let acaoPulso = false
@@ -81,18 +83,33 @@ export async function iniciar(conteudo) {
   function lerSave(c) {
     const chave = `${c.slug}:save`
     try {
-      const bruto = JSON.parse(localStorage.getItem(chave) || 'null')
-      if (bruto && bruto.schemaVersion === 2) return bruto
+      return migrarSave(JSON.parse(localStorage.getItem(chave) || 'null'))
     } catch { /* save velho ou vazio */ }
-    return { schemaVersion: 2, modo: 'facil', aberta: 1, vencidas: [], album: [], barcoDourado: false }
+    return saveVazio()
   }
   function gravar() {
     save.album = partida ? partida.album : save.album
     save.barcoDourado = partida ? partida.barcoDourado : save.barcoDourado
     localStorage.setItem(`${conteudo.slug}:save`, JSON.stringify(save))
   }
+  function lembrarEra() {
+    if (!partida || partida.fase.tipo === 'fim') return
+    const era = progressoDaPartida(partida)
+    const texto = JSON.stringify(era)
+    if (texto === eraGravada) return
+    eraGravada = texto
+    save.era = era
+    gravar()
+  }
 
   function entrar(indice) {
+    const fase = conteudo.fases[indice]
+    const progresso = progressoParaFase(save, fase)
+    if (!progresso && fase && fase.tipo !== 'fim') {
+      save.era = null
+      eraGravada = ''
+      gravar()
+    }
     partida = criarPartida(conteudo, {
       fase: indice,
       modo: save.modo,
@@ -100,7 +117,10 @@ export async function iniciar(conteudo) {
       vista: { w: vista.w, h: vista.h },
       album: save.album,
       barcoDourado: save.barcoDourado,
+      progresso,
     })
+    eraGravada = ''
+    lembrarEra()
     mostrar(mapa, false)
     mostrar(vitoria, false)
     mostrar(derrota, false)
@@ -212,6 +232,7 @@ export async function iniciar(conteudo) {
       b.append(img, nome, texto)
       b.addEventListener('click', () => {
         escolherCarta(partida, i)
+        lembrarEra()
         if (partida.pausa === 'cartas') pintarCartas()
         else mostrar(levelup, false)
       })
@@ -237,12 +258,14 @@ export async function iniciar(conteudo) {
     const ordem = partida.fase.ordem
     if (!save.vencidas.includes(ordem)) save.vencidas.push(ordem)
     save.aberta = Math.max(save.aberta, ordem + 1)
+    lembrarEra()
     gravar()
     mostrar(vitoria, true)
   }
 
   function sincronizarHud() {
     if (!partida) return
+    lembrarEra()
     document.getElementById('nivel').textContent = String(partida.jogador.nivel)
     document.getElementById('faseNome').textContent = nomeDa(partida.fase)
     const icone = document.getElementById('iconePerigo')
@@ -889,6 +912,7 @@ export async function iniciar(conteudo) {
 
   document.addEventListener('visibilitychange', () => {
     if (document.hidden && partida && partida.pausa === 'jogo') {
+      lembrarEra()
       partida.pausa = 'pausa'
       partida._suspenso = true
       mostrar(pausa, true)

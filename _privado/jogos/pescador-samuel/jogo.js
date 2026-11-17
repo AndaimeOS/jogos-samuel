@@ -91,8 +91,8 @@ function escalaDispositivo(cssW, cssH, dpr) {
 }
 function ladoPar(px) {
   if (!(px >= 1)) return 1;
-  const inteiro = Math.ceil(px);
-  return inteiro + inteiro % 2;
+  const inteiro2 = Math.ceil(px);
+  return inteiro2 + inteiro2 % 2;
 }
 function encaixarVista(cssW, cssH, dpr) {
   const escala = escalaDispositivo(cssW, cssH, dpr);
@@ -187,11 +187,31 @@ var MAX_GOLPES = 6;
 var MAX_ITENS = 6;
 var MAX_PARTICULAS = 900;
 var MAX_TEXTOS = 120;
+var DURACAO_FASE = 90;
+var RITMO_BASE = 36;
 var CURVA = [
   { ate: 20, taxa: 1.4, max: 40 },
   { ate: 45, taxa: 2.2, max: 70 },
   { ate: Infinity, taxa: 3, max: 100 }
 ];
+var EVENTOS = { bando: 16, elite: 18, chefe: 18, anel: 26 };
+function escalaRitmo(duracao) {
+  const d = typeof duracao === "number" && duracao > 0 ? duracao : DURACAO_FASE;
+  return d / RITMO_BASE;
+}
+function relogioDaFase(tempo, duracao) {
+  const escala = escalaRitmo(duracao);
+  const curva = CURVA.find((c) => tempo < c.ate * escala) || CURVA[CURVA.length - 1];
+  return {
+    escala,
+    taxa: curva.taxa,
+    max: curva.max,
+    bando: tempo >= EVENTOS.bando * escala,
+    elite: tempo >= EVENTOS.elite * escala,
+    anel: tempo >= EVENTOS.anel * escala,
+    chefe: tempo >= EVENTOS.chefe * escala
+  };
+}
 var DIFICULDADE = {
   facil: { vidaInimigo: 0.75, danoInimigo: 0.45, velocidadeInimigo: 0.7, taxa: 0.85, cura: 1.6, piso: 1, iframes: 0.55 },
   normal: { vidaInimigo: 1, danoInimigo: 1, velocidadeInimigo: 1, taxa: 1, cura: 0, piso: 0, iframes: 0.5 }
@@ -535,9 +555,6 @@ function pontoFora(p) {
 function vivos(p) {
   return p.inimigos.filter((b) => b.morrendo < 0 && !b.chefe).length;
 }
-function curvaEm(tempo) {
-  return CURVA.find((c) => tempo < c.ate) || CURVA[CURVA.length - 1];
-}
 function dispararAnel(p, id, n) {
   const j = p.jogador;
   const d = distanciaAnel(p.vista.w, p.vista.h) - 20;
@@ -579,10 +596,10 @@ function trazerChefe(p) {
 function passoSpawner(p, dt) {
   if (p.fase.tipo === "fim") return;
   const dif = DIFICULDADE[p.modo];
-  const curva = curvaEm(p.tempo);
+  const rel = relogioDaFase(p.tempo, p.fase.duracao);
   const chefeVivo = p.chefe && p.chefe.morrendo < 0;
-  const taxa = curva.taxa * dif.taxa * (chefeVivo ? 0.35 : 1);
-  const teto = Math.round(curva.max * (chefeVivo ? 0.45 : 1));
+  const taxa = rel.taxa * dif.taxa * (chefeVivo ? 0.35 : 1);
+  const teto = Math.round(rel.max * (chefeVivo ? 0.45 : 1));
   p.acumulo += taxa * dt;
   let guard = 0;
   while (p.acumulo >= 1 && vivos(p) < teto && guard++ < 8) {
@@ -592,21 +609,22 @@ function passoSpawner(p, dt) {
     const pos = pontoFora(p);
     nascer(p, id, pos.x, pos.y);
   }
-  if (!p.eventos.bando && p.tempo >= 16) {
+  if (!p.eventos.bando && rel.bando) {
     p.eventos.bando = true;
     dispararBando(p, p.fase.bando || p.fase.horda[0], 14);
   }
-  if (!p.eventos.anel && p.tempo >= 26) {
+  if (!p.eventos.anel && rel.anel) {
     p.eventos.anel = true;
     dispararAnel(p, p.fase.horda[0], 16);
   }
-  if (!p.eventos.elite && p.tempo >= 18 && p.fase.tipo === "fase") {
+  if (!p.eventos.elite && rel.elite && p.fase.tipo === "fase") {
     p.eventos.elite = true;
     const pos = pontoFora(p);
     const id = p.fase.horda[p.fase.horda.length - 1];
     nascer(p, id, pos.x, pos.y, { elite: true });
   }
-  if ((p.fase.tipo === "chefe" || p.fase.tipo === "lendario") && !p.eventos.chefe && p.tempo >= p.fase.chefeEm) {
+  const marcaChefe = (p.fase.chefeEm ?? EVENTOS.chefe) * rel.escala;
+  if ((p.fase.tipo === "chefe" || p.fase.tipo === "lendario") && !p.eventos.chefe && p.tempo >= marcaChefe) {
     trazerChefe(p);
   }
 }
@@ -1138,6 +1156,49 @@ function checarFim(p) {
   if (p.fase.tipo === "fase" && p.tempo >= p.fase.duracao) p.pausa = "vitoria";
   if ((p.fase.tipo === "chefe" || p.fase.tipo === "lendario") && p.eventos.chefe && !p.chefe) p.pausa = "vitoria";
 }
+function numero(valor, minimo, fallback) {
+  const n = Number(valor);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.max(minimo, n);
+}
+function progressoDaPartida(p) {
+  const j = p.jogador;
+  return {
+    regiao: p.fase.regiao,
+    nivel: j.nivel,
+    xp: j.xp,
+    golpes: j.golpes.map((g) => ({ id: g.id, nivel: g.nivel, caminho: g.caminho || 0 })),
+    itens: j.itens.map((it) => ({ id: it.id, nivel: it.nivel })),
+    pendentes: j.pendentes || 0
+  };
+}
+function aplicarProgresso(p, bruto) {
+  if (!bruto || bruto.regiao !== p.fase.regiao || p.fase.tipo === "fim") return false;
+  const golpes2 = [];
+  for (const g of Array.isArray(bruto.golpes) ? bruto.golpes : []) {
+    if (!g || !defGolpe(p.conteudo, g.id)) continue;
+    golpes2.push({
+      id: g.id,
+      nivel: Math.max(1, Math.round(numero(g.nivel, 1, 1))),
+      cd: 0.15,
+      caminho: Math.max(0, Math.round(numero(g.caminho, 0, 0)))
+    });
+  }
+  if (!golpes2.length) return false;
+  const j = p.jogador;
+  j.nivel = Math.max(1, Math.round(numero(bruto.nivel, 1, 1)));
+  j.xp = numero(bruto.xp, 0, 0);
+  j.xpProx = xpPara(j.nivel);
+  j.golpes = golpes2.slice(0, MAX_GOLPES);
+  const itens2 = [];
+  for (const it of Array.isArray(bruto.itens) ? bruto.itens : []) {
+    if (!it || !defItem(p.conteudo, it.id)) continue;
+    itens2.push({ id: it.id, nivel: Math.max(1, Math.round(numero(it.nivel, 1, 1))) });
+  }
+  j.itens = itens2.slice(0, MAX_ITENS);
+  j.pendentes = Math.max(0, Math.round(numero(bruto.pendentes, 0, 0)));
+  return true;
+}
 function criarPartida(conteudo, opcoes = {}) {
   const fase2 = conteudo.fases[opcoes.fase ?? 0];
   const modo = opcoes.modo === "normal" ? "normal" : "facil";
@@ -1198,13 +1259,14 @@ function criarPartida(conteudo, opcoes = {}) {
       stats: { ...BASE }
     }
   };
+  const continuou = aplicarProgresso(p, opcoes.progresso);
   aplicarStats(p);
   p.jogador.hp = p.jogador.stats.hpMax;
   if (fase2.tipo === "fim") p.pausa = "fim";
-  else {
+  else if (!continuou) {
     p.jogador.pendentes = 1;
     abrirCartas(p);
-  }
+  } else if (p.jogador.pendentes > 0) abrirCartas(p);
   return p;
 }
 function tick(p, dt, entrada = { x: 0, y: 0, acao: false, acaoSegurada: false }) {
@@ -1220,6 +1282,75 @@ function tick(p, dt, entrada = { x: 0, y: 0, acao: false, acaoSegurada: false })
   passoGolpes(p, passo);
   passoEspeciais(p, passo, entrada);
   checarFim(p);
+}
+
+// src/motor/save.js
+var SCHEMA_SAVE = 3;
+function saveVazio() {
+  return {
+    schemaVersion: SCHEMA_SAVE,
+    modo: "facil",
+    aberta: 1,
+    vencidas: [],
+    album: [],
+    barcoDourado: false,
+    era: null
+  };
+}
+function inteiro(valor, minimo, fallback) {
+  const n = Number(valor);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.max(minimo, Math.round(n));
+}
+function migrarEra(era) {
+  if (!era || typeof era !== "object" || typeof era.regiao !== "string" || !era.regiao) return null;
+  if (!Array.isArray(era.golpes)) return null;
+  const golpes2 = [];
+  for (const g of era.golpes) {
+    if (!g || typeof g.id !== "string" || !g.id) continue;
+    golpes2.push({
+      id: g.id,
+      nivel: inteiro(g.nivel, 1, 1),
+      caminho: inteiro(g.caminho, 0, 0)
+    });
+  }
+  if (!golpes2.length) return null;
+  const itens2 = [];
+  for (const it of Array.isArray(era.itens) ? era.itens : []) {
+    if (!it || typeof it.id !== "string" || !it.id) continue;
+    itens2.push({ id: it.id, nivel: inteiro(it.nivel, 1, 1) });
+  }
+  const xp = Number(era.xp);
+  return {
+    regiao: era.regiao,
+    nivel: inteiro(era.nivel, 1, 1),
+    xp: Number.isFinite(xp) ? Math.max(0, xp) : 0,
+    golpes: golpes2,
+    itens: itens2,
+    pendentes: inteiro(era.pendentes, 0, 0)
+  };
+}
+function migrarSave(bruto) {
+  if (!bruto || typeof bruto !== "object") return saveVazio();
+  const versao = bruto.schemaVersion;
+  if (versao != null && versao !== 2 && versao !== 3) return saveVazio();
+  if (versao == null && bruto.aberta == null && bruto.vencidas == null && bruto.modo == null) return saveVazio();
+  const vencidas = Array.isArray(bruto.vencidas) ? bruto.vencidas.filter((n) => Number.isInteger(n) && n > 0) : [];
+  const album = Array.isArray(bruto.album) ? bruto.album.filter((id) => typeof id === "string" && id) : [];
+  return {
+    schemaVersion: SCHEMA_SAVE,
+    modo: bruto.modo === "normal" ? "normal" : "facil",
+    aberta: inteiro(bruto.aberta, 1, 1),
+    vencidas,
+    album,
+    barcoDourado: !!bruto.barcoDourado,
+    era: migrarEra(bruto.era)
+  };
+}
+function progressoParaFase(save, fase2) {
+  if (!save || !save.era || !fase2 || fase2.tipo === "fim") return null;
+  if (save.era.regiao !== fase2.regiao) return null;
+  return save.era;
 }
 
 // src/casca/jogo.js
@@ -1281,6 +1412,7 @@ async function iniciar(conteudo) {
   }
   let partida = null;
   let save = lerSave(conteudo);
+  let eraGravada = "";
   let pronto = true;
   let eixo = { x: 0, y: 0 };
   let acaoPulso = false;
@@ -1304,26 +1436,44 @@ async function iniciar(conteudo) {
   function lerSave(c) {
     const chave2 = `${c.slug}:save`;
     try {
-      const bruto = JSON.parse(localStorage.getItem(chave2) || "null");
-      if (bruto && bruto.schemaVersion === 2) return bruto;
+      return migrarSave(JSON.parse(localStorage.getItem(chave2) || "null"));
     } catch {
     }
-    return { schemaVersion: 2, modo: "facil", aberta: 1, vencidas: [], album: [], barcoDourado: false };
+    return saveVazio();
   }
   function gravar() {
     save.album = partida ? partida.album : save.album;
     save.barcoDourado = partida ? partida.barcoDourado : save.barcoDourado;
     localStorage.setItem(`${conteudo.slug}:save`, JSON.stringify(save));
   }
+  function lembrarEra() {
+    if (!partida || partida.fase.tipo === "fim") return;
+    const era = progressoDaPartida(partida);
+    const texto = JSON.stringify(era);
+    if (texto === eraGravada) return;
+    eraGravada = texto;
+    save.era = era;
+    gravar();
+  }
   function entrar(indice) {
+    const fase2 = conteudo.fases[indice];
+    const progresso = progressoParaFase(save, fase2);
+    if (!progresso && fase2 && fase2.tipo !== "fim") {
+      save.era = null;
+      eraGravada = "";
+      gravar();
+    }
     partida = criarPartida(conteudo, {
       fase: indice,
       modo: save.modo,
       seed: (Date.now() ^ indice * 997) >>> 0,
       vista: { w: vista.w, h: vista.h },
       album: save.album,
-      barcoDourado: save.barcoDourado
+      barcoDourado: save.barcoDourado,
+      progresso
     });
+    eraGravada = "";
+    lembrarEra();
     mostrar(mapa, false);
     mostrar(vitoria, false);
     mostrar(derrota, false);
@@ -1433,6 +1583,7 @@ async function iniciar(conteudo) {
       b.append(img, nome, texto);
       b.addEventListener("click", () => {
         escolherCarta(partida, i);
+        lembrarEra();
         if (partida.pausa === "cartas") pintarCartas();
         else mostrar(levelup, false);
       });
@@ -1456,11 +1607,13 @@ async function iniciar(conteudo) {
     const ordem = partida.fase.ordem;
     if (!save.vencidas.includes(ordem)) save.vencidas.push(ordem);
     save.aberta = Math.max(save.aberta, ordem + 1);
+    lembrarEra();
     gravar();
     mostrar(vitoria, true);
   }
   function sincronizarHud() {
     if (!partida) return;
+    lembrarEra();
     document.getElementById("nivel").textContent = String(partida.jogador.nivel);
     document.getElementById("faseNome").textContent = nomeDa(partida.fase);
     const icone = document.getElementById("iconePerigo");
@@ -2120,6 +2273,7 @@ async function iniciar(conteudo) {
   }
   document.addEventListener("visibilitychange", () => {
     if (document.hidden && partida && partida.pausa === "jogo") {
+      lembrarEra();
       partida.pausa = "pausa";
       partida._suspenso = true;
       mostrar(pausa, true);
@@ -2334,8 +2488,8 @@ function fase(ordem, regiao, tipo, x, y, extra) {
     horda: extra.horda || base.horda,
     bando: extra.bando || base.bando,
     chefe: extra.chefe || null,
-    duracao: extra.duracao ?? 36,
-    chefeEm: extra.chefeEm ?? 18,
+    duracao: extra.duracao ?? DURACAO_FASE,
+    chefeEm: extra.chefeEm ?? EVENTOS.chefe,
     chao: base.chao,
     perigos: tipo === "fim" ? [] : PERIGOS
   });
@@ -2380,14 +2534,14 @@ var conteudoPescador = {
   fases: [
     fase(1, "rio", "fase", 28, 150, {}),
     fase(2, "rio", "fase", 62, 84, { horda: ["sapo-pulador", "piranha", "caranguejo"] }),
-    fase(3, "rio", "chefe", 98, 150, { chefe: "bagre-gigante", duracao: 90 }),
+    fase(3, "rio", "chefe", 98, 150, { chefe: "bagre-gigante" }),
     fase(4, "lago", "fase", 134, 96, {}),
     fase(5, "lago", "fase", 162, 186, { horda: ["tartaruga-mordedora", "enguia-eletrica", "enxame-mosquitos"] }),
-    fase(6, "lago", "chefe", 196, 96, { chefe: "jacare-rei", duracao: 90 }),
+    fase(6, "lago", "chefe", 196, 96, { chefe: "jacare-rei" }),
     fase(7, "mar", "fase", 232, 166, {}),
     fase(8, "mar", "fase", 258, 86, { horda: ["polvo", "tubarao", "agua-viva"] }),
-    fase(9, "mar", "chefe", 290, 146, { chefe: "lula-gigante", duracao: 90 }),
-    fase(10, "mar", "lendario", 322, 70, { chefe: "peixe-lendario-dourado", horda: ["tubarao", "agua-viva"], duracao: 90 }),
+    fase(9, "mar", "chefe", 290, 146, { chefe: "lula-gigante" }),
+    fase(10, "mar", "lendario", 322, 70, { chefe: "peixe-lendario-dourado", horda: ["tubarao", "agua-viva"] }),
     fase(11, "fim", "fim", 318, 226, { duracao: 0 })
   ],
   nos: {
@@ -2406,6 +2560,7 @@ var conteudoPescador = {
   cores: { rio: "#3FA8A6", margem: "#C4D48A", lago: "#2B7F78", taboa: "#7EA24A", mar: "#1B5A6E", areia: "#E4D2A0" },
   config: {
     proposta: true,
+    duracaoFase: DURACAO_FASE,
     curva: [1.4, 2.2, 3],
     teto: [40, 70, 100],
     anel: "hypot/2+12",

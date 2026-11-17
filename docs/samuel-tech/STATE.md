@@ -3,6 +3,16 @@
 Atualizado ao fim de cada sessão (ST-090). Um bloco por sessão, o mais novo em cima.
 Vale o que está aqui e no Notion, não a memória do chat.
 
+## 2026-11-17 — Era contínua e fase de 90 s no motor das hordas
+
+- **Pedido:** branch nova a partir da main, PR em rascunho. Sem merge, sem push na main, sem deploy. O progresso (nível e cartas) segue dentro da era e zera numa era nova. A fase comum passa de 36 s para 90 s, com a curva e os eventos proporcionais. Não entra ainda o chefe aos 45 s, o 2º golpe, a evolução no nível 12 nem as melhorias permanentes.
+- **Feito:** a lógica fica no motor compartilhado (`DURACAO_FASE`, `RITMO_BASE`, `EVENTOS`, save da era). O Planeta no catálogo vai para 0.5.0 — o 0.4.0 é a ilha grande do PR #16. O Pescador vai para 0.2.0. O `release.json` de produção dos dois jogos não foi alterado.
+- **Medido com o robô parado** (WebKit, iPad geração 7, 1024×768, sem andar): Planeta 90,005 s, relógio 01:30, parede 91,7 s, nível 13, `andou` 0. FPS médio 53,6; na horda 54,5; pico de 22 inimigos a 58,2 fps. Pescador 90,003 s, relógio 01:30, parede 91,5 s, nível 12, `andou` 0. FPS médio 54,0; na horda 53,9; pico de 18 inimigos a 57,1 fps.
+- **Testes:** motor 16/16 (as regras antigas e as novas: era, era nova, save antigo, ritmo). iPad WebKit 6/6 do suite antigo e 8/8 da era (gen 7, toque, 1024×768 e 768×1024, página e iframe). `verificar_jogo.py --todos` ok.
+- **Não feito:** merge, deploy, e a atualização desta branch em cima do #16. Os prints atuais são de antes desse merge; serão refeitos quando o #16 entrar.
+- **Notion:** esta sessão não veio de um card da fila; o hub não foi atualizado.
+- **NEXT:** quando o #16 estiver na main, atualizar a branch, resolver o catálogo (Planeta 0.5.0 por cima do 0.4.0 da ilha) e refazer os prints. Sem deploy daqui.
+
 ## 2026-11-16 — Pescador de camiseta cinza, branch em dia com a main
 
 - **Pedido do Boaz (15/11 21:33 BRT):** "Pode juntar e publicar o PR #12 com o Planeta e o Pescador, Samuel de camiseta cinza." O merge do PR e o deploy ficam com o Boaz.

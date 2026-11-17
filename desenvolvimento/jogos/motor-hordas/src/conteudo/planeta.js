@@ -1,3 +1,4 @@
+import { DURACAO_FASE, EVENTOS } from '../motor/partida.js'
 import { ITENS_COMUNS, bifurca, no } from './comun.js'
 
 const golpe = (id, nome, texto, icone, sprite, tipo, resto) => ({
@@ -60,8 +61,8 @@ const fase = (ordem, regiao, tipo, x, y, extra) => no(ordem, regiao, tipo, x, y,
   horda: extra.horda,
   bando: extra.bando || extra.horda[0],
   chefe: extra.chefe || null,
-  duracao: extra.duracao ?? 36,
-  chefeEm: extra.chefeEm ?? 18,
+  duracao: extra.duracao ?? DURACAO_FASE,
+  chefeEm: extra.chefeEm ?? EVENTOS.chefe,
   chao: extra.chao,
   agua: null,
   perigos: tipo === 'fim' ? [] : PERIGOS,
@@ -101,13 +102,13 @@ export const conteudoPlaneta = {
   fases: [
     fase(1, 'pedra', 'fase', 24, 180, { biomas: ['pedra'], horda: ['seixo-vivo', 'lobo-da-pedra', 'mamute'], bando: 'enxame', chao: chaoPedra }),
     fase(2, 'pedra', 'fase', 56, 96, { biomas: ['pedra'], horda: ['lobo-da-pedra', 'seixo-vivo', 'mamute'], bando: 'enxame', chao: chaoPedra }),
-    fase(3, 'pedra', 'chefe', 94, 168, { biomas: ['pedra'], horda: ['seixo-vivo', 'lobo-da-pedra'], chefe: 'urso-da-caverna', chao: chaoPedra, duracao: 90 }),
+    fase(3, 'pedra', 'chefe', 94, 168, { biomas: ['pedra'], horda: ['seixo-vivo', 'lobo-da-pedra'], chefe: 'urso-da-caverna', chao: chaoPedra }),
     fase(4, 'bronze', 'fase', 128, 88, { biomas: ['bronze'], horda: ['guerreiro-de-bronze', 'escorpiao', 'golem-de-barro'], bando: 'caranguejo-gigante', chao: chaoBronze }),
     fase(5, 'bronze', 'fase', 158, 176, { biomas: ['bronze'], horda: ['escorpiao', 'guerreiro-de-bronze', 'caranguejo-gigante'], chao: chaoBronze }),
-    fase(6, 'bronze', 'chefe', 192, 98, { biomas: ['bronze'], horda: ['guerreiro-de-bronze', 'golem-de-barro'], chefe: 'sentinela-de-bronze', chao: chaoBronze, duracao: 90 }),
+    fase(6, 'bronze', 'chefe', 192, 98, { biomas: ['bronze'], horda: ['guerreiro-de-bronze', 'golem-de-barro'], chefe: 'sentinela-de-bronze', chao: chaoBronze }),
     fase(7, 'ferro', 'fase', 226, 176, { biomas: ['ferro'], horda: ['soldado-de-ferro', 'lobo-de-ferro', 'robo-enferrujado'], bando: 'catapulta', chao: chaoFerro }),
     fase(8, 'ferro', 'fase', 252, 92, { biomas: ['ferro'], horda: ['lobo-de-ferro', 'soldado-de-ferro', 'catapulta'], chao: chaoFerro }),
-    fase(9, 'ferro', 'chefe', 282, 170, { biomas: ['ferro'], horda: ['soldado-de-ferro', 'robo-enferrujado'], chefe: 'colosso-de-ferro', chao: chaoFerro, duracao: 90 }),
+    fase(9, 'ferro', 'chefe', 282, 170, { biomas: ['ferro'], horda: ['soldado-de-ferro', 'robo-enferrujado'], chefe: 'colosso-de-ferro', chao: chaoFerro }),
     fase(10, 'fim', 'fim', 322, 150, { biomas: ['praia-farol'], horda: ['seixo-vivo'], chao: chaoPedra, duracao: 0 }),
   ],
   nos: {
@@ -126,6 +127,7 @@ export const conteudoPlaneta = {
   },
   config: {
     proposta: true,
+    duracaoFase: DURACAO_FASE,
     curva: [1.4, 2.2, 3],
     teto: [40, 70, 100],
     anel: 'hypot/2+12',

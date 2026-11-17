@@ -184,6 +184,13 @@ Não apagar decisões antigas: acrescentar uma nova com alternativa, motivo e ef
   a moldura ia parar longe do barco.
 - **Efeito:** vale para o Planeta e para o Pescador. Sem deploy nesta sessão.
 
+## DEC-020 — Progresso da era e fase comum de 90 s (2026-11-17)
+
+- **Decisão:** no motor compartilhado das hordas, o nível, a experiência, os golpes e os itens seguem da fase para a fase seguinte da mesma era (Pedra, Bronze, Ferro; rio, lago, mar). Era nova e jogo novo começam do zero. O save antigo (schema 2, sem era) continua válido; a era gravada é um campo opcional. A fase comum dura `DURACAO_FASE` (90 s, número provisório). A curva e os eventos (bando 16, elite e chefe 18, anel 26) ficam no relógio de 36 s e esticam com a duração da fase.
+- **Fora desta leva:** chefe extra no meio da fase, escolha do segundo golpe, evolução no nível 12 e melhorias permanentes.
+- **Catálogo:** Planeta 0.5.0 e Pescador 0.2.0. O 0.4.0 do Planeta fica com a ilha grande (PR #16). O `release.json` de produção não muda.
+- **Efeito:** sem merge e sem deploy. Quando o #16 entrar no main, esta branch atualiza e os prints são refeitos.
+
 ## DEC-019 — O Pescador usa a camiseta cinza (2026-11-15)
 
 - **Decisão (Boaz, 15/11 21:33 BRT):** o Samuel no barco é o `samuel-barco-cinza`.

@@ -241,7 +241,7 @@
       "entry": "index.html",
       "instructions": [
         "Toque numa fase do mapa. O dedo no chão move o Samuel; o botão de Ação solta o especial. Pausa e Tela cheia ficam no alto.",
-        "A lasca gira sozinha. Quando o nível sobe, toque numa das três cartas. Cada era tem três fases, e a terceira é o chefe.",
+        "Quando o nível sobe, toque numa das três cartas. O nível e as cartas seguem na fase seguinte da mesma idade e começam de novo na idade seguinte. Cada era tem três fases, e a terceira é o chefe.",
         "No Fácil a vida não zera e o Samuel não volta para o começo. O farol acende depois do colosso. O jogo guarda o mapa neste aparelho."
       ],
       "input": [
@@ -249,7 +249,7 @@
       ],
       "status": "pronto",
       "novo": true,
-      "version": "0.3.0"
+      "version": "0.5.0"
     },
     {
       "slug": "pescador-samuel",
@@ -260,7 +260,7 @@
       "entry": "index.html",
       "instructions": [
         "Toque numa água do mapa. O dedo move o barco e a câmera segue. Segure Ação para lançar a linha e soltar o especial.",
-        "Rio, lago e mar têm três fases cada. A terceira é o chefe. A décima é o peixe lendário, e o porto guarda o troféu.",
+        "Rio, lago e mar têm três fases cada. O nível e as cartas seguem na mesma água e começam de novo na água seguinte. A terceira é o chefe. A décima é o peixe lendário, e o porto guarda o troféu.",
         "No Fácil os monstros são mais lentos e a vida não zera. O álbum junta 30 peixes. O jogo guarda o mapa neste aparelho."
       ],
       "input": [
@@ -268,7 +268,7 @@
       ],
       "status": "pronto",
       "novo": true,
-      "version": "0.1.0"
+      "version": "0.2.0"
     },
     {
       "slug": "samuel-surfers",

@@ -4,7 +4,8 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { conteudoPlaneta } from '../src/conteudo/planeta.js'
 import { conteudoPescador } from '../src/conteudo/pescador.js'
-import { escolherCarta, criarPartida, DIFICULDADE, MAX_GOLPES, separarCorpos, tick, trazerChefe, xpPara } from '../src/motor/partida.js'
+import { escolherCarta, criarPartida, DIFICULDADE, DURACAO_FASE, EVENTOS, MAX_GOLPES, progressoDaPartida, relogioDaFase, RITMO_BASE, separarCorpos, tick, trazerChefe, xpPara } from '../src/motor/partida.js'
+import { migrarSave, progressoParaFase, SCHEMA_SAVE } from '../src/motor/save.js'
 import { dir8, distanciaAnel, encaixarVista, inserir, joystick, limparGrade, RAIO_STICK, xpPara as xpVista } from '../src/motor/numeros.js'
 
 const aqui = path.dirname(fileURLToPath(import.meta.url))
@@ -116,8 +117,11 @@ describe('contas do motor', () => {
 
   it('a fase de sobrevivência passa no tempo e o chefe muda na metade da vida', () => {
     const p = criarPartida(conteudoPlaneta, { fase: 0, seed: 11, vista: { w: 320, h: 240 } })
-    andar(p, 40)
+    expect(p.fase.duracao).toBe(DURACAO_FASE)
+    andar(p, DURACAO_FASE + 1)
     expect(p.pausa).toBe('vitoria')
+    expect(p.tempo).toBeGreaterThanOrEqual(DURACAO_FASE)
+    expect(p.tempo).toBeLessThan(DURACAO_FASE + 0.05)
     expect(p.jogador.nivel).toBeGreaterThan(1)
     expect(p.jogador.golpes.length).toBeGreaterThan(1)
     expect(p.jogador.golpes.length).toBeLessThanOrEqual(MAX_GOLPES)
@@ -464,5 +468,212 @@ describe('contas do motor', () => {
     expect(lanca.ax).toBeCloseTo(pequeno.x, 0)
     expect(lanca.ay).toBeCloseTo(pequeno.y, 0)
     expect(lanca.alvoId).toBe(pequeno.id)
+  })
+})
+
+describe('progresso da era e ritmo da fase', () => {
+  const parado = { x: 0, y: 0, acao: false, acaoSegurada: false }
+
+  function build(conteudo, fase) {
+    const p = criarPartida(conteudo, { fase, seed: 4, modo: 'facil', vista: { w: 320, h: 240 } })
+    escolherCarta(p, 0)
+    p.jogador.nivel = 6
+    p.jogador.xp = 2.5
+    p.jogador.xpProx = xpPara(6)
+    const segundo = conteudo.golpes.find((g) => g.id !== p.jogador.golpes[0].id)
+    p.jogador.golpes = [
+      { id: p.jogador.golpes[0].id, nivel: 3, cd: 9, caminho: 1 },
+      { id: segundo.id, nivel: 2, cd: 4, caminho: 0 },
+    ]
+    p.jogador.itens = [{ id: 'bota', nivel: 2 }]
+    p.jogador.pendentes = 0
+    return p
+  }
+
+  it('nível e cartas seguem para a fase seguinte da mesma era', () => {
+    for (const conteudo of [conteudoPlaneta, conteudoPescador]) {
+      const p = build(conteudo, 0)
+      const prog = progressoDaPartida(p)
+      expect(prog.regiao).toBe(conteudo.fases[0].regiao)
+      expect(prog.golpes[0].caminho).toBe(1)
+      const seguinte = criarPartida(conteudo, { fase: 1, seed: 8, progresso: prog })
+      expect(seguinte.fase.regiao).toBe(p.fase.regiao)
+      expect(seguinte.jogador.nivel).toBe(6)
+      expect(seguinte.jogador.xp).toBe(2.5)
+      expect(seguinte.jogador.golpes.map((g) => [g.id, g.nivel, g.caminho])).toEqual([
+        [prog.golpes[0].id, 3, 1],
+        [prog.golpes[1].id, 2, 0],
+      ])
+      expect(seguinte.jogador.golpes[0].cd).toBeLessThan(1)
+      expect(seguinte.jogador.itens).toEqual([{ id: 'bota', nivel: 2 }])
+      expect(seguinte.jogador.stats.speed).toBe(68 + 16)
+      expect(seguinte.jogador.hp).toBe(seguinte.jogador.stats.hpMax)
+      expect(seguinte.pausa).toBe('jogo')
+      const chefe = criarPartida(conteudo, { fase: 2, seed: 3, progresso: prog })
+      expect(chefe.fase.tipo).toBe('chefe')
+      expect(chefe.jogador.nivel).toBe(6)
+      expect(chefe.jogador.golpes).toHaveLength(2)
+    }
+  })
+
+  it('era nova e jogo novo zeram o nível e as cartas', () => {
+    const p = build(conteudoPlaneta, 0)
+    const prog = progressoDaPartida(p)
+    const bronze = criarPartida(conteudoPlaneta, { fase: 3, seed: 2, progresso: prog })
+    expect(bronze.fase.regiao).toBe('bronze')
+    expect(bronze.jogador.nivel).toBe(1)
+    expect(bronze.jogador.golpes.map((g) => g.id)).toEqual(['funda'])
+    expect(bronze.jogador.itens).toEqual([])
+    expect(bronze.pausa).toBe('cartas')
+    const lago = criarPartida(conteudoPescador, {
+      fase: 3,
+      seed: 2,
+      progresso: progressoDaPartida(build(conteudoPescador, 0)),
+    })
+    expect(lago.fase.regiao).toBe('lago')
+    expect(lago.jogador.nivel).toBe(1)
+    expect(lago.jogador.golpes.map((g) => g.id)).toEqual(['arpao'])
+    const novo = criarPartida(conteudoPlaneta, { fase: 0, seed: 1 })
+    expect(novo.jogador.nivel).toBe(1)
+    expect(novo.jogador.golpes).toHaveLength(1)
+    const fim = criarPartida(conteudoPlaneta, { fase: 9, progresso: prog })
+    expect(fim.pausa).toBe('fim')
+    expect(fim.jogador.nivel).toBe(1)
+  })
+
+  it('carta pendente da era reabre, e golpe desconhecido não quebra a fase', () => {
+    const p = build(conteudoPlaneta, 0)
+    const prog = progressoDaPartida(p)
+    prog.pendentes = 2
+    const meio = criarPartida(conteudoPlaneta, { fase: 1, progresso: prog })
+    expect(meio.pausa).toBe('cartas')
+    expect(meio.jogador.pendentes).toBe(2)
+    escolherCarta(meio, 0)
+    expect(meio.jogador.pendentes).toBe(1)
+    const ruim = criarPartida(conteudoPlaneta, {
+      fase: 0,
+      progresso: { regiao: 'pedra', nivel: 9, xp: 0, golpes: [{ id: 'nao-existe', nivel: 4 }], itens: [] },
+    })
+    expect(ruim.jogador.nivel).toBe(1)
+    expect(ruim.pausa).toBe('cartas')
+    const misto = criarPartida(conteudoPlaneta, {
+      fase: 1,
+      progresso: {
+        regiao: 'pedra',
+        nivel: 4,
+        xp: 1,
+        golpes: [{ id: 'fantasma', nivel: 3 }, { id: 'lanca', nivel: 2, caminho: 1 }],
+        itens: [{ id: 'sumiu', nivel: 2 }, { id: 'bota', nivel: 1 }],
+      },
+    })
+    expect(misto.jogador.nivel).toBe(4)
+    expect(misto.jogador.golpes.map((g) => g.id)).toEqual(['lanca'])
+    expect(misto.jogador.itens.map((it) => it.id)).toEqual(['bota'])
+  })
+
+  it('save antigo carrega e a era gravada volta na mesma região', () => {
+    const texto = JSON.stringify({
+      schemaVersion: 2,
+      modo: 'normal',
+      aberta: 4,
+      vencidas: [1, 2, 3],
+      album: ['lambari'],
+      barcoDourado: true,
+    })
+    const velho = migrarSave(JSON.parse(texto))
+    expect(velho.schemaVersion).toBe(SCHEMA_SAVE)
+    expect(velho.modo).toBe('normal')
+    expect(velho.aberta).toBe(4)
+    expect(velho.vencidas).toEqual([1, 2, 3])
+    expect(velho.album).toEqual(['lambari'])
+    expect(velho.barcoDourado).toBe(true)
+    expect(velho.era).toBeNull()
+    expect(progressoParaFase(velho, conteudoPlaneta.fases[0])).toBeNull()
+    const doZero = criarPartida(conteudoPlaneta, { fase: 0, progresso: progressoParaFase(velho, conteudoPlaneta.fases[0]) })
+    expect(doZero.jogador.nivel).toBe(1)
+    expect(doZero.pausa).toBe('cartas')
+
+    const eraRuim = migrarSave({ schemaVersion: 2, aberta: 3, vencidas: [1], modo: 'facil', era: { regiao: 4, golpes: [] } })
+    expect(eraRuim.aberta).toBe(3)
+    expect(eraRuim.vencidas).toEqual([1])
+    expect(eraRuim.era).toBeNull()
+    expect(migrarSave(null).aberta).toBe(1)
+    expect(migrarSave({ schemaVersion: 1, aberta: 9 }).aberta).toBe(1)
+
+    const p = build(conteudoPescador, 0)
+    const gravado = migrarSave({
+      schemaVersion: 2,
+      modo: 'facil',
+      aberta: 2,
+      vencidas: [1],
+      album: [],
+      barcoDourado: false,
+      era: progressoDaPartida(p),
+    })
+    const deNovo = JSON.parse(JSON.stringify(gravado))
+    expect(progressoParaFase(deNovo, conteudoPescador.fases[1]).nivel).toBe(6)
+    const fase2 = criarPartida(conteudoPescador, { fase: 1, progresso: progressoParaFase(deNovo, conteudoPescador.fases[1]) })
+    expect(fase2.jogador.nivel).toBe(6)
+    expect(fase2.jogador.golpes.map((g) => g.id)).toEqual(p.jogador.golpes.map((g) => g.id))
+    expect(progressoParaFase(deNovo, conteudoPescador.fases[3])).toBeNull()
+    expect(progressoParaFase(deNovo, conteudoPescador.fases[10])).toBeNull()
+  })
+
+  it('curva e eventos esticam com a duração da fase', () => {
+    expect(DURACAO_FASE).toBe(90)
+    expect(RITMO_BASE).toBe(36)
+    const escala = DURACAO_FASE / RITMO_BASE
+    for (const conteudo of [conteudoPlaneta, conteudoPescador]) {
+      expect(conteudo.fases[0].duracao).toBe(DURACAO_FASE)
+      expect(conteudo.fases[2].duracao).toBe(DURACAO_FASE)
+      expect(conteudo.fases[conteudo.fases.length - 1].duracao).toBe(0)
+    }
+    expect(relogioDaFase(0, 90).taxa).toBe(1.4)
+    expect(relogioDaFase(20 * escala - 0.01, 90).taxa).toBe(1.4)
+    expect(relogioDaFase(20 * escala, 90).taxa).toBe(2.2)
+    expect(relogioDaFase(45 * escala, 90).taxa).toBe(3)
+    expect(relogioDaFase(16 * escala - 0.01, 90).bando).toBe(false)
+    expect(relogioDaFase(16 * escala, 90).bando).toBe(true)
+    expect(relogioDaFase(18 * escala, 90).elite).toBe(true)
+    expect(relogioDaFase(18 * escala, 90).chefe).toBe(true)
+    expect(relogioDaFase(26 * escala, 90).anel).toBe(true)
+    expect(relogioDaFase(16, 36).bando).toBe(true)
+    expect(relogioDaFase(15.99, 36).bando).toBe(false)
+    expect(relogioDaFase(16, 36).taxa).toBe(relogioDaFase(16 * escala, 90).taxa)
+
+    function cruzar(p, segundos) {
+      const marca = segundos * (p.fase.duracao / RITMO_BASE)
+      p.tempo = marca - 0.03
+      tick(p, 1 / 60, parado)
+      return marca
+    }
+    const comum = criarPartida(conteudoPlaneta, { fase: 0, seed: 6, modo: 'facil', vista: { w: 320, h: 240 } })
+    escolherCarta(comum, 0)
+    const bando = cruzar(comum, EVENTOS.bando)
+    expect(comum.eventos.bando).toBe(false)
+    tick(comum, 1 / 60, parado)
+    expect(comum.eventos.bando).toBe(true)
+    expect(comum.tempo).toBeGreaterThanOrEqual(bando)
+    expect(comum.tempo).toBeLessThan(bando + 0.05)
+    cruzar(comum, EVENTOS.elite)
+    expect(comum.eventos.elite).toBe(false)
+    tick(comum, 1 / 60, parado)
+    expect(comum.eventos.elite).toBe(true)
+    expect(comum.chefe).toBeFalsy()
+    cruzar(comum, EVENTOS.anel)
+    tick(comum, 1 / 60, parado)
+    expect(comum.eventos.anel).toBe(true)
+    expect(comum.pausa).toBe('jogo')
+
+    const chefe = criarPartida(conteudoPlaneta, { fase: 2, seed: 6, modo: 'facil', vista: { w: 320, h: 240 } })
+    escolherCarta(chefe, 0)
+    const marca = cruzar(chefe, chefe.fase.chefeEm)
+    expect(chefe.eventos.chefe).toBe(false)
+    tick(chefe, 1 / 60, parado)
+    expect(chefe.eventos.chefe).toBe(true)
+    expect(chefe.chefe).toBeTruthy()
+    expect(chefe.tempo).toBeGreaterThanOrEqual(marca)
+    expect(chefe.tempo).toBeLessThan(marca + 0.05)
+    expect(marca).toBeCloseTo(18 * escala, 5)
   })
 })
