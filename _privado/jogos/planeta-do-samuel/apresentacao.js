@@ -1,0 +1,523 @@
+/* Apresentação da v0.4: ilha grande, horda, XP, cartas e chefes.
+   Câmera, stick, direção, pixel, sombra, chão e noite já reescritos do MIT. */
+
+import {
+  CONFIG, ERAS, PROPOSTA, TEXTOS,
+  escolherCarta, escuridao, ganharXp, limiteCamera, orbesLasca, receberDano,
+  restaurar, serializar, tempoDeTravessia as segundosDeTravessia, tick, criarPartida,
+} from './regras.js';
+import { CHAO } from './ilha.js';
+import { agarreDesceu, agarreMoveu, agarreSoltou } from './motor/joystick.js';
+import { sombra } from './motor/pixelart.js';
+import { escolherVista, vistaQueCabe } from './motor/viewport.js';
+import { desenharNoite } from './motor/noite.js';
+import { desenharChao, limparChao } from './motor/chao.js';
+import {
+  atlasCarregado, desenharSprite, ligarAtlas, manifesto, quandoAtlas, quadroUi,
+} from './motor/sprites.js';
+import { quadroCodigo } from './motor/placeholders.js';
+
+const MAR = { pedra: '#1E6E94', bronze: '#2A6858', ferro: '#163848' };
+const NOMES_CHEFE = {
+  'urso-da-caverna': 'Urso da caverna',
+  'sentinela-de-bronze': 'Sentinela de bronze',
+  'colosso-de-ferro': 'Colosso de ferro',
+};
+const tela = document.getElementById('tela');
+const ctx = tela.getContext('2d');
+ctx.imageSmoothingEnabled = false;
+const knob = document.getElementById('knob');
+const zona = document.getElementById('joystick');
+
+let estado = criarPartida();
+let pausado = true;
+let ultimo = 0;
+let relogio = 0;
+let eixoJoy = { x: 0, y: 0 };
+let joyAtivo = false;
+let agarre = null;
+let vista = { w: 320, h: 240, cssScale: 3 };
+let cartasChave = '';
+let quadros = 0;
+const teclas = {};
+const COR_MINI = ['#1E6E94', '#4AA0C4', '#E6D3A1', '#5A9A48', '#2F6B32', '#8D98A0', '#5A463C', '#E2544A'];
+const RGB_MINI = COR_MINI.map((hex) => {
+  const n = parseInt(hex.slice(1), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+});
+const RGB_NO = [47, 125, 69];
+const RGB_VEIO = [196, 160, 96];
+let miniImg = null;
+
+function salvar() {
+  estado.desdeSave = 0;
+  try { localStorage.setItem(CONFIG.chaveSave, JSON.stringify(serializar(estado))); } catch { /* o aparelho pode recusar */ }
+}
+
+function eixoAtual() {
+  if (joyAtivo) return eixoJoy;
+  const x = (teclas.ArrowRight || teclas.KeyD ? 1 : 0) - (teclas.ArrowLeft || teclas.KeyA ? 1 : 0);
+  const y = (teclas.ArrowDown || teclas.KeyS ? 1 : 0) - (teclas.ArrowUp || teclas.KeyW ? 1 : 0);
+  return { x, y };
+}
+
+function ajustarTela() {
+  const caixa = document.getElementById('jogo');
+  const layout = { width: caixa.clientWidth || 1, height: caixa.clientHeight || 1 };
+  const visual = window.visualViewport
+    ? { width: window.visualViewport.width, height: window.visualViewport.height }
+    : null;
+  const escolhida = escolherVista(visual, layout) || layout;
+  const fit = vistaQueCabe(escolhida.width, escolhida.height, window.devicePixelRatio || 1);
+  if (tela.width !== fit.w || tela.height !== fit.h) {
+    tela.width = fit.w;
+    tela.height = fit.h;
+  }
+  tela.style.width = `${fit.w * fit.cssScale}px`;
+  tela.style.height = `${fit.h * fit.cssScale}px`;
+  tela.style.left = `${Math.floor((layout.width - fit.w * fit.cssScale) / 2)}px`;
+  tela.style.top = `${Math.floor((layout.height - fit.h * fit.cssScale) / 2)}px`;
+  vista = fit;
+  ctx.imageSmoothingEnabled = false;
+}
+
+function camera() {
+  return limiteCamera(estado, vista.w, vista.h);
+}
+
+function corpo(id, x, y, opts) {
+  sombra(ctx, x, y, manifesto.sprites[id]?.frameW || 16);
+  desenharSprite(ctx, id, relogio, x, y, opts);
+}
+
+function desenharFeixe() {
+  if (!estado.farol) return;
+  const p = estado.farolPos;
+  const ang = Math.sin(relogio * 0.4) * 0.5;
+  const co = Math.cos(ang);
+  const si = Math.sin(ang);
+  ctx.fillStyle = 'rgba(242, 209, 90, 0.55)';
+  const lampada = p.y - 82;
+  for (let t = 0; t < 72; t += 2) {
+    const largura = 1 + Math.floor(t / 16);
+    for (let w = -largura; w <= largura; w++) {
+      ctx.fillRect(Math.round(p.x + co * t - si * w), Math.round(lampada + si * t + co * w), 1, 1);
+    }
+  }
+}
+
+function desenhar() {
+  ajustarTela();
+  const cam = camera();
+  const eixo = eixoAtual();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.fillStyle = MAR[estado.era] || MAR.pedra;
+  ctx.fillRect(0, 0, cam.w, cam.h);
+  desenharChao(ctx, estado, cam, relogio);
+  ctx.save();
+  ctx.translate(-cam.x, -cam.y);
+  if (estado.enchente && estado.enchente.resta > 0) {
+    const agua = estado.enchente;
+    const passo = 28;
+    for (let oy = -agua.raio; oy <= agua.raio; oy += passo) {
+      for (let ox = -agua.raio; ox <= agua.raio; ox += passo) {
+        if (ox * ox + oy * oy > agua.raio * agua.raio) continue;
+        desenharSprite(ctx, 'enchente', relogio + (ox + oy) * 0.01, agua.x + ox, agua.y + oy, { alfa: 0.9 });
+      }
+    }
+  }
+  for (const z of estado.zonas) {
+    if (z.evento === 'meteoros') {
+      desenharSprite(ctx, 'telegraph', relogio, z.x, z.y, { alfa: 0.9 });
+      desenharSprite(ctx, z.resta > 0 ? 'meteoro' : 'meteoro-impacto', relogio, z.x, z.y - 20);
+    } else if (z.evento === 'raios') {
+      desenharSprite(ctx, 'raio-telegraph', relogio, z.x, z.y, { alfa: 0.9 });
+      desenharSprite(ctx, 'raio', relogio, z.x, z.y);
+    } else {
+      desenharSprite(ctx, z.sprite || 'telegraph', relogio, z.x, z.y, { alfa: 0.9 });
+    }
+  }
+  const fila = [];
+  const por = (y, desenha) => fila.push({ y, i: fila.length, desenha });
+  por(estado.farolPos.y, () => corpo(estado.farol ? 'farol-aceso' : 'farol-0', estado.farolPos.x, estado.farolPos.y));
+  por(estado.inicio.y, () => corpo('cao-parado', estado.inicio.x + 40, estado.inicio.y));
+  const bloco = CONFIG.bloco;
+  const c0 = Math.floor(cam.x / bloco) - 3;
+  const c1 = Math.ceil((cam.x + cam.w) / bloco) + 1;
+  const l0 = Math.floor(cam.y / bloco) - 4;
+  const l1 = Math.ceil((cam.y + cam.h) / bloco) + 2;
+  const spriteNo = ['', 'arvore', 'rocha', 'arbusto', 'veio', 'arvore'];
+  for (const no of estado.lista) {
+    if (no.col < c0 || no.col > c1 || no.lin < l0 || no.lin > l1) continue;
+    const tipo = estado.recursos[no.i];
+    if (!tipo) continue;
+    const x = (no.col + 0.5) * bloco;
+    const y = (no.lin + 1) * bloco - 2;
+    por(y, () => corpo(spriteNo[tipo], x, y));
+  }
+  for (const g of estado.gemas) por(g.y, () => desenharSprite(ctx, g.sprite, relogio, g.x, g.y));
+  for (const inimigo of estado.inimigos) {
+    por(inimigo.y, () => corpo(inimigo.sprite, inimigo.x, inimigo.y, { direcao: inimigo.direcao }));
+  }
+  if (estado.chefe) {
+    const chefe = estado.chefe;
+    por(chefe.y, () => {
+      corpo(chefe.sprite, chefe.x, chefe.y, { direcao: chefe.direcao });
+      if (chefe.modo === 'atordoado') {
+        ctx.fillStyle = '#F2D15A';
+        for (let i = 0; i < 3; i++) {
+          const a = relogio * 5 + i * 2.1;
+          ctx.fillRect(Math.round(chefe.x + Math.cos(a) * 18 - 2), Math.round(chefe.y - 30 + Math.sin(a) * 4), 4, 4);
+        }
+      }
+    });
+  }
+  const andando = Math.hypot(eixo.x, eixo.y) > 0.1 && !pausado && !estado.pausa;
+  por(estado.y, () => corpo(andando ? 'samuel-andar' : 'samuel-parado', estado.x, estado.y, {
+    direcao: estado.direcao || 0,
+    alfa: estado.invulneravel > 0 && Math.floor(relogio * 8) % 2 ? 0.45 : 1,
+  }));
+  fila.sort((a, b) => a.y - b.y || a.i - b.i);
+  for (const item of fila) item.desenha();
+  for (const orbe of orbesLasca(estado)) desenharSprite(ctx, 'lasca', relogio, orbe.x, orbe.y);
+  if (estado.armas.faisca || estado.fogueira) {
+    desenharSprite(ctx, 'faisca', relogio, estado.x, estado.y + 6, { alfa: 0.8 });
+  }
+  for (const tiro of estado.projeteis) {
+    desenharSprite(ctx, tiro.sprite, relogio, tiro.x, tiro.y, {
+      direcao: tiro.direcao,
+      angulo: Math.atan2(tiro.vy, tiro.vx),
+    });
+  }
+  for (const fx of estado.efeitos) desenharSprite(ctx, fx.tipo === 'acerto' ? 'acerto' : fx.tipo === 'morte' ? 'morte' : 'levelup', fx.idade, fx.x, fx.y);
+  desenharFeixe();
+  ctx.restore();
+  const luzes = [];
+  const esc = escuridao(estado);
+  if (esc > 0.04) {
+    luzes.push({ x: estado.x, y: estado.y - 8, raio: 96 });
+    if (estado.cratera) luzes.push({ x: estado.cratera.x, y: estado.cratera.y, raio: 150 });
+  }
+  if (estado.fogueira) luzes.push({ x: estado.x, y: estado.y, raio: CONFIG.raioFogueira });
+  if (estado.farol) luzes.push({ x: estado.farolPos.x, y: estado.farolPos.y - 40, raio: CONFIG.raioFarol });
+  desenharNoite(ctx, cam, esc, luzes);
+  desenharMinimapa();
+}
+
+function desenharMinimapa() {
+  const canvas = document.getElementById('minimapa');
+  if (!canvas || !estado.terreno) return;
+  const g = canvas.getContext('2d');
+  const lado = estado.colunas;
+  if (!miniImg || miniImg.width !== lado) miniImg = g.createImageData(lado, lado);
+  const data = miniImg.data;
+  const terreno = estado.terreno;
+  const recursos = estado.recursos;
+  for (let i = 0; i < terreno.length; i++) {
+    const o = i * 4;
+    const tipo = recursos[i];
+    let rgb = RGB_MINI[terreno[i]] || RGB_MINI[CHAO.FUNDO];
+    if (tipo) rgb = tipo === 4 ? RGB_VEIO : RGB_NO;
+    data[o] = rgb[0];
+    data[o + 1] = rgb[1];
+    data[o + 2] = rgb[2];
+    data[o + 3] = 255;
+  }
+  const px = (ponto, r, g2, b) => {
+    const col = Math.max(0, Math.min(lado - 1, Math.floor(ponto.x / CONFIG.bloco)));
+    const lin = Math.max(0, Math.min(lado - 1, Math.floor(ponto.y / CONFIG.bloco)));
+    for (let y = lin - 1; y <= lin + 1; y++) {
+      for (let x = col - 1; x <= col + 1; x++) {
+        if (x < 0 || y < 0 || x >= lado || y >= lado) continue;
+        const o = (y * lado + x) * 4;
+        data[o] = r;
+        data[o + 1] = g2;
+        data[o + 2] = b;
+      }
+    }
+  };
+  px(estado.farolPos, 242, 209, 90);
+  px(estado, 255, 157, 82);
+  g.putImageData(miniImg, 0, 0);
+  const sx = (ponto) => (ponto.x / (lado * CONFIG.bloco)) * canvas.width;
+  const sy = (ponto) => (ponto.y / (lado * CONFIG.bloco)) * canvas.height;
+  g.strokeStyle = '#F2D15A';
+  g.lineWidth = 2;
+  g.beginPath();
+  g.moveTo(sx(estado), sy(estado));
+  g.lineTo(sx(estado.farolPos), sy(estado.farolPos));
+  g.stroke();
+}
+
+function relogioTexto(seg) {
+  const s = Math.max(0, Math.floor(seg));
+  return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+}
+
+function copiarIcone(id) {
+  const src = quadroUi(id);
+  if (!src) return null;
+  const c = document.createElement('canvas');
+  c.width = src.width;
+  c.height = src.height;
+  const g = c.getContext('2d');
+  g.imageSmoothingEnabled = false;
+  g.drawImage(src, 0, 0);
+  return c;
+}
+
+function pintarVidas() {
+  const por = CONFIG.vidaMax / 5;
+  const total = Math.max(1, Math.ceil(estado.vidaMax / por));
+  const cheios = estado.vida <= 0 ? 0 : Math.max(0, Math.min(total, Math.ceil(estado.vida / por)));
+  const caixa = document.getElementById('vidas');
+  const chave = `${total}:${cheios}:${atlasCarregado() ? 1 : 0}`;
+  if (caixa.dataset.chave === chave) return;
+  caixa.dataset.chave = chave;
+  caixa.replaceChildren();
+  caixa.setAttribute('aria-label', `Vida ${cheios} de ${total}`);
+  for (let i = 0; i < total; i++) {
+    const c = copiarIcone(i < cheios ? 'icone-vida' : 'icone-vida-vazia');
+    if (c) caixa.appendChild(c);
+  }
+}
+
+function atualizarHud() {
+  document.getElementById('relogio').textContent = relogioTexto(estado.tempo);
+  document.getElementById('nivel').textContent = String(estado.nivel);
+  document.getElementById('barraXp').style.width = `${Math.max(0, Math.min(100, Math.round(100 * estado.xp / estado.xpProx)))}%`;
+  pintarVidas();
+  const chefe = document.getElementById('medChefe');
+  if (estado.chefe) {
+    chefe.hidden = false;
+    chefe.setAttribute('aria-label', NOMES_CHEFE[estado.chefe.tipo] || 'Chefe');
+    document.getElementById('barraChefe').style.width = `${Math.max(0, Math.round(100 * estado.chefe.hp / estado.chefe.hpMax))}%`;
+  } else chefe.hidden = true;
+  document.getElementById('dica').textContent = estado.vitoria ? TEXTOS.dica.farol : TEXTOS.dica[estado.era];
+  const armas = document.getElementById('armas');
+  const ids = ['lasca', 'lanca', 'faisca'].filter((id) => estado.armas[id]);
+  if (estado.fogueira) ids.push('fogueira');
+  const chaveArmas = `${ids.join()}|${atlasCarregado() ? 1 : 0}`;
+  if (armas.dataset.ids !== chaveArmas) {
+    armas.dataset.ids = chaveArmas;
+    armas.replaceChildren();
+    for (const id of ids) {
+      const icon = id === 'fogueira' ? 'icone-fogueira-carta' : `icone-${id}`;
+      const c = copiarIcone(icon);
+      if (c) armas.appendChild(c);
+    }
+  }
+  mostrarCartas();
+}
+
+function mostrarCartas() {
+  const caixa = document.getElementById('levelup');
+  const lista = document.getElementById('cartas');
+  if (!estado.pausa) {
+    caixa.hidden = true;
+    cartasChave = '';
+    return;
+  }
+  caixa.hidden = false;
+  const chave = `${estado.nivel}:${estado.niveisPendentes}:${estado.cartas.map((c) => c.id).join('|')}`;
+  if (cartasChave === chave) return;
+  cartasChave = chave;
+  const aberto = performance.now();
+  lista.replaceChildren();
+  estado.cartas.forEach((c, i) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.id = `carta-${i}`;
+    b.dataset.alvo = 'carta';
+    b.innerHTML = `<strong>${c.nome}</strong><span>${c.texto}</span>`;
+    b.addEventListener('click', () => {
+      if (performance.now() - aberto < CONFIG.guardaToqueMs) return;
+      escolherCarta(estado, i);
+      cartasChave = '';
+      salvar();
+      mostrarCartas();
+    });
+    lista.appendChild(b);
+  });
+}
+
+function frame(t) {
+  quadros += 1;
+  const dt = ultimo ? Math.min(0.05, (t - ultimo) / 1000) : 0;
+  ultimo = t;
+  relogio += dt;
+  if (!pausado) {
+    tick(estado, dt, eixoAtual());
+    if (estado.desdeSave >= CONFIG.autosaveSegundos) salvar();
+  }
+  desenhar();
+  atualizarHud();
+  requestAnimationFrame(frame);
+}
+
+function centroDoStick() {
+  const r = zona.getBoundingClientRect();
+  return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+}
+
+function aplicarStick(stick) {
+  eixoJoy = stick.vec;
+  joyAtivo = true;
+  const r = zona.getBoundingClientRect();
+  knob.style.left = `${stick.knob.x - r.left - 24}px`;
+  knob.style.top = `${stick.knob.y - r.top - 24}px`;
+}
+
+function soltarJoy() {
+  joyAtivo = false;
+  eixoJoy = { x: 0, y: 0 };
+  agarre = null;
+  knob.style.left = '40px';
+  knob.style.top = '40px';
+}
+
+zona.addEventListener('pointerdown', (e) => {
+  zona.setPointerCapture(e.pointerId);
+  agarre = agarreDesceu(agarre, { id: e.pointerId, em: { x: e.clientX, y: e.clientY }, primario: e.isPrimary }, centroDoStick());
+  if (agarre) aplicarStick(agarre.stick);
+});
+zona.addEventListener('pointermove', (e) => {
+  agarre = agarreMoveu(agarre, e.pointerId, { x: e.clientX, y: e.clientY });
+  if (agarre) aplicarStick(agarre.stick);
+});
+zona.addEventListener('pointerup', (e) => {
+  agarre = agarreSoltou(agarre, e.pointerId);
+  if (!agarre) soltarJoy();
+});
+zona.addEventListener('pointercancel', () => soltarJoy());
+zona.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  const t = e.changedTouches[0];
+  agarre = agarreDesceu(null, { id: t.identifier, em: { x: t.clientX, y: t.clientY }, primario: true }, centroDoStick());
+  if (agarre) aplicarStick(agarre.stick);
+}, { passive: false });
+zona.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+  const t = e.changedTouches[0];
+  agarre = agarreMoveu(agarre, t.identifier, { x: t.clientX, y: t.clientY });
+  if (agarre) aplicarStick(agarre.stick);
+}, { passive: false });
+zona.addEventListener('touchend', soltarJoy);
+zona.addEventListener('touchcancel', soltarJoy);
+
+function emJogo() {
+  return document.getElementById('titulo').hidden;
+}
+
+function abrirPausa(ligar) {
+  if (!emJogo()) return;
+  pausado = ligar;
+  document.getElementById('pausa').hidden = !ligar;
+  if (ligar) salvar();
+}
+document.getElementById('btnPausa').addEventListener('click', () => abrirPausa(!pausado));
+document.getElementById('btnSeguir').addEventListener('click', () => abrirPausa(false));
+document.getElementById('btnDeNovo').addEventListener('click', () => {
+  document.getElementById('pausa').hidden = true;
+  comecar(true);
+});
+function elementoCheio() {
+  return document.fullscreenElement || document.webkitFullscreenElement || null;
+}
+
+function alternarTela() {
+  const raiz = document.getElementById('jogo');
+  if (elementoCheio()) {
+    const sair = document.exitFullscreen || document.webkitExitFullscreen || document.webkitCancelFullScreen;
+    if (typeof sair === 'function') sair.call(document);
+    return;
+  }
+  const pedir = raiz.requestFullscreen || raiz.webkitRequestFullscreen || raiz.webkitRequestFullScreen;
+  if (typeof pedir === 'function') pedir.call(raiz);
+}
+
+document.getElementById('btnTela').addEventListener('click', alternarTela);
+
+addEventListener('keydown', (e) => {
+  teclas[e.code] = true;
+  if (e.code === 'KeyP' || e.code === 'Escape') abrirPausa(e.code === 'Escape' ? true : !pausado);
+  if (e.code === 'Digit1') escolherCarta(estado, 0);
+  if (e.code === 'Digit2') escolherCarta(estado, 1);
+  if (e.code === 'Digit3') escolherCarta(estado, 2);
+});
+addEventListener('keyup', (e) => { teclas[e.code] = false; });
+document.addEventListener('visibilitychange', () => { if (document.hidden) abrirPausa(true); });
+
+function saveUtil() {
+  try {
+    const bruto = localStorage.getItem(CONFIG.chaveSave);
+    return !!(bruto && restaurar(bruto));
+  } catch {
+    return false;
+  }
+}
+
+function atualizarContinuar() {
+  document.getElementById('btnContinuar').hidden = !saveUtil();
+}
+
+function comecar(novo) {
+  if (novo || !saveUtil()) {
+    estado = criarPartida();
+    if (novo) try { localStorage.removeItem(CONFIG.chaveSave); } catch { /* segue sem apagar */ }
+  } else {
+    let salvo = null;
+    try { salvo = localStorage.getItem(CONFIG.chaveSave); } catch { salvo = null; }
+    estado = (salvo && restaurar(salvo)) || criarPartida();
+  }
+  document.getElementById('titulo').hidden = true;
+  document.getElementById('pausa').hidden = true;
+  document.getElementById('levelup').hidden = true;
+  cartasChave = '';
+  pausado = false;
+  ultimo = 0;
+  soltarJoy();
+  atualizarContinuar();
+}
+
+document.getElementById('btnComecar').addEventListener('click', () => comecar(true));
+document.getElementById('btnContinuar').addEventListener('click', () => comecar(false));
+atualizarContinuar();
+quandoAtlas(limparChao);
+ligarAtlas();
+
+window.__planeta = {
+  CONFIG, PROPOSTA, TEXTOS, ERAS, manifesto,
+  get estado() { return estado; },
+  tick, ganharXp, escolherCarta, receberDano, serializar, restaurar, escuridao,
+  limiteCamera,
+  tempoDeTravessia() { return segundosDeTravessia(estado); },
+  quadros() { return quadros; },
+  salvar, comecar, quadroCodigo,
+  saveUtil,
+  idsSprites() { return Object.keys(manifesto.sprites); },
+  amostra(id) {
+    const q = quadroCodigo(id, 0, 0);
+    let opacos = 0;
+    for (let i = 3; i < q.data.length; i += 4) if (q.data[i]) opacos++;
+    const s = manifesto.sprites[id];
+    return { w: q.w, h: q.h, opacos, origem: s.origem, frameW: s.frameW, frameH: s.frameH };
+  },
+  definirEixo(x, y) {
+    eixoJoy = { x, y };
+    joyAtivo = x !== 0 || y !== 0;
+  },
+  simular(seg) {
+    const n = Math.max(1, Math.round(seg / 0.05));
+    for (let i = 0; i < n; i++) tick(estado, seg / n, eixoAtual());
+    relogio += seg;
+    desenhar();
+    atualizarHud();
+  },
+  desenhar() { desenhar(); atualizarHud(); },
+  travar(ligado) { pausado = !!ligado; },
+  atlasPronto: atlasCarregado,
+};
+
+addEventListener('resize', () => desenhar());
+requestAnimationFrame(frame);

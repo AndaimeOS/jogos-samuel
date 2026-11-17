@@ -3,6 +3,30 @@
 Atualizado ao fim de cada sessão (ST-090). Um bloco por sessão, o mais novo em cima.
 Vale o que está aqui e no Notion, não a memória do chat.
 
+## 2026-11-17 — Planeta 0.4 reaberto em cima da main (sem publicar)
+
+- **Pedido:** o PR #16 tinha sido fechado sem merge. Reabrir, deixar pronto para revisão e juntar a `main` atual. A ilha grande 0.4.0 fica. O que já está na main fica: Corredor, Surfers, Pescador 0.1.0 de camiseta cinza, botão Ver todos os jogos, `samuel.css?v=9`, Mestre do Cubo em rascunho.
+- **Conflitos:** catálogo, créditos, licença, `index.html`, origem, README e `STATE.md`. O motor 0.3 tinha apagado `regras.js`, `apresentacao.js`, `chao.js` e o manifesto; esses arquivos da ilha 0.4 voltaram, junto com o resto de `motor/`.
+- **Testes:** regras 18/18. `verificar_jogo.py --todos` ok. iPad WebKit 3/3 (1024×768, 768×1024, página e iframe, só toque).
+- **Não feito:** merge do PR e deploy.
+
+## 2026-11-16 — Planeta 0.4.0: a brasa não se pisa (mesmo PR, sem publicar)
+
+- **Pedido:** no print do vulcão o Samuel estava em cima da lava. Os prints de vulcão e paisagem eram o mesmo arquivo. Faltavam cenas de luta, noite e chefes, e o FPS da horda nos dois sentidos e no iframe.
+- **Decisão:** a brasa segura o passo, como a água funda. No Fácil, dano manda o Samuel de volta para a praia do sul — longe demais para um esbarrão. Encostar na lava solta uma faísca. O print do vulcão fica na cinza, na beira.
+- **Medidas da horda (WebKit, iPad, ~2 s, inimigos na tela):** paisagem 58 fps (11 vivos), retrato 62 fps (16), iframe de `/jogar/` 59,5 fps (15). Andando, sem horda, 62,3 fps.
+- **Não feito:** merge e deploy.
+
+## 2026-11-16 — Planeta do Samuel 0.4.0 (ilha grande, sem publicar)
+
+- **Pedido do Boaz (15/11 22:41 BRT):** as fases são pequenas e não usam a base. Subir o Planeta para a escala da Isle of Embers (128×128, tile 32 px) antes do resto. Sem merge e sem deploy.
+- **Feito:** o `MAPA` de 40×20 saiu. `ilha.js` gera a ilha com semente, queda radial, vulcão no centro, praia, mato, rocha e recursos espalhados. A câmera segue e para na borda. O mapinha no canto de cima aponta o farol. O dia dura 240 s. O urso investe e atordoa; a sentinela voa e cospe. O colosso de ferro continua o chefe da terceira idade. O chão só desenha os pedaços na tela.
+- **Medidas (WebKit, iPad geração 7, 1024×768):** travessia 43,1 s a 78 px/s (mundo 4096 px); geração da ilha 22 ms; FPS 62,4 num trecho de 2 s; resposta do HTML 5 ms no servidor local.
+- **Testes:** regras 17/17 e iPad WebKit 3/3 (paisagem, retrato e iframe de `/jogar/?jogo=planeta-do-samuel`, só toque). `verificar_jogo.py --todos` ok.
+- **Não feito:** merge e deploy. A fabricação completa da base (estações, fome, calor) não voltou: o laço segue sendo horda, XP e cartas. Arbusto cura e veio solta gema. A palmeira usa o sprite da árvore.
+- **Notion:** esta sessão não veio de um card da fila; o hub não foi atualizado.
+- **NEXT:** o Boaz olha os prints da ilha. Este agente não faz o deploy.
+
 ## 2026-11-16 — Pescador de camiseta cinza, branch em dia com a main
 
 - **Pedido do Boaz (15/11 21:33 BRT):** "Pode juntar e publicar o PR #12 com o Planeta e o Pescador, Samuel de camiseta cinza." O merge do PR e o deploy ficam com o Boaz.

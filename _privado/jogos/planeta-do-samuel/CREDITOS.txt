@@ -1,4 +1,7 @@
-Créditos — motor das hordas
+Planeta do Samuel — proposta 0.4 (PROPOSTA)
+Portal samuel.tech. A arte desta versão é a do jogo, desenhada em código ou no atlas.
+Sem assets de terceiros. Nenhum sprite, nome ou criatura de Pokémon.
+A palmeira da praia usa o desenho da árvore deste jogo.
 
 Código
   Copyright (c) 2026 Pedro Barretto
@@ -6,11 +9,14 @@ Código
   https://github.com/pedrobarretto/pokemon-survivors
   O aviso completo está em LICENSE.txt.
 
-  Entram aqui os sistemas da partida solo: vista, joystick flutuante,
-  mapa de regiões, horda que nasce fora da tela, separação dos corpos,
-  empurrão, experiência, cartas, tremor, número de dano e partículas.
-  Não entram conta, ranking, co-op, arena nem os arquivos de public/assets
-  daquele repositório (licença CC BY-NC, que este jogo não usa).
+Referência de mecânicas, licença MIT:
+Isle of Embers © 2026 Jaineil Rana (JaiGod)
+https://github.com/JaiGod/isle-of-embers
+O aviso completo está em LICENSE.txt. O JavaScript daqui é uma reescrita original.
+A v0.4 usa a escala da ilha, o dia de 240 s e os dois padrões de chefe
+(investida que atordoa; cuspe voando), com os nomes e a arte deste jogo.
+Não entram conta, ranking, co-op, arena nem os arquivos de public/assets
+daquele repositório (licença CC BY-NC, que este jogo não usa).
 
 Arte
   Desenhos originais do samuel.tech, ainda em escala de placeholder.
