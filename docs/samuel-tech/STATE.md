@@ -3,6 +3,13 @@
 Atualizado ao fim de cada sessão (ST-090). Um bloco por sessão, o mais novo em cima.
 Vale o que está aqui e no Notion, não a memória do chat.
 
+## 2026-11-17 — Reino de camiseta cinza, selos do catálogo, ideias da ilha grande
+
+- **Pedido:** três tarefas, sem merge, sem push na `main` e sem deploy. Camiseta cinza no Reino. Ilha da Vida como só computador; A turma dos pets e Mestre do Cubo como em breve, com selo, e em breve sem abrir no iPad. O Mestre continua 404. Guardar as ideias do PR #16, comentar e fechar esse PR sem merge e sem apagar a branch.
+- **Feito:** a roupa do Samuel no Reino é `#8d9397`, o cinza medido nos sprites do Planeta, do Pescador e do Corredor e no código do Surfers. A capa do Reino acompanha. O catálogo ganha `so-computador` (joga, com selo) e o Mestre passa de rascunho para `em-breve` (card visível, página 404). As ideias da ilha grande estão em `docs/ideias/planeta-ilha-grande.md`.
+- **Não feito:** merge, push da `main`, deploy, Notion (a sessão não veio de um card da fila).
+- **NEXT:** o Boaz olha o rascunho. Este agente não publica.
+
 ## 2026-11-16 — Pescador de camiseta cinza, branch em dia com a main
 
 - **Pedido do Boaz (15/11 21:33 BRT):** "Pode juntar e publicar o PR #12 com o Planeta e o Pescador, Samuel de camiseta cinza." O merge do PR e o deploy ficam com o Boaz.
