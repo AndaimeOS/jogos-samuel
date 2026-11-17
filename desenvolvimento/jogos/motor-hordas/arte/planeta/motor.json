@@ -1,0 +1,948 @@
+{
+ "samuel": {
+  "anims": {
+   "Walk": {
+    "src": "arte/sprites/samuel/Walk.png",
+    "frameW": 32,
+    "frameH": 40,
+    "duracoes": [
+     8,
+     10,
+     8,
+     10
+    ],
+    "quadros": 4,
+    "linhas": 8
+   },
+   "Idle": {
+    "src": "arte/sprites/samuel/Idle.png",
+    "frameW": 32,
+    "frameH": 40,
+    "duracoes": [
+     40,
+     6,
+     6
+    ],
+    "quadros": 3,
+    "linhas": 8
+   },
+   "Hurt": {
+    "src": "arte/sprites/samuel/Hurt.png",
+    "frameW": 32,
+    "frameH": 40,
+    "duracoes": [
+     2,
+     8
+    ],
+    "quadros": 2,
+    "linhas": 8
+   }
+  },
+  "portrait": "arte/sprites/samuel/portrait.png",
+  "body": {
+   "bodyW": 17,
+   "bodyH": 32,
+   "footY": 15
+  }
+ },
+ "lobo-da-pedra": {
+  "anims": {
+   "Walk": {
+    "src": "arte/sprites/lobo-da-pedra/Walk.png",
+    "frameW": 32,
+    "frameH": 32,
+    "duracoes": [
+     8,
+     10,
+     8,
+     10
+    ],
+    "quadros": 4,
+    "linhas": 8
+   },
+   "Idle": {
+    "src": "arte/sprites/lobo-da-pedra/Idle.png",
+    "frameW": 32,
+    "frameH": 32,
+    "duracoes": [
+     40,
+     6,
+     6
+    ],
+    "quadros": 3,
+    "linhas": 8
+   },
+   "Hurt": {
+    "src": "arte/sprites/lobo-da-pedra/Hurt.png",
+    "frameW": 32,
+    "frameH": 32,
+    "duracoes": [
+     2,
+     8
+    ],
+    "quadros": 2,
+    "linhas": 8
+   },
+   "Sumico": {
+    "src": "arte/sprites/lobo-da-pedra/Sumico.png",
+    "frameW": 32,
+    "frameH": 32,
+    "duracoes": [
+     6,
+     5,
+     5,
+     6,
+     8
+    ],
+    "quadros": 5,
+    "linhas": 1
+   }
+  },
+  "portrait": "arte/sprites/lobo-da-pedra/portrait.png",
+  "body": {
+   "bodyW": 12,
+   "bodyH": 20,
+   "footY": 11
+  }
+ },
+ "seixo-vivo": {
+  "anims": {
+   "Walk": {
+    "src": "arte/sprites/seixo-vivo/Walk.png",
+    "frameW": 24,
+    "frameH": 24,
+    "duracoes": [
+     8,
+     10,
+     8,
+     10
+    ],
+    "quadros": 4,
+    "linhas": 8
+   },
+   "Idle": {
+    "src": "arte/sprites/seixo-vivo/Idle.png",
+    "frameW": 24,
+    "frameH": 24,
+    "duracoes": [
+     40,
+     6,
+     6
+    ],
+    "quadros": 3,
+    "linhas": 8
+   },
+   "Hurt": {
+    "src": "arte/sprites/seixo-vivo/Hurt.png",
+    "frameW": 24,
+    "frameH": 24,
+    "duracoes": [
+     2,
+     8
+    ],
+    "quadros": 2,
+    "linhas": 8
+   },
+   "Sumico": {
+    "src": "arte/sprites/seixo-vivo/Sumico.png",
+    "frameW": 24,
+    "frameH": 24,
+    "duracoes": [
+     6,
+     5,
+     5,
+     6,
+     8
+    ],
+    "quadros": 5,
+    "linhas": 1
+   }
+  },
+  "portrait": "arte/sprites/seixo-vivo/portrait.png",
+  "body": {
+   "bodyW": 12,
+   "bodyH": 16,
+   "footY": 8
+  }
+ },
+ "enxame": {
+  "anims": {
+   "Walk": {
+    "src": "arte/sprites/enxame/Walk.png",
+    "frameW": 32,
+    "frameH": 24,
+    "duracoes": [
+     8,
+     10,
+     8,
+     10
+    ],
+    "quadros": 4,
+    "linhas": 8
+   },
+   "Idle": {
+    "src": "arte/sprites/enxame/Idle.png",
+    "frameW": 32,
+    "frameH": 24,
+    "duracoes": [
+     40,
+     6,
+     6
+    ],
+    "quadros": 3,
+    "linhas": 8
+   },
+   "Hurt": {
+    "src": "arte/sprites/enxame/Hurt.png",
+    "frameW": 32,
+    "frameH": 24,
+    "duracoes": [
+     2,
+     8
+    ],
+    "quadros": 2,
+    "linhas": 8
+   },
+   "Sumico": {
+    "src": "arte/sprites/enxame/Sumico.png",
+    "frameW": 32,
+    "frameH": 24,
+    "duracoes": [
+     6,
+     5,
+     5,
+     6,
+     8
+    ],
+    "quadros": 5,
+    "linhas": 1
+   }
+  },
+  "portrait": "arte/sprites/enxame/portrait.png",
+  "body": {
+   "bodyW": 22,
+   "bodyH": 9,
+   "footY": 2
+  }
+ },
+ "escorpiao": {
+  "anims": {
+   "Walk": {
+    "src": "arte/sprites/escorpiao/Walk.png",
+    "frameW": 32,
+    "frameH": 32,
+    "duracoes": [
+     8,
+     10,
+     8,
+     10
+    ],
+    "quadros": 4,
+    "linhas": 8
+   },
+   "Idle": {
+    "src": "arte/sprites/escorpiao/Idle.png",
+    "frameW": 32,
+    "frameH": 32,
+    "duracoes": [
+     40,
+     6,
+     6
+    ],
+    "quadros": 3,
+    "linhas": 8
+   },
+   "Hurt": {
+    "src": "arte/sprites/escorpiao/Hurt.png",
+    "frameW": 32,
+    "frameH": 32,
+    "duracoes": [
+     2,
+     8
+    ],
+    "quadros": 2,
+    "linhas": 8
+   },
+   "Sumico": {
+    "src": "arte/sprites/escorpiao/Sumico.png",
+    "frameW": 32,
+    "frameH": 32,
+    "duracoes": [
+     6,
+     5,
+     5,
+     6,
+     8
+    ],
+    "quadros": 5,
+    "linhas": 1
+   }
+  },
+  "portrait": "arte/sprites/escorpiao/portrait.png",
+  "body": {
+   "bodyW": 16,
+   "bodyH": 21,
+   "footY": 9
+  }
+ },
+ "guerreiro-de-bronze": {
+  "anims": {
+   "Walk": {
+    "src": "arte/sprites/guerreiro-de-bronze/Walk.png",
+    "frameW": 24,
+    "frameH": 40,
+    "duracoes": [
+     8,
+     10,
+     8,
+     10
+    ],
+    "quadros": 4,
+    "linhas": 8
+   },
+   "Idle": {
+    "src": "arte/sprites/guerreiro-de-bronze/Idle.png",
+    "frameW": 24,
+    "frameH": 40,
+    "duracoes": [
+     40,
+     6,
+     6
+    ],
+    "quadros": 3,
+    "linhas": 8
+   },
+   "Hurt": {
+    "src": "arte/sprites/guerreiro-de-bronze/Hurt.png",
+    "frameW": 24,
+    "frameH": 40,
+    "duracoes": [
+     2,
+     8
+    ],
+    "quadros": 2,
+    "linhas": 8
+   },
+   "Sumico": {
+    "src": "arte/sprites/guerreiro-de-bronze/Sumico.png",
+    "frameW": 24,
+    "frameH": 40,
+    "duracoes": [
+     6,
+     5,
+     5,
+     6,
+     8
+    ],
+    "quadros": 5,
+    "linhas": 1
+   }
+  },
+  "portrait": "arte/sprites/guerreiro-de-bronze/portrait.png",
+  "body": {
+   "bodyW": 16,
+   "bodyH": 28,
+   "footY": 12
+  }
+ },
+ "golem-de-barro": {
+  "anims": {
+   "Walk": {
+    "src": "arte/sprites/golem-de-barro/Walk.png",
+    "frameW": 32,
+    "frameH": 32,
+    "duracoes": [
+     8,
+     10,
+     8,
+     10
+    ],
+    "quadros": 4,
+    "linhas": 8
+   },
+   "Idle": {
+    "src": "arte/sprites/golem-de-barro/Idle.png",
+    "frameW": 32,
+    "frameH": 32,
+    "duracoes": [
+     40,
+     6,
+     6
+    ],
+    "quadros": 3,
+    "linhas": 8
+   },
+   "Hurt": {
+    "src": "arte/sprites/golem-de-barro/Hurt.png",
+    "frameW": 32,
+    "frameH": 32,
+    "duracoes": [
+     2,
+     8
+    ],
+    "quadros": 2,
+    "linhas": 8
+   },
+   "Sumico": {
+    "src": "arte/sprites/golem-de-barro/Sumico.png",
+    "frameW": 32,
+    "frameH": 32,
+    "duracoes": [
+     6,
+     5,
+     5,
+     6,
+     8
+    ],
+    "quadros": 5,
+    "linhas": 1
+   }
+  },
+  "portrait": "arte/sprites/golem-de-barro/portrait.png",
+  "body": {
+   "bodyW": 24,
+   "bodyH": 21,
+   "footY": 10
+  }
+ },
+ "soldado-de-ferro": {
+  "anims": {
+   "Walk": {
+    "src": "arte/sprites/soldado-de-ferro/Walk.png",
+    "frameW": 24,
+    "frameH": 40,
+    "duracoes": [
+     8,
+     10,
+     8,
+     10
+    ],
+    "quadros": 4,
+    "linhas": 8
+   },
+   "Idle": {
+    "src": "arte/sprites/soldado-de-ferro/Idle.png",
+    "frameW": 24,
+    "frameH": 40,
+    "duracoes": [
+     40,
+     6,
+     6
+    ],
+    "quadros": 3,
+    "linhas": 8
+   },
+   "Hurt": {
+    "src": "arte/sprites/soldado-de-ferro/Hurt.png",
+    "frameW": 24,
+    "frameH": 40,
+    "duracoes": [
+     2,
+     8
+    ],
+    "quadros": 2,
+    "linhas": 8
+   },
+   "Sumico": {
+    "src": "arte/sprites/soldado-de-ferro/Sumico.png",
+    "frameW": 24,
+    "frameH": 40,
+    "duracoes": [
+     6,
+     5,
+     5,
+     6,
+     8
+    ],
+    "quadros": 5,
+    "linhas": 1
+   }
+  },
+  "portrait": "arte/sprites/soldado-de-ferro/portrait.png",
+  "body": {
+   "bodyW": 16,
+   "bodyH": 25,
+   "footY": 11
+  }
+ },
+ "catapulta": {
+  "anims": {
+   "Walk": {
+    "src": "arte/sprites/catapulta/Walk.png",
+    "frameW": 32,
+    "frameH": 32,
+    "duracoes": [
+     8,
+     10,
+     8,
+     10
+    ],
+    "quadros": 4,
+    "linhas": 8
+   },
+   "Idle": {
+    "src": "arte/sprites/catapulta/Idle.png",
+    "frameW": 32,
+    "frameH": 32,
+    "duracoes": [
+     40,
+     6,
+     6
+    ],
+    "quadros": 3,
+    "linhas": 8
+   },
+   "Hurt": {
+    "src": "arte/sprites/catapulta/Hurt.png",
+    "frameW": 32,
+    "frameH": 32,
+    "duracoes": [
+     2,
+     8
+    ],
+    "quadros": 2,
+    "linhas": 8
+   },
+   "Sumico": {
+    "src": "arte/sprites/catapulta/Sumico.png",
+    "frameW": 32,
+    "frameH": 32,
+    "duracoes": [
+     6,
+     5,
+     5,
+     6,
+     8
+    ],
+    "quadros": 5,
+    "linhas": 1
+   }
+  },
+  "portrait": "arte/sprites/catapulta/portrait.png",
+  "body": {
+   "bodyW": 18,
+   "bodyH": 24,
+   "footY": 12
+  }
+ },
+ "lobo-de-ferro": {
+  "anims": {
+   "Walk": {
+    "src": "arte/sprites/lobo-de-ferro/Walk.png",
+    "frameW": 32,
+    "frameH": 32,
+    "duracoes": [
+     8,
+     10,
+     8,
+     10
+    ],
+    "quadros": 4,
+    "linhas": 8
+   },
+   "Idle": {
+    "src": "arte/sprites/lobo-de-ferro/Idle.png",
+    "frameW": 32,
+    "frameH": 32,
+    "duracoes": [
+     40,
+     6,
+     6
+    ],
+    "quadros": 3,
+    "linhas": 8
+   },
+   "Hurt": {
+    "src": "arte/sprites/lobo-de-ferro/Hurt.png",
+    "frameW": 32,
+    "frameH": 32,
+    "duracoes": [
+     2,
+     8
+    ],
+    "quadros": 2,
+    "linhas": 8
+   },
+   "Sumico": {
+    "src": "arte/sprites/lobo-de-ferro/Sumico.png",
+    "frameW": 32,
+    "frameH": 32,
+    "duracoes": [
+     6,
+     5,
+     5,
+     6,
+     8
+    ],
+    "quadros": 5,
+    "linhas": 1
+   }
+  },
+  "portrait": "arte/sprites/lobo-de-ferro/portrait.png",
+  "body": {
+   "bodyW": 12,
+   "bodyH": 20,
+   "footY": 11
+  }
+ },
+ "urso": {
+  "anims": {
+   "Walk": {
+    "src": "arte/sprites/urso/Walk.png",
+    "frameW": 48,
+    "frameH": 72,
+    "duracoes": [
+     8,
+     10,
+     8,
+     10
+    ],
+    "quadros": 4,
+    "linhas": 8
+   },
+   "Idle": {
+    "src": "arte/sprites/urso/Idle.png",
+    "frameW": 48,
+    "frameH": 72,
+    "duracoes": [
+     40,
+     6,
+     6
+    ],
+    "quadros": 3,
+    "linhas": 8
+   },
+   "Hurt": {
+    "src": "arte/sprites/urso/Hurt.png",
+    "frameW": 48,
+    "frameH": 72,
+    "duracoes": [
+     2,
+     8
+    ],
+    "quadros": 2,
+    "linhas": 8
+   },
+   "Sumico": {
+    "src": "arte/sprites/urso/Sumico.png",
+    "frameW": 48,
+    "frameH": 72,
+    "duracoes": [
+     6,
+     5,
+     5,
+     6,
+     8
+    ],
+    "quadros": 5,
+    "linhas": 1
+   }
+  },
+  "portrait": "arte/sprites/urso/portrait.png",
+  "body": {
+   "bodyW": 40,
+   "bodyH": 54,
+   "footY": 29
+  }
+ },
+ "sentinela-de-bronze": {
+  "anims": {
+   "Walk": {
+    "src": "arte/sprites/sentinela-de-bronze/Walk.png",
+    "frameW": 48,
+    "frameH": 64,
+    "duracoes": [
+     8,
+     10,
+     8,
+     10
+    ],
+    "quadros": 4,
+    "linhas": 8
+   },
+   "Idle": {
+    "src": "arte/sprites/sentinela-de-bronze/Idle.png",
+    "frameW": 48,
+    "frameH": 64,
+    "duracoes": [
+     40,
+     6,
+     6
+    ],
+    "quadros": 3,
+    "linhas": 8
+   },
+   "Hurt": {
+    "src": "arte/sprites/sentinela-de-bronze/Hurt.png",
+    "frameW": 48,
+    "frameH": 64,
+    "duracoes": [
+     2,
+     8
+    ],
+    "quadros": 2,
+    "linhas": 8
+   },
+   "Sumico": {
+    "src": "arte/sprites/sentinela-de-bronze/Sumico.png",
+    "frameW": 48,
+    "frameH": 64,
+    "duracoes": [
+     6,
+     5,
+     5,
+     6,
+     8
+    ],
+    "quadros": 5,
+    "linhas": 1
+   }
+  },
+  "portrait": "arte/sprites/sentinela-de-bronze/portrait.png",
+  "body": {
+   "bodyW": 44,
+   "bodyH": 54,
+   "footY": 26
+  }
+ },
+ "colosso-de-ferro": {
+  "anims": {
+   "Walk": {
+    "src": "arte/sprites/colosso-de-ferro/Walk.png",
+    "frameW": 48,
+    "frameH": 72,
+    "duracoes": [
+     8,
+     10,
+     8,
+     10
+    ],
+    "quadros": 4,
+    "linhas": 8
+   },
+   "Idle": {
+    "src": "arte/sprites/colosso-de-ferro/Idle.png",
+    "frameW": 48,
+    "frameH": 72,
+    "duracoes": [
+     40,
+     6,
+     6
+    ],
+    "quadros": 3,
+    "linhas": 8
+   },
+   "Hurt": {
+    "src": "arte/sprites/colosso-de-ferro/Hurt.png",
+    "frameW": 48,
+    "frameH": 72,
+    "duracoes": [
+     2,
+     8
+    ],
+    "quadros": 2,
+    "linhas": 8
+   },
+   "Sumico": {
+    "src": "arte/sprites/colosso-de-ferro/Sumico.png",
+    "frameW": 48,
+    "frameH": 72,
+    "duracoes": [
+     6,
+     5,
+     5,
+     6,
+     8
+    ],
+    "quadros": 5,
+    "linhas": 1
+   }
+  },
+  "portrait": "arte/sprites/colosso-de-ferro/portrait.png",
+  "body": {
+   "bodyW": 44,
+   "bodyH": 59,
+   "footY": 29
+  }
+ },
+ "mamute": {
+  "anims": {
+   "Walk": {
+    "src": "arte/sprites/mamute/Walk.png",
+    "frameW": 64,
+    "frameH": 56,
+    "duracoes": [
+     8,
+     10,
+     8,
+     10
+    ],
+    "quadros": 4,
+    "linhas": 8
+   },
+   "Idle": {
+    "src": "arte/sprites/mamute/Idle.png",
+    "frameW": 64,
+    "frameH": 56,
+    "duracoes": [
+     40,
+     6,
+     6
+    ],
+    "quadros": 3,
+    "linhas": 8
+   },
+   "Hurt": {
+    "src": "arte/sprites/mamute/Hurt.png",
+    "frameW": 64,
+    "frameH": 56,
+    "duracoes": [
+     2,
+     8
+    ],
+    "quadros": 2,
+    "linhas": 8
+   },
+   "Sumico": {
+    "src": "arte/sprites/mamute/Sumico.png",
+    "frameW": 64,
+    "frameH": 56,
+    "duracoes": [
+     6,
+     5,
+     5,
+     6,
+     8
+    ],
+    "quadros": 5,
+    "linhas": 1
+   }
+  },
+  "portrait": "arte/sprites/mamute/portrait.png",
+  "body": {
+   "bodyW": 34,
+   "bodyH": 42,
+   "footY": 24
+  }
+ },
+ "caranguejo-gigante": {
+  "anims": {
+   "Walk": {
+    "src": "arte/sprites/caranguejo-gigante/Walk.png",
+    "frameW": 64,
+    "frameH": 48,
+    "duracoes": [
+     8,
+     10,
+     8,
+     10
+    ],
+    "quadros": 4,
+    "linhas": 8
+   },
+   "Idle": {
+    "src": "arte/sprites/caranguejo-gigante/Idle.png",
+    "frameW": 64,
+    "frameH": 48,
+    "duracoes": [
+     40,
+     6,
+     6
+    ],
+    "quadros": 3,
+    "linhas": 8
+   },
+   "Hurt": {
+    "src": "arte/sprites/caranguejo-gigante/Hurt.png",
+    "frameW": 64,
+    "frameH": 48,
+    "duracoes": [
+     2,
+     8
+    ],
+    "quadros": 2,
+    "linhas": 8
+   },
+   "Sumico": {
+    "src": "arte/sprites/caranguejo-gigante/Sumico.png",
+    "frameW": 64,
+    "frameH": 48,
+    "duracoes": [
+     6,
+     5,
+     5,
+     6,
+     8
+    ],
+    "quadros": 5,
+    "linhas": 1
+   }
+  },
+  "portrait": "arte/sprites/caranguejo-gigante/portrait.png",
+  "body": {
+   "bodyW": 40,
+   "bodyH": 25,
+   "footY": 12
+  }
+ },
+ "robo-enferrujado": {
+  "anims": {
+   "Walk": {
+    "src": "arte/sprites/robo-enferrujado/Walk.png",
+    "frameW": 40,
+    "frameH": 64,
+    "duracoes": [
+     8,
+     10,
+     8,
+     10
+    ],
+    "quadros": 4,
+    "linhas": 8
+   },
+   "Idle": {
+    "src": "arte/sprites/robo-enferrujado/Idle.png",
+    "frameW": 40,
+    "frameH": 64,
+    "duracoes": [
+     40,
+     6,
+     6
+    ],
+    "quadros": 3,
+    "linhas": 8
+   },
+   "Hurt": {
+    "src": "arte/sprites/robo-enferrujado/Hurt.png",
+    "frameW": 40,
+    "frameH": 64,
+    "duracoes": [
+     2,
+     8
+    ],
+    "quadros": 2,
+    "linhas": 8
+   },
+   "Sumico": {
+    "src": "arte/sprites/robo-enferrujado/Sumico.png",
+    "frameW": 40,
+    "frameH": 64,
+    "duracoes": [
+     6,
+     5,
+     5,
+     6,
+     8
+    ],
+    "quadros": 5,
+    "linhas": 1
+   }
+  },
+  "portrait": "arte/sprites/robo-enferrujado/portrait.png",
+  "body": {
+   "bodyW": 30,
+   "bodyH": 47,
+   "footY": 23
+  }
+ }
+}

@@ -71,5 +71,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-Este segundo aviso cobre só os trechos reescritos do motor (ver ORIGEM.md).
-Não cobre arte de Pokémon nem os arquivos em public/assets/ daquele jogo.
+---
+
+This license applies only to the original source code in this repository.
+It does not apply to the files under public/assets/, which are third-party
+assets with their own licenses (see CREDITS.md), nor to Pokémon names,
+characters or other intellectual property, which belong to Nintendo,
+Creatures Inc. and GAME FREAK inc.

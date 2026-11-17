@@ -124,3 +124,69 @@ Não apagar decisões antigas: acrescentar uma nova com alternativa, motivo e ef
   como a folha 3D.
 - **Efeito:** `_privado/jogos/samuel-surfers/` é o build estático (three 0.170 dentro do bundle).
   O modo Fácil não acaba a corrida. Não houve merge nem publicação nesta sessão.
+
+## DEC-015 — Planeta 0.3 e Pescador no motor da horda (2026-11-15)
+
+- **Decisão:** os dois jogos usam a partida solo portada do código MIT de Pedro
+  Barretto (vista, horda fora da tela, separação, cartas, tremor, partículas).
+  A arte, os nomes e os sons são nossos. O chefe desenha em escala 1. A morte
+  toca `Sumico.png` e as partículas. O chão fica procedural (opção A), e a água
+  do Pescador é o piso do barco.
+- **Alternativa descartada:** publicar o bundle inteiro do Pokémon Survivors
+  com outro nome. Ele carrega criatura, sprite e nome que este portal não pode
+  servir, além de conta e rastreador.
+- **Efeito:** o código mora em `desenvolvimento/jogos/motor-hordas/` e o site
+  recebe só o pacote de cada slug. Respostas ao Gerador em
+  `desenvolvimento/jogos/motor-hordas/RESPOSTAS-GERADOR.md`. Sem deploy nesta sessão.
+
+## DEC-016 — Perigos do cenário e sprites do lote 5 (2026-11-15)
+
+- **Decisão:** nevoeiro, onda-gigante e tempestade não são inimigos. São efeitos
+  de tela com aviso antes, no mesmo espírito da chuva de meteoros, da enchente
+  e dos raios do Planeta. No Fácil nenhum desses perigos tira vida. O raio do
+  Pescador não tira vida em modo nenhum, e o alvo pisca a pelo menos 64 px do
+  barco. A tempestade usa os três degraus de escurecimento, porque o mais escuro
+  cobre 19% do tile e o barco continua visível. Mamute, caranguejo-gigante e
+  robô enferrujado usam a folha de 8 direções do lote 5, em escala 1.
+- **Alternativa descartada:** desenhar esses três do Pescador como bicho com
+  sprite, e manter os três do Planeta como placeholder de 24 px.
+- **Efeito:** os ids saem da horda e do `motor.json`. A arte fica em
+  `arte/perigos/`. Pedra e árvore do `cenario/` não bloqueiam o passo.
+
+## DEC-017 — Combate no alvo, no estilo Tibia (2026-11-15)
+
+- **Decisão (Boaz, 15/11 18:20 BRT):** o Planeta e o Pescador atacam sozinhos o
+  bicho marcado. A mira escolhe o mais perto; o chefe no alcance tem prioridade
+  e ganha uma moldura vermelha. Lança, funda, anzol, arpão, rede e as outras
+  ferramentas vão nesse alvo. A arma que orbitava o Samuel sai dos dois jogos,
+  inclusive das cartas. O botão de Ação dispara um especial no alvo, com recarga.
+  O joystick continua com a criança: o personagem não persegue sozinho. XP,
+  cartas, mapa, Fácil sem perder e tela cheia ficam. Os números de dano e
+  alcance continuam proposta.
+- **Alternativa descartada:** deixar a órbita como melhoria escondida, e copiar
+  o idle inteiro (andar sozinho, poção, mercado, grupo).
+- **Efeito:** o código mora em `desenvolvimento/jogos/motor-hordas/`. Sem deploy
+  nesta sessão.
+
+## DEC-018 — Mira no alcance da arma, moldura no sprite, tempestade sem pontilhado (2026-11-15)
+
+- **Decisão:** a mira mede distância no mundo, todo quadro, e escolhe o bicho vivo
+  mais perto. O chefe só passa na frente se estiver dentro do alcance da
+  ferramenta mais longa. A moldura vermelha abraça os pixels opacos do quadro
+  que está na tela, com 2 px de folga. A tempestade escurece a tela inteira com
+  um véu uniforme (16% com a chuva caindo, até 8% no aviso) e não espalha mais
+  o pontilhado de `escurecer.png`. As gemas andam até o Samuel (ímã de 110 px,
+  e mais 80 px depois de 4 s) e as que nascem juntas viram uma só. O círculo
+  desenhado da rede, da espuma e das outras armas no alvo tem no máximo 10 px;
+  o raio que acerta continua o da carta. Esse círculo some quando o bicho morre.
+- **Alternativa descartada:** manter os três degraus do pontilhado (DEC-016) e
+  a mira fixa de 420 px (DEC-017). No print de 30 s o pontilhado virava ruído e
+  a moldura ia parar longe do barco.
+- **Efeito:** vale para o Planeta e para o Pescador. Sem deploy nesta sessão.
+
+## DEC-019 — O Pescador usa a camiseta cinza (2026-11-15)
+
+- **Decisão (Boaz, 15/11 21:33 BRT):** o Samuel no barco é o `samuel-barco-cinza`.
+  É o único visual. O colete sai do índice, da capa e da pasta.
+- **Efeito:** a capa da biblioteca e o jogo desenham a camiseta cinza. Sem merge
+  nem publicação nesta sessão.

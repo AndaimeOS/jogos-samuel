@@ -255,6 +255,25 @@
       "version": "0.4.0"
     },
     {
+      "slug": "pescador-samuel",
+      "title": "Pescador Samuel",
+      "category": "Ação",
+      "description": "O Samuel navega de barco por rio, lago e mar. O anzol gira sozinho, a linha pesca o cardume e o mapa leva até o peixe lendário e o porto.",
+      "cover": "pescador-samuel.webp",
+      "entry": "index.html",
+      "instructions": [
+        "Toque numa água do mapa. O dedo move o barco e a câmera segue. Segure Ação para lançar a linha e soltar o especial.",
+        "Rio, lago e mar têm três fases cada. A terceira é o chefe. A décima é o peixe lendário, e o porto guarda o troféu.",
+        "No Fácil os monstros são mais lentos e a vida não zera. O álbum junta 30 peixes. O jogo guarda o mapa neste aparelho."
+      ],
+      "input": [
+        "touch"
+      ],
+      "status": "pronto",
+      "novo": true,
+      "version": "0.1.0"
+    },
+    {
       "slug": "samuel-surfers",
       "title": "Samuel Surfers",
       "category": "Corrida",

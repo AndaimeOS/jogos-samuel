@@ -1,0 +1,264 @@
+{
+ "formato": "PNG RGBA, alpha só 0/255; folhas com os quadros lado a lado em 1 linha; duracoes em ticks de 1/60 s (igual ao motor.json). Pontilhado Bayer 4x4 no lugar de transparência parcial.",
+ "tela_alvo": [
+  344,
+  256
+ ],
+ "licenca": "original, feito por nós, livre para uso no repo",
+ "perigos": {
+  "nevoeiro": {
+   "tipo": "perigo do cenário (não é inimigo)",
+   "uso": {
+    "o_que_e": "névoa que tira a visão das bordas; o barco fica sempre visível no centro",
+    "aviso": "2 a 3 s antes: soltar 3 a 6 fiapos (aviso.png) nas bordas da tela, andando devagar para dentro (~10 px/s) e acender o ícone (quadro 2 de icone.png)",
+    "camada": "durante o perigo: desenhar camada.png repetida por cima do mundo e dos inimigos, rolando devagar (~6 px/s) para o lado do vento; pontilhado de no máximo 50%",
+    "borda": "durante o perigo: borda.png presa à tela (não ao mundo), por cima da camada; o centro fica livre",
+    "ordem": "mundo -> barco/inimigos -> camada -> borda -> HUD"
+   },
+   "pecas": {
+    "icone": {
+     "src": "arte/perigos/nevoeiro/icone.png",
+     "frameW": 32,
+     "frameH": 32,
+     "quadros": 2,
+     "duracoes": [
+      20,
+      20
+     ],
+     "linhas": 1,
+     "repete": false,
+     "nota": "quadro 0 = normal na HUD; quadros 0/1 alternando = perigo chegando"
+    },
+    "aviso": {
+     "src": "arte/perigos/nevoeiro/aviso.png",
+     "frameW": 48,
+     "frameH": 24,
+     "quadros": 4,
+     "duracoes": [
+      10,
+      10,
+      10,
+      10
+     ],
+     "linhas": 1,
+     "repete": false,
+     "presa_a": "mundo"
+    },
+    "camada": {
+     "src": "arte/perigos/nevoeiro/camada.png",
+     "frameW": 128,
+     "frameH": 128,
+     "quadros": 1,
+     "duracoes": [
+      1
+     ],
+     "linhas": 1,
+     "repete": true,
+     "presa_a": "mundo"
+    },
+    "borda": {
+     "src": "arte/perigos/nevoeiro/borda.png",
+     "frameW": 344,
+     "frameH": 256,
+     "quadros": 1,
+     "duracoes": [
+      1
+     ],
+     "linhas": 1,
+     "repete": false,
+     "presa_a": "tela"
+    }
+   }
+  },
+  "onda-gigante": {
+   "tipo": "perigo do cenário (não é inimigo)",
+   "uso": {
+    "o_que_e": "onda grande que atravessa a tela e empurra o barco",
+    "aviso": "2 s antes: aviso.png repetida na largura da tela, na borda de onde a onda vem, andando 30 a 40 px/s para dentro; ícone aceso",
+    "frente": "frente.png repetida na largura da tela, atravessando de cima para baixo (ou ao contrário) em ~1,5 s; passa por cima do barco, mas o corpo é pontilhado e ele continua aparecendo",
+    "espuma": "logo depois: espuma.png repetida onde a onda passou, tocando os 3 quadros uma vez (some sozinha)",
+    "ordem": "chão -> aviso -> barco/inimigos -> frente -> espuma -> HUD"
+   },
+   "pecas": {
+    "icone": {
+     "src": "arte/perigos/onda-gigante/icone.png",
+     "frameW": 32,
+     "frameH": 32,
+     "quadros": 2,
+     "duracoes": [
+      20,
+      20
+     ],
+     "linhas": 1,
+     "repete": false,
+     "nota": "quadro 0 = normal na HUD; quadros 0/1 alternando = perigo chegando"
+    },
+    "aviso": {
+     "src": "arte/perigos/onda-gigante/aviso.png",
+     "frameW": 64,
+     "frameH": 24,
+     "quadros": 4,
+     "duracoes": [
+      8,
+      8,
+      8,
+      8
+     ],
+     "linhas": 1,
+     "repete": true,
+     "presa_a": "mundo"
+    },
+    "frente": {
+     "src": "arte/perigos/onda-gigante/frente.png",
+     "frameW": 64,
+     "frameH": 48,
+     "quadros": 4,
+     "duracoes": [
+      6,
+      6,
+      6,
+      6
+     ],
+     "linhas": 1,
+     "repete": true,
+     "presa_a": "mundo"
+    },
+    "espuma": {
+     "src": "arte/perigos/onda-gigante/espuma.png",
+     "frameW": 64,
+     "frameH": 64,
+     "quadros": 3,
+     "duracoes": [
+      20,
+      20,
+      20
+     ],
+     "linhas": 1,
+     "repete": true,
+     "presa_a": "mundo"
+    }
+   }
+  },
+  "tempestade": {
+   "tipo": "perigo do cenário (não é inimigo)",
+   "uso": {
+    "o_que_e": "céu fecha, chove e cai raio na água, longe do barco",
+    "aviso": "3 s antes: aviso.png (nuvem) entrando pela borda de cima com sombra.png embaixo, e escurecer.png subindo um degrau por segundo (quadros 0 -> 1 -> 2, usar o último enquanto durar); ícone aceso",
+    "chuva": "durante: chuva.png repetida na tela inteira, presa à tela",
+    "raio": "durante, de vez em quando: alvo.png piscando 1 s num ponto da água a pelo menos ~64 px do barco; depois raio.png no mesmo ponto (pé do raio no centro do alvo) e clarao.png na tela inteira por 2 ticks",
+    "ordem": "chão -> sombra/alvo -> barco/inimigos -> raio -> chuva -> escurecer -> clarão -> nuvem -> HUD"
+   },
+   "pecas": {
+    "icone": {
+     "src": "arte/perigos/tempestade/icone.png",
+     "frameW": 32,
+     "frameH": 32,
+     "quadros": 2,
+     "duracoes": [
+      20,
+      20
+     ],
+     "linhas": 1,
+     "repete": false,
+     "nota": "quadro 0 = normal na HUD; quadros 0/1 alternando = perigo chegando"
+    },
+    "aviso": {
+     "src": "arte/perigos/tempestade/aviso.png",
+     "frameW": 96,
+     "frameH": 40,
+     "quadros": 4,
+     "duracoes": [
+      12,
+      12,
+      12,
+      6
+     ],
+     "linhas": 1,
+     "repete": false,
+     "presa_a": "mundo"
+    },
+    "sombra": {
+     "src": "arte/perigos/tempestade/sombra.png",
+     "frameW": 96,
+     "frameH": 32,
+     "quadros": 1,
+     "duracoes": [
+      1
+     ],
+     "linhas": 1,
+     "repete": false,
+     "presa_a": "mundo"
+    },
+    "escurecer": {
+     "src": "arte/perigos/tempestade/escurecer.png",
+     "frameW": 16,
+     "frameH": 16,
+     "quadros": 3,
+     "duracoes": [
+      30,
+      30,
+      30
+     ],
+     "linhas": 1,
+     "repete": true,
+     "presa_a": "tela"
+    },
+    "chuva": {
+     "src": "arte/perigos/tempestade/chuva.png",
+     "frameW": 64,
+     "frameH": 64,
+     "quadros": 4,
+     "duracoes": [
+      4,
+      4,
+      4,
+      4
+     ],
+     "linhas": 1,
+     "repete": true,
+     "presa_a": "tela"
+    },
+    "alvo": {
+     "src": "arte/perigos/tempestade/alvo.png",
+     "frameW": 24,
+     "frameH": 12,
+     "quadros": 3,
+     "duracoes": [
+      8,
+      8,
+      8
+     ],
+     "linhas": 1,
+     "repete": false,
+     "presa_a": "mundo"
+    },
+    "raio": {
+     "src": "arte/perigos/tempestade/raio.png",
+     "frameW": 24,
+     "frameH": 80,
+     "quadros": 3,
+     "duracoes": [
+      3,
+      4,
+      8
+     ],
+     "linhas": 1,
+     "repete": false,
+     "presa_a": "mundo"
+    },
+    "clarao": {
+     "src": "arte/perigos/tempestade/clarao.png",
+     "frameW": 16,
+     "frameH": 16,
+     "quadros": 1,
+     "duracoes": [
+      2
+     ],
+     "linhas": 1,
+     "repete": true,
+     "presa_a": "tela"
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,1536 @@
+{
+ "samuel-chapeu": {
+  "src": "arte/samuel/samuel-chapeu-frente.png",
+  "frameW": 32,
+  "frameH": 48,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   47
+  ]
+ },
+ "samuel-no-barco": {
+  "src": "arte/samuel/samuel-no-barco.png",
+  "frameW": 64,
+  "frameH": 48,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   32,
+   47
+  ]
+ },
+ "doguinho": {
+  "src": "arte/samuel/doguinho.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   31
+  ]
+ },
+ "rio-agua": {
+  "src": "arte/cenarios/rio/agua.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "rio-agua-b": {
+  "src": "arte/cenarios/rio/agua-b.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "rio-margem": {
+  "src": "arte/cenarios/rio/margem.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "rio-margem-flor": {
+  "src": "arte/cenarios/rio/margem-flor.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "rio-borda-n": {
+  "src": "arte/cenarios/rio/borda-n.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "rio-borda-s": {
+  "src": "arte/cenarios/rio/borda-s.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "rio-pedra": {
+  "src": "arte/cenarios/rio/pedra.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "rio-junco": {
+  "src": "arte/cenarios/rio/junco.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "cena-rio": {
+  "src": "arte/cenarios/cena-rio.png",
+  "frameW": 160,
+  "frameH": 112,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   0,
+   0
+  ]
+ },
+ "lago-agua": {
+  "src": "arte/cenarios/lago/agua.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "lago-agua-b": {
+  "src": "arte/cenarios/lago/agua-b.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "lago-margem": {
+  "src": "arte/cenarios/lago/margem.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "lago-margem-flor": {
+  "src": "arte/cenarios/lago/margem-flor.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "lago-borda-n": {
+  "src": "arte/cenarios/lago/borda-n.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "lago-borda-s": {
+  "src": "arte/cenarios/lago/borda-s.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "lago-vitoria-regia": {
+  "src": "arte/cenarios/lago/vitoria-regia.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "lago-vitoria-regia-flor": {
+  "src": "arte/cenarios/lago/vitoria-regia-flor.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "lago-taboa": {
+  "src": "arte/cenarios/lago/taboa.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "cena-lago": {
+  "src": "arte/cenarios/cena-lago.png",
+  "frameW": 160,
+  "frameH": 112,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   0,
+   0
+  ]
+ },
+ "mar-agua": {
+  "src": "arte/cenarios/mar/agua.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "mar-agua-b": {
+  "src": "arte/cenarios/mar/agua-b.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "mar-areia": {
+  "src": "arte/cenarios/mar/areia.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "mar-areia-concha": {
+  "src": "arte/cenarios/mar/areia-concha.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "mar-borda-n": {
+  "src": "arte/cenarios/mar/borda-n.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "mar-borda-s": {
+  "src": "arte/cenarios/mar/borda-s.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "mar-boia": {
+  "src": "arte/cenarios/mar/boia.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "mar-rochedo": {
+  "src": "arte/cenarios/mar/rochedo.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   31
+  ]
+ },
+ "cena-mar": {
+  "src": "arte/cenarios/cena-mar.png",
+  "frameW": 160,
+  "frameH": 112,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   0,
+   0
+  ]
+ },
+ "piranha": {
+  "src": "arte/monstros/rio/piranha.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "sapo-pulador": {
+  "src": "arte/monstros/rio/sapo-pulador.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   31
+  ]
+ },
+ "caranguejo": {
+  "src": "arte/monstros/rio/caranguejo.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   31
+  ]
+ },
+ "enguia-eletrica": {
+  "src": "arte/monstros/lago/enguia-eletrica.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   31
+  ]
+ },
+ "tartaruga-mordedora": {
+  "src": "arte/monstros/lago/tartaruga-mordedora.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   31
+  ]
+ },
+ "enxame-mosquitos": {
+  "src": "arte/monstros/lago/enxame-mosquitos.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   8
+  ]
+ },
+ "nevoeiro": {
+  "src": "arte/monstros/lago/nevoeiro.png",
+  "frameW": 48,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   24,
+   16
+  ]
+ },
+ "tubarao": {
+  "src": "arte/monstros/mar/tubarao.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   31
+  ]
+ },
+ "agua-viva": {
+  "src": "arte/monstros/mar/agua-viva.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   31
+  ]
+ },
+ "polvo": {
+  "src": "arte/monstros/mar/polvo.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   31
+  ]
+ },
+ "onda-gigante": {
+  "src": "arte/monstros/mar/onda-gigante.png",
+  "frameW": 48,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   24,
+   31
+  ]
+ },
+ "tempestade": {
+  "src": "arte/monstros/mar/tempestade.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   24,
+   24
+  ]
+ },
+ "bagre-gigante": {
+  "src": "arte/chefes/bagre-gigante.png",
+  "frameW": 64,
+  "frameH": 64,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   32,
+   63
+  ]
+ },
+ "jacare-rei": {
+  "src": "arte/chefes/jacare-rei.png",
+  "frameW": 64,
+  "frameH": 64,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   32,
+   63
+  ]
+ },
+ "lula-gigante": {
+  "src": "arte/chefes/lula-gigante.png",
+  "frameW": 64,
+  "frameH": 80,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   32,
+   79
+  ]
+ },
+ "peixe-lendario-dourado": {
+  "src": "arte/lendario/peixe-lendario-dourado.png",
+  "frameW": 48,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   24,
+   31
+  ]
+ },
+ "coracao": {
+  "src": "arte/hud/coracao.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   8
+  ]
+ },
+ "coracao-vazio": {
+  "src": "arte/hud/coracao-vazio.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   8
+  ]
+ },
+ "icone-anzol": {
+  "src": "arte/hud/icone-anzol.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "icone-bolhas": {
+  "src": "arte/hud/icone-bolhas.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "icone-rede": {
+  "src": "arte/hud/icone-rede.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "icone-album": {
+  "src": "arte/hud/icone-album.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "icone-pausa": {
+  "src": "arte/hud/icone-pausa.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   8
+  ]
+ },
+ "icone-fase-rio": {
+  "src": "arte/hud/icone-fase-rio.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   8
+  ]
+ },
+ "icone-fase-lago": {
+  "src": "arte/hud/icone-fase-lago.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   8
+  ]
+ },
+ "icone-fase-mar": {
+  "src": "arte/hud/icone-fase-mar.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   8
+  ]
+ },
+ "anzol-giratorio": {
+  "src": "arte/ataques/anzol-giratorio.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   8
+  ]
+ },
+ "bolha": {
+  "src": "arte/ataques/bolha.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   8
+  ]
+ },
+ "rede": {
+  "src": "arte/ataques/rede.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "cardume": {
+  "src": "arte/coleta/cardume.png",
+  "frameW": 32,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   16,
+   8
+  ]
+ },
+ "figurinha": {
+  "src": "arte/coleta/figurinha.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   8
+  ],
+  "pivo": [
+   8,
+   8
+  ]
+ },
+ "joystick-base": {
+  "src": "arte/controles/joystick-base.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   1,
+   1
+  ],
+  "pivo": [
+   24,
+   24
+  ]
+ },
+ "joystick-bola": {
+  "src": "arte/controles/joystick-bola.png",
+  "frameW": 24,
+  "frameH": 24,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   1,
+   1
+  ],
+  "pivo": [
+   12,
+   11
+  ]
+ },
+ "botao-acao": {
+  "src": "arte/controles/botao-acao.png",
+  "frameW": 40,
+  "frameH": 40,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   1,
+   1
+  ],
+  "pivo": [
+   20,
+   20
+  ]
+ },
+ "botao-pausa": {
+  "src": "arte/controles/botao-pausa.png",
+  "frameW": 24,
+  "frameH": 24,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   1,
+   1
+  ],
+  "pivo": [
+   12,
+   12
+  ]
+ },
+ "botao-tela-cheia": {
+  "src": "arte/controles/botao-tela-cheia.png",
+  "frameW": 24,
+  "frameH": 24,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   1,
+   1
+  ],
+  "pivo": [
+   12,
+   12
+  ]
+ },
+ "botao-sair-tela-cheia": {
+  "src": "arte/controles/botao-sair-tela-cheia.png",
+  "frameW": 24,
+  "frameH": 24,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   1,
+   1
+  ],
+  "pivo": [
+   12,
+   12
+  ]
+ },
+ "botao-proxima": {
+  "src": "arte/controles/botao-proxima.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   1,
+   1
+  ],
+  "pivo": [
+   24,
+   24
+  ]
+ },
+ "botao-repetir": {
+  "src": "arte/controles/botao-repetir.png",
+  "frameW": 24,
+  "frameH": 24,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   1,
+   1
+  ],
+  "pivo": [
+   12,
+   12
+  ]
+ },
+ "no-travada": {
+  "src": "arte/mapa/no-travada.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   16,
+   19
+  ]
+ },
+ "no-aberta": {
+  "src": "arte/mapa/no-aberta.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   20,
+   20
+  ],
+  "pivo": [
+   16,
+   19
+  ]
+ },
+ "no-vencida": {
+  "src": "arte/mapa/no-vencida.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   16,
+   19
+  ]
+ },
+ "no-chefe-bagre-gigante-travada": {
+  "src": "arte/mapa/no-chefe-bagre-gigante-travada.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   24,
+   32
+  ]
+ },
+ "no-chefe-bagre-gigante-aberta": {
+  "src": "arte/mapa/no-chefe-bagre-gigante-aberta.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   20,
+   20
+  ],
+  "pivo": [
+   24,
+   32
+  ]
+ },
+ "no-chefe-bagre-gigante-vencida": {
+  "src": "arte/mapa/no-chefe-bagre-gigante-vencida.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   24,
+   32
+  ]
+ },
+ "no-chefe-jacare-rei-travada": {
+  "src": "arte/mapa/no-chefe-jacare-rei-travada.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   24,
+   32
+  ]
+ },
+ "no-chefe-jacare-rei-aberta": {
+  "src": "arte/mapa/no-chefe-jacare-rei-aberta.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   20,
+   20
+  ],
+  "pivo": [
+   24,
+   32
+  ]
+ },
+ "no-chefe-jacare-rei-vencida": {
+  "src": "arte/mapa/no-chefe-jacare-rei-vencida.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   24,
+   32
+  ]
+ },
+ "no-chefe-lula-gigante-travada": {
+  "src": "arte/mapa/no-chefe-lula-gigante-travada.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   24,
+   32
+  ]
+ },
+ "no-chefe-lula-gigante-aberta": {
+  "src": "arte/mapa/no-chefe-lula-gigante-aberta.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   20,
+   20
+  ],
+  "pivo": [
+   24,
+   32
+  ]
+ },
+ "no-chefe-lula-gigante-vencida": {
+  "src": "arte/mapa/no-chefe-lula-gigante-vencida.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   24,
+   32
+  ]
+ },
+ "caminho-ponto": {
+  "src": "arte/mapa/caminho-ponto.png",
+  "frameW": 8,
+  "frameH": 8,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   4,
+   4
+  ]
+ },
+ "caminho-ponto-apagado": {
+  "src": "arte/mapa/caminho-ponto-apagado.png",
+  "frameW": 8,
+  "frameH": 8,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   4,
+   4
+  ]
+ },
+ "seta-marcador": {
+  "src": "arte/mapa/seta-marcador.png",
+  "frameW": 16,
+  "frameH": 16,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   8,
+   15
+  ]
+ },
+ "confete": {
+  "src": "arte/mapa/vitoria/confete.png",
+  "frameW": 32,
+  "frameH": 32,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   10,
+   10
+  ],
+  "pivo": [
+   16,
+   16
+  ]
+ },
+ "trofeu": {
+  "src": "arte/mapa/vitoria/trofeu.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   24,
+   47
+  ]
+ },
+ "samuel-comemora": {
+  "src": "arte/mapa/vitoria/samuel-comemora.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   24,
+   47
+  ]
+ },
+ "doguinho-pulando": {
+  "src": "arte/mapa/vitoria/doguinho-pulando.png",
+  "frameW": 24,
+  "frameH": 32,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   12,
+   31
+  ]
+ },
+ "no-lendario-travada": {
+  "src": "arte/mapa/no-lendario-travada.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   24,
+   32
+  ]
+ },
+ "no-lendario-aberta": {
+  "src": "arte/mapa/no-lendario-aberta.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 2,
+  "linhas": 1,
+  "quadros": 2,
+  "espelho": false,
+  "duracoes": [
+   20,
+   20
+  ],
+  "pivo": [
+   24,
+   32
+  ]
+ },
+ "no-lendario-vencida": {
+  "src": "arte/mapa/no-lendario-vencida.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   24,
+   32
+  ]
+ },
+ "porto": {
+  "src": "arte/mapa/porto.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   24,
+   47
+  ]
+ },
+ "porto-trofeu": {
+  "src": "arte/mapa/porto-trofeu.png",
+  "frameW": 48,
+  "frameH": 48,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   24,
+   47
+  ]
+ },
+ "marcador-barco": {
+  "src": "arte/mapa/marcador-barco.png",
+  "frameW": 64,
+  "frameH": 48,
+  "colunas": 1,
+  "linhas": 1,
+  "quadros": 1,
+  "espelho": false,
+  "duracoes": [
+   1
+  ],
+  "pivo": [
+   32,
+   40
+  ]
+ }
+}
