@@ -196,9 +196,8 @@ Não apagar decisões antigas: acrescentar uma nova com alternativa, motivo e ef
   continua 404 fora do card.
 - **Alternativa descartada:** deixar o amarelo no meio de uma jaqueta cinza, e
   inventar um status paralelo só na capa do card sem o `jogos.json`.
-- **Efeito:** sem merge e sem publicação nesta sessão. As ideias da ilha grande
-  do Planeta ficam em `docs/ideias/planeta-ilha-grande.md`; o PR #16 fecha sem
-  merge.
+- **Efeito:** sem merge e sem publicação nesta sessão. O PR #16 fica com
+  outro agente.
 
 ## DEC-019 — O Pescador usa a camiseta cinza (2026-11-15)
 
