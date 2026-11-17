@@ -14,8 +14,9 @@ import {
 export const PROPOSTA = true
 export const MAX_GOLPES = 6
 export const MAX_ITENS = 6
-export const MAX_PARTICULAS = 900
-export const MAX_TEXTOS = 120
+/** Teto na tela. A horda de 90 s passava de 500 faíscas e 120 números e o iPad caía de quadro. */
+export const MAX_PARTICULAS = 180
+export const MAX_TEXTOS = 32
 
 /**
  * Duração das fases comuns, em segundos. PROPOSTA — ajuste este número.
@@ -31,9 +32,9 @@ export const RITMO_BASE = 36
 
 /** Curva do spawner no relógio de RITMO_BASE. Os segundos são PROPOSTA. */
 export const CURVA = [
-  { ate: 20, taxa: 1.4, max: 40 },
-  { ate: 45, taxa: 2.2, max: 70 },
-  { ate: Infinity, taxa: 3, max: 100 },
+  { ate: 20, taxa: 1.4, max: 28 },
+  { ate: 45, taxa: 2.2, max: 18 },
+  { ate: Infinity, taxa: 3, max: 22 },
 ]
 
 /** Bando, elite, chefe e anel, no relógio de RITMO_BASE. Os segundos são PROPOSTA. */
@@ -397,16 +398,17 @@ function vivos(p) {
   return p.inimigos.filter((b) => b.morrendo < 0 && !b.chefe).length
 }
 
-function dispararAnel(p, id, n) {
+function dispararAnel(p, id, n, teto) {
   const j = p.jogador
   const d = distanciaAnel(p.vista.w, p.vista.h) - 20
-  for (let i = 0; i < n; i++) {
-    const a = (i / n) * TAU
+  const quantos = Math.max(0, Math.min(n, teto - vivos(p)))
+  for (let i = 0; i < quantos; i++) {
+    const a = (i / quantos) * TAU
     nascer(p, id, j.x + Math.cos(a) * d, j.y + Math.sin(a) * d)
   }
 }
 
-function dispararBando(p, id, n) {
+function dispararBando(p, id, n, teto) {
   const j = p.jogador
   const ang = faixa(p.rng, 0, TAU)
   const d = distanciaAnel(p.vista.w, p.vista.h)
@@ -415,6 +417,7 @@ function dispararBando(p, id, n) {
   const vx = Math.cos(ang) * vel
   const vy = Math.sin(ang) * vel
   for (let i = 0; i < n; i++) {
+    if (vivos(p) >= teto) break
     const lado = faixa(p.rng, -70, 70)
     const atras = faixa(p.rng, 0, 60)
     nascer(p, id, j.x - Math.cos(ang) * (d + atras) - Math.sin(ang) * lado, j.y - Math.sin(ang) * (d + atras) + Math.cos(ang) * lado, {
@@ -454,13 +457,13 @@ function passoSpawner(p, dt) {
   }
   if (!p.eventos.bando && rel.bando) {
     p.eventos.bando = true
-    dispararBando(p, p.fase.bando || p.fase.horda[0], 14)
+    dispararBando(p, p.fase.bando || p.fase.horda[0], 14, teto)
   }
   if (!p.eventos.anel && rel.anel) {
     p.eventos.anel = true
-    dispararAnel(p, p.fase.horda[0], 16)
+    dispararAnel(p, p.fase.horda[0], 16, teto)
   }
-  if (!p.eventos.elite && rel.elite && p.fase.tipo === 'fase') {
+  if (!p.eventos.elite && rel.elite && p.fase.tipo === 'fase' && vivos(p) < teto) {
     p.eventos.elite = true
     const pos = pontoFora(p)
     const id = p.fase.horda[p.fase.horda.length - 1]

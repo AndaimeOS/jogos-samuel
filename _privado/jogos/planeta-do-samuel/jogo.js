@@ -185,14 +185,14 @@ function biomaEm(seed, x, y, biomas) {
 // src/motor/partida.js
 var MAX_GOLPES = 6;
 var MAX_ITENS = 6;
-var MAX_PARTICULAS = 900;
-var MAX_TEXTOS = 120;
+var MAX_PARTICULAS = 180;
+var MAX_TEXTOS = 32;
 var DURACAO_FASE = 90;
 var RITMO_BASE = 36;
 var CURVA = [
-  { ate: 20, taxa: 1.4, max: 40 },
-  { ate: 45, taxa: 2.2, max: 70 },
-  { ate: Infinity, taxa: 3, max: 100 }
+  { ate: 20, taxa: 1.4, max: 28 },
+  { ate: 45, taxa: 2.2, max: 18 },
+  { ate: Infinity, taxa: 3, max: 22 }
 ];
 var EVENTOS = { bando: 16, elite: 18, chefe: 18, anel: 26 };
 function escalaRitmo(duracao) {
@@ -555,15 +555,16 @@ function pontoFora(p) {
 function vivos(p) {
   return p.inimigos.filter((b) => b.morrendo < 0 && !b.chefe).length;
 }
-function dispararAnel(p, id, n) {
+function dispararAnel(p, id, n, teto) {
   const j = p.jogador;
   const d = distanciaAnel(p.vista.w, p.vista.h) - 20;
-  for (let i = 0; i < n; i++) {
-    const a = i / n * TAU;
+  const quantos = Math.max(0, Math.min(n, teto - vivos(p)));
+  for (let i = 0; i < quantos; i++) {
+    const a = i / quantos * TAU;
     nascer(p, id, j.x + Math.cos(a) * d, j.y + Math.sin(a) * d);
   }
 }
-function dispararBando(p, id, n) {
+function dispararBando(p, id, n, teto) {
   const j = p.jogador;
   const ang = faixa(p.rng, 0, TAU);
   const d = distanciaAnel(p.vista.w, p.vista.h);
@@ -572,6 +573,7 @@ function dispararBando(p, id, n) {
   const vx = Math.cos(ang) * vel;
   const vy = Math.sin(ang) * vel;
   for (let i = 0; i < n; i++) {
+    if (vivos(p) >= teto) break;
     const lado = faixa(p.rng, -70, 70);
     const atras = faixa(p.rng, 0, 60);
     nascer(p, id, j.x - Math.cos(ang) * (d + atras) - Math.sin(ang) * lado, j.y - Math.sin(ang) * (d + atras) + Math.cos(ang) * lado, {
@@ -611,13 +613,13 @@ function passoSpawner(p, dt) {
   }
   if (!p.eventos.bando && rel.bando) {
     p.eventos.bando = true;
-    dispararBando(p, p.fase.bando || p.fase.horda[0], 14);
+    dispararBando(p, p.fase.bando || p.fase.horda[0], 14, teto);
   }
   if (!p.eventos.anel && rel.anel) {
     p.eventos.anel = true;
-    dispararAnel(p, p.fase.horda[0], 16);
+    dispararAnel(p, p.fase.horda[0], 16, teto);
   }
-  if (!p.eventos.elite && rel.elite && p.fase.tipo === "fase") {
+  if (!p.eventos.elite && rel.elite && p.fase.tipo === "fase" && vivos(p) < teto) {
     p.eventos.elite = true;
     const pos = pontoFora(p);
     const id = p.fase.horda[p.fase.horda.length - 1];
@@ -1413,6 +1415,7 @@ async function iniciar(conteudo) {
   let partida = null;
   let save = lerSave(conteudo);
   let eraGravada = "";
+  let hudIcones = "";
   let pronto = true;
   let eixo = { x: 0, y: 0 };
   let acaoPulso = false;
@@ -1473,6 +1476,7 @@ async function iniciar(conteudo) {
       progresso
     });
     eraGravada = "";
+    hudIcones = "";
     lembrarEra();
     mostrar(mapa, false);
     mostrar(vitoria, false);
@@ -1631,38 +1635,42 @@ async function iniciar(conteudo) {
     }
     document.getElementById("relogio").textContent = formatarTempo(partida.tempo);
     document.getElementById("barraXp").style.width = `${Math.max(0, Math.min(100, partida.jogador.xp / partida.jogador.xpProx * 100))}%`;
-    const vidas = document.getElementById("vidas");
     const cheias = Math.round(partida.jogador.hp / partida.jogador.stats.hpMax * 5);
-    vidas.replaceChildren();
-    for (let i = 0; i < 5; i++) {
-      const img = document.createElement("img");
-      img.alt = "";
-      img.src = sprites[i < cheias ? conteudo.vida : conteudo.vidaVazia].src;
-      vidas.append(img);
-    }
-    const golpes2 = document.getElementById("golpes");
-    golpes2.replaceChildren();
-    for (let i = 0; i < 6; i++) {
-      const g = partida.jogador.golpes[i];
-      const img = document.createElement("img");
-      img.alt = "";
-      if (g) {
-        const def = conteudo.golpes.find((d) => d.id === g.id);
-        if (def && sprites[def.icone]) img.src = sprites[def.icone].src;
+    const assinatura = `${cheias}|${partida.jogador.golpes.map((g) => g.id).join(",")}|${partida.jogador.itens.map((it) => it.id).join(",")}`;
+    if (assinatura !== hudIcones) {
+      hudIcones = assinatura;
+      const vidas = document.getElementById("vidas");
+      vidas.replaceChildren();
+      for (let i = 0; i < 5; i++) {
+        const img = document.createElement("img");
+        img.alt = "";
+        img.src = sprites[i < cheias ? conteudo.vida : conteudo.vidaVazia].src;
+        vidas.append(img);
       }
-      golpes2.append(img);
-    }
-    const itens = document.getElementById("itens");
-    itens.replaceChildren();
-    for (let i = 0; i < 6; i++) {
-      const it = partida.jogador.itens[i];
-      const img = document.createElement("img");
-      img.alt = "";
-      if (it) {
-        const def = conteudo.itens.find((d) => d.id === it.id);
-        if (def && sprites[def.icone]) img.src = sprites[def.icone].src;
+      const golpes2 = document.getElementById("golpes");
+      golpes2.replaceChildren();
+      for (let i = 0; i < 6; i++) {
+        const g = partida.jogador.golpes[i];
+        const img = document.createElement("img");
+        img.alt = "";
+        if (g) {
+          const def = conteudo.golpes.find((d) => d.id === g.id);
+          if (def && sprites[def.icone]) img.src = sprites[def.icone].src;
+        }
+        golpes2.append(img);
       }
-      itens.append(img);
+      const itens = document.getElementById("itens");
+      itens.replaceChildren();
+      for (let i = 0; i < 6; i++) {
+        const it = partida.jogador.itens[i];
+        const img = document.createElement("img");
+        img.alt = "";
+        if (it) {
+          const def = conteudo.itens.find((d) => d.id === it.id);
+          if (def && sprites[def.icone]) img.src = sprites[def.icone].src;
+        }
+        itens.append(img);
+      }
     }
     const med = document.getElementById("medChefe");
     if (partida.chefe && partida.chefe.morrendo < 0) {
@@ -1804,15 +1812,19 @@ async function iniciar(conteudo) {
       ctx.drawImage(img, Math.round(e.x - img.naturalWidth / 2), Math.round(e.y - img.naturalHeight), img.naturalWidth, img.naturalHeight);
     }
     const mundo = (wx, wy) => [wx - camX, wy - camY];
+    const naTela = (wx, wy, folga) => wx >= camX - folga && wy >= camY - folga && wx <= camX + vista.w + folga && wy <= camY + vista.h + folga;
     for (const g of partida.gemas) {
+      if (!naTela(g.x, g.y, 16)) continue;
       const [x, y] = mundo(g.x, g.y);
       desenharSprite(conteudo.gema[g.faixa - 1] || conteudo.gema[0], x, y + 6, 0, partida.tempo, 12, false);
     }
     for (const c of partida.cardumes) {
+      if (!naTela(c.x, c.y, 20)) continue;
       const [x, y] = mundo(c.x, c.y);
       desenharSprite("cardume", x, y + 8, 0, 0, 14, false);
     }
     for (const z of partida.zonas) {
+      if (!naTela(z.x, z.y, z.r + 4)) continue;
       const [x, y] = mundo(z.x, z.y);
       ctx.strokeStyle = "#E2544A";
       ctx.lineWidth = 2;
@@ -1821,7 +1833,11 @@ async function iniciar(conteudo) {
       ctx.stroke();
     }
     desenharPerigo("chao", mundo);
-    const lista = [...partida.inimigos].sort((a, b) => a.y - b.y);
+    const lista = [];
+    for (const b of partida.inimigos) {
+      if (naTela(b.x, b.y, 96)) lista.push(b);
+    }
+    lista.sort((a, b) => a.y - b.y);
     for (const b of lista) {
       const [x, y] = mundo(b.x, b.y);
       if (b.morrendo >= 0) {
@@ -1842,8 +1858,11 @@ async function iniciar(conteudo) {
       const idHeroi = j.andando ? conteudo.heroiAnda : conteudo.heroiParado;
       desenharSprite(idHeroi, jx, jy, j.dir, j.anim, conteudo.heroiAltura, !!partida.barcoDourado);
     }
-    if (partida.alvo && partida.alvo.morrendo < 0) desenharMoldura(mundo, partida.alvo);
+    if (partida.alvo && partida.alvo.morrendo < 0 && naTela(partida.alvo.x, partida.alvo.y, 96)) desenharMoldura(mundo, partida.alvo);
     for (const a of partida.ataques) {
+      const ax = a.x != null ? a.x : partida.jogador.x;
+      const ay = a.y != null ? a.y : partida.jogador.y;
+      if (!naTela(ax, ay, 48) && !(a.tipo === "estocada" && naTela(a.ax, a.ay, 48))) continue;
       if (a.tipo === "estocada") {
         const [x12, y12] = mundo(a.x, a.y);
         const [x2, y2] = mundo(a.ax, a.ay);
@@ -1876,6 +1895,7 @@ async function iniciar(conteudo) {
       }
     }
     for (const part of partida.particulas) {
+      if (!naTela(part.x, part.y, 8)) continue;
       const [x, y] = mundo(part.x, part.y);
       ctx.globalAlpha = 1 - part.vida / part.ttl;
       ctx.fillStyle = part.cor;
@@ -1885,6 +1905,7 @@ async function iniciar(conteudo) {
     ctx.font = "700 10px Courier New, monospace";
     ctx.textAlign = "center";
     for (const t of partida.textos) {
+      if (!naTela(t.x, t.y, 24)) continue;
       const [x, y] = mundo(t.x, t.y);
       ctx.fillStyle = t.cor;
       ctx.fillText(t.texto, x, y);
@@ -2551,7 +2572,7 @@ var conteudoPlaneta = {
     proposta: true,
     duracaoFase: DURACAO_FASE,
     curva: [1.4, 2.2, 3],
-    teto: [40, 70, 100],
+    teto: [28, 18, 22],
     anel: "hypot/2+12",
     velocidade: 68,
     facil: "piso 1, cura, menos dano, sem teleporte"

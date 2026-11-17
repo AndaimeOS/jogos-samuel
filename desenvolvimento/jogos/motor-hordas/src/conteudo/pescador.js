@@ -145,7 +145,7 @@ export const conteudoPescador = {
     proposta: true,
     duracaoFase: DURACAO_FASE,
     curva: [1.4, 2.2, 3],
-    teto: [40, 70, 100],
+    teto: [28, 18, 22],
     anel: 'hypot/2+12',
     velocidade: 68,
     facil: 'piso 1, cura, monstros mais lentos, sem perder',
