@@ -9,8 +9,8 @@
   *{box-sizing:border-box}
   html,body{margin:0;height:100%;overflow:hidden;background:#7ec8f5;font-family:Arial,Helvetica,sans-serif;color:var(--ink);user-select:none;-webkit-user-select:none;touch-action:none}
   canvas#cena{position:fixed;inset:0;width:100%;height:100%;display:block}
-  .tela{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;padding:16px;z-index:10;overflow:auto}
-  .tela>.cartao{margin:auto 0}
+  .tela{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;justify-content:safe center;padding:16px;z-index:10;overflow:auto}
+  .tela>.cartao{margin:0;flex:0 0 auto}
   .tela[hidden],[hidden]{display:none!important}
   .cartao{background:var(--paper);border:2px solid var(--ink);box-shadow:7px 7px 0 var(--ink);width:min(640px,100%)}
   .barra{background:#e8e7db;border-bottom:2px solid var(--ink);padding:8px 12px;font:12px var(--mono);display:flex;justify-content:space-between}
@@ -70,10 +70,16 @@
   .podio li.eu{background:var(--green)}
   .podio .n{font:900 22px var(--mono);width:44px}
   .podio .t{margin-left:auto;font:400 13px var(--mono)}
+  .btn.copa{display:flex;width:100%;background:var(--gold);margin:2px 0 4px}
+  .copa-nota{font:700 12px var(--mono);color:#526568;margin:0 0 10px}
+  .trofeu{font:900 clamp(48px,12vw,76px)/1 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif;margin:0 0 8px}
+  .trofeu .nome{display:block;font:900 clamp(22px,4vw,30px)/1.25 var(--mono);letter-spacing:-1px;margin-top:4px;color:var(--ink)}
+  #selPista .opcao{font-size:15px;line-height:1.2;overflow-wrap:anywhere}
   .recorde{display:inline-block;background:var(--gold);border:2px solid var(--ink);padding:4px 10px;font:900 14px var(--mono);margin-bottom:12px;transform:rotate(-2deg)}
   .dica{font:12px var(--mono);color:#526568;margin-top:14px}
-  @media (max-height:760px){.corpo{padding:14px 18px 16px}.logo{font-size:clamp(28px,6vw,46px)}.opcoes{margin:8px 0 12px;gap:10px}.opcao{padding:8px}.opcao .ic{font-size:28px}.dica{margin-top:8px}}
-  @media (max-height:500px){.corpo>p,.corpo>.kicker,.dica{display:none}.logo{font-size:30px;text-shadow:2px 2px 0 var(--orange),4px 4px 0 var(--ink)}.logo small{display:none}.opcoes{grid-template-columns:repeat(2,1fr);margin:6px 0 8px}.opcao .ic{font-size:22px;display:inline;margin-right:6px}.opcao small{display:none}.btn.grande{min-height:52px;padding:10px 26px}#mapa{width:90px;height:90px}body.toque .topo-btns{top:160px}}
+  @media (max-height:1100px){.corpo{padding:14px 18px 16px}.logo{font-size:clamp(28px,6vw,46px)}.opcoes{margin:8px 0 10px;gap:10px}.opcao{padding:10px 8px}.opcao .ic{font-size:28px}}
+  @media (max-height:820px){.corpo{padding:8px 14px 10px}.logo{font-size:clamp(24px,5vw,36px)}.logo small,.intro{display:none}.opcoes{margin:4px 0 6px;gap:8px}.opcao{padding:6px 8px}.opcao .ic{font-size:24px}.dica,.copa-nota{margin-top:2px;margin-bottom:4px}.btn.grande,.btn.copa{min-height:48px;padding:8px 16px;font-size:18px}}
+  @media (max-height:500px){.corpo>p:not(.copa-nota),.corpo>.kicker,.dica{display:none}.logo{font-size:30px;text-shadow:2px 2px 0 var(--orange),4px 4px 0 var(--ink)}.logo small{display:none}.opcoes{grid-template-columns:repeat(2,1fr);margin:6px 0 8px}.opcao .ic{font-size:22px;display:inline;margin-right:6px}.opcao small{display:none}.btn.grande{min-height:52px;padding:10px 26px}#mapa{width:90px;height:90px}body.toque .topo-btns{top:160px}}
   @media (max-width:640px){#mapa{width:110px;height:110px}#hPos{font-size:30px}body.toque .topo-btns{top:180px}#hTempo{font-size:13px}#hVel{width:150px}}
   @media (max-width:420px){.tbtn{width:66px;height:66px;font-size:28px}#tDir{left:88px}#tGas{right:88px}#tTurbo{bottom:88px}}
   @media (prefers-reduced-motion:reduce){.pop{animation:none}#velocidade{display:none}}
@@ -111,17 +117,17 @@
     <div class="corpo">
       <span class="kicker">Samuel.tech apresenta</span>
       <div class="logo">TURBO<br>DOS BLOCOS<small>GRANDE PRÊMIO DA ILHA</small></div>
-      <p>Escolha seu piloto, a pista e acelere! Pegue as estrelas ⭐ para encher o turbo.</p>
+      <p class="intro">Escolha seu piloto, a pista e acelere! Pegue as estrelas ⭐ para encher o turbo.</p>
+      <button class="btn grande copa" id="btnCopa" type="button">🏆 Copa dos Blocos</button>
+      <p class="copa-nota" id="copaNota">6 corridas · um troféu no fim</p>
+      <button class="btn sec" id="btnCopaNova" type="button" hidden>Recomeçar a Copa</button>
       <div class="linha-sel">1 · Piloto</div>
       <div class="opcoes" id="selPiloto">
         <button class="opcao" data-piloto="samuel" aria-pressed="true"><span class="ic">🧡</span>Samuel<small>kart laranja</small></button>
         <button class="opcao" data-piloto="player2" aria-pressed="false"><span class="ic">💜</span>Player 2<small>kart lilás</small></button>
       </div>
-      <div class="linha-sel">2 · Pista</div>
-      <div class="opcoes" id="selPista">
-        <button class="opcao" data-pista="ilha" aria-pressed="true"><span class="ic">🏝️</span>Ilha dos Blocos<small id="recIlha">dia · cachoeiras</small></button>
-        <button class="opcao" data-pista="estrelas" aria-pressed="false"><span class="ic">🌌</span>Rota das Estrelas<small id="recEstrelas">noite · cristais</small></button>
-      </div>
+      <div class="linha-sel">2 · Pista avulsa</div>
+      <div class="opcoes" id="selPista"></div>
       <div class="linha-sel">3 · Jeito de jogar</div>
       <div class="opcoes" id="selModo">
         <button class="opcao" data-modo="facil" aria-pressed="false"><span class="ic">🐢</span>Fácil<small>acelera sozinho</small></button>
@@ -154,12 +160,14 @@
     <div class="barra"><span>resultado.exe</span><span>🏁</span></div>
     <div class="corpo">
       <h2 id="fimTitulo">Você chegou!</h2>
+      <div id="fimTrofeu" class="trofeu" hidden></div>
       <div id="fimRecorde"></div>
       <ol class="podio" id="podio"></ol>
       <p id="fimInfo"></p>
       <div class="acoes">
-        <button class="btn" id="btnDeNovo">↻ Correr de novo</button>
-        <button class="btn sec" id="btnOutra">☰ Outra pista</button>
+        <button class="btn" id="btnProxima" type="button" hidden>▶ Próxima corrida</button>
+        <button class="btn" id="btnDeNovo" type="button">↻ Correr de novo</button>
+        <button class="btn sec" id="btnOutra" type="button">☰ Outra pista</button>
       </div>
       <a class="dica" href="/jogos/" target="_top" style="display:inline-block;margin-top:12px">← Voltar aos jogos</a>
     </div>
@@ -188,19 +196,69 @@ const angDif = (a, b) => { let d = b - a; while (d > Math.PI) d -= Math.PI * 2; 
 const reduzido = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---------------- Pistas ---------------- */
-const PISTAS = {
+// [x, z, altura]. As 4 pistas novas saem daqui por variar(); ninguém desenha ponto na mão.
+const BASES = {
   ilha: {
-    nome: 'Ilha dos Blocos', tema: 'dia', largura: 16, voltas: 3, seed: 7,
-    // [x, z, altura]
+    nome: 'Ilha dos Blocos', tema: 'dia', largura: 16, voltas: 3, seed: 7, ic: '🏝️',
     pontos: [[0,0,0],[60,0,1],[110,10,4],[140,50,8],[130,100,10],[90,122,8],[50,105,5],[30,75,3],[0,68,2],[-40,95,4],[-90,92,6],[-122,50,4],[-112,0,2],[-72,-26,0],[-30,-16,0]],
     turbos: [0.12, 0.47, 0.8], estrelas: [0.06, 0.22, 0.34, 0.55, 0.66, 0.9],
   },
   estrelas: {
-    nome: 'Rota das Estrelas', tema: 'noite', largura: 16, voltas: 3, seed: 21,
+    nome: 'Rota das Estrelas', tema: 'noite', largura: 16, voltas: 3, seed: 21, ic: '🌌',
     pontos: [[0,0,0],[80,0,0],[150,22,3],[172,72,6],[140,112,9],[82,100,12],[40,132,10],[-20,142,7],[-82,122,4],[-112,72,2],[-92,20,0],[-50,-10,0]],
     turbos: [0.1, 0.42, 0.74], estrelas: [0.05, 0.2, 0.3, 0.52, 0.62, 0.86],
   },
 };
+function variar(base, { espelho = false, inverso = false, tema, seed, nome, id, ic }) {
+  let pontos = base.pontos.map(([x, z, y]) => [espelho ? -x : x, z, y]);
+  let turbos = base.turbos.slice();
+  let estrelas = base.estrelas.slice();
+  if (inverso) {
+    pontos.reverse();
+    turbos = turbos.map((f) => 1 - f);
+    estrelas = estrelas.map((f) => 1 - f);
+  }
+  return {
+    id, nome, tema, seed, ic, largura: base.largura, voltas: base.voltas,
+    pontos, turbos, estrelas,
+    cenario: tema === 'noite' ? 'noite · cristais' : 'dia · cachoeiras',
+  };
+}
+const PISTAS = [
+  { id: 'ilha', ...BASES.ilha, cenario: 'dia · cachoeiras' },
+  { id: 'estrelas', ...BASES.estrelas, cenario: 'noite · cristais' },
+  variar(BASES.ilha, { inverso: true, tema: 'dia', seed: 13, nome: 'Ilha ao Contrário', id: 'ilha-contrario', ic: '🔄' }),
+  variar(BASES.estrelas, { espelho: true, tema: 'noite', seed: 34, nome: 'Estrelas no Espelho', id: 'estrelas-espelho', ic: '🪞' }),
+  variar(BASES.ilha, { espelho: true, tema: 'noite', seed: 55, nome: 'Ilha da Lua', id: 'ilha-lua', ic: '🌙' }),
+  variar(BASES.estrelas, { inverso: true, tema: 'dia', seed: 89, nome: 'Grande Final', id: 'grande-final', ic: '🏁' }),
+];
+function defPista(id) { return PISTAS.find((p) => p.id === id) || PISTAS[0]; }
+const PONTOS_COPA = [10, 8, 6, 4, 2, 1];
+const RANK_TROFEU = { copa: 1, bronze: 2, prata: 3, ouro: 4 };
+const NOME_TROFEU = { ouro: ['🥇', 'Troféu de Ouro'], prata: ['🥈', 'Troféu de Prata'], bronze: ['🥉', 'Troféu de Bronze'], copa: ['', 'Troféu da Copa'] };
+// Camiseta do sprite Idle.png do Planeta (arte/planeta/sprites/samuel/Idle.png): #8D9397.
+// O amarelo da blusa vira o cinza-claro #C8CDCF do mesmo sprite. Kart e capacete seguem a cor do kart.
+const ROUPA_SAMUEL = 0x8d9397, BLUSA_SAMUEL = 0xc8cdcf, KART_OURO = 0xffd56b;
+function copaVazia() { return { i: 0, pontos: {}, piloto: null, modo: null, ativa: false, trofeu: null, ultimo: null }; }
+function lerCopa() {
+  const c = guardar.ler('copa', null), v = copaVazia();
+  if (!c || typeof c !== 'object') return v;
+  v.i = Number.isInteger(c.i) ? c.i : 0;
+  v.pontos = c.pontos && typeof c.pontos === 'object' ? { ...c.pontos } : {};
+  v.piloto = c.piloto === 'samuel' || c.piloto === 'player2' ? c.piloto : null;
+  v.modo = c.modo === 'facil' || c.modo === 'normal' ? c.modo : null;
+  v.ativa = !!c.ativa && v.i >= 0 && v.i < PISTAS.length && !!v.piloto;
+  v.trofeu = Object.prototype.hasOwnProperty.call(NOME_TROFEU, c.trofeu) ? c.trofeu : null;
+  v.ultimo = Object.prototype.hasOwnProperty.call(NOME_TROFEU, c.ultimo) ? c.ultimo : null;
+  return v;
+}
+function gravarCopa() { guardar.gravar('copa', estado.copa); }
+function grade(piloto) { return ['dog', 'roboV', 'cat', piloto, piloto === 'samuel' ? 'player2' : 'samuel', 'roboA']; }
+function cfgDoKart(id) {
+  const base = PILOTOS[id];
+  if (base.tipo === 'samuel' && estado.copa.trofeu === 'ouro') return { ...base, cor: KART_OURO };
+  return base;
+}
 
 const PILOTOS = {
   samuel:  { nome: 'Samuel',  cor: 0xff9d52, ic: '🧡', tipo: 'samuel' },
@@ -268,10 +326,12 @@ const Audio = {
   ctx: null, master: null, sfx: null, mus: null, motor: null,
   somLigado: guardar.ler('som', true), musicaLigada: guardar.ler('musica', true),
   iniciar() {
-    if (this.ctx) { this.ctx.resume(); return; }
+    const quieta = (p) => { if (p && typeof p.catch === 'function') p.catch(() => {}); };
+    if (this.ctx) { quieta(this.ctx.resume()); return; }
     try {
       const C = window.AudioContext || window.webkitAudioContext;
       this.ctx = new C();
+      quieta(this.ctx.resume());
       this.master = this.ctx.createGain(); this.master.gain.value = this.somLigado ? 0.9 : 0; this.master.connect(this.ctx.destination);
       this.sfx = this.ctx.createGain(); this.sfx.gain.value = 0.7; this.sfx.connect(this.master);
       this.mus = this.ctx.createGain(); this.mus.gain.value = this.musicaLigada ? 0.32 : 0; this.mus.connect(this.master);
@@ -284,7 +344,7 @@ const Audio = {
       o1.connect(f); o2.connect(g2).connect(f); f.connect(g).connect(this.sfx);
       o1.start(); o2.start();
       this.motor = { o1, o2, g, f };
-    } catch { this.ctx = null; }
+    } catch { this.ctx = null; this.motor = null; }
   },
   motorAtualiza(vel, turbo, ativo) {
     if (!this.motor) return;
@@ -367,7 +427,7 @@ const animaveis = [];      // funções chamadas a cada quadro (texturas animada
 function construirMundo(chave) {
   if (mundo) { scene.remove(mundo); mundo.traverse((o) => { if (o.geometry) o.geometry.dispose(); }); }
   animaveis.length = 0;
-  const def = PISTAS[chave], tema = TEMAS[def.tema];
+  const def = defPista(chave), tema = TEMAS[def.tema];
   const r = rng(def.seed);
   mundo = new THREE.Group(); scene.add(mundo);
 
@@ -676,7 +736,7 @@ function criarKart(cfg) {
   const p = new THREE.Group(); p.position.set(0, 0.8, -0.25); corpo.add(p);
   const pele = 0xedb482;
   if (cfg.tipo === 'samuel' || cfg.tipo === 'player2') {
-    const roupa = cfg.tipo === 'samuel' ? 0xff7a2e : 0xb48be6, blusa = cfg.tipo === 'samuel' ? 0xffd23f : 0xffc4a8;
+    const roupa = cfg.tipo === 'samuel' ? ROUPA_SAMUEL : 0xb48be6, blusa = cfg.tipo === 'samuel' ? BLUSA_SAMUEL : 0xffc4a8;
     p.add(caixa(1.0, 0.9, 0.65, roupa, 0, 0.55, 0));
     p.add(caixa(0.45, 0.6, 0.12, blusa, 0, 0.6, 0.33));
     p.add(caixa(0.25, 0.25, 0.75, roupa, -0.55, 0.55, 0.35));     // braços no volante
@@ -749,6 +809,7 @@ const estado = {
   piloto: guardar.ler('piloto', 'samuel'), pistaChave: guardar.ler('pista', 'ilha'), modo: guardar.ler('modo', 'normal'),
   karts: [], eu: null, tempo: 0, contagem: 0, chegada: [], camOrbita: 0, voltaAtualInicio: 0, melhorVoltaCorrida: Infinity,
   avisoAte: 0, contraMao: 0, camShake: 0,
+  copa: lerCopa(), emCopa: false, enquadre: null, quadrosCorrida: 0, lugarTeste: 0, fimGeracao: 0, oferecerNovaCopa: false,
 };
 const entrada = { esq: false, dir: false, gas: false, freio: false, turbo: false };
 
@@ -779,11 +840,12 @@ function novaCorrida() {
   // remove karts antigos
   for (const k of estado.karts) scene.remove(k.grupo);
   estado.karts = []; estado.chegada = []; estado.tempo = 0; estado.melhorVoltaCorrida = Infinity; estado.contraMao = 0;
-  const ordem = ['dog', 'roboV', 'cat', estado.piloto, estado.piloto === 'samuel' ? 'player2' : 'samuel', 'roboA'];
+  estado.quadrosCorrida = 0;
+  const ordem = grade(estado.piloto);
   const { N, P, L, T, W } = pista;
   const facil = estado.modo === 'facil';
   ordem.forEach((id, n) => {
-    const cfg = PILOTOS[id];
+    const cfg = cfgDoKart(id);
     const modelo = criarKart(cfg);
     const fila = Math.floor(n / 2), lado = n % 2 ? 1 : -1;
     const i = (N - 8 - fila * 6) % N;
@@ -791,8 +853,8 @@ function novaCorrida() {
     const k = {
       id, cfg, ...modelo, pos, rumo: Math.atan2(T[i].x, T[i].z), vel: 0, idx: i, t: 0, lateral: 0, alturaPista: P[i].y, inclinacao: 0,
       volta: -1, meio: true, progresso: 0, turbo: 0, carga: 0, estrelas: 0, impacto: 0, terminou: false, tempoFinal: 0,
-      euSou: id === estado.piloto, volante: 0, rodaGiro: 0, vy: 0, y: P[i].y,
-      ia: { habil: (facil ? 0.8 : 0.9) + n * 0.018 + Math.random() * 0.03, fase: Math.random() * 6, faixa: lado * 3, turboEspera: 1 + Math.random() * 3 },
+      euSou: id === estado.piloto, volante: 0, rodaGiro: 0, vy: 0, y: P[i].y, corKart: cfg.cor,
+      ia: { habil: facil ? 0.78 + n * 0.012 + Math.random() * 0.02 : 0.9 + n * 0.018 + Math.random() * 0.03, fase: Math.random() * 6, faixa: lado * 3, turboEspera: 1 + Math.random() * 3 },
     };
     k.grupo.position.copy(pos);
     scene.add(k.grupo);
@@ -1067,17 +1129,58 @@ function aoCompletarVolta(k) {
 
 /* ---------------- Fluxo do jogo ---------------- */
 function mostrar(id) { for (const t of ['telaInicio', 'telaPausa', 'telaFim']) $(t).hidden = t !== id; }
-function prepararMenu() {
-  estado.fase = 'menu'; mostrar('telaInicio');
-  $('hud').hidden = true; $('topoBtns').hidden = true; $('toque').hidden = true;
-  marcar('selPiloto', 'piloto', estado.piloto); marcar('selPista', 'pista', estado.pistaChave); marcar('selModo', 'modo', estado.modo);
-  for (const [ch, el] of [['ilha', 'recIlha'], ['estrelas', 'recEstrelas']]) {
-    const r = guardar.ler('recorde:' + ch, null);
-    $(el).textContent = (ch === 'ilha' ? 'dia · cachoeiras' : 'noite · cristais') + (r?.corrida ? ' · recorde ' + fmt(r.corrida) : '');
+function textoPista(p) {
+  const r = guardar.ler('recorde:' + p.id, null);
+  return p.cenario + (r && r.corrida ? ' · recorde ' + fmt(r.corrida) : '');
+}
+function rotuloTrofeu(tipo) {
+  if (tipo === 'ouro') return '🥇 ouro';
+  if (tipo === 'prata') return '🥈 prata';
+  if (tipo === 'bronze') return '🥉 bronze';
+  if (tipo === 'copa') return 'Troféu da Copa';
+  return '';
+}
+function montarPistas() {
+  const box = $('selPista');
+  if (box.dataset.pronto !== '1') {
+    box.innerHTML = PISTAS.map((p) => `<button class="opcao" type="button" data-pista="${p.id}" aria-pressed="false"><span class="ic">${p.ic}</span>${p.nome}<small data-rec="${p.id}"></small></button>`).join('');
+    box.dataset.pronto = '1';
   }
-  if (!pista || pista.def !== PISTAS[estado.pistaChave]) construirMundo(estado.pistaChave);
-  if (!estado.karts.length) novaCorrida();
-  $('btnCorrer').focus();
+  for (const p of PISTAS) {
+    const el = box.querySelector('[data-rec="' + p.id + '"]');
+    if (el) el.textContent = textoPista(p);
+  }
+}
+function atualizarCopaNoMenu() {
+  const c = estado.copa, btn = $('btnCopa'), nota = $('copaNota'), nova = $('btnCopaNova');
+  const melhor = c.trofeu ? ' · melhor: ' + rotuloTrofeu(c.trofeu) : '';
+  if (c.ativa) {
+    btn.textContent = '▶ Continuar a Copa (' + (c.i + 1) + '/6)';
+    nota.textContent = 'Próxima: ' + PISTAS[c.i].nome + melhor;
+    nova.hidden = false;
+  } else {
+    btn.textContent = '🏆 Copa dos Blocos';
+    nota.textContent = '6 corridas · um troféu no fim' + melhor;
+    nova.hidden = true;
+  }
+  const sam = document.querySelector('#selPiloto [data-piloto="samuel"] small');
+  if (sam) sam.textContent = c.trofeu === 'ouro' ? 'kart dourado' : 'kart laranja';
+}
+function prepararMenu() {
+  estado.fase = 'menu'; estado.emCopa = false; estado.enquadre = null; estado.oferecerNovaCopa = false;
+  mostrar('telaInicio');
+  $('hud').hidden = true; $('topoBtns').hidden = true; $('toque').hidden = true;
+  $('fimTrofeu').hidden = true;
+  if (!defPista(estado.pistaChave) || !PISTAS.some((p) => p.id === estado.pistaChave)) estado.pistaChave = 'ilha';
+  montarPistas();
+  atualizarCopaNoMenu();
+  marcar('selPiloto', 'piloto', estado.piloto); marcar('selPista', 'pista', estado.pistaChave); marcar('selModo', 'modo', estado.modo);
+  if (!pista || pista.def !== defPista(estado.pistaChave)) construirMundo(estado.pistaChave);
+  const sam = estado.karts.find((k) => k.id === 'samuel');
+  const querOuro = estado.copa.trofeu === 'ouro';
+  if (!estado.karts.length || (sam && (sam.corKart === KART_OURO) !== querOuro)) novaCorrida();
+  if (toqueAtivo) $('btnCopa').blur();
+  else $('btnCopa').focus({ preventScroll: true });
 }
 function marcar(grupo, attr, valor) { document.querySelectorAll('#' + grupo + ' [data-' + attr + ']').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset[attr] === valor))); }
 for (const [grupo, attr, chave] of [['selPiloto', 'piloto', 'piloto'], ['selPista', 'pista', 'pistaChave'], ['selModo', 'modo', 'modo']]) {
@@ -1089,10 +1192,14 @@ for (const [grupo, attr, chave] of [['selPiloto', 'piloto', 'piloto'], ['selPist
     if (attr === 'piloto') novaCorrida();
   });
 }
-function comecar() {
+function comecar(opts) {
+  estado.fimGeracao++;
+  estado.emCopa = !!(opts && opts.copa);
+  estado.enquadre = null;
+  estado.oferecerNovaCopa = false;
   Audio.iniciar();
   Musica.iniciar();   // o volume da música respeita o botão 🎵
-  if (!pista || pista.def !== PISTAS[estado.pistaChave]) construirMundo(estado.pistaChave);
+  if (!pista || pista.def !== defPista(estado.pistaChave)) construirMundo(estado.pistaChave);
   novaCorrida();
   mostrar(null); $('hud').hidden = false; $('topoBtns').hidden = false;
   $('toque').hidden = !toqueAtivo;
@@ -1100,9 +1207,37 @@ function comecar() {
   estado.ultimoNumero = 4; estado.largadaBoa = 0;
   posicionarCameraAtras(true);
 }
-$('btnCorrer').addEventListener('click', comecar);
-$('btnDeNovo').addEventListener('click', comecar);
-$('btnReiniciar').addEventListener('click', comecar);
+function comecarCopa(nova) {
+  const salva = estado.copa;
+  if (!nova && salva.ativa && salva.piloto) {
+    estado.piloto = salva.piloto;
+    estado.modo = salva.modo || estado.modo;
+  } else {
+    estado.copa.i = 0;
+    estado.copa.pontos = {};
+    for (const id of grade(estado.piloto)) estado.copa.pontos[id] = 0;
+    estado.copa.piloto = estado.piloto;
+    estado.copa.modo = estado.modo;
+    estado.copa.ativa = true;
+    estado.copa.ultimo = null;
+  }
+  estado.pistaChave = PISTAS[estado.copa.i].id;
+  gravarCopa();
+  comecar({ copa: true });
+}
+function proximaDaCopa() {
+  if (!estado.copa.ativa || estado.copa.i >= PISTAS.length) return;
+  estado.piloto = estado.copa.piloto;
+  estado.modo = estado.copa.modo;
+  estado.pistaChave = PISTAS[estado.copa.i].id;
+  comecar({ copa: true });
+}
+$('btnCopa').addEventListener('click', () => comecarCopa(false));
+$('btnCopaNova').addEventListener('click', () => comecarCopa(true));
+$('btnCorrer').addEventListener('click', () => comecar());
+$('btnDeNovo').addEventListener('click', () => { if (estado.oferecerNovaCopa) comecarCopa(true); else comecar(); });
+$('btnProxima').addEventListener('click', proximaDaCopa);
+$('btnReiniciar').addEventListener('click', () => comecar({ copa: estado.emCopa }));
 $('btnOutra').addEventListener('click', prepararMenu);
 $('btnMenu').addEventListener('click', prepararMenu);
 $('btnContinuar').addEventListener('click', () => pausar(false));
@@ -1117,33 +1252,190 @@ $('btnSom').addEventListener('click', () => { Audio.alternarSom(); atualizarBoto
 $('btnMusica').addEventListener('click', () => { Audio.alternarMusica(); atualizarBotoesSom(); });
 atualizarBotoesSom();
 
+function listaFinal() {
+  const lista = posicoes();
+  const voltas = Math.max(1, pista.def.voltas);
+  lista.forEach((k) => {
+    if (!k.terminou) k.tempoFinal = estado.tempo + ((pista.def.voltas * pista.N - k.progresso) / pista.N) * (estado.tempo / voltas);
+  });
+  return lista;
+}
+function aplicarLugarTeste(lista, lugar) {
+  const eu = estado.eu;
+  const outros = lista.filter((k) => k !== eu).sort((a, b) => a.id.localeCompare(b.id));
+  const ordem = [];
+  let j = 0;
+  const alvo = clamp(lugar, 1, lista.length);
+  for (let n = 1; n <= lista.length; n++) ordem.push(n === alvo ? eu : outros[j++]);
+  ordem.forEach((k, n) => { k.terminou = true; k.tempoFinal = 100 + n; });
+  return ordem;
+}
+function botoesFim(qual) {
+  const prox = $('btnProxima'), deNovo = $('btnDeNovo'), outra = $('btnOutra');
+  prox.hidden = qual !== 'copa';
+  deNovo.hidden = qual === 'copa';
+  deNovo.textContent = qual === 'trofeu' ? '↻ Nova Copa' : '↻ Correr de novo';
+  outra.textContent = qual === 'avulso' ? '☰ Outra pista' : '☰ Menu';
+  estado.oferecerNovaCopa = qual === 'trofeu';
+}
+function fecharPainel() {
+  $('hud').hidden = true; $('toque').hidden = true; $('topoBtns').hidden = true; $('velocidade').classList.remove('on');
+  mostrar('telaFim');
+  ($('btnProxima').hidden ? $('btnDeNovo') : $('btnProxima')).focus();
+}
+function pintarOuro(k) {
+  const antiga = k.corKart;
+  const escuro = new THREE.Color(antiga).multiplyScalar(0.7).getHex();
+  const escuroNovo = new THREE.Color(KART_OURO).multiplyScalar(0.7).getHex();
+  k.grupo.traverse((o) => {
+    if (!o.material || !o.material.color) return;
+    const hex = o.material.color.getHex();
+    if (hex === antiga) o.material.color.setHex(KART_OURO);
+    else if (hex === escuro) o.material.color.setHex(escuroNovo);
+  });
+  k.corKart = KART_OURO;
+}
+function mostrarAvulso(lista, novo) {
+  const eu = estado.eu;
+  const medalha = ['🥇', '🥈', '🥉'];
+  $('podio').innerHTML = lista.map((k, n) => `<li class="${k.euSou ? 'eu' : ''}"><span class="n">${medalha[n] || (n + 1) + 'º'}</span>${k.cfg.ic} ${k.cfg.nome}<span class="t">${fmt(k.tempoFinal)}</span></li>`).join('');
+  const p = lista.indexOf(eu) + 1;
+  $('fimTrofeu').hidden = true;
+  $('fimTitulo').textContent = p === 1 ? 'Campeão da pista!' : p <= 3 ? 'No pódio! ' + p + 'º lugar' : 'Você chegou em ' + p + 'º!';
+  $('fimRecorde').innerHTML = novo ? '<span class="recorde">★ NOVO RECORDE!</span>' : '';
+  $('fimInfo').textContent = `Você pegou ${eu.estrelas} estrelas. Melhor volta: ${fmt(estado.melhorVoltaCorrida)}.`;
+  botoesFim('avulso');
+  fecharPainel();
+}
+function mostrarCopa(lista, novo) {
+  const eu = estado.eu;
+  const lugar = lista.indexOf(eu);
+  const ganho = PONTOS_COPA[lugar] ?? 0;
+  lista.forEach((k, n) => { estado.copa.pontos[k.id] = (estado.copa.pontos[k.id] || 0) + (PONTOS_COPA[n] ?? 0); });
+  estado.copa.i += 1;
+  const tabela = [...lista].sort((a, b) => (estado.copa.pontos[b.id] - estado.copa.pontos[a.id]) || (lista.indexOf(a) - lista.indexOf(b)));
+  const posCopa = tabela.findIndex((k) => k.euSou) + 1;
+  const acabou = estado.copa.i >= PISTAS.length;
+  if (acabou) {
+    let tipo = posCopa === 1 ? 'ouro' : posCopa === 2 ? 'prata' : posCopa === 3 ? 'bronze' : 'copa';
+    if (estado.copa.modo === 'facil' && !NOME_TROFEU[tipo]) tipo = 'copa';
+    estado.copa.ultimo = tipo;
+    if (tipo === 'ouro') { const sam = estado.karts.find((k) => k.id === 'samuel'); if (sam) pintarOuro(sam); }
+    estado.copa.trofeu = !estado.copa.trofeu || RANK_TROFEU[tipo] > RANK_TROFEU[estado.copa.trofeu] ? tipo : estado.copa.trofeu;
+    estado.copa.ativa = false;
+  }
+  gravarCopa();
+  $('podio').innerHTML = tabela.map((k, n) => `<li class="${k.euSou ? 'eu' : ''}"><span class="n">${n + 1}º</span>${k.cfg.ic} ${k.cfg.nome}<span class="t">${estado.copa.pontos[k.id]} pts</span></li>`).join('');
+  $('fimRecorde').innerHTML = novo ? '<span class="recorde">★ NOVO RECORDE!</span>' : '';
+  if (acabou) {
+    const tipo = estado.copa.ultimo;
+    const [emoji, nome] = NOME_TROFEU[tipo];
+    $('fimTrofeu').hidden = false;
+    $('fimTrofeu').innerHTML = emoji + '<span class="nome">' + nome + '</span>';
+    $('fimTitulo').textContent = 'Fim da Copa!';
+    const melhor = estado.copa.trofeu === tipo ? '' : ' Seu melhor continua: ' + rotuloTrofeu(estado.copa.trofeu) + '.';
+    const ouro = tipo === 'ouro' ? ' O kart dourado do Samuel está liberado.' : '';
+    $('fimInfo').textContent = 'Você terminou em ' + posCopa + 'º na Copa.' + melhor + ouro;
+    botoesFim('trofeu');
+  } else {
+    $('fimTrofeu').hidden = true;
+    $('fimTitulo').textContent = 'Copa · corrida ' + estado.copa.i + ' de 6';
+    $('fimInfo').textContent = 'Nesta pista: ' + (lugar + 1) + 'º lugar, +' + ganho + ' pontos. Próxima: ' + PISTAS[estado.copa.i].nome + '.';
+    botoesFim('copa');
+  }
+  fecharPainel();
+}
 function terminarCorrida() {
+  if (estado.fase === 'fim') return;
   const eu = estado.eu;
   eu.terminou = true; eu.tempoFinal = estado.tempo;
   estado.fase = 'fim'; estado.fimTempo = 0;
+  estado.fimGeracao++;
+  const geracao = estado.fimGeracao;
+  const emCopa = estado.emCopa;
+  const lugarTeste = estado.lugarTeste;
+  estado.lugarTeste = 0;
   const pos = posicoes().indexOf(eu) + 1;
   Audio.fim(pos === 1);
-  mostrarAviso(pos === 1 ? '1º LUGAR!' : 'CHEGOU!', 2.5, pos !== 1);
-  // recorde
-  const chave = 'recorde:' + estado.pistaChave, rec = guardar.ler(chave, {}) || {};
+  mostrarAviso(emCopa ? 'CHEGOU!' : (pos === 1 ? '1º LUGAR!' : 'CHEGOU!'), 2.5, pos !== 1);
   let novo = false;
-  if (!rec.corrida || eu.tempoFinal < rec.corrida) { rec.corrida = eu.tempoFinal; novo = true; }
-  if (!rec.volta || estado.melhorVoltaCorrida < rec.volta) rec.volta = estado.melhorVoltaCorrida;
-  guardar.gravar(chave, rec);
+  if (!lugarTeste) {
+    const chave = 'recorde:' + estado.pistaChave, rec = guardar.ler(chave, {}) || {};
+    if (!rec.corrida || eu.tempoFinal < rec.corrida) { rec.corrida = eu.tempoFinal; novo = true; }
+    if (!rec.volta || estado.melhorVoltaCorrida < rec.volta) rec.volta = estado.melhorVoltaCorrida;
+    guardar.gravar(chave, rec);
+  }
   setTimeout(() => {
-    const lista = posicoes();
-    // quem não terminou ainda recebe um tempo estimado
-    lista.forEach((k) => { if (!k.terminou) k.tempoFinal = estado.tempo + ((pista.def.voltas * pista.N - k.progresso) / pista.N) * (estado.tempo / pista.def.voltas); });
-    lista.sort((a, b) => a.tempoFinal - b.tempoFinal);
-    const medalha = ['🥇', '🥈', '🥉'];
-    $('podio').innerHTML = lista.map((k, n) => `<li class="${k.euSou ? 'eu' : ''}"><span class="n">${medalha[n] || (n + 1) + 'º'}</span>${k.cfg.ic} ${k.cfg.nome}<span class="t">${fmt(k.tempoFinal)}</span></li>`).join('');
-    const p = lista.indexOf(eu) + 1;
-    $('fimTitulo').textContent = p === 1 ? 'Campeão da pista!' : p <= 3 ? 'No pódio! ' + p + 'º lugar' : 'Você chegou em ' + p + 'º!';
-    $('fimRecorde').innerHTML = novo ? '<span class="recorde">★ NOVO RECORDE!</span>' : '';
-    $('fimInfo').textContent = `Você pegou ${eu.estrelas} estrelas. Melhor volta: ${fmt(estado.melhorVoltaCorrida)}.`;
-    $('hud').hidden = true; $('toque').hidden = true; $('velocidade').classList.remove('on');
-    mostrar('telaFim'); $('btnDeNovo').focus();
-  }, 2600);
+    if (geracao !== estado.fimGeracao) return;
+    let lista = listaFinal();
+    if (lugarTeste) lista = aplicarLugarTeste(lista, lugarTeste);
+    else lista.sort((a, b) => a.tempoFinal - b.tempoFinal);
+    if (emCopa) mostrarCopa(lista, novo);
+    else mostrarAvulso(lista, novo);
+  }, lugarTeste ? 40 : 2600);
+}
+function pularCorrida(lugar = 1) {
+  if (estado.fase !== 'corrida' && estado.fase !== 'contagem') return false;
+  estado.lugarTeste = clamp(lugar | 0, 1, Math.max(1, estado.karts.length));
+  if (estado.fase === 'contagem') estado.fase = 'corrida';
+  if (!(estado.tempo > 0)) estado.tempo = 0.01;
+  terminarCorrida();
+  return true;
+}
+function segmentosCruzam(ax, az, bx, bz, cx, cz, dx, dz) {
+  const d1x = bx - ax, d1z = bz - az, d2x = dx - cx, d2z = dz - cz;
+  const den = d1x * d2z - d1z * d2x;
+  if (Math.abs(den) < 1e-8) return false;
+  const t = ((cx - ax) * d2z - (cz - az) * d2x) / den;
+  const u = ((cx - ax) * d1z - (cz - az) * d1x) / den;
+  const folga = 0.02;
+  return t > folga && t < 1 - folga && u > folga && u < 1 - folga;
+}
+function auditar(alvo) {
+  const p = alvo || pista;
+  const { P, N, W, turbos, estrelas, comprimento, def } = p;
+  const problemas = [];
+  const passo = comprimento / N;
+  const fecha = Math.hypot(P[0].x - P[N - 1].x, P[0].z - P[N - 1].z);
+  if (fecha > passo * 2.5) problemas.push({ tipo: 'aberta', fecha, passo });
+  let cruzamentos = 0;
+  for (let i = 0; i < N; i++) {
+    const a = P[i], b = P[(i + 1) % N];
+    for (let j = i + 1; j < N; j++) {
+      const distIdx = Math.min(Math.abs(i - j), N - Math.abs(i - j));
+      if (distIdx < 12) continue;
+      const c = P[j], d = P[(j + 1) % N];
+      if (segmentosCruzam(a.x, a.z, b.x, b.z, c.x, c.z, d.x, d.z)) {
+        cruzamentos++;
+        if (problemas.length < 6) problemas.push({ tipo: 'cruza', i, j });
+      }
+    }
+  }
+  for (const tb of turbos) {
+    if (Math.abs(tb.lat) + 2.5 > W / 2 + 0.05) problemas.push({ tipo: 'placa', lat: tb.lat });
+  }
+  for (const s of estrelas) {
+    if (Math.abs(s.lat) + 1.2 > W / 2 + 0.05) problemas.push({ tipo: 'estrela', lat: s.lat });
+  }
+  return { id: def.id, nome: def.nome, ok: problemas.length === 0, fecha, passo, placas: turbos.length, estrelas: estrelas.length, problemas };
+}
+function auditarTodas() {
+  const atual = estado.pistaChave;
+  const rel = PISTAS.map((p) => { construirMundo(p.id); return auditar(); });
+  construirMundo(atual);
+  novaCorrida();
+  return rel;
+}
+function enquadrar(modo) {
+  estado.enquadre = modo || null;
+  if (!modo) return;
+  estado.fase = 'menu';
+  $('telaInicio').hidden = true; $('telaPausa').hidden = true; $('telaFim').hidden = true;
+  $('hud').hidden = true; $('toque').hidden = true; $('topoBtns').hidden = true;
+}
+function fpsMedio() {
+  const t = estado.eu && estado.eu.tempoFinal > 0 && estado.fase !== 'corrida' && estado.fase !== 'contagem' ? estado.eu.tempoFinal : estado.tempo;
+  return t > 0 ? estado.quadrosCorrida / t : 0;
 }
 
 /* ---------------- Câmera ---------------- */
@@ -1158,6 +1450,36 @@ function posicionarCameraAtras(imediato) {
 }
 function atualizarCamera(dt) {
   if (estado.fase === 'menu') {
+    if (estado.enquadre === 'pista' && pista) {
+      const { P } = pista;
+      let minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity, maxY = 0;
+      for (const pt of P) {
+        minX = Math.min(minX, pt.x); maxX = Math.max(maxX, pt.x);
+        minZ = Math.min(minZ, pt.z); maxZ = Math.max(maxZ, pt.z);
+        maxY = Math.max(maxY, pt.y);
+      }
+      if (scene.fog && !estado._nevoa) estado._nevoa = scene.fog;
+      if (estado._nevoa) scene.fog = new THREE.Fog(estado._nevoa.color, 900, 4000);
+      const cx = (minX + maxX) / 2, cz = (minZ + maxZ) / 2;
+      const fov = 48, margem = 1.22;
+      const meio = Math.tan((fov * Math.PI / 180) / 2);
+      const largura = Math.max(40, (maxX - minX) * margem);
+      const fundo = Math.max(40, (maxZ - minZ) * margem);
+      const dist = Math.max((fundo / 2) / meio, (largura / 2) / (meio * Math.max(0.35, camera.aspect)));
+      camera.position.set(cx, maxY + dist, cz);
+      camera.lookAt(cx, 0, cz);
+      camera.fov = fov; camera.updateProjectionMatrix();
+      return;
+    }
+    if (estado._nevoa) { scene.fog = estado._nevoa; estado._nevoa = null; }
+    if (estado.enquadre === 'piloto' && estado.eu) {
+      const k = estado.eu;
+      const fx = Math.sin(k.rumo), fz = Math.cos(k.rumo);
+      camera.position.set(k.pos.x + fx * 8, k.y + 2.8, k.pos.z + fz * 8);
+      camera.lookAt(k.pos.x, k.y + 1.35, k.pos.z);
+      camera.fov = 30; camera.updateProjectionMatrix();
+      return;
+    }
     estado.camOrbita += dt * 0.12;
     const p = pista.P[0];
     camera.position.set(p.x + Math.cos(estado.camOrbita) * 42, p.y + 16, p.z + Math.sin(estado.camOrbita) * 42);
@@ -1250,6 +1572,7 @@ function quadro() {
     Audio.motorAtualiza(c.gas ? 25 : 0, 0, true);
     desenharMinimapa();
   } else if (estado.fase === 'corrida' || estado.fase === 'fim') {
+    if (estado.fase === 'corrida') estado.quadrosCorrida++;
     estado.tempo += dt;
     for (const k of estado.karts) {
       let ctrl;
@@ -1281,7 +1604,14 @@ function quadro() {
 
 prepararMenu();
 quadro();
-window.__turbo = { estado, pista: () => pista, PISTAS };   // usado só nos testes automáticos
+window.__turbo = {
+  estado, pista: () => pista, PISTAS,
+  get copa() { return estado.copa; },
+  pularCorrida, auditar, auditarTodas, enquadrar, fps: fpsMedio,
+  construir(id) { construirMundo(id); novaCorrida(); },
+  menu() { prepararMenu(); },
+  ROUPA_SAMUEL, BLUSA_SAMUEL, KART_OURO,
+};   // usado só nos testes automáticos
 </script>
 </body>
 </html>
